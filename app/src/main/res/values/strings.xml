@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">MotoProject</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="menu_navi_tittle_maps">Мапа</string>
+    <string name="menu_navi_tittle_friends">Друзі</string>
+    <string name="menu_navi_tittle_chat">Чат</string>
+    <string name="menu_navi_tittle_events">Події</string>
+    <string name="menu_navi_tittle_info">Інформація</string>
+</resources>
