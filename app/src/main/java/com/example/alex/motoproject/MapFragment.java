@@ -2,6 +2,7 @@ package com.example.alex.motoproject;
 
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -33,6 +34,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        getActivity().startService(new Intent(getActivity(), LocationListenerService.class));
         super.onCreate(savedInstanceState);
     }
 
@@ -56,7 +58,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap map) {
         //TODO: check if this line of code is needed at all
         mMap = map;
-        
+
         LatLng sydney = new LatLng(-33.867, 151.206);
 
         //TODO: fix the error
