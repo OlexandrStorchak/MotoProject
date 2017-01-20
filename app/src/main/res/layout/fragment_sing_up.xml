@@ -1,0 +1,55 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.alex.motoproject.fragments.SingUpFragment">
+
+
+   <TextView
+       android:layout_width="200dp"
+       android:layout_height="50dp"
+       android:layout_gravity="center"
+       android:id="@+id/sing_up_title"
+       />
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:background="@color/colorPrimary"
+        android:id="@+id/sing_up_email"
+        android:hint="@string/hint_e_mail"
+        android:textAlignment="center"
+        android:inputType="textEmailAddress" />
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:background="@color/colorPrimary"
+        android:id="@+id/sing_up_pass"
+        android:hint="@string/hint_pass"
+        android:textAlignment="center"
+        android:inputType="textPassword" />
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:background="@color/colorPrimary"
+        android:id="@+id/sing_up_repeat_pass"
+        android:hint="@string/hint_repeat_pass"
+        android:textAlignment="center"
+        android:inputType="textPassword" />
+    <Button
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:id="@+id/sing_up_btn_ok"
+
+        />
+
+
+</LinearLayout>

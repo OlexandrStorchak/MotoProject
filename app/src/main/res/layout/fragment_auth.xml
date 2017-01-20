@@ -1,0 +1,58 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorTest"
+    tools:context="com.example.alex.motoproject.fragments.AuthFragment">
+
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:id="@+id/auth_title"
+        tools:text="LOGIN"
+        android:layout_gravity="center_horizontal"
+        android:textAlignment="center"
+        android:gravity="center"
+
+        />
+
+    <EditText
+        android:layout_width="140dp"
+        android:layout_height="48dp"
+        android:hint="@string/hint_e_mail"
+        android:layout_marginTop="20dp"
+        android:id="@+id/auth_email"
+        android:textAlignment="center"
+        android:background="@color/colorPrimary"
+        android:layout_gravity="center_horizontal"
+        android:inputType="textEmailAddress" />
+    <EditText
+        android:layout_width="140dp"
+        android:layout_height="48dp"
+        android:hint="@string/hint_pass"
+        android:inputType="textPassword"
+        android:textAlignment="center"
+        android:id="@+id/auth_pass"
+        android:background="@color/colorPrimary"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:layout_width="140dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="20dp"
+        android:id="@+id/auth_btn_ok"
+       android:layout_gravity="center_horizontal"/>
+    <Button
+        android:layout_width="140dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="20dp"
+        android:id="@+id/auth_btn_sing_in"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/btn_sing_in"
+        />
+
+
+
+</LinearLayout>

@@ -10,4 +10,12 @@
     <string name="menu_navi_tittle_chat">Чат</string>
     <string name="menu_navi_tittle_events">Події</string>
     <string name="menu_navi_tittle_info">Інформація</string>
+
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="auth_sing_out">SingOut</string>
+    <string name="hint_e_mail">e-mail</string>
+    <string name="hint_pass">pass</string>
+    <string name="hint_repeat_pass">repeat pass</string>
+    <string name="btn_sing_in">sing up</string>
 </resources>

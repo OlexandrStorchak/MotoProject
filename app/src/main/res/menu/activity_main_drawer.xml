@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="single"
+        android:id="@+id/nav_group_main"
+        >
         <item
             android:id="@+id/nav_maps"
             android:icon="@drawable/ic_map_black_48dp"
@@ -22,6 +24,10 @@
             android:id="@+id/nav_info"
             android:icon="@drawable/ic_live_help_black_48dp"
             android:title="@string/menu_navi_tittle_info" />
+        <item
+            android:id="@+id/nav_sing_out"
+
+            android:title="@string/auth_sing_out" />
     </group>
 
 
