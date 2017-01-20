@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity
         FragmentManager mFragmentManager = getSupportFragmentManager();
         FragmentTransaction mFragmentTransaction = mFragmentManager.beginTransaction();
         int id = item.getItemId();
-        switch (id){
+        switch (id) {
             case R.id.nav_maps:
                 MapFragment mMapFragment = new MapFragment();
                 mFragmentTransaction.replace(R.id.container, mMapFragment);
