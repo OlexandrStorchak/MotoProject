@@ -19,4 +19,5 @@
     <string name="hint_repeat_pass">repeat pass</string>
     <string name="btn_sing_in">sing up</string>
     <string name="sing_up">Sing Up</string>
+    <string name="google">google</string>
 </resources>

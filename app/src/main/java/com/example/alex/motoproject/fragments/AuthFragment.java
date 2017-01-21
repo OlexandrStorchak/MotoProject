@@ -21,6 +21,7 @@ public class AuthFragment extends Fragment {
         TextView title;
         Button submit;
         Button singin;
+        Button singinGoogle;
 
     private static final String TAG = "log";
 
@@ -44,13 +45,13 @@ public class AuthFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-       // ((MainActivity)getActivity()).addNewUserToFireBase("new15@ukr.net","123456");
 
         Log.d(TAG, "onViewCreated: test");
         email = (EditText)view.findViewById(R.id.auth_email);
         pass = (EditText)view.findViewById(R.id.auth_pass);
         title = (TextView)view.findViewById(R.id.auth_title);
         submit = (Button)view.findViewById(R.id.auth_btn_ok);
+
 
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,6 +73,14 @@ public class AuthFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 ((MainActivity)getActivity()).replaceFragment("fragmentSingUp");
+            }
+        });
+
+        singinGoogle = (Button)view.findViewById(R.id.auth_btn_google_sing_in);
+        singinGoogle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainActivity)getActivity()).signInGoogle();
             }
         });
     }
