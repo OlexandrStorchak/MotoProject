@@ -32,7 +32,6 @@ public class AuthFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: Fragment AUTH");
     }
 
     @Override
@@ -58,9 +57,9 @@ public class AuthFragment extends Fragment {
             public void onClick(View view) {
 
                 if (email.getText().length()==0){
-                    Log.d(TAG, "onClick: email is empty");
+                    ((MainActivity)getActivity()).showToast("Email is empty");
                 } else if (pass.getText().length()==0){
-                    Log.d(TAG, "onClick: pass is empty");
+                    ((MainActivity)getActivity()).showToast("Password is empty");
                 } else
                 ((MainActivity)getActivity()).singInUserToFireBase(
                         email.getText().toString(),pass.getText().toString());
@@ -80,7 +79,6 @@ public class AuthFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        Log.d(TAG, "onAttach: AuthFragment");
 
     }
 

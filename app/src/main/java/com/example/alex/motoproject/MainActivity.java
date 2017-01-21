@@ -71,11 +71,15 @@ public class MainActivity extends AppCompatActivity
                         navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
 
                         replaceFragment(FRAGMENT_WELCOME);
-                        Log.d(TAG, "onAuthStateChanged:signed_in:" + firebaseAuthCurrentUser.getUid());
+                        Log.d(TAG, "onAuthStateChanged:signed_in:" +
+                                firebaseAuthCurrentUser.getUid());
+                        showToast("LogIn");
+                    } else {
+                        showToast("Activate your account by e-mail");
                     }
                 } else {
                     navigationView.getMenu().setGroupVisible(R.id.nav_group_main, false);
-                    showToast("Activate you account!");
+                    showToast("LogOut");
                     // User is signed out
                     replaceFragment(FRAGMENT_AUTH);
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -184,8 +188,7 @@ public class MainActivity extends AppCompatActivity
 
                         if (!task.isSuccessful()) {
                             Log.d(TAG, "onComplete: ");
-                            Toast.makeText(getApplicationContext(), "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            showToast("Authentication failed");
                         }
 
                         // ...
@@ -205,8 +208,7 @@ public class MainActivity extends AppCompatActivity
                         // signed in firebaseUser can be handled in the listener.
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithEmail", task.getException());
-                            Toast.makeText(getApplicationContext(), "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            showToast("no such account found");
                         }
 
                         // ...

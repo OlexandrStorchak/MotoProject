@@ -35,5 +35,6 @@ public class WelcomeFragment extends Fragment {
         welcomeTitle= (TextView)view.findViewById(R.id.welcome_title);
 
 
+
     }
 }
