@@ -13,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -30,13 +31,13 @@ public class LocationListenerService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
-
+//TODO: do something if there`s no Interned or GPS connection
+    //TODO: make button start and stop the service
     private static final String LOG_TAG = "LocationListenerService";
 
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation;
     String mLastUpdateTime;
-    boolean mRequestingLocationUpdates = true;
     String mRequestFrequency = "default";
 
     public LocationListenerService() {
@@ -65,10 +66,11 @@ public class LocationListenerService extends Service implements
     public void onDestroy() {
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
+        Log.d(LOG_TAG, "onDestroy");
         super.onDestroy();
     }
 
-    //The service is not designed for binding so I restricted it from binding
+    //The service is not designed for binding
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -76,6 +78,7 @@ public class LocationListenerService extends Service implements
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        //stop service if that was the purpose of intent
         if (intent.getExtras() != null &&
                 intent.getExtras().getBoolean("isShouldStopService")) {
             Log.d(LOG_TAG, "onStartCommand with action stop service");
@@ -86,10 +89,7 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        //TODO: delete this line on push
-        if (mRequestingLocationUpdates) {
             startLocationUpdates();
-        }
     }
 
     @Override
@@ -109,6 +109,7 @@ public class LocationListenerService extends Service implements
 
     }
 
+    //different variants of LocationRequest that might be changed via settings
     protected LocationRequest createLocationRequest() {
         LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -120,10 +121,12 @@ public class LocationListenerService extends Service implements
             case "default":
                 mLocationRequest.setInterval(20000); //20 secs
                 mLocationRequest.setFastestInterval(10000); //10 secs
+                mLocationRequest.setSmallestDisplacement(10f); //10 m
                 break;
             case "lowFrequency":
                 mLocationRequest.setInterval(30000); //30 secs
                 mLocationRequest.setFastestInterval(20000); //20 secs
+                mLocationRequest.setSmallestDisplacement(50f); //50 m
                 break;
         }
         return mLocationRequest;
@@ -141,6 +144,10 @@ public class LocationListenerService extends Service implements
         Log.d(LOG_TAG, "Lat " + mCurrentLocation.getLatitude() +
                 " Lon " + mCurrentLocation.getLongitude() +
                 " Time " + mLastUpdateTime);
+        //TODO: delete this, only for testing purposes
+        Toast.makeText(this, "Lat " + mCurrentLocation.getLatitude() +
+                " Lon " + mCurrentLocation.getLongitude() +
+                " Time " + mLastUpdateTime, Toast.LENGTH_LONG).show();
     }
 
     protected void stopLocationUpdates() {
@@ -156,13 +163,13 @@ public class LocationListenerService extends Service implements
     private void createNotification() {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_map_black_48dp)
+                        .setSmallIcon(R.mipmap.ic_launcher)
                         .setContentTitle("My notification")
                         .setContentText("Hello World!")
                         .setShowWhen(false);
 
-        //TODO: open MapFragment
         //create pending intent used when tapping on the app notification
+        //open up MapFragment
         Intent resultIntent = new Intent(this, MainActivity.class);
         resultIntent.putExtra("isShouldLaunchMapFragment", true);
         PendingIntent resultPendingIntent =
@@ -174,8 +181,9 @@ public class LocationListenerService extends Service implements
                 );
         mBuilder.setContentIntent(resultPendingIntent);
 
+        //create pending intent user when tapping on big notification`s button
+        //finish this service
         Intent stopSelfIntent = new Intent(this, LocationListenerService.class);
-//        stopSelfIntent.setAction(ACTION_STOP_SERVICE);
         stopSelfIntent.putExtra("isShouldStopService", true);
         PendingIntent StopSelfPendingIntent =
                 PendingIntent.getService(
@@ -185,9 +193,9 @@ public class LocationListenerService extends Service implements
                         PendingIntent.FLAG_CANCEL_CURRENT);
         mBuilder.addAction(R.drawable.ic_menu_gallery, "Астанавітєсь", StopSelfPendingIntent);
 
-        // Sets an ID for the notification
+        // set an ID for the notification
         int mNotificationId = 1;
-// send notification
+        // send notification
         startForeground(mNotificationId, mBuilder.build());
     }
 }

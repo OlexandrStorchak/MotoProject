@@ -5,6 +5,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -20,7 +21,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import static com.example.alex.motoproject.R.id.map;
 
@@ -28,7 +28,7 @@ import static com.example.alex.motoproject.R.id.map;
 /**
  * The fragment that contains a map from Google Play Services.
  */
-//TODO: improve performance
+
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
@@ -65,6 +65,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         buttonStartDriving.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                getActivity().stopService(new Intent(getActivity(), LocationListenerService.class));
+
                 handleLocation();
             }
         });
@@ -73,24 +75,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap map) {
-        //TODO: check if this line of code is needed at all
+        //make map accessible from other methods
         mMap = map;
 
-        LatLng sydney = new LatLng(-33.867, 151.206);
+        LatLng cherkasy = new LatLng(49.443, 32.0727);
 
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 13));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(cherkasy, 11));
 
-        map.addMarker(new MarkerOptions()
-                .title("Sydney")
-                .snippet("The most populous city in Australia.")
-                .position(sydney));
+//        map.addMarker(new MarkerOptions()
+//                .title("Sydney")
+//                .snippet("The most populous city in Australia.")
+//                .position(sydney));
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_LOCATION_REQUEST_CODE) {
-            // Check the request wasn`t cancelled
+            // Check the request was not cancelled
             if (grantResults.length > 0 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // permission was granted
@@ -120,7 +123,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             View view = getView();
             if (view != null) {
                 Snackbar.make(getView(),
-                        "Без цього ми не зможемо показувати вас на карті!",
+                        R.string.location_rationale,
                         Snackbar.LENGTH_SHORT).show();
             }
 
