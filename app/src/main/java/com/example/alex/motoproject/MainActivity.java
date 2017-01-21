@@ -17,7 +17,8 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final String TAG = "log";
+    private static final String TAG = MainActivity.class.getSimpleName();
+    FragmentManager mFragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,9 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //init FragmentManager
+        mFragmentManager = getSupportFragmentManager();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -35,6 +39,12 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //start MapFragment if an intent has that command
+        if (getIntent().getExtras() != null &&
+                getIntent().getExtras().getBoolean("isShouldLaunchMapFragment")) {
+            launchMapFragment();
+        }
         Log.d(TAG, "onCreate: Main activity ");
     }
 
@@ -68,14 +78,10 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        FragmentManager mFragmentManager = getSupportFragmentManager();
-        FragmentTransaction mFragmentTransaction = mFragmentManager.beginTransaction();
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_maps:
-                MapFragment mMapFragment = new MapFragment();
-                mFragmentTransaction.replace(R.id.container, mMapFragment);
-                mFragmentTransaction.commit();
+                launchMapFragment();
                 break;
             case R.id.nav_friends:
                 //TODO fragment friends list
@@ -120,5 +126,12 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: ");
+    }
+
+    private void launchMapFragment() {
+        FragmentTransaction mFragmentTransaction = mFragmentManager.beginTransaction();
+        MapFragment mMapFragment = new MapFragment();
+        mFragmentTransaction.replace(R.id.container, mMapFragment);
+        mFragmentTransaction.commit();
     }
 }

@@ -28,6 +28,7 @@ import static com.example.alex.motoproject.R.id.map;
 /**
  * The fragment that contains a map from Google Play Services.
  */
+//TODO: improve performance
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
@@ -52,10 +53,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        //lines for custom fragment support
         MapView mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume();
-        mMapView.getMapAsync(this);//when you already implement OnMapReadyCallback in your fragment
+
+
+        mMapView.getMapAsync(this);
 
         Button buttonStartDriving = (Button) view.findViewById(R.id.button_drive_start);
         buttonStartDriving.setOnClickListener(new View.OnClickListener() {
@@ -73,12 +77,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMap = map;
 
         LatLng sydney = new LatLng(-33.867, 151.206);
-
-        //TODO: fix the error (fixed?)
-//        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-//                == PackageManager.PERMISSION_GRANTED) {
-//            map.setMyLocationEnabled(true);
-//        }
 
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 13));
 
@@ -102,23 +100,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    //handle location runtime permission and setup listener service
     private void handleLocation() {
+        //the app is allowed to get location, setup service
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             getActivity().startService(new Intent(getActivity(), LocationListenerService.class));
             mMap.setMyLocationEnabled(true);
+
+            //the app is not allowed to get location, show permission prompt and rationale
         } else if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION)) {
             requestPermissions(
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_LOCATION_REQUEST_CODE);
+
+            //show rationale
             View view = getView();
             if (view != null) {
                 Snackbar.make(getView(),
                         "Без цього ми не зможемо показувати вас на карті!",
                         Snackbar.LENGTH_SHORT).show();
             }
+
+            //no need for rationale, just show the prompt
         } else {
             requestPermissions(
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
