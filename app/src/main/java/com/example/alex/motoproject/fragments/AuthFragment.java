@@ -110,7 +110,7 @@ public class AuthFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-
+        mFireBaseAuth=null;
     }
 
 
