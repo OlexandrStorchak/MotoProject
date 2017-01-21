@@ -38,7 +38,6 @@ public class MainActivity extends AppCompatActivity
     private FirebaseAuth.AuthStateListener fireBaseAuthStateListener;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,14 +65,16 @@ public class MainActivity extends AppCompatActivity
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseAuthCurrentUser = firebaseAuth.getCurrentUser();
 
-                if (firebaseAuthCurrentUser != null & firebaseAuthCurrentUser.isEmailVerified()) {
-                    // User is signed in
-                    navigationView.getMenu().setGroupVisible(R.id.nav_group_main,true);
+                if (firebaseAuthCurrentUser != null) {
+                    if (firebaseAuthCurrentUser.isEmailVerified()) {
+                        // User is signed in
+                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
 
-                    replaceFragment(FRAGMENT_WELCOME);
-                    Log.d(TAG, "onAuthStateChanged:signed_in:" + firebaseAuthCurrentUser.getUid());
+                        replaceFragment(FRAGMENT_WELCOME);
+                        Log.d(TAG, "onAuthStateChanged:signed_in:" + firebaseAuthCurrentUser.getUid());
+                    }
                 } else {
-                    navigationView.getMenu().setGroupVisible(R.id.nav_group_main,false);
+                    navigationView.getMenu().setGroupVisible(R.id.nav_group_main, false);
                     showToast("Activate you account!");
                     // User is signed out
                     replaceFragment(FRAGMENT_AUTH);
@@ -164,7 +165,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
     //Method for add new firebaseAuthCurrentUser into FireBase Auth, SingUp
     public void addNewUserToFireBase(String email, String password) {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -176,7 +176,11 @@ public class MainActivity extends AppCompatActivity
                         // If sign in fails, display a message to the firebaseUser. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
                         // signed in firebaseUser can be handled in the listener.
-                        firebaseAuth.getCurrentUser().sendEmailVerification();
+                        if (firebaseAuth.getCurrentUser() != null) {
+                            firebaseAuth.getCurrentUser().sendEmailVerification();
+                        } else {
+                            Log.d(TAG, "onComplete: addNewFirebase User: curent user is null");
+                        }
 
                         if (!task.isSuccessful()) {
                             Log.d(TAG, "onComplete: ");
@@ -252,7 +256,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void showToast(String text){
+    public void showToast(String text) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 
