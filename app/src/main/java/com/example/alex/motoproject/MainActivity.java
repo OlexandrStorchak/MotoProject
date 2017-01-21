@@ -1,6 +1,5 @@
 package com.example.alex.motoproject;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -17,19 +16,8 @@ import android.widget.Toast;
 import com.example.alex.motoproject.fragments.AuthFragment;
 import com.example.alex.motoproject.fragments.SingUpFragment;
 import com.example.alex.motoproject.fragments.WelcomeFragment;
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -38,16 +26,13 @@ public class MainActivity extends AppCompatActivity
     private static final String FRAGMENT_SING_UP = "fragmentSingUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
     private static final String FRAGMENT_WELCOME = "fragmentWelcome";
-    private static final int GOOGLE_SING_IN = 13;
-
 
     android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
 
     //FireBase vars :
-    private FirebaseAuth firebaseAuth;
-    private FirebaseAuth.AuthStateListener fireBaseAuthStateListener;
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mFirebaseAuthStateListener;
 
-    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +40,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         //Firebase auth instance
-        firebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseAuth = FirebaseAuth.getInstance();
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -70,8 +55,10 @@ public class MainActivity extends AppCompatActivity
 
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
         //FireBase auth listener
-        fireBaseAuthStateListener = new FirebaseAuth.AuthStateListener() {
+        mFirebaseAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseAuthCurrentUser = firebaseAuth.getCurrentUser();
@@ -152,7 +139,7 @@ public class MainActivity extends AppCompatActivity
                 //TODO fragment info of stores, repairs and helpers
                 break;
             case R.id.nav_sing_out:
-                firebaseAuth.signOut();
+                mFirebaseAuth.signOut();
                 break;
 
         }
@@ -167,7 +154,7 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         // Attach the listener of Firebase Auth
-        firebaseAuth.addAuthStateListener(fireBaseAuthStateListener);
+        mFirebaseAuth.addAuthStateListener(mFirebaseAuthStateListener);
 
     }
 
@@ -175,138 +162,10 @@ public class MainActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "onStop: ");
-        if (fireBaseAuthStateListener != null) {
-            firebaseAuth.removeAuthStateListener(fireBaseAuthStateListener);
+        if (mFirebaseAuthStateListener != null) {
+            mFirebaseAuth.removeAuthStateListener(mFirebaseAuthStateListener);
         }
     }
-
-
-    //Method for add new firebaseAuthCurrentUser into FireBase Auth, SingUp
-    public void addNewUserToFireBase(String email, String password) {
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
-
-                        // If sign in fails, display a message to the firebaseUser. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in firebaseUser can be handled in the listener.
-                        if (firebaseAuth.getCurrentUser() != null) {
-                            firebaseAuth.getCurrentUser().sendEmailVerification();
-                        } else {
-                            Log.d(TAG, "onComplete: addNewFirebase User: curent user is null");
-                        }
-
-                        if (!task.isSuccessful()) {
-                            Log.d(TAG, "onComplete: ");
-                            showToast("Authentication failed");
-                        }
-
-                        // ...
-                    }
-                });
-    }
-
-    //Sing in firebaseAuthCurrentUser into FireBase Auth
-    public void singInUserToFireBase(String email, String password) {
-        firebaseAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
-                        // If sign in fails, display a message to the firebaseUser. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in firebaseUser can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithEmail", task.getException());
-                            showToast("no such account found");
-                        }
-
-                        // ...
-                    }
-                });
-    }
-    //Sing in with Google
-    public void signInGoogle() {
-
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, new GoogleApiClient.OnConnectionFailedListener() {
-                    @Override
-                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-                    }
-                } /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
-
-
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(signInIntent, GOOGLE_SING_IN);
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == GOOGLE_SING_IN) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            if (result.isSuccess()) {
-                // Google Sign In was successful, authenticate with Firebase
-                GoogleSignInAccount account = result.getSignInAccount();
-                firebaseAuthWithGoogle(account);
-            } else {
-                // Google Sign In failed, update UI appropriately
-                // [START_EXCLUDE]
-                // [END_EXCLUDE]
-            }
-        }
-    }
-
-    private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
-        Log.d(TAG, "firebaseAuthWithGoogle:" );
-
-
-        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        firebaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
-
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithCredential", task.getException());
-
-                        }
-
-                    }
-                });
-    }
-//get curent firebaseAuthCurrentUser information from FireBase Auth
-//    public void getCurentFireBaseUser() {
-//        firebaseAuthCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
-//        if (firebaseAuthCurrentUser != null) {
-//            // Name, email address, and profile photo Url
-//            String name = firebaseAuthCurrentUser.getDisplayName();
-//            String email = firebaseAuthCurrentUser.getEmail();
-//            Uri photoUrl = firebaseAuthCurrentUser.getPhotoUrl();
-//
-//            // The firebaseUser's ID, unique to the Firebase project. Do NOT use this value to
-//            // authenticate with your backend server, if you have one. Use
-//            // FirebaseUser.getToken() instead.
-//            String uid = firebaseAuthCurrentUser.getUid();
-//        }
-//    }
 
     // manage fragments
     public void replaceFragment(String fragmentName) {

@@ -14,7 +14,7 @@ import com.example.alex.motoproject.R;
 
 public class WelcomeFragment extends Fragment {
 
-    TextView welcomeTitle;
+    TextView mTitle;
 
     public WelcomeFragment() {
         // Required empty public constructor
@@ -32,7 +32,7 @@ public class WelcomeFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        welcomeTitle= (TextView)view.findViewById(R.id.welcome_title);
+        mTitle = (TextView)view.findViewById(R.id.welcome_title);
 
 
 
