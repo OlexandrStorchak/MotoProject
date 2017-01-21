@@ -34,7 +34,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 public class AuthFragment extends Fragment {
     private static final int GOOGLE_SING_IN = 13;
     private EditText mEmail, mPassword;
-    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth mFireBaseAuth;
 
 
     private static final String TAG = "log";
@@ -47,7 +47,7 @@ public class AuthFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFireBaseAuth = FirebaseAuth.getInstance();
     }
 
     @Override
@@ -116,7 +116,7 @@ public class AuthFragment extends Fragment {
 
     //Sing in firebaseAuthCurrentUser into FireBase Auth
     public void singInUserToFireBase(String email, String password) {
-        mFirebaseAuth.signInWithEmailAndPassword(email, password)
+        mFireBaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(((MainActivity) getContext()), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -165,7 +165,7 @@ public class AuthFragment extends Fragment {
 
 
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        mFirebaseAuth.signInWithCredential(credential)
+        mFireBaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(((MainActivity) getContext()), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
