@@ -74,6 +74,7 @@ public class SingUpFragment extends Fragment {
                 } else if (pass.getText().toString().equals(repeatPass.getText().toString()) & email.length() > 0) {
 
                     ((MainActivity) getActivity()).addNewUserToFireBase(mEmail, mPass);
+                    ((MainActivity) getActivity()).replaceFragment("fragmentAuth");
                 }
             }
         });
