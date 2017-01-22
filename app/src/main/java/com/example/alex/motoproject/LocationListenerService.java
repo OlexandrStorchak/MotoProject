@@ -31,7 +31,7 @@ public class LocationListenerService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
-//TODO: do something if there`s no Interned or GPS connection
+//TODO: do something if there`s no Internet or GPS connection
     //TODO: make button start and stop the service
     private static final String LOG_TAG = "LocationListenerService";
 
@@ -89,7 +89,8 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-            startLocationUpdates();
+        startLocationUpdates();
+
     }
 
     @Override

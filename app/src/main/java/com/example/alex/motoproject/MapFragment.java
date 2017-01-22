@@ -2,15 +2,19 @@ package com.example.alex.motoproject;
 
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +26,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
+import static android.content.Context.LOCATION_SERVICE;
 import static com.example.alex.motoproject.R.id.map;
 
 
@@ -30,8 +35,9 @@ import static com.example.alex.motoproject.R.id.map;
  */
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
-
+    //TODO: fix fps
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
+    public static final int REQUEST_PERMISSION_SETTING = 20;
 
     private GoogleMap mMap;
 
@@ -65,11 +71,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         buttonStartDriving.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                getActivity().stopService(new Intent(getActivity(), LocationListenerService.class));
-
                 handleLocation();
+
+                //TODO: check if there is a GPS connection
+                LocationManager locationManager =
+                        (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+//                    showAlert("gps");
+                }
             }
         });
+
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -98,41 +110,133 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // permission was granted
                 handleLocation();
+            } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                        Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    //user checked never ask again
+                    showAlert("onNeverAskAgain");
 
+                } else {
+                    //user did not check never ask again, show rationale
+                    showAlert("rationale");
+                }
             }
         }
     }
 
     //handle location runtime permission and setup listener service
     private void handleLocation() {
-        //the app is allowed to get location, setup service
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
+            //the app is allowed to get location, setup service
             getActivity().startService(new Intent(getActivity(), LocationListenerService.class));
             mMap.setMyLocationEnabled(true);
-
-            //the app is not allowed to get location, show permission prompt and rationale
-        } else if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION)) {
-            requestPermissions(
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSION_LOCATION_REQUEST_CODE);
-
-            //show rationale
-            View view = getView();
-            if (view != null) {
-                Snackbar.make(getView(),
-                        R.string.location_rationale,
-                        Snackbar.LENGTH_SHORT).show();
-            }
-
-            //no need for rationale, just show the prompt
         } else {
+            //show the permission prompt
             requestPermissions(
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_LOCATION_REQUEST_CODE);
         }
+
+//        else if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+//                Manifest.permission.ACCESS_FINE_LOCATION)) {
+////            requestPermissions(
+////                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+////                    PERMISSION_LOCATION_REQUEST_CODE);
+//
+//            //TODO: change this
+//            //show rationale
+////            View view = getView();
+////            if (view != null) {
+////                Snackbar.make(getView(),
+////                        R.string.location_rationale,
+////                        Snackbar.LENGTH_SHORT).show();
+////            }
+//            showAlert("rationale");
+//
+//        }
+    }
+
+    private void showAlert(String purpose) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+        switch (purpose) {
+            case "gps":
+                alertDialogBuilder.setMessage("GPS вимкнено. Не хотіли б ви ввімкнути його?")
+                        .setPositiveButton("В налаштування",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        Intent callGPSSettingIntent = new Intent(
+                                                android.provider.Settings
+                                                        .ACTION_LOCATION_SOURCE_SETTINGS);
+                                        startActivity(callGPSSettingIntent);
+                                    }
+                                });
+                break;
+//                alertDialogBuilder.setNegativeButton("Відмінити",
+//                        new DialogInterface.OnClickListener(){
+//                            public void onClick(DialogInterface dialog, int id){
+//                                dialog.cancel();
+//                            }
+//                        });
+            case "internet":
+                alertDialogBuilder.setMessage("Інтернет вимкнено. Не хотіли б ви ввімкнути його?")
+                        .setPositiveButton("В налаштування",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        Intent callWirelessSettingIntent = new Intent(
+                                                Settings
+                                                        .ACTION_WIRELESS_SETTINGS);
+                                        startActivity(callWirelessSettingIntent);
+                                    }
+                                });
+                break;
+            case "rationale":
+                alertDialogBuilder.setMessage(R.string.location_rationale)
+                        .setCancelable(false)
+                        .setPositiveButton("Дозволити",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        requestPermissions(
+                                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                                PERMISSION_LOCATION_REQUEST_CODE);
+                                    }
+                                });
+                alertDialogBuilder.setNegativeButton("Закрити",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                break;
+            case "onNeverAskAgain":
+                alertDialogBuilder.setMessage("Ви можете змінити свій вибір у налаштуваннях. Дозволи --> Ваше місцезнаходження")
+                        .setCancelable(false)
+                        .setPositiveButton("В налаштування",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        Intent intent = new Intent();
+                                        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                                        Uri uri = Uri.fromParts(
+                                                "package", getContext().getPackageName(), null);
+                                        intent.setData(uri);
+                                        startActivity(intent);
+                                    }
+                                });
+                alertDialogBuilder.setNegativeButton("Закрити",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                break;
+        }
+
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
     }
 }
 
