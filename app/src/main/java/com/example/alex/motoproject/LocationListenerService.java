@@ -1,17 +1,14 @@
 package com.example.alex.motoproject;
 
-import android.Manifest;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -134,9 +131,13 @@ public class LocationListenerService extends Service implements
     }
 
     protected void startLocationUpdates() {
-        if (checkLocationPermission()) {
+        //handle unexpected permission absence
+        try {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, createLocationRequest(), this);
+        } catch (SecurityException e) {
+            Log.e(LOG_TAG, e.getMessage());
+            stopSelf();
         }
     }
 
@@ -156,12 +157,8 @@ public class LocationListenerService extends Service implements
                 mGoogleApiClient, this);
     }
 
-    private boolean checkLocationPermission() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
     private void createNotification() {
+        //TODO: finish notification
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.mipmap.ic_launcher)

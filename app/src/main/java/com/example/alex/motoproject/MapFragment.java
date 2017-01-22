@@ -37,7 +37,10 @@ import static com.example.alex.motoproject.R.id.map;
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     //TODO: fix fps
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
-    public static final int REQUEST_PERMISSION_SETTING = 20;
+    public static final int ALERT_GPS_OFF = 20;
+    public static final int ALERT_INTERNET_OFF = 21;
+    public static final int ALERT_PERMISSION_RATIONALE = 22;
+    public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
 
     private GoogleMap mMap;
 
@@ -93,11 +96,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         LatLng cherkasy = new LatLng(49.443, 32.0727);
 
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(cherkasy, 11));
-
-//        map.addMarker(new MarkerOptions()
-//                .title("Sydney")
-//                .snippet("The most populous city in Australia.")
-//                .position(sydney));
     }
 
     @Override
@@ -106,19 +104,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                            @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_LOCATION_REQUEST_CODE) {
             // Check the request was not cancelled
-            if (grantResults.length > 0 &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // permission was granted
                 handleLocation();
             } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                         Manifest.permission.ACCESS_FINE_LOCATION)) {
                     //user checked never ask again
-                    showAlert("onNeverAskAgain");
+                    showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
 
                 } else {
                     //user did not check never ask again, show rationale
-                    showAlert("rationale");
+                    showAlert(ALERT_PERMISSION_RATIONALE);
                 }
             }
         }
@@ -138,30 +135,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_LOCATION_REQUEST_CODE);
         }
-
-//        else if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-//                Manifest.permission.ACCESS_FINE_LOCATION)) {
-////            requestPermissions(
-////                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-////                    PERMISSION_LOCATION_REQUEST_CODE);
-//
-//            //TODO: change this
-//            //show rationale
-////            View view = getView();
-////            if (view != null) {
-////                Snackbar.make(getView(),
-////                        R.string.location_rationale,
-////                        Snackbar.LENGTH_SHORT).show();
-////            }
-//            showAlert("rationale");
-//
-//        }
     }
 
-    private void showAlert(String purpose) {
+    //handles showing variety of alerts in MapFragment
+    private void showAlert(int alertType) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        switch (purpose) {
-            case "gps":
+        switch (alertType) {
+            case ALERT_GPS_OFF:
+                //show when there is no GPS connection
                 alertDialogBuilder.setMessage("GPS вимкнено. Не хотіли б ви ввімкнути його?")
                         .setPositiveButton("В налаштування",
                                 new DialogInterface.OnClickListener() {
@@ -173,15 +154,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                     }
                                 });
                 break;
-//                alertDialogBuilder.setNegativeButton("Відмінити",
-//                        new DialogInterface.OnClickListener(){
-//                            public void onClick(DialogInterface dialog, int id){
-//                                dialog.cancel();
-//                            }
-//                        });
-            case "internet":
+            case ALERT_INTERNET_OFF:
+                //show when there is no Internet connection
                 alertDialogBuilder.setMessage("Інтернет вимкнено. Не хотіли б ви ввімкнути його?")
-                        .setPositiveButton("В налаштування",
+                        .setPositiveButton("Увімкнути моб. Інтернет",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         Intent callWirelessSettingIntent = new Intent(
@@ -190,8 +166,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                         startActivity(callWirelessSettingIntent);
                                     }
                                 });
+                alertDialogBuilder.setPositiveButton("Увімкнути WIFI",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent callWifiSettingIntent = new Intent(
+                                        Settings
+                                                .ACTION_WIFI_SETTINGS);
+                                startActivity(callWifiSettingIntent);
+                            }
+                        });
                 break;
-            case "rationale":
+            case ALERT_PERMISSION_RATIONALE:
+                //show when user declines gps permission
                 alertDialogBuilder.setMessage(R.string.location_rationale)
                         .setCancelable(false)
                         .setPositiveButton("Дозволити",
@@ -209,7 +195,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             }
                         });
                 break;
-            case "onNeverAskAgain":
+            case ALERT_PERMISSION_NEVER_ASK_AGAIN:
+                //show when user declines gps permission and checks never ask again
                 alertDialogBuilder.setMessage("Ви можете змінити свій вибір у налаштуваннях. Дозволи --> Ваше місцезнаходження")
                         .setCancelable(false)
                         .setPositiveButton("В налаштування",
