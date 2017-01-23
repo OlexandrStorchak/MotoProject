@@ -158,12 +158,11 @@ public class LocationListenerService extends Service implements
     }
 
     private void createNotification() {
-        //TODO: finish notification
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("My notification")
-                        .setContentText("Hello World!")
+                        .setContentTitle("MotoProject")
+                        .setContentText("Місцезнаходження відстежується.")
                         .setShowWhen(false);
 
         //create pending intent used when tapping on the app notification
@@ -189,7 +188,7 @@ public class LocationListenerService extends Service implements
                         0,
                         stopSelfIntent,
                         PendingIntent.FLAG_CANCEL_CURRENT);
-        mBuilder.addAction(R.drawable.ic_menu_gallery, "Астанавітєсь", StopSelfPendingIntent);
+        mBuilder.addAction(R.drawable.ic_clear_gray_24dp, "Прибрати мене з мапи", StopSelfPendingIntent);
 
         // set an ID for the notification
         int mNotificationId = 1;

@@ -5,7 +5,6 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -26,7 +25,6 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
-import static android.content.Context.LOCATION_SERVICE;
 import static com.example.alex.motoproject.R.id.map;
 
 
@@ -34,8 +32,10 @@ import static com.example.alex.motoproject.R.id.map;
  * The fragment that contains a map from Google Play Services.
  */
 
+//TODO: custom pins
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     //TODO: fix fps
+    //TODO: add fab
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
     public static final int ALERT_GPS_OFF = 20;
     public static final int ALERT_INTERNET_OFF = 21;
@@ -76,12 +76,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View view) {
                 handleLocation();
 
-                //TODO: check if there is a GPS connection
-                LocationManager locationManager =
-                        (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
-                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-//                    showAlert("gps");
-                }
+//                getActivity().stopService(new Intent(getContext()
+//                        .getApplicationContext(), LocationListenerService.class));
             }
         });
 
@@ -126,6 +122,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
+            //TODO: check if there is a GPS connection
+//            LocationManager locationManager =
+//                    (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+//            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+//                showAlert(ALERT_GPS_OFF);
+//            }
+
             //the app is allowed to get location, setup service
             getActivity().startService(new Intent(getActivity(), LocationListenerService.class));
             mMap.setMyLocationEnabled(true);
@@ -143,30 +146,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         switch (alertType) {
             case ALERT_GPS_OFF:
                 //show when there is no GPS connection
-                alertDialogBuilder.setMessage("GPS вимкнено. Не хотіли б ви ввімкнути його?")
-                        .setPositiveButton("В налаштування",
+                alertDialogBuilder.setMessage(R.string.gps_turned_off_alert)
+                        .setPositiveButton(R.string.to_settings,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         Intent callGPSSettingIntent = new Intent(
                                                 android.provider.Settings
-                                                        .ACTION_LOCATION_SOURCE_SETTINGS);
+                                                        .ACTION_LOCATION_SOURCE_SETTINGS)
+                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                                        .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                                         startActivity(callGPSSettingIntent);
                                     }
                                 });
                 break;
             case ALERT_INTERNET_OFF:
                 //show when there is no Internet connection
-                alertDialogBuilder.setMessage("Інтернет вимкнено. Не хотіли б ви ввімкнути його?")
-                        .setPositiveButton("Увімкнути моб. Інтернет",
+                alertDialogBuilder.setMessage(R.string.internet_turned_off_alert)
+                        .setPositiveButton(R.string.turn_on_mobile_internet,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         Intent callWirelessSettingIntent = new Intent(
-                                                Settings
-                                                        .ACTION_WIRELESS_SETTINGS);
+                                                Settings.ACTION_WIRELESS_SETTINGS);
                                         startActivity(callWirelessSettingIntent);
                                     }
                                 });
-                alertDialogBuilder.setPositiveButton("Увімкнути WIFI",
+                alertDialogBuilder.setPositiveButton(R.string.turn_on_wifi,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent callWifiSettingIntent = new Intent(
@@ -180,7 +185,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 //show when user declines gps permission
                 alertDialogBuilder.setMessage(R.string.location_rationale)
                         .setCancelable(false)
-                        .setPositiveButton("Дозволити",
+                        .setPositiveButton(R.string.ok,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         requestPermissions(
@@ -188,7 +193,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                                 PERMISSION_LOCATION_REQUEST_CODE);
                                     }
                                 });
-                alertDialogBuilder.setNegativeButton("Закрити",
+                alertDialogBuilder.setNegativeButton(R.string.close,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();
@@ -197,9 +202,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 break;
             case ALERT_PERMISSION_NEVER_ASK_AGAIN:
                 //show when user declines gps permission and checks never ask again
-                alertDialogBuilder.setMessage("Ви можете змінити свій вибір у налаштуваннях. Дозволи --> Ваше місцезнаходження")
+                alertDialogBuilder.setMessage(R.string.how_to_change_location_setting)
                         .setCancelable(false)
-                        .setPositiveButton("В налаштування",
+                        .setPositiveButton(R.string.to_settings,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         Intent intent = new Intent();
@@ -213,7 +218,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                         startActivity(intent);
                                     }
                                 });
-                alertDialogBuilder.setNegativeButton("Закрити",
+                alertDialogBuilder.setNegativeButton(R.string.close,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 dialog.cancel();

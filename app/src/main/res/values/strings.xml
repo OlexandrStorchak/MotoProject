@@ -12,6 +12,14 @@
     <string name="menu_navi_tittle_info">Інформація</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="location_rationale">Без дозволу на GPS ви не зможете ділитися своїм місцезнаходженням з іншими користувачами.</string>
+    <string name="location_rationale">Без дозволу на використання GPS ви не зможете ділитися своїм місцезнаходженням з іншими користувачами. Дозволити використання GPS?</string>
     <string name="start_driving">Я виїхав</string>
+    <string name="gps_turned_off_alert">GPS вимкнено. Увімкнути?</string>
+    <string name="internet_turned_off_alert">Інтернет-з\'єднання вимкнено. Увімкнути?</string>
+    <string name="turn_on_mobile_internet">Увімкнути моб. Інтернет</string>
+    <string name="turn_on_wifi">Увімкнути WIFI</string>
+    <string name="to_settings">В налаштування</string>
+    <string name="how_to_change_location_setting">Ви можете змінити свій вибір у налаштуваннях. Дозволи —> Ваше місцезнаходження</string>
+    <string name="ok">Гаразд</string>
+    <string name="close">Закрити</string>
 </resources>
