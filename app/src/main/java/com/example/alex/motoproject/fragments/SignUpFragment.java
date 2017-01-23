@@ -23,14 +23,14 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 
-public class SingUpFragment extends Fragment {
+public class SignUpFragment extends Fragment {
 
 
     private static final String TAG = "log";
     private EditText mEmail, mPassword, mRepeatPassword;
     private FirebaseAuth mFireBaseAuth;
 
-    public SingUpFragment() {
+    public SignUpFragment() {
         // Required empty public constructor
     }
 
@@ -44,29 +44,29 @@ public class SingUpFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_sing_up, container, false);
+        return inflater.inflate(R.layout.fragment_sign_up, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mEmail = (EditText) view.findViewById(R.id.sing_up_email);
-        mPassword = (EditText) view.findViewById(R.id.sing_up_pass);
-        mRepeatPassword = (EditText) view.findViewById(R.id.sing_up_repeat_pass);
-        TextView mTitle = (TextView) view.findViewById(R.id.sing_up_title);
-        Button mButtonSubmit = (Button) view.findViewById(R.id.sing_up_btn_ok);
+        mEmail = (EditText) view.findViewById(R.id.sign_up_email);
+        mPassword = (EditText) view.findViewById(R.id.sign_up_pass);
+        mRepeatPassword = (EditText) view.findViewById(R.id.sign_up_repeat_pass);
+        TextView mTitle = (TextView) view.findViewById(R.id.sign_up_title);
+        Button mButtonSubmit = (Button) view.findViewById(R.id.sign_up_btn_ok);
 
 
         mButtonSubmit.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
-                String mEmail = SingUpFragment.this.mEmail.getText().toString();
+                String mEmail = SignUpFragment.this.mEmail.getText().toString();
                 String mPass = mPassword.getText().toString();
                 String mRepeatPass = mRepeatPassword.getText().toString();
 
                 if (mEmail.length() == 0) {
-                    SingUpFragment.this.mEmail.setHint("mEmail is empty");
+                    SignUpFragment.this.mEmail.setHint("mEmail is empty");
 
                 } else if (mPass.length() < 5) {
 
@@ -82,7 +82,7 @@ public class SingUpFragment extends Fragment {
                     mPassword.setHint("enter mPassword end repeat");
                     mRepeatPassword.setText("");
                     mRepeatPassword.setHint("mPassword not mutch");
-                } else if (mPassword.getText().toString().equals(mRepeatPassword.getText().toString()) & SingUpFragment.this.mEmail.length() > 0) {
+                } else if (mPassword.getText().toString().equals(mRepeatPassword.getText().toString()) & SignUpFragment.this.mEmail.length() > 0) {
 
                     addNewUserToFireBase(mEmail, mPass);
                     ((MainActivity) getActivity()).replaceFragment("fragmentAuth");
@@ -91,7 +91,7 @@ public class SingUpFragment extends Fragment {
         });
     }
 
-    //Method for add new firebaseAuthCurrentUser into FireBase Auth, SingUp
+    //Method for add new firebaseAuthCurrentUser into FireBase Auth, SignUp
     public void addNewUserToFireBase(String email, String password) {
         mFireBaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener((getActivity()), new OnCompleteListener<AuthResult>() {

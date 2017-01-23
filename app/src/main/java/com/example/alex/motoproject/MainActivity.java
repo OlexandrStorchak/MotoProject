@@ -14,7 +14,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.alex.motoproject.fragments.AuthFragment;
-import com.example.alex.motoproject.fragments.SingUpFragment;
+import com.example.alex.motoproject.fragments.SignUpFragment;
 import com.example.alex.motoproject.fragments.WelcomeFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "log";
-    private static final String FRAGMENT_SING_UP = "fragmentSingUp";
+    private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
     private static final String FRAGMENT_WELCOME = "fragmentWelcome";
 
@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity
                                 firebaseAuthCurrentUser.getUid());
                         showToast("LogIn");
                     } else {
+                        firebaseAuth.signOut();
                         showToast("Activate your account by e-mail");
                     }
                 } else {
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_info:
                 //TODO fragment info of stores, repairs and helpers
                 break;
-            case R.id.nav_sing_out:
+            case R.id.nav_sign_out:
                 mFirebaseAuth.signOut();
                 break;
 
@@ -172,11 +173,11 @@ public class MainActivity extends AppCompatActivity
         android.support.v4.app.FragmentTransaction fragmentTransaction
                 = fragmentManager.beginTransaction();
         switch (fragmentName) {
-            case FRAGMENT_SING_UP:
-                SingUpFragment singUpFragment = new SingUpFragment();
+            case FRAGMENT_SIGN_UP:
+                SignUpFragment signUpFragment = new SignUpFragment();
 
-                fragmentTransaction.replace(R.id.main_activity_frame, singUpFragment);
-                fragmentTransaction.addToBackStack(FRAGMENT_SING_UP);
+                fragmentTransaction.replace(R.id.main_activity_frame, signUpFragment);
+                fragmentTransaction.addToBackStack(FRAGMENT_SIGN_UP);
                 fragmentTransaction.commit();
                 break;
             case FRAGMENT_WELCOME:

@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.alex.motoproject.fragments.SingUpFragment">
+    android:background="@color/blueGray900"
+    tools:context="com.example.alex.motoproject.fragments.SignUpFragment">
 
 
    <TextView
@@ -11,9 +12,10 @@
        android:layout_width="200dp"
        android:layout_height="50dp"
        android:textSize="24sp"
+       android:textColor="@color/gray500"
        android:layout_gravity="center"
-       android:id="@+id/sing_up_title"
-       android:text="@string/sing_up"
+       android:id="@+id/sign_up_title"
+       android:text="@string/sign_up"
        android:textAlignment="center"
        android:gravity="center"
        />
@@ -23,8 +25,8 @@
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:background="@color/colorPrimary"
-        android:id="@+id/sing_up_email"
+        style="@style/MyColors"
+        android:id="@+id/sign_up_email"
         android:hint="@string/hint_e_mail"
         android:textAlignment="center"
         android:inputType="textEmailAddress" />
@@ -33,8 +35,8 @@
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:background="@color/colorPrimary"
-        android:id="@+id/sing_up_pass"
+        style="@style/MyColors"
+        android:id="@+id/sign_up_pass"
         android:hint="@string/hint_pass"
         android:textAlignment="center"
         android:inputType="textPassword" />
@@ -43,8 +45,8 @@
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:background="@color/colorPrimary"
-        android:id="@+id/sing_up_repeat_pass"
+        style="@style/MyColors"
+        android:id="@+id/sign_up_repeat_pass"
         android:hint="@string/hint_repeat_pass"
         android:textAlignment="center"
         android:inputType="textPassword" />
@@ -53,8 +55,9 @@
         android:layout_height="50dp"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:id="@+id/sing_up_btn_ok"
-
+        android:id="@+id/sign_up_btn_ok"
+        android:text="@string/submit"
+        style="@style/MyButtonCustom"
         />
 
 

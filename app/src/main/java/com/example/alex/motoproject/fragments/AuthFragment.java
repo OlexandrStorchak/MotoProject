@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.MainActivity;
@@ -32,10 +33,13 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 
 public class AuthFragment extends Fragment {
-    private static final int GOOGLE_SING_IN = 13;
+    private static final int GOOGLE_SIGN_IN = 13;
     private EditText mEmail, mPassword;
+    private TextView mEmailHint, mPassHint;
+    private ProgressBar mProgressBar;
     private FirebaseAuth mFireBaseAuth;
-
+    private GoogleApiClient mGoogleApiClient = null;
+    private boolean firstStart = true;
 
     private static final String TAG = "log";
 
@@ -53,6 +57,7 @@ public class AuthFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_auth, container, false);
     }
@@ -64,41 +69,66 @@ public class AuthFragment extends Fragment {
         Log.d(TAG, "onViewCreated: test");
         mEmail = (EditText) view.findViewById(R.id.auth_email);
         mPassword = (EditText) view.findViewById(R.id.auth_pass);
-        TextView mTitle = (TextView) view.findViewById(R.id.auth_title);
+        mEmailHint = (TextView) view.findViewById(R.id.auth_email_hint);
+        mPassHint = (TextView) view.findViewById(R.id.auth_pass_hint);
+        mProgressBar = (ProgressBar) view.findViewById(R.id.auth_progress_bar);
+
         Button mButtonSubmit = (Button) view.findViewById(R.id.auth_btn_ok);
 
 
         mButtonSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                if (mEmail.getText().length() == 0) {
-                    ((MainActivity) getActivity()).showToast("Email is empty");
-                } else if (mPassword.getText().length() == 0) {
-                    ((MainActivity) getActivity()).showToast("Password is empty");
-                } else
-                    singInUserToFireBase(
-                            mEmail.getText().toString(), mPassword.getText().toString());
+                if (firstStart) {
+                    mEmail.setVisibility(View.VISIBLE);
+                    mPassword.setVisibility(View.VISIBLE);
+                    firstStart = false;
+                } else {
+                    if (mEmail.getText().length() == 0) {
+                        mEmailHint.setVisibility(View.VISIBLE);
+                        mEmailHint.setText(R.string.email_is_empty);
+                        Log.d(TAG, "onClick: emaeil is empty");
+                    }
+                    if (mPassword.getText().length() == 0) {
+                        //mEmailHint.setVisibility(View.INVISIBLE);
+                        mPassHint.setVisibility(View.VISIBLE);
+                        mPassHint.setText(R.string.enter_password);
+                    } else if (mPassword.getText().length() <= 5) {
+                        mPassHint.setVisibility(View.VISIBLE);
+                        mPassHint.setText(R.string.less_6_chars);
+                    }
+                    if (mPassword.getText().length() > 5 & mEmail.getText().length() > 0) {
+                        mEmailHint.setVisibility(View.GONE);
+                        mPassHint.setVisibility(View.GONE);
+                        mEmail.setVisibility(View.GONE);
+                        mProgressBar.setVisibility(View.VISIBLE);
+                        mPassword.setVisibility(View.GONE);
+                        signInUserToFireBase(
+                                mEmail.getText().toString(), mPassword.getText().toString());
+                    }
+                }
 
             }
         });
 
-        Button mButtonSingIn = (Button) view.findViewById(R.id.auth_btn_sing_in);
-        mButtonSingIn.setOnClickListener(new View.OnClickListener() {
+        Button mButtonSignIn = (Button) view.findViewById(R.id.auth_btn_sign_in);
+        mButtonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity) getActivity()).replaceFragment("fragmentSingUp");
+                ((MainActivity) getActivity()).replaceFragment("fragmentSignUp");
             }
         });
 
-        Button mButtonSingInGoogle = (Button) view.findViewById(R.id.auth_btn_google_sing_in);
-        mButtonSingInGoogle.setOnClickListener(new View.OnClickListener() {
+        Button mButtonSignInGoogle = (Button) view.findViewById(R.id.auth_btn_google_sign_in);
+        mButtonSignInGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 signInGoogle();
+                mProgressBar.setVisibility(View.VISIBLE);
             }
         });
     }
+
 
     @Override
     public void onAttach(Context context) {
@@ -108,14 +138,17 @@ public class AuthFragment extends Fragment {
 
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mFireBaseAuth=null;
+    public void onDestroy() {
+        super.onDestroy();
+        mFireBaseAuth = null;
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.stopAutoManage(getActivity());
+            mGoogleApiClient.disconnect();
+        }
     }
 
-
-    //Sing in firebaseAuthCurrentUser into FireBase Auth
-    public void singInUserToFireBase(String email, String password) {
+    //Sign in firebaseAuthCurrentUser into FireBase Auth
+    public void signInUserToFireBase(String email, String password) {
         mFireBaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(((MainActivity) getContext()), new OnCompleteListener<AuthResult>() {
                     @Override
@@ -134,16 +167,15 @@ public class AuthFragment extends Fragment {
                 });
     }
 
-    //Sing in with Google
+    //Sign in with Google
     public void signInGoogle() {
-
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
 
-        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
                 .enableAutoManage((FragmentActivity) getContext()
                         , new GoogleApiClient.OnConnectionFailedListener() {
                             @Override
@@ -154,9 +186,8 @@ public class AuthFragment extends Fragment {
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
-
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        startActivityForResult(signInIntent, GOOGLE_SING_IN);
+        startActivityForResult(signInIntent, GOOGLE_SIGN_IN);
 
     }
 
@@ -186,7 +217,7 @@ public class AuthFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == GOOGLE_SING_IN) {
+        if (requestCode == GOOGLE_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             if (result.isSuccess()) {
                 // Google Sign In was successful, authenticate with Firebase
