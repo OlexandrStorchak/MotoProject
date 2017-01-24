@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/blueGray900"
+        android:background="@drawable/bg2_xxxhdpi"
+
     android:orientation="vertical"
     tools:context="com.example.alex.motoproject.fragments.AuthFragment">
 
