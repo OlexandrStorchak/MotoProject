@@ -64,25 +64,25 @@ public class SignUpFragment extends Fragment {
 
 
                 if (mEmail.getText().length() == 0) {
-                    mEmail.setHint("Email is empty");
+                    mEmail.setError("Email is empty");
 
                 }
                 if (mPassword.getText().length() < 5) {
 
                     mPassword.setText("");
-                    mPassword.setHint("min 6 characters");
+                    mPassword.setError("min 6 characters");
                 }
                 if (mRepeatPassword.getText().length() < 5) {
 
                     mRepeatPassword.setText("");
-                    mRepeatPassword.setHint("repeat password");
+                    mRepeatPassword.setError("repeat password");
                 }
                 if (!mPassword.getText().toString().equals(mRepeatPassword.getText().toString())) {
 
                     mPassword.setText("");
-                    mPassword.setHint("enter mPassword end repeat");
+                    mPassword.setError("enter mPassword end repeat");
                     mRepeatPassword.setText("");
-                    mRepeatPassword.setHint("mPassword not mutch");
+                    mRepeatPassword.setError("mPassword not mutch");
                 } else if (mPassword.getText().toString().equals(mRepeatPassword.getText().toString())
                         & mEmail.getText().length() > 0
                         & mPassword.getText().length() > 5) {

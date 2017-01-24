@@ -43,19 +43,8 @@
         style="@style/MyColors"
         android:hint="@string/hint_e_mail"
         android:inputType="textEmailAddress"
-        android:textAlignment="center"
         android:visibility="invisible"/>
-        <TextView
-            android:id="@+id/auth_email_hint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:gravity="center_horizontal"
-            android:layout_gravity="center_horizontal"
-            tools:text="Email is empty"
-            android:textColor="@color/orangeA700"
-            android:visibility="invisible"
-            />
+
 
 
 
@@ -68,20 +57,9 @@
         style="@style/MyColors"
         android:hint="@string/hint_pass"
         android:inputType="textPassword"
-        android:textAlignment="center"
         android:visibility="invisible"
         />
-        <TextView
-            android:id="@+id/auth_pass_hint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:gravity="center_horizontal"
-            android:layout_gravity="center_horizontal"
-            tools:text="Password is empty"
-            android:textColor="@color/orangeA700"
-            android:visibility="invisible"
-            />
+
 
     <Button
         android:id="@+id/auth_btn_ok"

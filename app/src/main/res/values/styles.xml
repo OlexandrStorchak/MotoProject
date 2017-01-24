@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -23,8 +23,10 @@
     </style>
     <style name="MyColors">
         <item name="android:background">@drawable/edit_text_background</item>
-        <item name="android:textColor">@color/gray900</item>
+        <item name="android:textColor">@color/teal300</item>
         <item name="android:textColorHint">@color/gray500</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:textAlignment" tools:targetApi="jelly_bean_mr1">center</item>
     </style>
     <style name="MyButtonCustom">
         <item name="android:background">@drawable/button_background</item>

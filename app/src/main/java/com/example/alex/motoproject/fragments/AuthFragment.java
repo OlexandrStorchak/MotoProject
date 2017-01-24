@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
@@ -39,11 +38,12 @@ import static com.example.alex.motoproject.MainActivity.loginWithEmail;
 public class AuthFragment extends Fragment {
     private static final int GOOGLE_SIGN_IN = 13;
     private EditText mEmail, mPassword;
-    private TextView mEmailHint, mPassHint;
     private ProgressBar mProgressBar;
     private FirebaseAuth mFireBaseAuth;
     private GoogleApiClient mGoogleApiClient = null;
     private boolean firstStart = true;
+
+
 
     private static final String TAG = "log";
     private Button mButtonSignInGoogle;
@@ -74,8 +74,7 @@ public class AuthFragment extends Fragment {
         Log.d(TAG, "onViewCreated: test");
         mEmail = (EditText) view.findViewById(R.id.auth_email);
         mPassword = (EditText) view.findViewById(R.id.auth_pass);
-        mEmailHint = (TextView) view.findViewById(R.id.auth_email_hint);
-        mPassHint = (TextView) view.findViewById(R.id.auth_pass_hint);
+
         mProgressBar = (ProgressBar) view.findViewById(R.id.auth_progress_bar);
 
         Button mButtonSubmit = (Button) view.findViewById(R.id.auth_btn_ok);
@@ -88,26 +87,20 @@ public class AuthFragment extends Fragment {
                 if (firstStart) {
                     mEmail.setVisibility(View.VISIBLE);
                     mPassword.setVisibility(View.VISIBLE);
-                    mEmailHint.setVisibility(View.INVISIBLE);
-                    mPassHint.setVisibility(View.INVISIBLE);
+
                     firstStart = false;
                 } else {
                     if (mEmail.getText().length() == 0) {
-                        mEmailHint.setVisibility(View.VISIBLE);
-                        mEmailHint.setText(R.string.email_is_empty);
+                        mEmail.setError(getResources().getString(R.string.email_is_empty));
                         Log.d(TAG, "onClick: emaeil is empty");
                     }
                     if (mPassword.getText().length() == 0) {
-                        //mEmailHint.setVisibility(View.INVISIBLE);
-                        mPassHint.setVisibility(View.VISIBLE);
-                        mPassHint.setText(R.string.enter_password);
+                        mPassword.setError(getResources().getString(R.string.enter_password));
                     } else if (mPassword.getText().length() <= 5) {
-                        mPassHint.setVisibility(View.VISIBLE);
-                        mPassHint.setText(R.string.less_6_chars);
+                        mPassword.setError(getResources().getString(R.string.less_6_chars));
                     }
                     if (mPassword.getText().length() > 5 & mEmail.getText().length() > 0) {
-                        mEmailHint.setVisibility(View.GONE);
-                        mPassHint.setVisibility(View.GONE);
+
                         mEmail.setVisibility(View.GONE);
                         mProgressBar.setVisibility(View.VISIBLE);
                         mPassword.setVisibility(View.GONE);
@@ -133,8 +126,6 @@ public class AuthFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 signInGoogle();
-                mEmailHint.setVisibility(View.GONE);
-                mPassHint.setVisibility(View.GONE);
                 mEmail.setVisibility(View.GONE);
                 mPassword.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.VISIBLE);
@@ -154,6 +145,16 @@ public class AuthFragment extends Fragment {
     public void onResume() {
         super.onResume();
         firstStart = true;
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.stopAutoManage(getActivity());
+            mGoogleApiClient.disconnect();
+        }
     }
 
     @Override
@@ -161,7 +162,7 @@ public class AuthFragment extends Fragment {
         super.onDestroy();
         Log.d(TAG, "onDestroy: ");
         mFireBaseAuth = null;
-        if (mGoogleApiClient != null) {
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             mGoogleApiClient.stopAutoManage(getActivity());
             mGoogleApiClient.disconnect();
         }
@@ -249,22 +250,24 @@ public class AuthFragment extends Fragment {
                 } else {
                     ((MainActivity) getActivity()).showToast("Google account connection failed");
                 }
-            } else if (resultCode==RESULT_CANCELED){
+            } else if (resultCode == RESULT_CANCELED) {
                 ((MainActivity) getActivity()).showToast("Google account canceled");
                 mProgressBar.setVisibility(View.GONE);
-                firstStart=true;
-                if (mGoogleApiClient != null) {
+                firstStart = true;
+                if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
                     mGoogleApiClient.stopAutoManage(getActivity());
                     mGoogleApiClient.disconnect();
+
                     mButtonSignInGoogle.setClickable(true);
                 }
             } else {
                 ((MainActivity) getActivity()).showToast("Google account canceled");
                 mProgressBar.setVisibility(View.GONE);
-                firstStart=true;
-                if (mGoogleApiClient != null) {
+                firstStart = true;
+                if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
                     mGoogleApiClient.stopAutoManage(getActivity());
                     mGoogleApiClient.disconnect();
+
                     mButtonSignInGoogle.setClickable(true);
                 }
             }
