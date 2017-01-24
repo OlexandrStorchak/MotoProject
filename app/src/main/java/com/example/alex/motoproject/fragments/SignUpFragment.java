@@ -107,6 +107,7 @@ public class SignUpFragment extends Fragment {
                         // signed in firebaseUser can be handled in the listener.
                         if (mFireBaseAuth.getCurrentUser() != null) {
                             mFireBaseAuth.getCurrentUser().sendEmailVerification();
+                            mFireBaseAuth.signOut();
                         } else {
                             Log.d(TAG, "onComplete: addNewFirebase User: curent user is null");
                         }

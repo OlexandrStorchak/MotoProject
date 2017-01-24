@@ -69,9 +69,10 @@ public class MainActivity extends AppCompatActivity
                     if (firebaseAuthCurrentUser != null) {
                         if (firebaseAuthCurrentUser.isEmailVerified()) {
                             // User is signed in
+                            navigationView.getMenu().setGroupVisible(R.id.nav_group_main,true);
                             replaceFragment(FRAGMENT_WELCOME);
                         } else {
-
+                            navigationView.getMenu().setGroupVisible(R.id.nav_group_main,false);
                             firebaseAuthCurrentUser.sendEmailVerification();
                             showToast("Check your email!");
                             firebaseAuth.signOut();
@@ -79,17 +80,17 @@ public class MainActivity extends AppCompatActivity
 
                     } else {
                         // User is signed out
-
+                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main,false);
                         replaceFragment(FRAGMENT_AUTH);
                     }
                 } else {
                     if (firebaseAuthCurrentUser != null) {
                         // User is signed in
-
+                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main,true);
                         replaceFragment(FRAGMENT_WELCOME);
                     } else {
                         // User is signed out
-
+                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main,false);
                         replaceFragment(FRAGMENT_AUTH);
 
                     }
