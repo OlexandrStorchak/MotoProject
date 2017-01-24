@@ -46,6 +46,7 @@ public class AuthFragment extends Fragment {
     private boolean firstStart = true;
 
     private static final String TAG = "log";
+    private Button mButtonSignInGoogle;
 
     public AuthFragment() {
         // Required empty public constructor
@@ -127,7 +128,7 @@ public class AuthFragment extends Fragment {
             }
         });
 
-        Button mButtonSignInGoogle = (Button) view.findViewById(R.id.auth_btn_google_sign_in);
+        mButtonSignInGoogle = (Button) view.findViewById(R.id.auth_btn_google_sign_in);
         mButtonSignInGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -137,6 +138,7 @@ public class AuthFragment extends Fragment {
                 mEmail.setVisibility(View.GONE);
                 mPassword.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.VISIBLE);
+                mButtonSignInGoogle.setClickable(false);
             }
         });
     }
@@ -251,10 +253,20 @@ public class AuthFragment extends Fragment {
                 ((MainActivity) getActivity()).showToast("Google account canceled");
                 mProgressBar.setVisibility(View.GONE);
                 firstStart=true;
+                if (mGoogleApiClient != null) {
+                    mGoogleApiClient.stopAutoManage(getActivity());
+                    mGoogleApiClient.disconnect();
+                    mButtonSignInGoogle.setClickable(true);
+                }
             } else {
                 ((MainActivity) getActivity()).showToast("Google account canceled");
                 mProgressBar.setVisibility(View.GONE);
                 firstStart=true;
+                if (mGoogleApiClient != null) {
+                    mGoogleApiClient.stopAutoManage(getActivity());
+                    mGoogleApiClient.disconnect();
+                    mButtonSignInGoogle.setClickable(true);
+                }
             }
         }
     }
