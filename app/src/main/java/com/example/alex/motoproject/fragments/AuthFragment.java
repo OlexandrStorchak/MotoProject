@@ -31,6 +31,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import static com.example.alex.motoproject.MainActivity.loginWithEmail;
+
 
 public class AuthFragment extends Fragment {
     private static final int GOOGLE_SIGN_IN = 13;
@@ -79,6 +81,7 @@ public class AuthFragment extends Fragment {
         mButtonSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                loginWithEmail=true;
                 if (firstStart) {
                     mEmail.setVisibility(View.VISIBLE);
                     mPassword.setVisibility(View.VISIBLE);
@@ -105,6 +108,7 @@ public class AuthFragment extends Fragment {
                         mPassword.setVisibility(View.GONE);
                         signInUserToFireBase(
                                 mEmail.getText().toString(), mPassword.getText().toString());
+
                     }
                 }
 
@@ -124,6 +128,10 @@ public class AuthFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 signInGoogle();
+                mEmailHint.setVisibility(View.GONE);
+                mPassHint.setVisibility(View.GONE);
+                mEmail.setVisibility(View.GONE);
+                mPassword.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.VISIBLE);
             }
         });
@@ -136,10 +144,16 @@ public class AuthFragment extends Fragment {
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        firstStart=true;
+    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy: ");
         mFireBaseAuth = null;
         if (mGoogleApiClient != null) {
             mGoogleApiClient.stopAutoManage(getActivity());
@@ -160,6 +174,8 @@ public class AuthFragment extends Fragment {
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithEmail", task.getException());
                             ((MainActivity) getActivity()).showToast("no such account found");
+                            mProgressBar.setVisibility(View.GONE);
+                            firstStart=true;
                         }
 
                         // ...

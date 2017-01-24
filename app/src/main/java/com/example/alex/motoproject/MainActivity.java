@@ -11,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.alex.motoproject.fragments.AuthFragment;
@@ -22,6 +23,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static boolean loginWithEmail = false;
     private static final String TAG = "log";
     private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
@@ -62,33 +64,36 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseAuthCurrentUser = firebaseAuth.getCurrentUser();
+                if (loginWithEmail) {
+                    if (firebaseAuthCurrentUser != null) {
+                        if (firebaseAuthCurrentUser.isEmailVerified()) {
+                            // User is signed in
+                            replaceFragment(FRAGMENT_WELCOME);
+                        } else {
+                            firebaseAuthCurrentUser.sendEmailVerification();
+                            showToast("Check your email!");
+                            firebaseAuth.signOut();
+                        }
 
-                if (firebaseAuthCurrentUser != null) {
-                    if (firebaseAuthCurrentUser.isEmailVerified()) {
-                        // User is signed in
-                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
-
-                        replaceFragment(FRAGMENT_WELCOME);
-                        Log.d(TAG, "onAuthStateChanged:signed_in:" +
-                                firebaseAuthCurrentUser.getUid());
-                        showToast("LogIn");
                     } else {
-                        firebaseAuth.signOut();
-                        showToast("Activate your account by e-mail");
+                        // User is signed out
+                        replaceFragment(FRAGMENT_AUTH);
                     }
                 } else {
+                    if (firebaseAuthCurrentUser != null) {
+                        // User is signed in
+                        replaceFragment(FRAGMENT_WELCOME);
+                    } else {
+                        // User is signed out
+                        replaceFragment(FRAGMENT_AUTH);
 
-                    navigationView.getMenu().setGroupVisible(R.id.nav_group_main, false);
-                    showToast("LogOut");
-                    // User is signed out
-                    replaceFragment(FRAGMENT_AUTH);
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                    }
+
                 }
-                // ...
             }
         };
-        Log.d(TAG, "onCreate: Main activity ");
     }
+
 
     @Override
     public void onBackPressed() {

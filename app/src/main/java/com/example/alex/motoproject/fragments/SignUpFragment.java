@@ -61,30 +61,33 @@ public class SignUpFragment extends Fragment {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
-                String mEmail = SignUpFragment.this.mEmail.getText().toString();
-                String mPass = mPassword.getText().toString();
-                String mRepeatPass = mRepeatPassword.getText().toString();
 
-                if (mEmail.length() == 0) {
-                    SignUpFragment.this.mEmail.setHint("mEmail is empty");
 
-                } else if (mPass.length() < 5) {
+                if (mEmail.getText().length() == 0) {
+                    mEmail.setHint("Email is empty");
+
+                }
+                if (mPassword.getText().length() < 5) {
 
                     mPassword.setText("");
                     mPassword.setHint("min 6 characters");
-                } else if (mRepeatPass.length() < 5) {
+                }
+                if (mRepeatPassword.getText().length() < 5) {
 
                     mRepeatPassword.setText("");
                     mRepeatPassword.setHint("repeat password");
-                } else if (!mPassword.getText().toString().equals(mRepeatPassword.getText().toString())) {
+                }
+                if (!mPassword.getText().toString().equals(mRepeatPassword.getText().toString())) {
 
                     mPassword.setText("");
                     mPassword.setHint("enter mPassword end repeat");
                     mRepeatPassword.setText("");
                     mRepeatPassword.setHint("mPassword not mutch");
-                } else if (mPassword.getText().toString().equals(mRepeatPassword.getText().toString()) & SignUpFragment.this.mEmail.length() > 0) {
+                } else if (mPassword.getText().toString().equals(mRepeatPassword.getText().toString())
+                        & mEmail.getText().length() > 0
+                        & mPassword.getText().length() > 5) {
 
-                    addNewUserToFireBase(mEmail, mPass);
+                    addNewUserToFireBase(mEmail.getText().toString(), mPassword.getText().toString());
                     ((MainActivity) getActivity()).replaceFragment("fragmentAuth");
                 }
             }
