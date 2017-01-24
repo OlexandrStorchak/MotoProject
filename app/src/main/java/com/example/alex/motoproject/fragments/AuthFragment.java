@@ -87,6 +87,8 @@ public class AuthFragment extends Fragment {
                 if (firstStart) {
                     mEmail.setVisibility(View.VISIBLE);
                     mPassword.setVisibility(View.VISIBLE);
+                    mEmailHint.setVisibility(View.INVISIBLE);
+                    mPassHint.setVisibility(View.INVISIBLE);
                     firstStart = false;
                 } else {
                     if (mEmail.getText().length() == 0) {
@@ -247,8 +249,12 @@ public class AuthFragment extends Fragment {
                 }
             } else if (resultCode==RESULT_CANCELED){
                 ((MainActivity) getActivity()).showToast("Google account canceled");
+                mProgressBar.setVisibility(View.GONE);
+                firstStart=true;
             } else {
                 ((MainActivity) getActivity()).showToast("Google account canceled");
+                mProgressBar.setVisibility(View.GONE);
+                firstStart=true;
             }
         }
     }
