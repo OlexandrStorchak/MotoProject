@@ -53,7 +53,7 @@ public class SignUpFragment extends Fragment {
         mEmail = (EditText) view.findViewById(R.id.sign_up_email);
         mPassword = (EditText) view.findViewById(R.id.sign_up_pass);
         mRepeatPassword = (EditText) view.findViewById(R.id.sign_up_repeat_pass);
-        TextView mTitle = (TextView) view.findViewById(R.id.sign_up_title);
+
         Button mButtonSubmit = (Button) view.findViewById(R.id.sign_up_btn_ok);
 
 

@@ -47,6 +47,8 @@ public class AuthFragment extends Fragment {
 
     private static final String TAG = "log";
     private Button mButtonSignInGoogle;
+    private Button mButtonSignIn;
+    private Button mButtonSubmit;
 
     public AuthFragment() {
         // Required empty public constructor
@@ -67,6 +69,7 @@ public class AuthFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_auth, container, false);
     }
 
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -77,7 +80,7 @@ public class AuthFragment extends Fragment {
 
         mProgressBar = (ProgressBar) view.findViewById(R.id.auth_progress_bar);
 
-        Button mButtonSubmit = (Button) view.findViewById(R.id.auth_btn_ok);
+        mButtonSubmit = (Button) view.findViewById(R.id.auth_btn_ok);
 
 
         mButtonSubmit.setOnClickListener(new View.OnClickListener() {
@@ -85,6 +88,7 @@ public class AuthFragment extends Fragment {
             public void onClick(View view) {
                 loginWithEmail = true;
                 if (firstStart) {
+
                     mEmail.setVisibility(View.VISIBLE);
                     mPassword.setVisibility(View.VISIBLE);
 
@@ -113,7 +117,7 @@ public class AuthFragment extends Fragment {
             }
         });
 
-        Button mButtonSignIn = (Button) view.findViewById(R.id.auth_btn_sign_in);
+        mButtonSignIn = (Button) view.findViewById(R.id.auth_btn_sign_in);
         mButtonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -128,6 +132,9 @@ public class AuthFragment extends Fragment {
                 signInGoogle();
                 mEmail.setVisibility(View.GONE);
                 mPassword.setVisibility(View.GONE);
+                mButtonSignIn.setVisibility(View.GONE);
+                mButtonSubmit.setVisibility(View.GONE);
+                mButtonSignInGoogle.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.VISIBLE);
                 mButtonSignInGoogle.setClickable(false);
             }
@@ -181,6 +188,7 @@ public class AuthFragment extends Fragment {
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithEmail", task.getException());
                             ((MainActivity) getActivity()).showToast("no such account found");
+
                             mProgressBar.setVisibility(View.GONE);
                             firstStart = true;
                         }
@@ -257,7 +265,9 @@ public class AuthFragment extends Fragment {
                 if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
                     mGoogleApiClient.stopAutoManage(getActivity());
                     mGoogleApiClient.disconnect();
-
+                    mButtonSignIn.setVisibility(View.VISIBLE);
+                    mButtonSubmit.setVisibility(View.VISIBLE);
+                    mButtonSignInGoogle.setVisibility(View.VISIBLE);
                     mButtonSignInGoogle.setClickable(true);
                 }
             } else {
@@ -267,7 +277,9 @@ public class AuthFragment extends Fragment {
                 if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
                     mGoogleApiClient.stopAutoManage(getActivity());
                     mGoogleApiClient.disconnect();
-
+                    mButtonSignIn.setVisibility(View.VISIBLE);
+                    mButtonSubmit.setVisibility(View.VISIBLE);
+                    mButtonSignInGoogle.setVisibility(View.VISIBLE);
                     mButtonSignInGoogle.setClickable(true);
                 }
             }

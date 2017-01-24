@@ -1,6 +1,7 @@
 package com.example.alex.motoproject;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -171,9 +172,12 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+
+
     @Override
     protected void onStop() {
         super.onStop();
+
         Log.d(TAG, "onStop: ");
         if (mFirebaseAuthStateListener != null) {
             mFirebaseAuth.removeAuthStateListener(mFirebaseAuthStateListener);

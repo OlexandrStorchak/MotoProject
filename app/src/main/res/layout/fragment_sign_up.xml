@@ -1,24 +1,24 @@
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/blueGray900"
+    android:gravity="center"
+    android:background="@drawable/bg2_xxxhdpi"
     tools:context="com.example.alex.motoproject.fragments.SignUpFragment">
 
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:ignore="ScrollViewCount"
 
-   <TextView
-       android:layout_marginTop="50dp"
-       android:layout_width="200dp"
-       android:layout_height="50dp"
-       android:textSize="24sp"
-       android:textColor="@color/gray500"
-       android:layout_gravity="center"
-       android:id="@+id/sign_up_title"
-       android:text="@string/sign_up"
-       android:textAlignment="center"
-       android:gravity="center"
-       />
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
 
     <EditText
         android:layout_width="200dp"
@@ -57,8 +57,9 @@
         android:layout_marginTop="20dp"
         android:id="@+id/sign_up_btn_ok"
         android:text="@string/submit"
+        android:layout_marginBottom="20dp"
         style="@style/MyButtonCustom"
         />
-
-
+    </LinearLayout>
+</ScrollView>
 </LinearLayout>
