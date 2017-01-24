@@ -14,6 +14,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.alex.motoproject.fragments.MapFragment;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -30,6 +32,8 @@ public class MainActivity extends AppCompatActivity
         //init FragmentManager
         mFragmentManager = getSupportFragmentManager();
 
+        showMapFragment();
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -43,7 +47,7 @@ public class MainActivity extends AppCompatActivity
         //start MapFragment if an intent has that command
         if (getIntent().getExtras() != null &&
                 getIntent().getExtras().getBoolean("isShouldLaunchMapFragment")) {
-            launchMapFragment();
+            showMapFragment();
         }
         Log.d(TAG, "onCreate: Main activity ");
     }
@@ -81,7 +85,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_maps:
-                launchMapFragment();
+                showMapFragment();
                 break;
             case R.id.nav_friends:
                 //TODO fragment friends list
@@ -97,8 +101,6 @@ public class MainActivity extends AppCompatActivity
                 break;
 
         }
-
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -128,7 +130,7 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "onResume: ");
     }
 
-    private void launchMapFragment() {
+    private void showMapFragment() {
         FragmentTransaction mFragmentTransaction = mFragmentManager.beginTransaction();
         MapFragment mMapFragment = new MapFragment();
         mFragmentTransaction.replace(R.id.container, mMapFragment);

@@ -30,9 +30,10 @@
             android:value="AIzaSyB0f8qAQ8OBaEF1Gg9Q_M4Lf2ZUA9xK7ko" />
 
         <service
-            android:name=".LocationListenerService"
+            android:name=".services.LocationListenerService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="false" />
+
     </application>
 
 </manifest>

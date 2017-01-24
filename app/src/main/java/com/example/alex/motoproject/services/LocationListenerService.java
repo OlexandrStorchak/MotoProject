@@ -1,4 +1,4 @@
-package com.example.alex.motoproject;
+package com.example.alex.motoproject.services;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -12,6 +12,9 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.alex.motoproject.App;
+import com.example.alex.motoproject.MainActivity;
+import com.example.alex.motoproject.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -29,7 +32,6 @@ public class LocationListenerService extends Service implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 //TODO: do something if there`s no Internet or GPS connection
-    //TODO: make button start and stop the service
     private static final String LOG_TAG = "LocationListenerService";
 
     GoogleApiClient mGoogleApiClient;
@@ -43,6 +45,7 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onCreate() {
+        ((App) this.getApplication()).setIsLocationListenerServiceOn(true);
         Log.d(LOG_TAG, "onCreate");
         // Create an instance of GoogleAPIClient
         if (mGoogleApiClient == null) {
@@ -64,6 +67,7 @@ public class LocationListenerService extends Service implements
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
         Log.d(LOG_TAG, "onDestroy");
+        ((App) this.getApplication()).setIsLocationListenerServiceOn(false);
         super.onDestroy();
     }
 

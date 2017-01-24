@@ -1,4 +1,4 @@
-package com.example.alex.motoproject;
+package com.example.alex.motoproject.fragments;
 
 
 import android.Manifest;
@@ -10,15 +10,19 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
+import com.example.alex.motoproject.App;
+import com.example.alex.motoproject.services.LocationListenerService;
+import com.example.alex.motoproject.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -34,23 +38,21 @@ import static com.example.alex.motoproject.R.id.map;
 
 //TODO: custom pins
 public class MapFragment extends Fragment implements OnMapReadyCallback {
-    //TODO: fix fps
-    //TODO: add fab
+    public static final String LOG_TAG = MapFragment.class.getSimpleName();
+    //TODO: think about making handleLocation() returning boolean
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
     public static final int ALERT_GPS_OFF = 20;
     public static final int ALERT_INTERNET_OFF = 21;
     public static final int ALERT_PERMISSION_RATIONALE = 22;
     public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
 
+    //for methods calling, like creating pins
     private GoogleMap mMap;
+    //for lifecycle
+    private MapView mMapView;
 
     public MapFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -62,22 +64,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        //lines for custom fragment support
-        MapView mMapView = (MapView) view.findViewById(map);
+        //add Google map
+        mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);
-        mMapView.onResume();
-
-
         mMapView.getMapAsync(this);
 
-        Button buttonStartDriving = (Button) view.findViewById(R.id.button_drive_start);
-        buttonStartDriving.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton drivingToggleButton =
+                (FloatingActionButton) view.findViewById(R.id.button_drive_toggle);
+        drivingToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                handleLocation();
+                boolean isServiceOn =
+                        ((App) getActivity().getApplication()).isLocationListenerServiceOn();
+                if (!isServiceOn) {
+                    handleLocation();
+                } else {
+                    getActivity().stopService(
+                            new Intent(getActivity(), LocationListenerService.class));
+                    try {
+                        mMap.setMyLocationEnabled(false);
+                    } catch (SecurityException e) {
+                        Log.e(LOG_TAG, "Unexpected permission error!");
+                    }
 
-//                getActivity().stopService(new Intent(getContext()
-//                        .getApplicationContext(), LocationListenerService.class));
+                }
+
             }
         });
 
@@ -138,6 +149,42 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_LOCATION_REQUEST_CODE);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        mMapView.onDestroy();
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onLowMemory() {
+        mMapView.onLowMemory();
+        super.onLowMemory();
+    }
+
+    @Override
+    public void onStop() {
+        mMapView.onStop();
+        super.onStop();
+    }
+
+    @Override
+    public void onPause() {
+        mMapView.onPause();
+        super.onPause();
+    }
+
+    @Override
+    public void onStart() {
+        mMapView.onStart();
+        super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        mMapView.onResume();
+        super.onResume();
     }
 
     //handles showing variety of alerts in MapFragment

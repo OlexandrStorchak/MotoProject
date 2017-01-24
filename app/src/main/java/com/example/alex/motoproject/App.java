@@ -9,7 +9,7 @@ import io.realm.RealmConfiguration;
 
 public class App extends Application {
     private static final String TAG = "log";
-
+    private boolean isLocationListenerServiceOn = false;
 
     @Override
     public void onCreate() {
@@ -22,5 +22,14 @@ public class App extends Application {
                         .build();
         Realm.setDefaultConfiguration(configuration);
         Log.d(TAG, "realmInit: well done");
+    }
+
+
+    public boolean isLocationListenerServiceOn() {
+        return isLocationListenerServiceOn;
+    }
+
+    public void setIsLocationListenerServiceOn(boolean locationListenerServiceOn) {
+        isLocationListenerServiceOn = locationListenerServiceOn;
     }
 }
