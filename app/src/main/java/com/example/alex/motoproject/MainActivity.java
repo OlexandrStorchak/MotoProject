@@ -11,7 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.example.alex.motoproject.fragments.AuthFragment;
@@ -23,7 +22,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    public static boolean loginWithEmail = false;
+    public static boolean loginWithEmail = false; // Flag for validate with email login method
     private static final String TAG = "log";
     private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
@@ -39,11 +38,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
 
         //Firebase auth instance
         mFirebaseAuth = FirebaseAuth.getInstance();
 
+        setContentView(R.layout.activity_main);
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
+
         //FireBase auth listener
         mFirebaseAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity
                             // User is signed in
                             replaceFragment(FRAGMENT_WELCOME);
                         } else {
+
                             firebaseAuthCurrentUser.sendEmailVerification();
                             showToast("Check your email!");
                             firebaseAuth.signOut();
@@ -77,14 +79,17 @@ public class MainActivity extends AppCompatActivity
 
                     } else {
                         // User is signed out
+
                         replaceFragment(FRAGMENT_AUTH);
                     }
                 } else {
                     if (firebaseAuthCurrentUser != null) {
                         // User is signed in
+
                         replaceFragment(FRAGMENT_WELCOME);
                     } else {
                         // User is signed out
+
                         replaceFragment(FRAGMENT_AUTH);
 
                     }
@@ -92,6 +97,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
+
     }
 
 

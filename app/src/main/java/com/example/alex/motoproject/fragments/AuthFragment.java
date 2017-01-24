@@ -31,6 +31,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
 import static com.example.alex.motoproject.MainActivity.loginWithEmail;
 
 
@@ -81,7 +83,7 @@ public class AuthFragment extends Fragment {
         mButtonSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loginWithEmail=true;
+                loginWithEmail = true;
                 if (firstStart) {
                     mEmail.setVisibility(View.VISIBLE);
                     mPassword.setVisibility(View.VISIBLE);
@@ -147,7 +149,7 @@ public class AuthFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        firstStart=true;
+        firstStart = true;
     }
 
     @Override
@@ -175,7 +177,7 @@ public class AuthFragment extends Fragment {
                             Log.w(TAG, "signInWithEmail", task.getException());
                             ((MainActivity) getActivity()).showToast("no such account found");
                             mProgressBar.setVisibility(View.GONE);
-                            firstStart=true;
+                            firstStart = true;
                         }
 
                         // ...
@@ -235,12 +237,18 @@ public class AuthFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == GOOGLE_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            if (result.isSuccess()) {
-                // Google Sign In was successful, authenticate with Firebase
-                GoogleSignInAccount account = result.getSignInAccount();
-                firebaseAuthWithGoogle(account);
+            if (resultCode == RESULT_OK) {
+                if (result.isSuccess()) {
+                    // Google Sign In was successful, authenticate with Firebase
+                    GoogleSignInAccount account = result.getSignInAccount();
+                    firebaseAuthWithGoogle(account);
+                } else {
+                    ((MainActivity) getActivity()).showToast("Google account connection failed");
+                }
+            } else if (resultCode==RESULT_CANCELED){
+                ((MainActivity) getActivity()).showToast("Google account canceled");
             } else {
-                ((MainActivity) getActivity()).showToast("Google account connection failed");
+                ((MainActivity) getActivity()).showToast("Google account canceled");
             }
         }
     }
