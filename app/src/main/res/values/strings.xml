@@ -25,4 +25,20 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="auth_sign_out">SignOut</string>
+    <string name="hint_e_mail">e-mail</string>
+    <string name="hint_pass">pass</string>
+    <string name="hint_repeat_pass">repeat pass</string>
+    <string name="btn_sign_in">sign up</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="google">google</string>
+    <string name="login_screen_title">LOGIN</string>
+    <string name="login">login</string>
+    <string name="submit">submit</string>
+    <string name="email_is_empty">E-mail is empty</string>
+    <string name="enter_password">Enter password</string>
+    <string name="less_6_chars">Password less than 6 chars</string>
 </resources>
