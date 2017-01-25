@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
 import com.google.android.gms.auth.api.Auth;
@@ -129,6 +130,7 @@ public class AuthFragment extends Fragment {
         mButtonSignInGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 signInGoogle();
                 mEmail.setVisibility(View.GONE);
                 mPassword.setVisibility(View.GONE);
@@ -206,7 +208,7 @@ public class AuthFragment extends Fragment {
                 .build();
 
 
-        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+        mGoogleApiClient = new GoogleApiClient.Builder(((App) getContext()))
                 .enableAutoManage((FragmentActivity) getContext()
                         , new GoogleApiClient.OnConnectionFailedListener() {
                             @Override
