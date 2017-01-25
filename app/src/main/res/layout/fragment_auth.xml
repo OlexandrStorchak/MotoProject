@@ -13,8 +13,7 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:visibility="gone"
-        />
+        android:visibility="gone" />
 
     <ScrollView
         android:layout_width="match_parent"

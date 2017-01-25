@@ -32,8 +32,7 @@ public class WelcomeFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mTitle = (TextView)view.findViewById(R.id.welcome_title);
-
+        mTitle = (TextView) view.findViewById(R.id.welcome_title);
 
 
     }

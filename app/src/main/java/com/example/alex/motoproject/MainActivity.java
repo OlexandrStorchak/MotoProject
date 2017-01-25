@@ -13,20 +13,24 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.example.alex.motoproject.fragments.AuthFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
+import com.example.alex.motoproject.fragments.SignUpFragment;
+import com.example.alex.motoproject.fragments.WelcomeFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    FragmentManager mFragmentManager;
-    public static boolean loginWithEmail = false; // Flag for validate with email login method
-    private static final String TAG = "log";
     private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
     private static final String FRAGMENT_WELCOME = "fragmentWelcome";
-
+    public static boolean loginWithEmail = false; // Flag for validate with email login method
+    FragmentManager mFragmentManager;
     android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
 
     //FireBase vars :
@@ -46,11 +50,10 @@ public class MainActivity extends AppCompatActivity
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         //init FragmentManager
         mFragmentManager = getSupportFragmentManager();
 
-        showMapFragment();
+//        showMapFragment();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -69,8 +72,6 @@ public class MainActivity extends AppCompatActivity
             showMapFragment();
         }
         Log.d(TAG, "onCreate: Main activity ");
-    }
-
 
 
         //FireBase auth listener
@@ -82,10 +83,11 @@ public class MainActivity extends AppCompatActivity
                     if (firebaseAuthCurrentUser != null) {
                         if (firebaseAuthCurrentUser.isEmailVerified()) {
                             // User is signed in
-                            navigationView.getMenu().setGroupVisible(R.id.nav_group_main,true);
-                            replaceFragment(FRAGMENT_WELCOME);
+                            navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
+//                            replaceFragment(FRAGMENT_WELCOME);
+                            showMapFragment();
                         } else {
-                            navigationView.getMenu().setGroupVisible(R.id.nav_group_main,false);
+                            navigationView.getMenu().setGroupVisible(R.id.nav_group_main, false);
                             firebaseAuthCurrentUser.sendEmailVerification();
                             showToast("Check your email!");
                             firebaseAuth.signOut();
@@ -93,17 +95,18 @@ public class MainActivity extends AppCompatActivity
 
                     } else {
                         // User is signed out
-                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main,false);
+                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main, false);
                         replaceFragment(FRAGMENT_AUTH);
                     }
                 } else {
                     if (firebaseAuthCurrentUser != null) {
                         // User is signed in
-                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main,true);
-                        replaceFragment(FRAGMENT_WELCOME);
+                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
+//                        replaceFragment(FRAGMENT_WELCOME);
+                        showMapFragment();
                     } else {
                         // User is signed out
-                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main,false);
+                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main, false);
                         replaceFragment(FRAGMENT_AUTH);
 
                     }
@@ -148,7 +151,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        switch (id){
+        switch (id) {
             case R.id.nav_maps:
                 showMapFragment();
                 break;
@@ -183,7 +186,6 @@ public class MainActivity extends AppCompatActivity
         mFirebaseAuth.addAuthStateListener(mFirebaseAuthStateListener);
 
     }
-
 
 
     @Override

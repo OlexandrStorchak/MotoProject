@@ -38,15 +38,12 @@ import static com.example.alex.motoproject.MainActivity.loginWithEmail;
 
 public class AuthFragment extends Fragment {
     private static final int GOOGLE_SIGN_IN = 13;
+    private static final String TAG = "log";
     private EditText mEmail, mPassword;
     private ProgressBar mProgressBar;
     private FirebaseAuth mFireBaseAuth;
     private GoogleApiClient mGoogleApiClient = null;
     private boolean firstStart = true;
-
-
-
-    private static final String TAG = "log";
     private Button mButtonSignInGoogle;
     private Button mButtonSignIn;
     private Button mButtonSubmit;
