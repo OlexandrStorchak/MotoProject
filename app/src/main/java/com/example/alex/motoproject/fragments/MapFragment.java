@@ -46,6 +46,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public static final int ALERT_PERMISSION_RATIONALE = 22;
     public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
 
+    private static MapFragment mapFragmentInstance;
     //for methods calling, like creating pins
     private GoogleMap mMap;
     //for lifecycle
@@ -54,6 +55,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public MapFragment() {
         // Required empty public constructor
     }
+
+    public static MapFragment getInstance(){
+        if (mapFragmentInstance==null){
+            mapFragmentInstance = new MapFragment();
+        }
+        return mapFragmentInstance;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

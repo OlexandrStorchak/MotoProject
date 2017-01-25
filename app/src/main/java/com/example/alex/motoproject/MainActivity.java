@@ -223,8 +223,8 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.commit();
                 break;
             case FRAGMENT_MAP:
-                MapFragment mapFragment = new MapFragment();
-                fragmentTransaction.replace(R.id.main_activity_frame,mapFragment);
+
+                fragmentTransaction.replace(R.id.main_activity_frame,MapFragment.getInstance());
                 fragmentTransaction.commit();
                 break;
         }
