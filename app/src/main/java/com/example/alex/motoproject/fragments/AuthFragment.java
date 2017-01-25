@@ -130,7 +130,7 @@ public class AuthFragment extends Fragment {
         mButtonSignInGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                view.setVisibility(View.INVISIBLE);
                 signInGoogle();
                 mEmail.setVisibility(View.GONE);
                 mPassword.setVisibility(View.GONE);
