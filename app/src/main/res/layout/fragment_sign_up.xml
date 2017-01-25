@@ -1,0 +1,65 @@
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/bg2_xxxhdpi"
+    tools:context="com.example.alex.motoproject.fragments.SignUpFragment">
+
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:ignore="ScrollViewCount"
+
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        style="@style/MyColors"
+        android:id="@+id/sign_up_email"
+        android:hint="@string/hint_e_mail"
+        android:textAlignment="center"
+        android:inputType="textEmailAddress" />
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        style="@style/MyColors"
+        android:id="@+id/sign_up_pass"
+        android:hint="@string/hint_pass"
+        android:textAlignment="center"
+        android:inputType="textPassword" />
+    <EditText
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        style="@style/MyColors"
+        android:id="@+id/sign_up_repeat_pass"
+        android:hint="@string/hint_repeat_pass"
+        android:textAlignment="center"
+        android:inputType="textPassword" />
+    <Button
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:id="@+id/sign_up_btn_ok"
+        android:text="@string/submit"
+        android:layout_marginBottom="20dp"
+        style="@style/MyButtonCustom"
+        />
+    </LinearLayout>
+</ScrollView>
+</LinearLayout>
