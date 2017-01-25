@@ -208,7 +208,7 @@ public class AuthFragment extends Fragment {
                 .build();
 
 
-        mGoogleApiClient = new GoogleApiClient.Builder(((App) getContext()))
+        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
                 .enableAutoManage((FragmentActivity) getContext()
                         , new GoogleApiClient.OnConnectionFailedListener() {
                             @Override
