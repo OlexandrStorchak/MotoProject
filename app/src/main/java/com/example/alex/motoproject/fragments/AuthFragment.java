@@ -138,7 +138,6 @@ public class AuthFragment extends Fragment {
                 mButtonSubmit.setVisibility(View.GONE);
                 mButtonSignInGoogle.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.VISIBLE);
-                mButtonSignInGoogle.setClickable(false);
             }
         });
     }
