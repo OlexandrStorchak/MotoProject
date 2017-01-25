@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -29,6 +28,7 @@ public class MainActivity extends AppCompatActivity
     private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
     private static final String FRAGMENT_WELCOME = "fragmentWelcome";
+    private static final String FRAGMENT_MAP = "fragmentMap";
     public static boolean loginWithEmail = false; // Flag for validate with email login method
     FragmentManager mFragmentManager;
     android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
@@ -66,11 +66,7 @@ public class MainActivity extends AppCompatActivity
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //start MapFragment if an intent has that command
-        if (getIntent().getExtras() != null &&
-                getIntent().getExtras().getBoolean("isShouldLaunchMapFragment")) {
-            showMapFragment();
-        }
+
         Log.d(TAG, "onCreate: Main activity ");
 
 
@@ -83,9 +79,14 @@ public class MainActivity extends AppCompatActivity
                     if (firebaseAuthCurrentUser != null) {
                         if (firebaseAuthCurrentUser.isEmailVerified()) {
                             // User is signed in
+                            //start MapFragment if an intent has that command
+                            if (getIntent().getExtras() != null &&
+                                    getIntent().getExtras().getBoolean("isShouldLaunchMapFragment")) {
+                                replaceFragment(FRAGMENT_MAP);
+                            }
                             navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
 //                            replaceFragment(FRAGMENT_WELCOME);
-                            showMapFragment();
+                            replaceFragment(FRAGMENT_MAP);
                         } else {
                             navigationView.getMenu().setGroupVisible(R.id.nav_group_main, false);
                             firebaseAuthCurrentUser.sendEmailVerification();
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity
                         // User is signed in
                         navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
 //                        replaceFragment(FRAGMENT_WELCOME);
-                        showMapFragment();
+                        replaceFragment(FRAGMENT_MAP);
                     } else {
                         // User is signed out
                         navigationView.getMenu().setGroupVisible(R.id.nav_group_main, false);
@@ -153,7 +154,7 @@ public class MainActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.nav_maps:
-                showMapFragment();
+                replaceFragment(FRAGMENT_MAP);
                 break;
             case R.id.nav_friends:
                 //TODO fragment friends list
@@ -221,6 +222,11 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.replace(R.id.main_activity_frame, authFragment);
                 fragmentTransaction.commit();
                 break;
+            case FRAGMENT_MAP:
+                MapFragment mapFragment = new MapFragment();
+                fragmentTransaction.replace(R.id.main_activity_frame,mapFragment);
+                fragmentTransaction.commit();
+                break;
         }
     }
 
@@ -246,10 +252,5 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "onResume: ");
     }
 
-    private void showMapFragment() {
-        FragmentTransaction mFragmentTransaction = mFragmentManager.beginTransaction();
-        MapFragment mMapFragment = new MapFragment();
-        mFragmentTransaction.replace(R.id.container, mMapFragment);
-        mFragmentTransaction.commit();
-    }
+
 }
