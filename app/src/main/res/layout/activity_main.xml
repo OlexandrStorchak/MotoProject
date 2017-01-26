@@ -15,14 +15,47 @@
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"
+        style="@style/Navigation"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer"
-
-        />
 
 
-</android.support.v4.widget.DrawerLayout>
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/nav_header_height"
+            android:orientation="vertical"
+            >
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                style="@style/MyNavigationButtonCustom"
+                android:text="@string/menu_navi_tittle_maps"
+                android:id="@+id/navigatio_btn_map"
+                />
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                style="@style/MyNavigationButtonCustom"
+                android:text="@string/auth_sign_out"
+                android:id="@+id/navigation_btn_signout"
+
+
+                />
+
+
+        </LinearLayout>
+</android.support.design.widget.NavigationView>
+
+
+
+
+
+
+    </android.support.v4.widget.DrawerLayout>

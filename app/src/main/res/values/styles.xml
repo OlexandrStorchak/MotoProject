@@ -32,11 +32,21 @@
         <item name="android:height">50dp</item>
         <item name="android:textAlignment" tools:targetApi="jelly_bean_mr1">center</item>
     </style>
+    <style name="Navigation">
+        <item name="android:background">@drawable/navigation</item>
+        <item name="android:textAlignment" tools:targetApi="jelly_bean_mr1">center</item>
+    </style>
 
     <style name="MyButtonCustom">
         <item name="android:background">@drawable/button_background</item>
         <item name="android:textColor">@color/gray500</item>
         <item name="android:textColorHint">@color/greenA400</item>
+    </style>
+    <style name="MyNavigationButtonCustom">
+        <item name="android:background">@drawable/navigation_button</item>
+        <item name="android:textColor">@color/gray500a2</item>
+        <item name="android:layout_margin">2dp</item>
+
     </style>
 
 </resources>
