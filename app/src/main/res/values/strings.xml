@@ -23,8 +23,6 @@
     <string name="ok">Гаразд</string>
     <string name="close">Закрити</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="auth_sign_out">SignOut</string>
     <string name="hint_e_mail">e-mail</string>
     <string name="hint_pass">pass</string>

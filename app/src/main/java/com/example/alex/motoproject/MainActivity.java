@@ -1,5 +1,6 @@
 package com.example.alex.motoproject;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -18,6 +19,7 @@ import com.example.alex.motoproject.fragments.AuthFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.fragments.SignUpFragment;
 import com.example.alex.motoproject.fragments.WelcomeFragment;
+import com.example.alex.motoproject.services.LocationListenerService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -170,6 +172,8 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_sign_out:
                 mFirebaseAuth.signOut();
+                stopService(
+                        new Intent(this, LocationListenerService.class));
                 break;
 
         }
