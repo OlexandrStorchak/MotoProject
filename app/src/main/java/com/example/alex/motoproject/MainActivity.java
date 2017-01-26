@@ -1,5 +1,9 @@
 package com.example.alex.motoproject;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -16,13 +20,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+
 import com.example.alex.motoproject.fragments.AuthFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.fragments.SignUpFragment;
 import com.example.alex.motoproject.fragments.WelcomeFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser firebaseAuthCurrentUser;
     private Button navigationBtnMap;
     private Button navigationBtnSignOut;
+    private DrawerLayout drawer;
 
 
     @Override
@@ -63,11 +72,12 @@ public class MainActivity extends AppCompatActivity {
         mFragmentManager = getSupportFragmentManager();
 
 
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+
 
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -76,6 +86,9 @@ public class MainActivity extends AppCompatActivity {
         nameHeader = (TextView) header.findViewById(R.id.header_name);
         emailHeader = (TextView) header.findViewById(R.id.header_email);
         avatarHeader = (ImageView) header.findViewById(R.id.header_avatar);
+
+
+
         navigationBtnMap = (Button) navigationView.findViewById(R.id.navigatio_btn_map);
         navigationBtnMap.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -208,26 +221,31 @@ public class MainActivity extends AppCompatActivity {
 //                            }
         navigationBtnSignOut.setVisibility(View.VISIBLE);
         navigationBtnMap.setVisibility(View.VISIBLE);
-        navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
+
         nameHeader.setText(firebaseAuthCurrentUser.getDisplayName());
         emailHeader.setText(firebaseAuthCurrentUser.getEmail());
         avatarHeader.setVisibility(View.VISIBLE);
-        Glide.with(avatarHeader.getContext())
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        Picasso.with(getApplicationContext())
                 .load(firebaseAuthCurrentUser.getPhotoUrl())
+                .resize(avatarHeader.getMaxWidth(),avatarHeader.getMaxHeight())
+                .centerCrop()
+                .transform(new CircleTransform())
                 .into(avatarHeader);
         replaceFragment(FRAGMENT_MAP);
     }
 
     private void isSignedOut() {
 
-        navigationView.getMenu().setGroupVisible(R.id.nav_group_main, false);
+
         replaceFragment(FRAGMENT_AUTH);
         navigationBtnSignOut.setVisibility(View.GONE);
         navigationBtnMap.setVisibility(View.GONE);
         nameHeader.setText("");
         emailHeader.setText("");
         avatarHeader.setVisibility(View.INVISIBLE);
-
+        drawer.closeDrawers();
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
     }
 
@@ -250,4 +268,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-}
+    public class CircleTransform implements Transformation {
+
+            @Override
+            public Bitmap transform(Bitmap source) {
+                int size = Math.min(source.getWidth(), source.getHeight());
+
+                int x = (source.getWidth() - size) / 2;
+                int y = (source.getHeight() - size) / 2;
+
+                Bitmap squaredBitmap = Bitmap.createBitmap(source, x, y, size, size);
+                if (squaredBitmap != source) {
+                    source.recycle();
+                }
+
+                Bitmap bitmap = Bitmap.createBitmap(size, size, source.getConfig());
+
+                Canvas canvas = new Canvas(bitmap);
+                Paint paint = new Paint();
+                BitmapShader shader = new BitmapShader(squaredBitmap, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP);
+                paint.setShader(shader);
+                paint.setAntiAlias(true);
+
+                float r = size/2f;
+                canvas.drawCircle(r, r, r, paint);
+
+                squaredBitmap.recycle();
+                return bitmap;
+            }
+
+            @Override
+            public String key() {
+                return "circle";
+            }
+        }
+    }
+

@@ -3,17 +3,4 @@
 
     <solid android:color="@color/gray900a2" />
 
-    <stroke
-        android:width="2dp"
-        android:color="@color/gray500"
-
-        />
-    <corners
-
-        android:bottomRightRadius="10dp"
-
-        android:topRightRadius="10dp"
-
-        />
-
 </shape>
