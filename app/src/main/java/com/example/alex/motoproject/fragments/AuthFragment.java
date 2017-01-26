@@ -15,7 +15,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
 import com.google.android.gms.auth.api.Auth;
