@@ -21,13 +21,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.alex.motoproject.App;
-import com.example.alex.motoproject.services.LocationListenerService;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.services.LocationListenerService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import static com.example.alex.motoproject.R.id.map;
 
@@ -51,6 +57,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
     //for lifecycle
     private MapView mMapView;
+
+    private DatabaseReference mDatabase;
 
     public MapFragment() {
         // Required empty public constructor
@@ -78,6 +86,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
 
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         FloatingActionButton drivingToggleButton =
                 (FloatingActionButton) view.findViewById(R.id.button_drive_toggle);
         drivingToggleButton.setOnClickListener(new View.OnClickListener() {
@@ -90,16 +100,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 } else {
                     getActivity().stopService(
                             new Intent(getActivity(), LocationListenerService.class));
-                    try {
+                    if (ContextCompat.checkSelfPermission(getContext(),
+                            Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
                         mMap.setMyLocationEnabled(false);
-                    } catch (SecurityException e) {
-                        Log.e(LOG_TAG, "Unexpected permission error!");
                     }
-
                 }
-
             }
         });
+
+        fetchUserLocations();
 
         super.onViewCreated(view, savedInstanceState);
     }
@@ -285,6 +295,54 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.show();
+    }
+
+    private void fetchUserLocations() {
+//        DatabaseReference locationsReference =
+        mDatabase.child("location").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//                Log.d(LOG_TAG, s);
+                Log.d(LOG_TAG, dataSnapshot.toString());
+                String uid = dataSnapshot.getKey();
+                Double lat = (Double) dataSnapshot.child("lat").getValue();
+                Double lng = (Double) dataSnapshot.child("lng").getValue();
+                LatLng latLng = new LatLng(lat, lng);
+                createPinOnMap(latLng, uid);
+                Log.d(LOG_TAG, lat + " " + lng);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                String uid = dataSnapshot.getKey();
+                Double lat = (Double) dataSnapshot.child("lat").getValue();
+                Double lng = (Double) dataSnapshot.child("lng").getValue();
+                LatLng latLng = new LatLng(lat, lng);
+                createPinOnMap(latLng, uid);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void createPinOnMap(LatLng latLng, String uid) {
+        mMap.addMarker(new MarkerOptions()
+                .position(latLng)
+                .title(uid));
+        Log.d(LOG_TAG, "pin created!");
     }
 }
 

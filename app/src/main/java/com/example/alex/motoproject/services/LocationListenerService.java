@@ -1,14 +1,17 @@
 package com.example.alex.motoproject.services;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,6 +23,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -33,11 +39,11 @@ public class LocationListenerService extends Service implements
         LocationListener {
 //TODO: do something if there`s no Internet or GPS connection
     private static final String LOG_TAG = "LocationListenerService";
-
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation;
     String mLastUpdateTime;
     String mRequestFrequency = "default";
+    private DatabaseReference mDatabase;
 
     public LocationListenerService() {
         // Required empty public constructor
@@ -58,6 +64,8 @@ public class LocationListenerService extends Service implements
         mGoogleApiClient.connect();
 
         createNotification();
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         super.onCreate();
     }
@@ -90,6 +98,15 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+            if (mLastLocation != null) {
+                mCurrentLocation = mLastLocation;
+            }
+        }
         startLocationUpdates();
 
     }
@@ -136,20 +153,26 @@ public class LocationListenerService extends Service implements
 
     protected void startLocationUpdates() {
         //handle unexpected permission absence
-        try {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, createLocationRequest(), this);
-        } catch (SecurityException e) {
-            Log.e(LOG_TAG, e.getMessage());
-            stopSelf();
         }
     }
 
     private void updateFirebaseData() {
-        //TODO: push data to the server
-        Log.d(LOG_TAG, "Lat " + mCurrentLocation.getLatitude() +
-                " Lon " + mCurrentLocation.getLongitude() +
-                " Time " + mLastUpdateTime);
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() != null) {
+            String uid = auth.getCurrentUser().getUid();
+
+            DatabaseReference userLocationReference =
+                    mDatabase.child("location").child(uid);
+            userLocationReference.child("lat").setValue(mCurrentLocation.getLatitude());
+            userLocationReference.child("lng").setValue(mCurrentLocation.getLongitude());
+            userLocationReference.child("updateTime").setValue(mLastUpdateTime);
+        }
+
         //TODO: delete this, only for testing purposes
         Toast.makeText(this, "Lat " + mCurrentLocation.getLatitude() +
                 " Lon " + mCurrentLocation.getLongitude() +
@@ -186,6 +209,7 @@ public class LocationListenerService extends Service implements
         //finish this service
         Intent stopSelfIntent = new Intent(this, LocationListenerService.class);
         stopSelfIntent.putExtra("isShouldStopService", true);
+        //TODO: make a better logic for service killing
         PendingIntent StopSelfPendingIntent =
                 PendingIntent.getService(
                         this,
