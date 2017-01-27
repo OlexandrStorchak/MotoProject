@@ -1,6 +1,6 @@
 package com.example.alex.motoproject.models;
 
-public class UserModel {
+public class FriendsListModel {
     String name,status,info;
     String avatar;
 

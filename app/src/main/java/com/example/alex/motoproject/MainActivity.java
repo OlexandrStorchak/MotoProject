@@ -3,7 +3,6 @@ package com.example.alex.motoproject;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -19,12 +18,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.alex.motoproject.adapters.FriendsListAdapter;
 import com.example.alex.motoproject.fragments.AuthFragment;
 import com.example.alex.motoproject.fragments.CheckEmailDialogFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.fragments.SignUpFragment;
-import com.example.alex.motoproject.fragments.WelcomeFragment;
-import com.example.alex.motoproject.models.UserModel;
+import com.example.alex.motoproject.models.FriendsListModel;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -38,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
-    private static final String FRAGMENT_WELCOME = "fragmentWelcome";
     private static final String FRAGMENT_MAP = "fragmentMap";
     public static boolean loginWithEmail = false; // Flag for validate with email login method
     FragmentManager mFragmentManager;
@@ -54,8 +52,6 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser mFirebaseCurrentUser;
     private Button mNavigationBtnMap;
     private Button mNavigationBtnSignOut;
-    private Button mNavigationBtnFriendsList;
-    private Button mNavigationBtnBackToMenu;
     private DrawerLayout mDrawerLayout;
 
 
@@ -81,22 +77,27 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-
+        //Define view of Navigation Drawer
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
 
+        //Get View of Navigation menu Header
         final View header = mNavigationView.getHeaderView(0);
+
+        //Define View elements of Header in Navigation Drawer
         mNameHeader = (TextView) header.findViewById(R.id.header_name);
         mEmailHeader = (TextView) header.findViewById(R.id.header_email);
         mAvatarHeader = (ImageView) header.findViewById(R.id.header_avatar);
 
-
+        //Button in Navigation Drawer for show the Map fragment
         mNavigationBtnMap = (Button) mNavigationView.findViewById(R.id.navigatio_btn_map);
         mNavigationBtnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 replaceFragment(FRAGMENT_MAP);
+                mDrawerLayout.closeDrawers();
             }
         });
+        //Button in Navigation Drawer for SignOut
         mNavigationBtnSignOut = (Button) mNavigationView.findViewById(R.id.navigation_btn_signout);
         mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,39 +105,44 @@ public class MainActivity extends AppCompatActivity {
                 mFirebaseAuth.signOut();
             }
         });
-        mNavigationBtnFriendsList = (Button)mNavigationView.findViewById(R.id.navigation_btn_friends);
+        //Button in Navigation Drawer for display Friends List
+        Button mNavigationBtnFriendsList = (Button) mNavigationView.findViewById(R.id.navigation_btn_friends);
         mNavigationBtnFriendsList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                View mFriendList = (View) findViewById(R.id.navigation_friends_layout);
+                View mFriendList = findViewById(R.id.navigation_friends_layout);
                 mFriendList.setVisibility(View.VISIBLE);
-                View mMenu = (View) findViewById(R.id.navigation_menu_layout);
+                View mMenu = findViewById(R.id.navigation_menu_layout);
                 mMenu.setVisibility(View.GONE);
 
-                List<UserModel> list = new ArrayList<UserModel>();
+                //TODO : Get real data from Firebase to list
+                //This is dummy users
+                List<FriendsListModel> list = new ArrayList<>();
 
-                for (int i=0; i<10;i++){
-                    UserModel user = new UserModel();
+                for (int i = 0; i < 10; i++) {
+                    FriendsListModel user = new FriendsListModel();
                     list.add(user);
                     // Log.d("log", "onViewCreated: "+i);
                 }
 
-                FriendsAdapter adapter = new FriendsAdapter(list);
+                FriendsListAdapter adapter = new FriendsListAdapter(list);
 
-                RecyclerView rv = (RecyclerView)mNavigationView.findViewById(R.id.navigation_friends_list_recycler);
+                RecyclerView rv = (RecyclerView) mNavigationView.findViewById(R.id.navigation_friends_list_recycler);
 
                 rv.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
                 rv.setAdapter(adapter);
             }
         });
-        mNavigationBtnBackToMenu = (Button)mNavigationView.findViewById(R.id.navigatio_btn_back_to_menu);
+
+        // Button in Navigation Drawer, which visible when click to friends list, for back to main menu
+        Button mNavigationBtnBackToMenu = (Button) mNavigationView.findViewById(R.id.navigatio_btn_back_to_menu);
         mNavigationBtnBackToMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                View mFriendList = (View) findViewById(R.id.navigation_friends_layout);
+                View mFriendList = findViewById(R.id.navigation_friends_layout);
                 mFriendList.setVisibility(View.GONE);
-                View mMenu = (View) findViewById(R.id.navigation_menu_layout);
+                View mMenu = findViewById(R.id.navigation_menu_layout);
                 mMenu.setVisibility(View.VISIBLE);
             }
         });
@@ -221,22 +227,13 @@ public class MainActivity extends AppCompatActivity {
                 = fragmentManager.beginTransaction();
         switch (fragmentName) {
             case FRAGMENT_SIGN_UP:
-                SignUpFragment signUpFragment = new SignUpFragment();
-
-                fragmentTransaction.replace(R.id.main_activity_frame, signUpFragment);
+                fragmentTransaction.replace(R.id.main_activity_frame, SignUpFragment.getInstance());
                 fragmentTransaction.addToBackStack(FRAGMENT_SIGN_UP);
                 fragmentTransaction.commit();
                 break;
-            case FRAGMENT_WELCOME:
-                WelcomeFragment welcomeFragment = new WelcomeFragment();
 
-                fragmentTransaction.replace(R.id.main_activity_frame, welcomeFragment);
-                fragmentTransaction.commit();
-                break;
             case FRAGMENT_AUTH:
-                AuthFragment authFragment = new AuthFragment();
-
-                fragmentTransaction.replace(R.id.main_activity_frame, authFragment);
+                fragmentTransaction.replace(R.id.main_activity_frame, new AuthFragment());
                 fragmentTransaction.commit();
                 break;
             case FRAGMENT_MAP:
@@ -250,8 +247,9 @@ public class MainActivity extends AppCompatActivity {
     public void showToast(String text) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
-    public void showDialog(){
-        new CheckEmailDialogFragment().show(getFragmentManager(),"dialog");
+
+    public void showDialog() {
+        new CheckEmailDialogFragment().show(getFragmentManager(), "dialog");
     }
 
     private void isSignedIn() {

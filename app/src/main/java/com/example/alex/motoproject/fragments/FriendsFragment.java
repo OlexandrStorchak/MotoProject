@@ -4,27 +4,26 @@ package com.example.alex.motoproject.fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.alex.motoproject.FriendsAdapter;
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.models.UserModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class FriendsFragment extends Fragment {
 
 
-
+private static FriendsFragment friendsFragmentInstance;
 
 
     public FriendsFragment() {
         // Required empty public constructor
+    }
+    public static FriendsFragment getInstance(){
+        if (friendsFragmentInstance==null){
+            friendsFragmentInstance = new FriendsFragment();
+        }
+        return friendsFragmentInstance;
     }
 
 

@@ -1,4 +1,4 @@
-package com.example.alex.motoproject;
+package com.example.alex.motoproject.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -7,25 +7,24 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.alex.motoproject.R;
+
 import java.util.List;
 
-/**
- * Created by Alex on 27.01.2017.
- */
 
 
-public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.VH> {
+public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.VH> {
 
-    List friendsList;
+    private List friendsList;
 
-    public FriendsAdapter(List friendsList) {
+    public FriendsListAdapter(List friendsList) {
         this.friendsList = friendsList;
     }
 
     @Override
     public VH onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.friends_list_row, parent, false);
+                .inflate(R.layout.navigation_friends_list_row, parent, false);
         return new VH(view);
     }
 
@@ -42,10 +41,10 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.VH> {
         return friendsList.size();
     }
 
-    public class VH extends RecyclerView.ViewHolder{
+    class VH extends RecyclerView.ViewHolder{
         ImageView avatar;
         TextView name,status,info;
-        public VH(View itemView) {
+        VH(View itemView) {
             super(itemView);
 
 

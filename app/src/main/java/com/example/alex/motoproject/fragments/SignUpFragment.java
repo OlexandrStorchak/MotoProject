@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.fragments;
 
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -25,6 +26,9 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class SignUpFragment extends Fragment {
 
+    @SuppressLint("StaticFieldLeak")
+    private static SignUpFragment signUpFragmentInstance;
+
 
     private static final String TAG = "log";
     private EditText mEmail, mPassword, mRepeatPassword;
@@ -32,6 +36,13 @@ public class SignUpFragment extends Fragment {
 
     public SignUpFragment() {
         // Required empty public constructor
+    }
+
+    public static SignUpFragment getInstance(){
+        if(signUpFragmentInstance==null){
+            signUpFragmentInstance=new SignUpFragment();
+        }
+        return signUpFragmentInstance;
     }
 
     @Override
