@@ -22,33 +22,15 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main">
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/nav_header_height">
+        <include layout="@layout/navigation_custom_menu"
+            android:id="@+id/navigation_menu_layout"
+            />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="5dp">
+        <include layout="@layout/navigation_friends_list"
+            android:id="@+id/navigation_friends_layout"
+            android:visibility="gone"
+            />
 
-                <Button
-                    android:id="@+id/navigatio_btn_map"
-                    style="@style/MyNavigationButtonCustom"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:text="@string/menu_navi_tittle_maps" />
-
-                <Button
-                    android:id="@+id/navigation_btn_signout"
-                    style="@style/MyNavigationButtonCustom"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:text="@string/auth_sign_out" />
-
-            </LinearLayout>
-        </ScrollView>
     </android.support.design.widget.NavigationView>
 
 
