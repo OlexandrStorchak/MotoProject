@@ -1,12 +1,9 @@
 package com.example.alex.motoproject;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -21,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.alex.motoproject.fragments.AuthFragment;
+import com.example.alex.motoproject.fragments.CheckEmailDialogFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.fragments.SignUpFragment;
 import com.example.alex.motoproject.fragments.WelcomeFragment;
@@ -28,7 +26,6 @@ import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,14 +41,14 @@ public class MainActivity extends AppCompatActivity {
     //FireBase vars :
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mFirebaseAuthStateListener;
-    private NavigationView navigationView;
-    private TextView nameHeader;
-    private TextView emailHeader;
-    private ImageView avatarHeader;
-    private FirebaseUser firebaseAuthCurrentUser;
-    private Button navigationBtnMap;
-    private Button navigationBtnSignOut;
-    private DrawerLayout drawer;
+    private NavigationView mNavigationView;
+    private TextView mNameHeader;
+    private TextView mEmailHeader;
+    private ImageView mAvatarHeader;
+    private FirebaseUser mFirebaseCurrentUser;
+    private Button mNavigationBtnMap;
+    private Button mNavigationBtnSignOut;
+    private DrawerLayout mDrawerLayout;
 
 
     @Override
@@ -70,32 +67,30 @@ public class MainActivity extends AppCompatActivity {
         mFragmentManager = getSupportFragmentManager();
 
 
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
+                this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
 
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-
-        final View header = navigationView.getHeaderView(0);
-        nameHeader = (TextView) header.findViewById(R.id.header_name);
-        emailHeader = (TextView) header.findViewById(R.id.header_email);
-        avatarHeader = (ImageView) header.findViewById(R.id.header_avatar);
-
+        final View header = mNavigationView.getHeaderView(0);
+        mNameHeader = (TextView) header.findViewById(R.id.header_name);
+        mEmailHeader = (TextView) header.findViewById(R.id.header_email);
+        mAvatarHeader = (ImageView) header.findViewById(R.id.header_avatar);
 
 
-        navigationBtnMap = (Button) navigationView.findViewById(R.id.navigatio_btn_map);
-        navigationBtnMap.setOnClickListener(new View.OnClickListener() {
+        mNavigationBtnMap = (Button) mNavigationView.findViewById(R.id.navigatio_btn_map);
+        mNavigationBtnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 replaceFragment(FRAGMENT_MAP);
             }
         });
-        navigationBtnSignOut = (Button) navigationView.findViewById(R.id.navigation_btn_signout);
-        navigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
+        mNavigationBtnSignOut = (Button) mNavigationView.findViewById(R.id.navigation_btn_signout);
+        mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mFirebaseAuth.signOut();
@@ -109,17 +104,17 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                firebaseAuthCurrentUser = firebaseAuth.getCurrentUser();
+                mFirebaseCurrentUser = firebaseAuth.getCurrentUser();
                 if (loginWithEmail) {
                     //Sign in method by email
-                    if (firebaseAuthCurrentUser != null) {
-                        if (firebaseAuthCurrentUser.isEmailVerified()) {
+                    if (mFirebaseCurrentUser != null) {
+                        if (mFirebaseCurrentUser.isEmailVerified()) {
                             // User is signed in with email
                             isSignedIn();
 
                         } else {
                             //User is login with email must confirm it by email
-                            firebaseAuthCurrentUser.sendEmailVerification();
+                            mFirebaseCurrentUser.sendEmailVerification();
                             showToast("Check your email!");
                             isSignedOut();
                         }
@@ -130,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else {
                     //Sign in method by Google account
-                    if (firebaseAuthCurrentUser != null) {
+                    if (mFirebaseCurrentUser != null) {
                         //Sign in with Google account
                         isSignedIn();
                     } else {
@@ -210,6 +205,9 @@ public class MainActivity extends AppCompatActivity {
     public void showToast(String text) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
+    public void showDialog(){
+        new CheckEmailDialogFragment().show(getFragmentManager(),"dialog");
+    }
 
     private void isSignedIn() {
         //start MapFragment if an intent has that command
@@ -217,33 +215,34 @@ public class MainActivity extends AppCompatActivity {
 //                                    getIntent().getExtras().getBoolean("isShouldLaunchMapFragment")) {
 //                                replaceFragment(FRAGMENT_MAP);
 //                            }
-        navigationBtnSignOut.setVisibility(View.VISIBLE);
-        navigationBtnMap.setVisibility(View.VISIBLE);
+        mNavigationBtnSignOut.setVisibility(View.VISIBLE);
+        mNavigationBtnMap.setVisibility(View.VISIBLE);
 
-        nameHeader.setText(firebaseAuthCurrentUser.getDisplayName());
-        emailHeader.setText(firebaseAuthCurrentUser.getEmail());
-        avatarHeader.setVisibility(View.VISIBLE);
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        mNameHeader.setText(mFirebaseCurrentUser.getDisplayName());
+        mEmailHeader.setText(mFirebaseCurrentUser.getEmail());
+        mAvatarHeader.setVisibility(View.VISIBLE);
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         Picasso.with(getApplicationContext())
-                .load(firebaseAuthCurrentUser.getPhotoUrl())
-                .resize(avatarHeader.getMaxWidth(),avatarHeader.getMaxHeight())
+                .load(mFirebaseCurrentUser.getPhotoUrl())
+                .resize(mAvatarHeader.getMaxWidth(), mAvatarHeader.getMaxHeight())
                 .centerCrop()
                 .transform(new CircleTransform())
-                .into(avatarHeader);
+                .into(mAvatarHeader);
         replaceFragment(FRAGMENT_MAP);
+
     }
 
     private void isSignedOut() {
 
 
         replaceFragment(FRAGMENT_AUTH);
-        navigationBtnSignOut.setVisibility(View.GONE);
-        navigationBtnMap.setVisibility(View.GONE);
-        nameHeader.setText("");
-        emailHeader.setText("");
-        avatarHeader.setVisibility(View.INVISIBLE);
-        drawer.closeDrawers();
-        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        mNavigationBtnSignOut.setVisibility(View.GONE);
+        mNavigationBtnMap.setVisibility(View.GONE);
+        mNameHeader.setText("");
+        mEmailHeader.setText("");
+        mAvatarHeader.setVisibility(View.INVISIBLE);
+        mDrawerLayout.closeDrawers();
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
     }
 
@@ -251,6 +250,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy: ");
+
     }
 
     @Override
@@ -266,6 +266,5 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-    }
+}
 

@@ -41,4 +41,7 @@
     <string name="avatar">avatar</string>
     <string name="enter_email">Введіть імейл</string>
     <string name="pass_not_mutch">mPassword not mutch</string>
+
+    <string name="alert_dialog_ok">Зрозуміло!</string>
+    <string name="alert_dialog_text">На ваш імейл відправлено лист активації облікового запису</string>
 </resources>
