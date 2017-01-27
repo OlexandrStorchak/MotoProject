@@ -9,6 +9,8 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -22,10 +24,14 @@ import com.example.alex.motoproject.fragments.CheckEmailDialogFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.fragments.SignUpFragment;
 import com.example.alex.motoproject.fragments.WelcomeFragment;
+import com.example.alex.motoproject.models.UserModel;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser mFirebaseCurrentUser;
     private Button mNavigationBtnMap;
     private Button mNavigationBtnSignOut;
+    private Button mNavigationBtnFriendsList;
+    private Button mNavigationBtnBackToMenu;
     private DrawerLayout mDrawerLayout;
 
 
@@ -96,6 +104,43 @@ public class MainActivity extends AppCompatActivity {
                 mFirebaseAuth.signOut();
             }
         });
+        mNavigationBtnFriendsList = (Button)mNavigationView.findViewById(R.id.navigation_btn_friends);
+        mNavigationBtnFriendsList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                View mFriendList = (View) findViewById(R.id.navigation_friends_layout);
+                mFriendList.setVisibility(View.VISIBLE);
+                View mMenu = (View) findViewById(R.id.navigation_menu_layout);
+                mMenu.setVisibility(View.GONE);
+
+                List<UserModel> list = new ArrayList<UserModel>();
+
+                for (int i=0; i<10;i++){
+                    UserModel user = new UserModel();
+                    list.add(user);
+                    // Log.d("log", "onViewCreated: "+i);
+                }
+
+                FriendsAdapter adapter = new FriendsAdapter(list);
+
+                RecyclerView rv = (RecyclerView)mNavigationView.findViewById(R.id.navigation_friends_list_recycler);
+
+                rv.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+                rv.setAdapter(adapter);
+            }
+        });
+        mNavigationBtnBackToMenu = (Button)mNavigationView.findViewById(R.id.navigatio_btn_back_to_menu);
+        mNavigationBtnBackToMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                View mFriendList = (View) findViewById(R.id.navigation_friends_layout);
+                mFriendList.setVisibility(View.GONE);
+                View mMenu = (View) findViewById(R.id.navigation_menu_layout);
+                mMenu.setVisibility(View.VISIBLE);
+            }
+        });
+
 
         Log.d(TAG, "onCreate: Main activity ");
 

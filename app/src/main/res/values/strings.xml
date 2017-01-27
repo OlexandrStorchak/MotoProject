@@ -44,4 +44,6 @@
 
     <string name="alert_dialog_ok">Зрозуміло!</string>
     <string name="alert_dialog_text">На ваш імейл відправлено лист активації облікового запису</string>
+    <string name="back_to_menu">В меню</string>
+    <string name="friends">Друзі</string>
 </resources>
