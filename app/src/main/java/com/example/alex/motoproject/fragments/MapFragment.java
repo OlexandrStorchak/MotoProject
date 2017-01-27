@@ -29,6 +29,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -59,13 +60,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private MapView mMapView;
 
     private DatabaseReference mDatabase;
+    private String userUid;
 
     public MapFragment() {
         // Required empty public constructor
     }
 
-    public static MapFragment getInstance(){
-        if (mapFragmentInstance==null){
+    public static MapFragment getInstance() {
+        if (mapFragmentInstance == null) {
             mapFragmentInstance = new MapFragment();
         }
         return mapFragmentInstance;
@@ -87,6 +89,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMapView.getMapAsync(this);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() != null) {
+            userUid = auth.getCurrentUser().getUid();
+        } else {
+            auth.signOut();
+        }
 
         FloatingActionButton drivingToggleButton =
                 (FloatingActionButton) view.findViewById(R.id.button_drive_toggle);
@@ -219,9 +228,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                         Intent callGPSSettingIntent = new Intent(
                                                 android.provider.Settings
                                                         .ACTION_LOCATION_SOURCE_SETTINGS)
-                                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                        .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                                        .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                                                .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                                         startActivity(callGPSSettingIntent);
                                     }
                                 });
@@ -298,27 +307,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void fetchUserLocations() {
-//        DatabaseReference locationsReference =
         mDatabase.child("location").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                Log.d(LOG_TAG, s);
                 Log.d(LOG_TAG, dataSnapshot.toString());
                 String uid = dataSnapshot.getKey();
-                Double lat = (Double) dataSnapshot.child("lat").getValue();
-                Double lng = (Double) dataSnapshot.child("lng").getValue();
-                LatLng latLng = new LatLng(lat, lng);
-                createPinOnMap(latLng, uid);
-                Log.d(LOG_TAG, lat + " " + lng);
+                if (!uid.equals(userUid)) {
+                    Double lat = (Double) dataSnapshot.child("lat").getValue();
+                    Double lng = (Double) dataSnapshot.child("lng").getValue();
+                    if (lat != null && lng != null) {
+                        LatLng latLng = new LatLng(lat, lng);
+                        createPinOnMap(latLng, uid);
+                    }
+                    Log.d(LOG_TAG, lat + " " + lng);
+                }
+
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 String uid = dataSnapshot.getKey();
-                Double lat = (Double) dataSnapshot.child("lat").getValue();
-                Double lng = (Double) dataSnapshot.child("lng").getValue();
-                LatLng latLng = new LatLng(lat, lng);
-                createPinOnMap(latLng, uid);
+                if (!uid.equals(userUid)) {
+                    Double lat = (Double) dataSnapshot.child("lat").getValue();
+                    Double lng = (Double) dataSnapshot.child("lng").getValue();
+                    LatLng latLng = new LatLng(lat, lng);
+                    createPinOnMap(latLng, uid);
+                }
             }
 
             @Override
@@ -342,6 +356,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title(uid));
+        
         Log.d(LOG_TAG, "pin created!");
     }
 }

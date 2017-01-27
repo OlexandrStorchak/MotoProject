@@ -105,6 +105,7 @@ public class LocationListenerService extends Service implements
                     mGoogleApiClient);
             if (mLastLocation != null) {
                 mCurrentLocation = mLastLocation;
+                mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
             }
         }
         startLocationUpdates();
@@ -168,9 +169,13 @@ public class LocationListenerService extends Service implements
 
             DatabaseReference userLocationReference =
                     mDatabase.child("location").child(uid);
-            userLocationReference.child("lat").setValue(mCurrentLocation.getLatitude());
-            userLocationReference.child("lng").setValue(mCurrentLocation.getLongitude());
-            userLocationReference.child("updateTime").setValue(mLastUpdateTime);
+            Double lat = mCurrentLocation.getLatitude();
+            Double lng = mCurrentLocation.getLongitude();
+            String updateTime = mLastUpdateTime;
+
+            userLocationReference.child("lat").setValue(lat);
+            userLocationReference.child("lng").setValue(lng);
+            userLocationReference.child("updateTime").setValue(updateTime);
         }
 
         //TODO: delete this, only for testing purposes
