@@ -37,7 +37,7 @@ public class LocationListenerService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
-//TODO: do something if there`s no Internet or GPS connection
+    //TODO: do something if there`s no Internet or GPS connection
     private static final String LOG_TAG = "LocationListenerService";
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation;
@@ -121,12 +121,10 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
     }
 
     //different variants of LocationRequest that might be changed via settings

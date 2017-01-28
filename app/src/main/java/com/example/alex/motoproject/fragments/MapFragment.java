@@ -2,9 +2,13 @@ package com.example.alex.motoproject.fragments;
 
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -21,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.alex.motoproject.App;
+import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.services.LocationListenerService;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -28,6 +33,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -36,6 +42,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import static android.content.Context.LOCATION_SERVICE;
 import static com.example.alex.motoproject.R.id.map;
 
 
@@ -52,8 +59,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public static final int ALERT_INTERNET_OFF = 21;
     public static final int ALERT_PERMISSION_RATIONALE = 22;
     public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
-
     private static MapFragment mapFragmentInstance;
+    private final BroadcastReceiver networkStateReceiver = new NetworkStateReceiver();
     //for methods calling, like creating pins
     private GoogleMap mMap;
     //for lifecycle
@@ -162,11 +169,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             //TODO: check if there is a GPS connection
-//            LocationManager locationManager =
-//                    (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
-//            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-//                showAlert(ALERT_GPS_OFF);
-//            }
+            LocationManager locationManager =
+                    (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                showAlert(ALERT_GPS_OFF);
+            }
 
             //the app is allowed to get location, setup service
             getActivity().startService(new Intent(getActivity(), LocationListenerService.class));
@@ -199,6 +206,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onPause() {
+        getActivity().unregisterReceiver(networkStateReceiver);
         mMapView.onPause();
         super.onPause();
     }
@@ -211,6 +219,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onResume() {
+        //receiver that notifies when there`s no Internet connection
+        getActivity().registerReceiver(
+                networkStateReceiver,
+                new IntentFilter(
+                        ConnectivityManager.CONNECTIVITY_ACTION));
         mMapView.onResume();
         super.onResume();
     }
@@ -353,10 +366,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void createPinOnMap(LatLng latLng, String uid) {
-        mMap.addMarker(new MarkerOptions()
+        Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title(uid));
-        
+        marker.setTag(uid);
         Log.d(LOG_TAG, "pin created!");
     }
 }

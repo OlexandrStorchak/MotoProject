@@ -3,6 +3,7 @@
     package="com.example.alex.motoproject">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".App"
@@ -37,7 +38,7 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="647757becea17f1ddb1aa8d150365eeb3029cd47" />
+
     </application>
 
-    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
