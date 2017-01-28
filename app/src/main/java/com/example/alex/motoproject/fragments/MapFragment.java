@@ -53,7 +53,7 @@ import static com.example.alex.motoproject.R.id.map;
 //TODO: custom pins
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     public static final String LOG_TAG = MapFragment.class.getSimpleName();
-    //TODO: think about making handleLocation() returning boolean
+
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
     public static final int ALERT_GPS_OFF = 20;
     public static final int ALERT_INTERNET_OFF = 21;
@@ -168,16 +168,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            //TODO: check if there is a GPS connection
+            //check gps connection
             LocationManager locationManager =
                     (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 showAlert(ALERT_GPS_OFF);
+            } else { //the app is allowed to get location, setup service
+                getActivity().startService(new Intent(getActivity(), LocationListenerService.class));
+                mMap.setMyLocationEnabled(true);
             }
-
-            //the app is allowed to get location, setup service
-            getActivity().startService(new Intent(getActivity(), LocationListenerService.class));
-            mMap.setMyLocationEnabled(true);
         } else {
             //show the permission prompt
             requestPermissions(
@@ -229,6 +228,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     //handles showing variety of alerts in MapFragment
+    //TODO change implementation to create fragments
     private void showAlert(int alertType) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         switch (alertType) {
@@ -245,6 +245,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                                 .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                                                 .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                                         startActivity(callGPSSettingIntent);
+
+                                        if (ContextCompat.checkSelfPermission(getContext(),
+                                                Manifest.permission.ACCESS_FINE_LOCATION)
+                                                == PackageManager.PERMISSION_GRANTED) {
+                                            getActivity().startService(new Intent(getActivity(),
+                                                    LocationListenerService.class));
+                                            mMap.setMyLocationEnabled(true);
+                                        }
+
                                     }
                                 });
                 break;
@@ -314,7 +323,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         });
                 break;
         }
-
         AlertDialog alert = alertDialogBuilder.create();
         alert.show();
     }

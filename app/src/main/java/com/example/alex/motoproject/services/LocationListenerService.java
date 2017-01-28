@@ -13,7 +13,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
@@ -37,7 +36,6 @@ public class LocationListenerService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
-    //TODO: do something if there`s no Internet or GPS connection
     private static final String LOG_TAG = "LocationListenerService";
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation;
@@ -175,11 +173,6 @@ public class LocationListenerService extends Service implements
             userLocationReference.child("lng").setValue(lng);
             userLocationReference.child("updateTime").setValue(updateTime);
         }
-
-        //TODO: delete this, only for testing purposes
-        Toast.makeText(this, "Lat " + mCurrentLocation.getLatitude() +
-                " Lon " + mCurrentLocation.getLongitude() +
-                " Time " + mLastUpdateTime, Toast.LENGTH_LONG).show();
     }
 
     protected void stopLocationUpdates() {
@@ -190,7 +183,7 @@ public class LocationListenerService extends Service implements
     private void createNotification() {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setSmallIcon(R.drawable.ic_notification)
                         .setContentTitle("MotoProject")
                         .setContentText("Місцезнаходження відстежується.")
                         .setShowWhen(false);
