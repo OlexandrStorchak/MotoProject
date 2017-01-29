@@ -66,7 +66,7 @@ public class NetworkStateReceiver extends BroadcastReceiver {
         mBuilder.setContentIntent(pendingIntent);
 
         // get an instance of the NotificationManager service
-        NotificationManager mNotifyMgr =
+        mNotifyMgr =
                 (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
         // send notification
         mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
