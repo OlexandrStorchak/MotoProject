@@ -23,7 +23,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
@@ -55,8 +54,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public static final String LOG_TAG = MapFragment.class.getSimpleName();
 
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
-    //    public static final int ALERT_GPS_OFF = 20;
-//    public static final int ALERT_INTERNET_OFF = 21;
     public static final int ALERT_PERMISSION_RATIONALE = 22;
     public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
     private static MapFragment mapFragmentInstance;
@@ -115,7 +112,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (!isServiceOn) {
                     handleLocation();
                 } else if (checkLocationPermission()) {
-                        mMap.setMyLocationEnabled(false);
+                    mMap.setMyLocationEnabled(false);
                     getActivity().stopService(
                             new Intent(getActivity(), LocationListenerService.class));
                 }
@@ -203,11 +200,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onPause() {
-        try {
-            getActivity().unregisterReceiver(mNetworkStateReceiver);
-        } catch (IllegalArgumentException e) {
-            Log.v(LOG_TAG, "receiver was unregistered before onPause");
+        boolean isServiceOn =
+                ((App) getActivity().getApplication()).isLocationListenerServiceOn();
+        if (!isServiceOn) {
+            try {
+                getActivity().unregisterReceiver(mNetworkStateReceiver);
+            } catch (IllegalArgumentException e) {
+                Log.v(LOG_TAG, "receiver was unregistered before onPause");
+            }
         }
+
         mMapView.onPause();
         super.onPause();
     }
@@ -221,17 +223,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onResume() {
         //receiver that notifies when there`s no Internet connection
-        IntentFilter intentFilter = new IntentFilter(
-                ConnectivityManager.CONNECTIVITY_ACTION);
-        intentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
-        getActivity().registerReceiver(
-                mNetworkStateReceiver, intentFilter);
+        boolean isServiceOn =
+                ((App) getActivity().getApplication()).isLocationListenerServiceOn();
+        if (!isServiceOn) {
+            IntentFilter intentFilter = new IntentFilter(
+                    ConnectivityManager.CONNECTIVITY_ACTION);
+            intentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
+            getActivity().registerReceiver(
+                    mNetworkStateReceiver, intentFilter);
+        }
+
 
         mMapView.onResume();
         super.onResume();
     }
 
-    //handles showing variety of alerts in MapFragment
+    //handles showing alerts in MapFragment
     //TODO change implementation to create fragments
     private void showAlert(int alertType) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
@@ -392,9 +399,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         try {
             getActivity().unregisterReceiver(mNetworkStateReceiver);
         } catch (IllegalArgumentException e) {
-            Toast.makeText(getActivity(),
-                    R.string.multiple_button_pressing_easter_egg,
-                    Toast.LENGTH_LONG).show();
+            Log.v(LOG_TAG, "mNetworkReceiver has already been unregistered");
         }
 
         try { //suppress SecurityException

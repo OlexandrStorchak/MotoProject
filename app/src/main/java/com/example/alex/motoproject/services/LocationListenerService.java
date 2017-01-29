@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.services;
 
 import android.Manifest;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -45,6 +46,8 @@ public class LocationListenerService extends Service implements
     private static final String LOG_TAG = "LocationListenerService";
     private static final String START_GPS_RECEIVER_ACTION =
             "com.example.alex.motoproject.START_GPS_RECEIVER";
+    //TODO: where to store notification ids?
+    int mNotificationId = 3;
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation;
     String mLastUpdateTime;
@@ -83,6 +86,7 @@ public class LocationListenerService extends Service implements
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
         unregisterReceivers();
+
         ((App) this.getApplication()).setIsLocationListenerServiceOn(false);
         super.onDestroy();
     }
@@ -225,10 +229,10 @@ public class LocationListenerService extends Service implements
                         0,
                         stopSelfIntent,
                         PendingIntent.FLAG_CANCEL_CURRENT);
-        mBuilder.addAction(R.drawable.ic_clear_gray_24dp, "Прибрати мене з мапи", StopSelfPendingIntent);
+        mBuilder.addAction(R.drawable.ic_clear_gray_24dp,
+                "Прибрати мене з мапи",
+                StopSelfPendingIntent);
 
-        // set an ID for the notification
-        int mNotificationId = 3;
         // send notification
         startForeground(mNotificationId, mBuilder.build());
     }
@@ -244,12 +248,15 @@ public class LocationListenerService extends Service implements
         intentFilterGps.addAction(START_GPS_RECEIVER_ACTION);
         registerReceiver(
                 mGpsStateReceiver, intentFilterGps);
-        //manually call receiver first time, cause it does not check GPS on start
+        //manually call the receiver first time, cause it does not check GPS on start
         sendBroadcast(new Intent(START_GPS_RECEIVER_ACTION));
     }
 
     private void unregisterReceivers() {
         unregisterReceiver(mNetworkStateReceiver);
         unregisterReceiver(mGpsStateReceiver);
+        NotificationManager mNotifyMgr =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mNotifyMgr.cancel(2); //notification that asks for GPS is no longer actual
     }
 }
