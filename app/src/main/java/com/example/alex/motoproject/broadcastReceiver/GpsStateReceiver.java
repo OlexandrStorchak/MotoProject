@@ -6,8 +6,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.location.LocationManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
@@ -15,38 +14,37 @@ import com.example.alex.motoproject.R;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
-public class NetworkStateReceiver extends BroadcastReceiver {
-
-    public NetworkStateReceiver() {
+public class GpsStateReceiver extends BroadcastReceiver {
+    public GpsStateReceiver() {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void onReceive(Context context, Intent intent) {
-        ConnectivityManager cm = (ConnectivityManager)
-                context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        LocationManager locationManager = (LocationManager)
+                context.getSystemService(Context.LOCATION_SERVICE);
 
-        if (activeNetwork == null) { //Internet connection is turned off
-            notifyInternetIsOff(context);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            notifyGpsIsOff(context);
+
         }
     }
 
-    private void notifyInternetIsOff(Context context) {
+    private void notifyGpsIsOff(Context context) {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.drawable.ic_notification)
                         .setContentTitle("MotoProject")
-                        .setContentText("Інтернет вимкнено. Ввімкнути")
+                        .setContentText("GPS вимкнено. Ввімкнути")
                         .setPriority(Notification.PRIORITY_HIGH)
                         //TODO make this notification cause vibration
                         .setDefaults(Notification.DEFAULT_VIBRATE)
                         .setDefaults(Notification.DEFAULT_SOUND)
                         .setAutoCancel(true);
+        
 
         //create pending intent used when tapping on the notification
-        Intent callWirelessSettingIntent = new Intent(
-                Settings.ACTION_SETTINGS)
+        Intent callLocationSettingIntent = new Intent(
+                Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
                 .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
@@ -54,13 +52,13 @@ public class NetworkStateReceiver extends BroadcastReceiver {
                 PendingIntent.getActivity(
                         context,
                         0,
-                        callWirelessSettingIntent,
+                        callLocationSettingIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
         mBuilder.setContentIntent(pendingIntent);
 
         // set an ID for the notification
-        int mNotificationId = 1;
+        int mNotificationId = 2;
         // get an instance of the NotificationManager service
         NotificationManager mNotifyMgr =
                 (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);

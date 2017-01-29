@@ -22,6 +22,7 @@
     <string name="how_to_change_location_setting">Ви можете змінити свій вибір у налаштуваннях. Дозволи —> Ваше місцезнаходження</string>
     <string name="ok">Гаразд</string>
     <string name="close">Закрити</string>
+    <string name="multiple_button_pressing_easter_egg">Схоже, у вас з\'явилися перші ознаки хвороби паркінсона. Радимо вам звернутися до лікаря</string>
 
     <string name="auth_sign_out">SignOut</string>
     <string name="hint_e_mail">e-mail</string>

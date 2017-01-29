@@ -3,9 +3,13 @@ package com.example.alex.motoproject.services;
 import android.Manifest;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -17,6 +21,8 @@ import android.util.Log;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.broadcastReceiver.GpsStateReceiver;
+import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -37,10 +43,14 @@ public class LocationListenerService extends Service implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
     private static final String LOG_TAG = "LocationListenerService";
+    private static final String START_GPS_RECEIVER_ACTION =
+            "com.example.alex.motoproject.START_GPS_RECEIVER";
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation;
     String mLastUpdateTime;
     String mRequestFrequency = "default";
+    private BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
+    private BroadcastReceiver mGpsStateReceiver = new GpsStateReceiver();
     private DatabaseReference mDatabase;
 
     public LocationListenerService() {
@@ -49,7 +59,6 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onCreate() {
-        ((App) this.getApplication()).setIsLocationListenerServiceOn(true);
         Log.d(LOG_TAG, "onCreate");
         // Create an instance of GoogleAPIClient
         if (mGoogleApiClient == null) {
@@ -62,17 +71,18 @@ public class LocationListenerService extends Service implements
         mGoogleApiClient.connect();
 
         createNotification();
-
+        registerReceivers();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         super.onCreate();
+        ((App) this.getApplication()).setIsLocationListenerServiceOn(true);
     }
 
     @Override
     public void onDestroy() {
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
-        Log.d(LOG_TAG, "onDestroy");
+        unregisterReceivers();
         ((App) this.getApplication()).setIsLocationListenerServiceOn(false);
         super.onDestroy();
     }
@@ -176,8 +186,10 @@ public class LocationListenerService extends Service implements
     }
 
     protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(
-                mGoogleApiClient, this);
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(
+                    mGoogleApiClient, this);
+        }
     }
 
     private void createNotification() {
@@ -191,6 +203,7 @@ public class LocationListenerService extends Service implements
         //create pending intent used when tapping on the app notification
         //open up MapFragment
         Intent resultIntent = new Intent(this, MainActivity.class);
+        //TODO is this line still needed?
         resultIntent.putExtra("isShouldLaunchMapFragment", true);
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
@@ -201,7 +214,7 @@ public class LocationListenerService extends Service implements
                 );
         mBuilder.setContentIntent(resultPendingIntent);
 
-        //create pending intent user when tapping on big notification`s button
+        //create pending intent user when tapping on notification button
         //finish this service
         Intent stopSelfIntent = new Intent(this, LocationListenerService.class);
         stopSelfIntent.putExtra("isShouldStopService", true);
@@ -215,8 +228,28 @@ public class LocationListenerService extends Service implements
         mBuilder.addAction(R.drawable.ic_clear_gray_24dp, "Прибрати мене з мапи", StopSelfPendingIntent);
 
         // set an ID for the notification
-        int mNotificationId = 1;
+        int mNotificationId = 3;
         // send notification
         startForeground(mNotificationId, mBuilder.build());
+    }
+
+    private void registerReceivers() {
+        IntentFilter intentFilterNetwork = new IntentFilter(
+                ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(
+                mNetworkStateReceiver, intentFilterNetwork);
+
+        IntentFilter intentFilterGps = new IntentFilter(
+                LocationManager.PROVIDERS_CHANGED_ACTION);
+        intentFilterGps.addAction(START_GPS_RECEIVER_ACTION);
+        registerReceiver(
+                mGpsStateReceiver, intentFilterGps);
+        //manually call receiver first time, cause it does not check GPS on start
+        sendBroadcast(new Intent(START_GPS_RECEIVER_ACTION));
+    }
+
+    private void unregisterReceivers() {
+        unregisterReceiver(mNetworkStateReceiver);
+        unregisterReceiver(mGpsStateReceiver);
     }
 }

@@ -23,10 +23,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.alex.motoproject.App;
-import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.services.LocationListenerService;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -42,7 +43,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import static android.content.Context.LOCATION_SERVICE;
 import static com.example.alex.motoproject.R.id.map;
 
 
@@ -55,17 +55,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public static final String LOG_TAG = MapFragment.class.getSimpleName();
 
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
-    public static final int ALERT_GPS_OFF = 20;
-    public static final int ALERT_INTERNET_OFF = 21;
+    //    public static final int ALERT_GPS_OFF = 20;
+//    public static final int ALERT_INTERNET_OFF = 21;
     public static final int ALERT_PERMISSION_RATIONALE = 22;
     public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
     private static MapFragment mapFragmentInstance;
-    private final BroadcastReceiver networkStateReceiver = new NetworkStateReceiver();
+    private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
     //for methods calling, like creating pins
     private GoogleMap mMap;
     //for lifecycle
     private MapView mMapView;
 
+    private AlertDialog alert;
     private DatabaseReference mDatabase;
     private String userUid;
 
@@ -113,14 +114,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         ((App) getActivity().getApplication()).isLocationListenerServiceOn();
                 if (!isServiceOn) {
                     handleLocation();
-                } else {
+                } else if (checkLocationPermission()) {
+//                    try {
+                        mMap.setMyLocationEnabled(false);
                     getActivity().stopService(
                             new Intent(getActivity(), LocationListenerService.class));
-                    if (ContextCompat.checkSelfPermission(getContext(),
-                            Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-                        mMap.setMyLocationEnabled(false);
-                    }
+//                    } catch (IllegalStateException e) {
+//                        Toast.makeText(getActivity(),
+//                                R.string.multiple_button_pressing_easter_egg,
+//                                Toast.LENGTH_LONG).show();
+//                    }
+
                 }
             }
         });
@@ -165,18 +169,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     //handle location runtime permission and setup listener service
     private void handleLocation() {
-        if (ContextCompat.checkSelfPermission(getContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            //check gps connection
-            LocationManager locationManager =
-                    (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
-            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                showAlert(ALERT_GPS_OFF);
-            } else { //the app is allowed to get location, setup service
-                getActivity().startService(new Intent(getActivity(), LocationListenerService.class));
-                mMap.setMyLocationEnabled(true);
-            }
+        if (checkLocationPermission()) {
+//            //check gps connection
+//            LocationManager locationManager =
+//                    (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+//            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+//                showAlert(ALERT_GPS_OFF);
+//            } else { //the app is allowed to get location, setup service
+            onLocationAllowed();
+//            }
         } else {
             //show the permission prompt
             requestPermissions(
@@ -187,6 +188,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onDestroyView() {
+        if (alert != null) {
+            alert.dismiss();
+        }
         mMapView.onDestroy();
         super.onDestroyView();
     }
@@ -205,7 +209,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onPause() {
-        getActivity().unregisterReceiver(networkStateReceiver);
+        try {
+            getActivity().unregisterReceiver(mNetworkStateReceiver);
+        } catch (IllegalArgumentException e) {
+            Log.v(LOG_TAG, "receiver was unregistered before onPause");
+        }
         mMapView.onPause();
         super.onPause();
     }
@@ -219,10 +227,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onResume() {
         //receiver that notifies when there`s no Internet connection
+        IntentFilter intentFilter = new IntentFilter(
+                ConnectivityManager.CONNECTIVITY_ACTION);
+        intentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
         getActivity().registerReceiver(
-                networkStateReceiver,
-                new IntentFilter(
-                        ConnectivityManager.CONNECTIVITY_ACTION));
+                mNetworkStateReceiver, intentFilter);
+
         mMapView.onResume();
         super.onResume();
     }
@@ -232,52 +242,48 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void showAlert(int alertType) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         switch (alertType) {
-            case ALERT_GPS_OFF:
-                //show when there is no GPS connection
-                alertDialogBuilder.setMessage(R.string.gps_turned_off_alert)
-                        .setPositiveButton(R.string.to_settings,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        Intent callGPSSettingIntent = new Intent(
-                                                android.provider.Settings
-                                                        .ACTION_LOCATION_SOURCE_SETTINGS)
-                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                                                .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-                                        startActivity(callGPSSettingIntent);
-
-                                        if (ContextCompat.checkSelfPermission(getContext(),
-                                                Manifest.permission.ACCESS_FINE_LOCATION)
-                                                == PackageManager.PERMISSION_GRANTED) {
-                                            getActivity().startService(new Intent(getActivity(),
-                                                    LocationListenerService.class));
-                                            mMap.setMyLocationEnabled(true);
-                                        }
-
-                                    }
-                                });
-                break;
-            case ALERT_INTERNET_OFF:
-                //show when there is no Internet connection
-                alertDialogBuilder.setMessage(R.string.internet_turned_off_alert)
-                        .setPositiveButton(R.string.turn_on_mobile_internet,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        Intent callWirelessSettingIntent = new Intent(
-                                                Settings.ACTION_WIRELESS_SETTINGS);
-                                        startActivity(callWirelessSettingIntent);
-                                    }
-                                });
-                alertDialogBuilder.setPositiveButton(R.string.turn_on_wifi,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                Intent callWifiSettingIntent = new Intent(
-                                        Settings
-                                                .ACTION_WIFI_SETTINGS);
-                                startActivity(callWifiSettingIntent);
-                            }
-                        });
-                break;
+//            case ALERT_GPS_OFF:
+//                //show when there is no GPS connection
+//                alertDialogBuilder.setMessage(R.string.gps_turned_off_alert)
+//                        .setPositiveButton(R.string.to_settings,
+//                                new DialogInterface.OnClickListener() {
+//                                    public void onClick(DialogInterface dialog, int id) {
+//                                        Intent callGPSSettingIntent = new Intent(
+//                                                android.provider.Settings
+//                                                        .ACTION_LOCATION_SOURCE_SETTINGS)
+//                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//                                                .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+//                                                .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+//                                        startActivity(callGPSSettingIntent);
+//
+//                                        if (checkLocationPermission()) {
+//                                            onLocationAllowed();
+//                                        }
+//
+//                                    }
+//                                });
+//                break;
+//            case ALERT_INTERNET_OFF:
+//                //show when there is no Internet connection
+//                alertDialogBuilder.setMessage(R.string.internet_turned_off_alert)
+//                        .setPositiveButton(R.string.turn_on_mobile_internet,
+//                                new DialogInterface.OnClickListener() {
+//                                    public void onClick(DialogInterface dialog, int id) {
+//                                        Intent callWirelessSettingIntent = new Intent(
+//                                                Settings.ACTION_WIRELESS_SETTINGS);
+//                                        startActivity(callWirelessSettingIntent);
+//                                    }
+//                                });
+//                alertDialogBuilder.setPositiveButton(R.string.turn_on_wifi,
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int id) {
+//                                Intent callWifiSettingIntent = new Intent(
+//                                        Settings
+//                                                .ACTION_WIFI_SETTINGS);
+//                                startActivity(callWifiSettingIntent);
+//                            }
+//                        });
+//                break;
             case ALERT_PERMISSION_RATIONALE:
                 //show when user declines gps permission
                 alertDialogBuilder.setMessage(R.string.location_rationale)
@@ -323,7 +329,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         });
                 break;
         }
-        AlertDialog alert = alertDialogBuilder.create();
+        alert = alertDialogBuilder.create();
         alert.show();
     }
 
@@ -379,6 +385,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 .title(uid));
         marker.setTag(uid);
         Log.d(LOG_TAG, "pin created!");
+    }
+
+    private boolean checkLocationPermission() {
+        return ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void onLocationAllowed() {
+        getActivity().startService(new Intent(getActivity(), LocationListenerService.class));
+        try {
+            getActivity().unregisterReceiver(mNetworkStateReceiver);
+        } catch (IllegalArgumentException e) {
+            Toast.makeText(getActivity(),
+                    R.string.multiple_button_pressing_easter_egg,
+                    Toast.LENGTH_LONG).show();
+        }
+
+        try { //suppress SecurityException
+            mMap.setMyLocationEnabled(true);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
     }
 }
 
