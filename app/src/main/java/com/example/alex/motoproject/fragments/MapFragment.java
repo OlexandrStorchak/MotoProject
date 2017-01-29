@@ -115,16 +115,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (!isServiceOn) {
                     handleLocation();
                 } else if (checkLocationPermission()) {
-//                    try {
                         mMap.setMyLocationEnabled(false);
                     getActivity().stopService(
                             new Intent(getActivity(), LocationListenerService.class));
-//                    } catch (IllegalStateException e) {
-//                        Toast.makeText(getActivity(),
-//                                R.string.multiple_button_pressing_easter_egg,
-//                                Toast.LENGTH_LONG).show();
-//                    }
-
                 }
             }
         });
@@ -138,6 +131,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap map) {
         //make map accessible from other methods
         mMap = map;
+        mMap.getUiSettings().setMapToolbarEnabled(false);
 
         LatLng cherkasy = new LatLng(49.443, 32.0727);
 

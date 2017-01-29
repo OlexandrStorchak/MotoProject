@@ -17,6 +17,9 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class NetworkStateReceiver extends BroadcastReceiver {
 
+    public static final int NOTIFICATION_ID = 1;
+    NotificationManager mNotifyMgr;
+
     public NetworkStateReceiver() {
     }
 
@@ -29,6 +32,9 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
         if (activeNetwork == null) { //Internet connection is turned off
             notifyInternetIsOff(context);
+        } else if (mNotifyMgr != null) {
+            //now Internet connection is on, no need for notification
+            mNotifyMgr.cancel(NOTIFICATION_ID);
         }
     }
 
@@ -59,12 +65,10 @@ public class NetworkStateReceiver extends BroadcastReceiver {
                 );
         mBuilder.setContentIntent(pendingIntent);
 
-        // set an ID for the notification
-        int mNotificationId = 1;
         // get an instance of the NotificationManager service
         NotificationManager mNotifyMgr =
                 (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
         // send notification
-        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+        mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
     }
 }

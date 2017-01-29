@@ -15,6 +15,10 @@ import com.example.alex.motoproject.R;
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class GpsStateReceiver extends BroadcastReceiver {
+
+    public static final int NOTIFICATION_ID = 2;
+    NotificationManager mNotifyMgr;
+
     public GpsStateReceiver() {
     }
 
@@ -23,9 +27,13 @@ public class GpsStateReceiver extends BroadcastReceiver {
         LocationManager locationManager = (LocationManager)
                 context.getSystemService(Context.LOCATION_SERVICE);
 
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        boolean gpsIsOff = !locationManager.isProviderEnabled(
+                LocationManager.GPS_PROVIDER);
+        if (gpsIsOff) {
             notifyGpsIsOff(context);
-
+        } else if (mNotifyMgr != null) {
+            //gps is now on, no need for notification
+            mNotifyMgr.cancel(NOTIFICATION_ID);
         }
     }
 
@@ -40,7 +48,6 @@ public class GpsStateReceiver extends BroadcastReceiver {
                         .setDefaults(Notification.DEFAULT_VIBRATE)
                         .setDefaults(Notification.DEFAULT_SOUND)
                         .setAutoCancel(true);
-        
 
         //create pending intent used when tapping on the notification
         Intent callLocationSettingIntent = new Intent(
@@ -57,12 +64,10 @@ public class GpsStateReceiver extends BroadcastReceiver {
                 );
         mBuilder.setContentIntent(pendingIntent);
 
-        // set an ID for the notification
-        int mNotificationId = 2;
         // get an instance of the NotificationManager service
-        NotificationManager mNotifyMgr =
-                (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        mNotifyMgr = (NotificationManager)
+                context.getSystemService(NOTIFICATION_SERVICE);
         // send notification
-        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+        mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
     }
 }
