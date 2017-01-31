@@ -44,7 +44,6 @@ public class GpsStateReceiver extends BroadcastReceiver {
                         .setContentTitle("MotoProject")
                         .setContentText("GPS вимкнено. Ввімкнути")
                         .setPriority(Notification.PRIORITY_HIGH)
-                        //TODO make this notification cause vibration
                         .setDefaults(Notification.DEFAULT_VIBRATE)
                         .setDefaults(Notification.DEFAULT_SOUND)
                         .setAutoCancel(true);

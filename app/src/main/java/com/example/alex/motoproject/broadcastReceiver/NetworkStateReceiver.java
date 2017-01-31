@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
+import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -30,11 +31,22 @@ public class NetworkStateReceiver extends BroadcastReceiver {
                 context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
-        if (activeNetwork == null) { //Internet connection is turned off
-            notifyInternetIsOff(context);
-        } else if (mNotifyMgr != null) {
-            //now Internet connection is on, no need for notification
+        if ((activeNetwork != null) && //Internet connection is on
+                (activeNetwork.getState() ==
+                        NetworkInfo.State.CONNECTED) &&
+                (mNotifyMgr != null)) {
+            //if a notification was created before, dismiss it
             mNotifyMgr.cancel(NOTIFICATION_ID);
+        } else {
+            //Internet connection is turned off
+            App app = (App) context.getApplicationContext();
+            boolean isMainActivityVisible = app.getMainActivityVisibility();
+            if (isMainActivityVisible) {
+
+            } else {
+                notifyInternetIsOff(context);
+            }
+
         }
     }
 
@@ -45,9 +57,7 @@ public class NetworkStateReceiver extends BroadcastReceiver {
                         .setContentTitle("MotoProject")
                         .setContentText("Інтернет вимкнено. Ввімкнути")
                         .setPriority(Notification.PRIORITY_HIGH)
-                        //TODO make this notification cause vibration
-                        .setDefaults(Notification.DEFAULT_VIBRATE)
-                        .setDefaults(Notification.DEFAULT_SOUND)
+                        .setDefaults(Notification.DEFAULT_ALL)
                         .setAutoCancel(true);
 
         //create pending intent used when tapping on the notification
@@ -66,8 +76,8 @@ public class NetworkStateReceiver extends BroadcastReceiver {
         mBuilder.setContentIntent(pendingIntent);
 
         // get an instance of the NotificationManager service
-        mNotifyMgr =
-                (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        mNotifyMgr = (NotificationManager)
+                context.getSystemService(NOTIFICATION_SERVICE);
         // send notification
         mNotifyMgr.notify(NOTIFICATION_ID, mBuilder.build());
     }
