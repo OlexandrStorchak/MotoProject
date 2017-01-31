@@ -36,6 +36,9 @@ import com.example.alex.motoproject.services.LocationListenerService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import static com.example.alex.motoproject.fragments.MapFragment.LOG_TAG;
 import static com.example.alex.motoproject.fragments.MapFragment.PERMISSION_LOCATION_REQUEST_CODE;
 
@@ -139,6 +142,15 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
+        boolean isServiceOn =
+                ((App) getApplication()).isLocationListenerServiceOn();
+        if (!isServiceOn) {
+            IntentFilter intentFilter = new IntentFilter(
+                    ConnectivityManager.CONNECTIVITY_ACTION);
+            intentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
+            registerReceiver(
+                    mNetworkStateReceiver, intentFilter);
+        }
 
     }
 
@@ -232,6 +244,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        EventBus.getDefault().register(this);
         // Attach the listener of Firebase Auth
         mFirebaseAuth.addAuthStateListener(mFirebaseAuthStateListener);
 
@@ -241,6 +254,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
+        EventBus.getDefault().unregister(this);
         Log.d(TAG, "onStop: ");
         if (mFirebaseAuthStateListener != null) {
             mFirebaseAuth.removeAuthStateListener(mFirebaseAuthStateListener);
@@ -289,12 +303,6 @@ public class MainActivity extends AppCompatActivity
         if (alert != null) {
             alert.dismiss();
         }
-        super.onDestroy();
-        Log.d(TAG, "onDestroy: ");
-    }
-
-    @Override
-    protected void onPause() {
         boolean isServiceOn =
                 ((App) getApplication()).isLocationListenerServiceOn();
         if (!isServiceOn) {
@@ -304,21 +312,18 @@ public class MainActivity extends AppCompatActivity
                 Log.v(LOG_TAG, "receiver was unregistered before onPause");
             }
         }
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: ");
+    }
+
+    @Override
+    protected void onPause() {
         super.onPause();
         Log.d(TAG, "onPause: ");
     }
 
     @Override
     protected void onResume() {
-        boolean isServiceOn =
-                ((App) getApplication()).isLocationListenerServiceOn();
-        if (!isServiceOn) {
-            IntentFilter intentFilter = new IntentFilter(
-                    ConnectivityManager.CONNECTIVITY_ACTION);
-            intentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
-            registerReceiver(
-                    mNetworkStateReceiver, intentFilter);
-        }
         super.onResume();
         Log.d(TAG, "onResume: ");
     }
@@ -427,21 +432,19 @@ public class MainActivity extends AppCompatActivity
 
     public void handleLocation() {
         if (checkLocationPermission()) {
-//            //check gps connection
-//            LocationManager locationManager =
-//                    (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
-//            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-//                showAlert(ALERT_GPS_OFF);
-//            } else { //the app is allowed to get location, setup service
             MapFragment fragment = (MapFragment)
                     fragmentManager.findFragmentByTag(FRAGMENT_MAP_TAG);
             fragment.onLocationAllowed();
-//            }
         } else {
             //show the permission prompt
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_LOCATION_REQUEST_CODE);
         }
+    }
+
+    @Subscribe
+    public void onShouldShowAlertEvent(ShowAlertEvent event) {
+        showAlert(event.alertType);
     }
 }
