@@ -40,7 +40,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import static com.example.alex.motoproject.fragments.MapFragment.LOG_TAG;
-import static com.example.alex.motoproject.fragments.MapFragment.PERMISSION_LOCATION_REQUEST_CODE;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -50,6 +49,7 @@ public class MainActivity extends AppCompatActivity
     public static final int ALERT_INTERNET_OFF = 21;
     public static final int ALERT_PERMISSION_RATIONALE = 22;
     public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
+    public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         //Firebase auth instance
         mFirebaseAuth = FirebaseAuth.getInstance();
 
@@ -79,8 +78,6 @@ public class MainActivity extends AppCompatActivity
 
         //init FragmentManager
         mFragmentManager = getSupportFragmentManager();
-
-//        showMapFragment();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -93,9 +90,9 @@ public class MainActivity extends AppCompatActivity
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        registerNetworkStateReceiver();
 
         Log.d(TAG, "onCreate: Main activity ");
-
 
         //FireBase auth listener
         mFirebaseAuthStateListener = new FirebaseAuth.AuthStateListener() {
@@ -142,16 +139,6 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
-        boolean isServiceOn =
-                ((App) getApplication()).isLocationListenerServiceOn();
-        if (!isServiceOn) {
-            IntentFilter intentFilter = new IntentFilter(
-                    ConnectivityManager.CONNECTIVITY_ACTION);
-            intentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
-            registerReceiver(
-                    mNetworkStateReceiver, intentFilter);
-        }
-
     }
 
 
@@ -303,15 +290,7 @@ public class MainActivity extends AppCompatActivity
         if (alert != null) {
             alert.dismiss();
         }
-        boolean isServiceOn =
-                ((App) getApplication()).isLocationListenerServiceOn();
-        if (!isServiceOn) {
-            try {
-                unregisterReceiver(mNetworkStateReceiver);
-            } catch (IllegalArgumentException e) {
-                Log.v(LOG_TAG, "receiver was unregistered before onPause");
-            }
-        }
+        unregisterNetworkStateReceiver();
         super.onDestroy();
         Log.d(TAG, "onDestroy: ");
     }
@@ -431,12 +410,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void handleLocation() {
-        if (checkLocationPermission()) {
+        if (checkLocationPermission()) { //permission granted
             MapFragment fragment = (MapFragment)
                     fragmentManager.findFragmentByTag(FRAGMENT_MAP_TAG);
             fragment.onLocationAllowed();
-        } else {
-            //show the permission prompt
+        } else { //permission was not granted, show the permission prompt
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_LOCATION_REQUEST_CODE);
@@ -444,7 +422,33 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Subscribe
+    //the method called when received an event from EventBus
     public void onShouldShowAlertEvent(ShowAlertEvent event) {
         showAlert(event.alertType);
+    }
+
+    private void registerNetworkStateReceiver() {
+        //if LocationListenerService is on, this receiver has already been registered
+        boolean isServiceOn =
+                ((App) getApplication()).isLocationListenerServiceOn();
+        if (!isServiceOn) {
+            IntentFilter intentFilter = new IntentFilter(
+                    ConnectivityManager.CONNECTIVITY_ACTION);
+            intentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
+            registerReceiver(
+                    mNetworkStateReceiver, intentFilter);
+        }
+    }
+
+    private void unregisterNetworkStateReceiver() {
+        boolean isServiceOn =
+                ((App) getApplication()).isLocationListenerServiceOn();
+        if (!isServiceOn) {
+            try {
+                unregisterReceiver(mNetworkStateReceiver);
+            } catch (IllegalArgumentException e) {
+                Log.v(LOG_TAG, "receiver was unregistered before onDestroy");
+            }
+        }
     }
 }

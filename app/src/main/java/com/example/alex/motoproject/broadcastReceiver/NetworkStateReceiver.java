@@ -35,8 +35,7 @@ public class NetworkStateReceiver extends BroadcastReceiver {
         boolean networkIsOn = (activeNetwork != null);
 
         if (networkIsOn) { //Internet connection is on
-            if ((activeNetwork.getState() ==
-                    NetworkInfo.State.CONNECTED) &&
+            if ((activeNetwork.getState() == NetworkInfo.State.CONNECTED) &&
                     (mNotifyMgr != null)) {
                 //if a notification was created before, dismiss it
                 mNotifyMgr.cancel(NOTIFICATION_ID);
@@ -45,9 +44,9 @@ public class NetworkStateReceiver extends BroadcastReceiver {
             //Internet connection is turned off
             App app = (App) context.getApplicationContext();
             boolean isMainActivityVisible = app.getMainActivityVisibility();
-            if (isMainActivityVisible) {
+            if (isMainActivityVisible) { //show alert
                 EventBus.getDefault().post(new ShowAlertEvent(MainActivity.ALERT_INTERNET_OFF));
-            } else {
+            } else { //show notification
                 Notification notification = NotificationBuilderUtil
                         .buildNotification(context, NOTIFICATION_ID);
                 // get an instance of the NotificationManager service

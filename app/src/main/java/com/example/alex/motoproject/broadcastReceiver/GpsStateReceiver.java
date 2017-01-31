@@ -37,9 +37,9 @@ public class GpsStateReceiver extends BroadcastReceiver {
         } else {
             App app = (App) context.getApplicationContext();
             boolean isMainActivityVisible = app.getMainActivityVisibility();
-            if (isMainActivityVisible) {
+            if (isMainActivityVisible) { //show alert
                 EventBus.getDefault().post(new ShowAlertEvent(MainActivity.ALERT_GPS_OFF));
-            } else {
+            } else { //show notification
                 Notification notification = NotificationBuilderUtil
                         .buildNotification(context, NOTIFICATION_ID);
                 // get an instance of the NotificationManager service

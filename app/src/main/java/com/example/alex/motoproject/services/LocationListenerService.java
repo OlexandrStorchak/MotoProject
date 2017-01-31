@@ -72,10 +72,10 @@ public class LocationListenerService extends Service implements
                     .build();
         }
         mGoogleApiClient.connect();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         createNotification();
         registerReceivers();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         super.onCreate();
         ((App) this.getApplication()).setIsLocationListenerServiceOn(true);
@@ -218,8 +218,7 @@ public class LocationListenerService extends Service implements
                 );
         mBuilder.setContentIntent(resultPendingIntent);
 
-        //create pending intent user when tapping on notification button
-        //finish this service
+        //create pending intent to finish this service
         Intent stopSelfIntent = new Intent(this, LocationListenerService.class);
         stopSelfIntent.putExtra("isShouldStopService", true);
         //TODO: make a better logic for service killing
@@ -255,8 +254,9 @@ public class LocationListenerService extends Service implements
     private void unregisterReceivers() {
         unregisterReceiver(mNetworkStateReceiver);
         unregisterReceiver(mGpsStateReceiver);
+        //cleanup unneeded notifications
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        mNotifyMgr.cancel(2); //notification that asks for GPS is no longer actual
+        mNotifyMgr.cancelAll();
     }
 }
