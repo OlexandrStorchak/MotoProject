@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.models.FriendsListModel;
 
 import java.util.List;
 
@@ -15,9 +16,9 @@ import java.util.List;
 
 public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.VH> {
 
-    private List friendsList;
+    private List<FriendsListModel> friendsList;
 
-    public FriendsListAdapter(List friendsList) {
+    public FriendsListAdapter(List<FriendsListModel> friendsList) {
         this.friendsList = friendsList;
     }
 
@@ -28,11 +29,16 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
         return new VH(view);
     }
 
+    public void setList(List<FriendsListModel> newList){
+        friendsList = newList;
+
+    }
+
     @Override
     public void onBindViewHolder(VH holder, int position) {
-        holder.name.setText("Name "+position);
-        holder.status.setText("Status "+position);
-        holder.info.setText("Information | Details ");
+        holder.name.setText("");
+        holder.status.setText(friendsList.get(position).getEmail());
+        holder.email.setText("");
 
     }
 
@@ -43,7 +49,7 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
 
     class VH extends RecyclerView.ViewHolder{
         ImageView avatar;
-        TextView name,status,info;
+        TextView name,status, email;
         VH(View itemView) {
             super(itemView);
 
@@ -51,7 +57,7 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
             avatar = (ImageView) itemView.findViewById(R.id.friends_list_ava);
             name = (TextView) itemView.findViewById(R.id.userName);
             status = (TextView) itemView.findViewById(R.id.userStatus);
-            info = (TextView) itemView.findViewById(R.id.userInfo);
+            email = (TextView) itemView.findViewById(R.id.userInfo);
 
         }
     }

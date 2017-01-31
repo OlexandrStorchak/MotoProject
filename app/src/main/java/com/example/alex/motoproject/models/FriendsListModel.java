@@ -1,8 +1,19 @@
 package com.example.alex.motoproject.models;
 
 public class FriendsListModel {
-    String name,status,info;
+    String name,status, email;
     String avatar;
+
+    public FriendsListModel() {
+
+    }
+
+    public FriendsListModel(String name, String status, String email, String avatar) {
+        this.name = name;
+        this.status = status;
+        this.email = email;
+        this.avatar = avatar;
+    }
 
     public String getName() {
         return name;
@@ -20,12 +31,12 @@ public class FriendsListModel {
         this.status = status;
     }
 
-    public String getInfo() {
-        return info;
+    public String getEmail() {
+        return email;
     }
 
-    public void setInfo(String info) {
-        this.info = info;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getAvatar() {

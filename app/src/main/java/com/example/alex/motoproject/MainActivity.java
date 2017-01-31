@@ -19,20 +19,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.alex.motoproject.adapters.FriendsListAdapter;
+import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.fragments.AuthFragment;
 import com.example.alex.motoproject.fragments.CheckEmailDialogFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.fragments.SignUpFragment;
-import com.example.alex.motoproject.models.FriendsListModel;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
@@ -45,6 +42,12 @@ public class MainActivity extends AppCompatActivity {
     //FireBase vars :
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mFirebaseAuthStateListener;
+    private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
+
+    FriendsListAdapter adapter = new FriendsListAdapter(null);
+
+
+
     private NavigationView mNavigationView;
     private TextView mNameHeader;
     private TextView mEmailHeader;
@@ -58,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+         
 
 
         //Firebase auth instance
@@ -102,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
         mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                databaseHelper.removeFromOnline(mFirebaseCurrentUser.getUid());
                 mFirebaseAuth.signOut();
             }
         });
@@ -117,23 +123,23 @@ public class MainActivity extends AppCompatActivity {
 
                 //TODO : Get real data from Firebase to list
                 //This is dummy users
-                List<FriendsListModel> list = new ArrayList<>();
 
-                for (int i = 0; i < 10; i++) {
-                    FriendsListModel user = new FriendsListModel();
-                    list.add(user);
-                    // Log.d("log", "onViewCreated: "+i);
-                }
 
-                FriendsListAdapter adapter = new FriendsListAdapter(list);
+                adapter.setList(databaseHelper.getAllOnlineUsers());
+                adapter.notifyDataSetChanged();
 
-                RecyclerView rv = (RecyclerView) mNavigationView.findViewById(R.id.navigation_friends_list_recycler);
 
-                rv.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
-                rv.setAdapter(adapter);
             }
         });
+
+
+
+        RecyclerView rv = (RecyclerView) mNavigationView.findViewById(R.id.navigation_friends_list_recycler);
+
+        rv.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+        rv.setAdapter(adapter);
 
         // Button in Navigation Drawer, which visible when click to friends list, for back to main menu
         Button mNavigationBtnBackToMenu = (Button) mNavigationView.findViewById(R.id.navigatio_btn_back_to_menu);
@@ -146,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 mMenu.setVisibility(View.VISIBLE);
             }
         });
+
 
 
         Log.d(TAG, "onCreate: Main activity ");
@@ -172,6 +179,7 @@ public class MainActivity extends AppCompatActivity {
 
                     } else {
                         // User is signed out with email
+
                         isSignedOut();
                     }
                 } else {
@@ -252,12 +260,9 @@ public class MainActivity extends AppCompatActivity {
         new CheckEmailDialogFragment().show(getFragmentManager(), "dialog");
     }
 
+
     private void isSignedIn() {
-        //start MapFragment if an intent has that command
-//                            if (getIntent().getExtras() != null &&
-//                                    getIntent().getExtras().getBoolean("isShouldLaunchMapFragment")) {
-//                                replaceFragment(FRAGMENT_MAP);
-//                            }
+
         mNavigationBtnSignOut.setVisibility(View.VISIBLE);
         mNavigationBtnMap.setVisibility(View.VISIBLE);
 
@@ -272,6 +277,10 @@ public class MainActivity extends AppCompatActivity {
                 .transform(new CircleTransform())
                 .into(mAvatarHeader);
         replaceFragment(FRAGMENT_MAP);
+        databaseHelper.createDatabase(mFirebaseCurrentUser.getUid(),
+                mFirebaseCurrentUser.getEmail(),
+                mFirebaseCurrentUser.getDisplayName());
+        databaseHelper.addToOnline(mFirebaseCurrentUser.getUid(),mFirebaseCurrentUser.getEmail());
 
     }
 
@@ -307,6 +316,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         Log.d(TAG, "onResume: ");
     }
+
 
 
 }
