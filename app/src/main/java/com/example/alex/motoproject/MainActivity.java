@@ -28,6 +28,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
+import com.example.alex.motoproject.events.ShowAlertEvent;
 import com.example.alex.motoproject.fragments.AuthFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.fragments.SignUpFragment;
@@ -127,7 +128,6 @@ public class MainActivity extends AppCompatActivity
                     if (firebaseAuthCurrentUser != null) {
                         // User is signed in
                         navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
-//                        replaceFragment(FRAGMENT_WELCOME);
                         replaceFragment(FRAGMENT_MAP);
                     } else {
                         // User is signed out

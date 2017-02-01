@@ -9,8 +9,8 @@ import android.location.LocationManager;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
-import com.example.alex.motoproject.NotificationBuilderUtil;
-import com.example.alex.motoproject.ShowAlertEvent;
+import com.example.alex.motoproject.utils.NotificationBuilderUtil;
+import com.example.alex.motoproject.events.ShowAlertEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -31,9 +31,11 @@ public class GpsStateReceiver extends BroadcastReceiver {
 
         boolean gpsIsOn = locationManager.isProviderEnabled(
                 LocationManager.GPS_PROVIDER);
-        if (gpsIsOn && mNotifyMgr != null) {
-            //gps is now on, no need for notification
-            mNotifyMgr.cancel(NOTIFICATION_ID);
+        if (gpsIsOn) {
+            if (mNotifyMgr != null) {
+                //gps is now on, no need for notification
+                mNotifyMgr.cancel(NOTIFICATION_ID);
+            }
         } else {
             App app = (App) context.getApplicationContext();
             boolean isMainActivityVisible = app.getMainActivityVisibility();

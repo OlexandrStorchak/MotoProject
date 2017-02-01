@@ -10,8 +10,8 @@ import android.net.NetworkInfo;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
-import com.example.alex.motoproject.NotificationBuilderUtil;
-import com.example.alex.motoproject.ShowAlertEvent;
+import com.example.alex.motoproject.utils.NotificationBuilderUtil;
+import com.example.alex.motoproject.events.ShowAlertEvent;
 
 import org.greenrobot.eventbus.EventBus;
 

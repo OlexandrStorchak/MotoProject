@@ -1,4 +1,4 @@
-package com.example.alex.motoproject;
+package com.example.alex.motoproject.utils;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
+import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.GpsStateReceiver;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 
