@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        databaseHelper.setAdapter(adapter);
          
 
 
@@ -120,9 +120,6 @@ public class MainActivity extends AppCompatActivity  {
                 mFriendList.setVisibility(View.VISIBLE);
                 View mMenu = findViewById(R.id.navigation_menu_layout);
                 mMenu.setVisibility(View.GONE);
-
-                //TODO : Get real data from Firebase to list
-                //This is dummy users
 
 
                 adapter.setList(databaseHelper.getAllOnlineUsers());

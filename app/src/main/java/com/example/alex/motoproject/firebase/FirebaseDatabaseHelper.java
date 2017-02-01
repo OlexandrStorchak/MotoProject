@@ -2,6 +2,7 @@ package com.example.alex.motoproject.firebase;
 
 import android.util.Log;
 
+import com.example.alex.motoproject.adapters.FriendsListAdapter;
 import com.example.alex.motoproject.models.FriendsListModel;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -14,10 +15,10 @@ import java.util.List;
 
 
 
-public class FirebaseDatabaseHelper {
+public class FirebaseDatabaseHelper implements ValueEventListener{
     private static final String TAG = "log";
 
-
+    FriendsListAdapter adapter;
 
 
     public FirebaseDatabaseHelper() {
@@ -26,28 +27,6 @@ public class FirebaseDatabaseHelper {
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
 
     private final List<FriendsListModel> listModels = new ArrayList<>();
-
-    private ValueEventListener onlineListener = new ValueEventListener() {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            listModels.clear();
-
-            for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                FriendsListModel friend = postSnapshot.getValue(FriendsListModel.class);
-                Log.d(TAG, "onDataChange: " +friend.getEmail() + " - ");
-                listModels.add(friend);
-
-            }
-
-
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-
-        }
-    };
-
 
 
 
@@ -90,14 +69,30 @@ public class FirebaseDatabaseHelper {
         // Read from the database
 
         DatabaseReference myRef = database.getReference().child("onlineUsers");
-        myRef.addValueEventListener(onlineListener);
+        myRef.addValueEventListener(this);
 
         return listModels;
     }
+    public void setAdapter(FriendsListAdapter adapter){
+        this.adapter=adapter;
+    }
 
 
+    @Override
+    public void onDataChange(DataSnapshot dataSnapshot) {
+        listModels.clear();
 
+        for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+            FriendsListModel friend = postSnapshot.getValue(FriendsListModel.class);
+            Log.d(TAG, "onDataChange: " +friend.getEmail() + " - ");
+            listModels.add(friend);
+            adapter.notifyDataSetChanged();
 
+        }
+    }
 
+    @Override
+    public void onCancelled(DatabaseError databaseError) {
 
+    }
 }
