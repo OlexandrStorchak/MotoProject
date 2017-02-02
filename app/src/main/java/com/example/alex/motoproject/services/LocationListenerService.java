@@ -4,12 +4,10 @@ import android.Manifest;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -22,7 +20,6 @@ import android.util.Log;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.broadcastReceiver.GpsStateReceiver;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -44,16 +41,13 @@ public class LocationListenerService extends Service implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
     private static final String LOG_TAG = "LocationListenerService";
-    private static final String START_GPS_RECEIVER_ACTION =
-            "com.example.alex.motoproject.START_GPS_RECEIVER";
     //TODO: where to store notification ids?
     int mNotificationId = 3;
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation;
     String mLastUpdateTime;
     String mRequestFrequency = "default";
-    private BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
-    private BroadcastReceiver mGpsStateReceiver = new GpsStateReceiver();
+    private NetworkStateReceiver mNetworkStateReceiver;
     private DatabaseReference mDatabase;
 
     public LocationListenerService() {
@@ -75,7 +69,7 @@ public class LocationListenerService extends Service implements
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         createNotification();
-        registerReceivers();
+        registerReceiver();
 
         super.onCreate();
         ((App) this.getApplication()).setIsLocationListenerServiceOn(true);
@@ -237,24 +231,16 @@ public class LocationListenerService extends Service implements
         startForeground(mNotificationId, mBuilder.build());
     }
 
-    private void registerReceivers() {
+    private void registerReceiver() {
         IntentFilter intentFilterNetwork = new IntentFilter(
                 ConnectivityManager.CONNECTIVITY_ACTION);
+        mNetworkStateReceiver = new NetworkStateReceiver();
         registerReceiver(
                 mNetworkStateReceiver, intentFilterNetwork);
-
-        IntentFilter intentFilterGps = new IntentFilter(
-                LocationManager.PROVIDERS_CHANGED_ACTION);
-        intentFilterGps.addAction(START_GPS_RECEIVER_ACTION);
-        registerReceiver(
-                mGpsStateReceiver, intentFilterGps);
-        //manually call the receiver first time, cause it does not check GPS on start
-        sendBroadcast(new Intent(START_GPS_RECEIVER_ACTION));
     }
 
     private void unregisterReceivers() {
         unregisterReceiver(mNetworkStateReceiver);
-        unregisterReceiver(mGpsStateReceiver);
         //cleanup unneeded notifications
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

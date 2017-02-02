@@ -43,7 +43,7 @@ public class App extends Application
         isLocationListenerServiceOn = locationListenerServiceOn;
     }
 
-    public boolean getMainActivityVisibility() {
+    public boolean isMainActivityVisible() {
         return isMainActivityVisible;
     }
 

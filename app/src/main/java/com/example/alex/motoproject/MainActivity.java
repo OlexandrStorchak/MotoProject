@@ -1,7 +1,6 @@
 package com.example.alex.motoproject;
 
 import android.Manifest;
-import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -58,9 +57,9 @@ public class MainActivity extends AppCompatActivity
     private static final String FRAGMENT_MAP = "fragmentMap";
     private static final String FRAGMENT_MAP_TAG = FRAGMENT_MAP;
     public static boolean loginWithEmail = false; // Flag for validate with email login method
-    private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
     FragmentManager mFragmentManager;
     android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+    private NetworkStateReceiver mNetworkStateReceiver;
     private AlertDialog alert;
     //FireBase vars :
     private FirebaseAuth mFirebaseAuth;
@@ -435,6 +434,8 @@ public class MainActivity extends AppCompatActivity
             IntentFilter intentFilter = new IntentFilter(
                     ConnectivityManager.CONNECTIVITY_ACTION);
             intentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
+
+            mNetworkStateReceiver = new NetworkStateReceiver();
             registerReceiver(
                     mNetworkStateReceiver, intentFilter);
         }

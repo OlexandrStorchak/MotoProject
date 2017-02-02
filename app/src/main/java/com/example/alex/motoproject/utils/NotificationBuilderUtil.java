@@ -8,7 +8,6 @@ import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.broadcastReceiver.GpsStateReceiver;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 
 public final class NotificationBuilderUtil {
@@ -25,11 +24,11 @@ public final class NotificationBuilderUtil {
 
         String settingsPath;
         switch (notificationId) {
-            case NetworkStateReceiver.NOTIFICATION_ID:
+            case NetworkStateReceiver.INTERNET_NOTIFICATION_ID:
                 mBuilder.setContentText("Інтернет вимкнено. Ввімкнути");
                 settingsPath = Settings.ACTION_SETTINGS;
                 break;
-            case GpsStateReceiver.NOTIFICATION_ID:
+            case NetworkStateReceiver.GPS_NOTIFICATION_ID:
                 mBuilder.setContentText("GPS вимкнено. Ввімкнути");
                 settingsPath = Settings.ACTION_LOCATION_SOURCE_SETTINGS;
                 break;
