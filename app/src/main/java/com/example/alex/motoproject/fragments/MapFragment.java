@@ -34,6 +34,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
+
 import static com.example.alex.motoproject.R.id.map;
 
 
@@ -42,18 +44,21 @@ import static com.example.alex.motoproject.R.id.map;
  */
 
 //TODO: custom pins
+//TODO if user is offline, hide his pin
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     public static final String LOG_TAG = MapFragment.class.getSimpleName();
 
     private static MapFragment mapFragmentInstance;
     private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
     MapFragmentListener mMapFragmentListener;
+    Marker marker;
     //for methods calling, like creating pins
     private GoogleMap mMap;
     //for lifecycle
     private MapView mMapView;
     private DatabaseReference mDatabase;
     private String userUid;
+    private HashMap<String, Marker> hashMap;
 
     public MapFragment() {
         // Required empty public constructor
@@ -116,6 +121,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
         });
+
+        hashMap = new HashMap<>();
 
         fetchUserLocations();
 
@@ -193,8 +200,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (!uid.equals(userUid)) {
                     Double lat = (Double) dataSnapshot.child("lat").getValue();
                     Double lng = (Double) dataSnapshot.child("lng").getValue();
-                    LatLng latLng = new LatLng(lat, lng);
-                    createPinOnMap(latLng, uid);
+                    if (lat != null && lng != null) {
+                        LatLng latLng = new LatLng(lat, lng);
+                        if (hashMap.containsKey(uid)) {
+                            Marker changeableMarker = hashMap.get(uid);
+                            changeableMarker.setPosition(latLng);
+                        } else {
+                            createPinOnMap(latLng, uid);
+                        }
+                    }
+
                 }
             }
 
@@ -216,11 +231,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void createPinOnMap(LatLng latLng, String uid) {
-        Marker marker = mMap.addMarker(new MarkerOptions()
+        marker = mMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title(uid));
-        marker.setTag(uid);
         Log.d(LOG_TAG, "pin created!");
+        hashMap.put(uid, marker);
     }
 
     private boolean checkLocationPermission() {
