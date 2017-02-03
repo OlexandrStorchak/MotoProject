@@ -1,24 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginTop="@dimen/nav_header_height"
-    >
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        style="@style/MyNavigationButtonCustom"
-        android:text="@string/back_to_menu"
-        android:id="@+id/navigatio_btn_back_to_menu"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Friends list"
+        android:layout_gravity="center_horizontal"
+
         />
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/navigation_friends_list_recycler"
-
-        >
-
-    </android.support.v7.widget.RecyclerView>
 
 </LinearLayout>

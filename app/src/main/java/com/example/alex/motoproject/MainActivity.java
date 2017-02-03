@@ -1,5 +1,6 @@
 package com.example.alex.motoproject;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -8,8 +9,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -18,23 +17,26 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.alex.motoproject.adapters.FriendsListAdapter;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.fragments.AuthFragment;
 import com.example.alex.motoproject.fragments.CheckEmailDialogFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.fragments.SignUpFragment;
+import com.example.alex.motoproject.fragments.UsersOnlineFragment;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
-public class MainActivity extends AppCompatActivity  {
+import java.net.URI;
+
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
     private static final String FRAGMENT_MAP = "fragmentMap";
+    private static final String FRAGMENT_ONLINE_USERS = "fragmentOnlineUsers";
     public static boolean loginWithEmail = false; // Flag for validate with email login method
     FragmentManager mFragmentManager;
     android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
@@ -43,9 +45,6 @@ public class MainActivity extends AppCompatActivity  {
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mFirebaseAuthStateListener;
     private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
-
-    FriendsListAdapter adapter = new FriendsListAdapter(null);
-
 
 
     private NavigationView mNavigationView;
@@ -56,14 +55,13 @@ public class MainActivity extends AppCompatActivity  {
     private Button mNavigationBtnMap;
     private Button mNavigationBtnSignOut;
     private DrawerLayout mDrawerLayout;
-
+    private Button mNavigationBtnFriendsList;
+    public static MainActivity mainActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        databaseHelper.setAdapter(adapter);
-         
-
+       mainActivity = this;
 
         //Firebase auth instance
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -112,44 +110,28 @@ public class MainActivity extends AppCompatActivity  {
             }
         });
         //Button in Navigation Drawer for display Friends List
-        Button mNavigationBtnFriendsList = (Button) mNavigationView.findViewById(R.id.navigation_btn_friends);
+        mNavigationBtnFriendsList = (Button) mNavigationView.findViewById(R.id.navigation_btn_friends);
         mNavigationBtnFriendsList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                View mFriendList = findViewById(R.id.navigation_friends_layout);
-                mFriendList.setVisibility(View.VISIBLE);
-                View mMenu = findViewById(R.id.navigation_menu_layout);
-                mMenu.setVisibility(View.GONE);
-
-
-                adapter.setList(databaseHelper.getAllOnlineUsers());
-                adapter.notifyDataSetChanged();
-
-
+                replaceFragment(FRAGMENT_ONLINE_USERS);
+                mDrawerLayout.closeDrawers();
 
             }
         });
 
 
-
-        RecyclerView rv = (RecyclerView) mNavigationView.findViewById(R.id.navigation_friends_list_recycler);
-
-        rv.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-
-        rv.setAdapter(adapter);
-
-        // Button in Navigation Drawer, which visible when click to friends list, for back to main menu
-        Button mNavigationBtnBackToMenu = (Button) mNavigationView.findViewById(R.id.navigatio_btn_back_to_menu);
-        mNavigationBtnBackToMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                View mFriendList = findViewById(R.id.navigation_friends_layout);
-                mFriendList.setVisibility(View.GONE);
-                View mMenu = findViewById(R.id.navigation_menu_layout);
-                mMenu.setVisibility(View.VISIBLE);
-            }
-        });
-
+//        // Button in Navigation Drawer, which visible when click to friends list, for back to main menu
+//        Button mNavigationBtnBackToMenu = (Button) mNavigationView.findViewById(R.id.navigatio_btn_back_to_menu);
+//        mNavigationBtnBackToMenu.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                View mFriendList = findViewById(R.id.navigation_friends_layout);
+//                mFriendList.setVisibility(View.GONE);
+//                View mMenu = findViewById(R.id.navigation_menu_layout);
+//                mMenu.setVisibility(View.VISIBLE);
+//            }
+//        });
 
 
         Log.d(TAG, "onCreate: Main activity ");
@@ -246,6 +228,11 @@ public class MainActivity extends AppCompatActivity  {
                 fragmentTransaction.replace(R.id.main_activity_frame, MapFragment.getInstance());
                 fragmentTransaction.commit();
                 break;
+            case FRAGMENT_ONLINE_USERS:
+
+                fragmentTransaction.replace(R.id.main_activity_frame, UsersOnlineFragment.getInstance());
+                fragmentTransaction.commit();
+                break;
         }
     }
 
@@ -259,7 +246,8 @@ public class MainActivity extends AppCompatActivity  {
 
 
     private void isSignedIn() {
-
+        String avatarUri=null;
+        Log.d(TAG, "isSignedIn: "+mFirebaseAuth.getCurrentUser().getUid());
         mNavigationBtnSignOut.setVisibility(View.VISIBLE);
         mNavigationBtnMap.setVisibility(View.VISIBLE);
 
@@ -267,17 +255,30 @@ public class MainActivity extends AppCompatActivity  {
         mEmailHeader.setText(mFirebaseCurrentUser.getEmail());
         mAvatarHeader.setVisibility(View.VISIBLE);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-        Picasso.with(getApplicationContext())
-                .load(mFirebaseCurrentUser.getPhotoUrl())
-                .resize(mAvatarHeader.getMaxWidth(), mAvatarHeader.getMaxHeight())
-                .centerCrop()
-                .transform(new CircleTransform())
-                .into(mAvatarHeader);
+
+        if (mFirebaseCurrentUser.getPhotoUrl() != null) {
+            avatarUri = mFirebaseCurrentUser.getPhotoUrl().toString();
+            Picasso.with(getApplicationContext())
+                    .load(avatarUri)
+                    .resize(mAvatarHeader.getMaxWidth(), mAvatarHeader.getMaxHeight())
+                    .centerCrop()
+                    .transform(new CircleTransform())
+                    .into(mAvatarHeader);
+
+        }
+
+
         replaceFragment(FRAGMENT_MAP);
+        Log.d(TAG, "isSignedIn: test");
+
         databaseHelper.createDatabase(mFirebaseCurrentUser.getUid(),
                 mFirebaseCurrentUser.getEmail(),
                 mFirebaseCurrentUser.getDisplayName());
-        databaseHelper.addToOnline(mFirebaseCurrentUser.getUid(),mFirebaseCurrentUser.getEmail());
+
+        databaseHelper.addToOnline(mFirebaseCurrentUser.getUid(),
+                mFirebaseCurrentUser.getEmail(),
+                avatarUri
+        );
 
     }
 
@@ -313,7 +314,6 @@ public class MainActivity extends AppCompatActivity  {
         super.onResume();
         Log.d(TAG, "onResume: ");
     }
-
 
 
 }

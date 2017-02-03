@@ -4,7 +4,9 @@
     android:orientation="horizontal"
     android:layout_marginLeft="@dimen/activity_vertical_margin"
     android:layout_width="match_parent"
-    android:layout_height="125dp">
+    android:layout_height="125dp"
+    android:id="@+id/big"
+    >
     <ImageView
         android:layout_width="100dp"
         android:layout_height="100dp"

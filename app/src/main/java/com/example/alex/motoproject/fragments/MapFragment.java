@@ -28,6 +28,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import static com.example.alex.motoproject.R.id.map;
 
@@ -45,8 +46,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public static final int ALERT_INTERNET_OFF = 21;
     public static final int ALERT_PERMISSION_RATIONALE = 22;
     public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
+    private static final String TAG = "log";
 
-    private static MapFragment mapFragmentInstance;
+    public static MapFragment mapFragmentInstance;
     //for methods calling, like creating pins
     private GoogleMap mMap;
     //for lifecycle
@@ -135,6 +137,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
         }
+    }
+
+    public void setMarker(double lat,double lon,String name){
+        LatLng location = new LatLng(lat,lon);
+
+        mMap.addMarker(new MarkerOptions().position(location).title(name));
+        Log.d(TAG, "setMarker: ");
     }
 
     //handle location runtime permission and setup listener service

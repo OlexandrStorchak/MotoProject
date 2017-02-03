@@ -1,9 +1,13 @@
 package com.example.alex.motoproject.firebase;
 
+import android.net.Uri;
 import android.util.Log;
 
+
 import com.example.alex.motoproject.adapters.FriendsListAdapter;
-import com.example.alex.motoproject.models.FriendsListModel;
+import com.example.alex.motoproject.models.usersOnline;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -15,7 +19,7 @@ import java.util.List;
 
 
 
-public class FirebaseDatabaseHelper implements ValueEventListener{
+public class FirebaseDatabaseHelper {
     private static final String TAG = "log";
 
     FriendsListAdapter adapter;
@@ -26,7 +30,7 @@ public class FirebaseDatabaseHelper implements ValueEventListener{
     }
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
 
-    private final List<FriendsListModel> listModels = new ArrayList<>();
+    private final List<usersOnline> listModels = new ArrayList<>();
 
 
 
@@ -55,9 +59,13 @@ public class FirebaseDatabaseHelper implements ValueEventListener{
 
     }
 
-    public void addToOnline(String userId,String email){
+    public void addToOnline(String userId, String email, String avatar){
         DatabaseReference myRef = database.getReference().child("onlineUsers").child(userId).child("email");
         myRef.setValue(email);
+        myRef = database.getReference().child("onlineUsers").child(userId).child("avatar");
+        myRef.setValue(avatar);
+        myRef = database.getReference().child("onlineUsers").child(userId).child("status");
+        myRef.setValue("public");
     }
 
     public void removeFromOnline(String userId){
@@ -65,11 +73,37 @@ public class FirebaseDatabaseHelper implements ValueEventListener{
         myRef.removeValue();
     }
 
-    public List<FriendsListModel> getAllOnlineUsers(){
+    public void updateOnlineUserLocation(double lat, double lon, String userId){
+        Log.d(TAG, "updateOnlineUserLocation: "+userId);
+        DatabaseReference myRef = database.getReference().child("onlineUsers").child(userId).child("lat");
+        myRef.setValue(lat);
+        myRef = database.getReference().child("onlineUsers").child(userId).child("lon");
+        myRef.setValue(lon);
+    }
+
+    public List<usersOnline> getAllOnlineUsers(){
         // Read from the database
 
         DatabaseReference myRef = database.getReference().child("onlineUsers");
-        myRef.addValueEventListener(this);
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listModels.clear();
+
+                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                    usersOnline friend = postSnapshot.getValue(usersOnline.class);
+                    Log.d(TAG, "onDataChange: " +friend.getEmail() + " - ");
+                    listModels.add(friend);
+                    adapter.notifyDataSetChanged();
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         return listModels;
     }
@@ -78,21 +112,6 @@ public class FirebaseDatabaseHelper implements ValueEventListener{
     }
 
 
-    @Override
-    public void onDataChange(DataSnapshot dataSnapshot) {
-        listModels.clear();
 
-        for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-            FriendsListModel friend = postSnapshot.getValue(FriendsListModel.class);
-            Log.d(TAG, "onDataChange: " +friend.getEmail() + " - ");
-            listModels.add(friend);
-            adapter.notifyDataSetChanged();
 
-        }
-    }
-
-    @Override
-    public void onCancelled(DatabaseError databaseError) {
-
-    }
 }

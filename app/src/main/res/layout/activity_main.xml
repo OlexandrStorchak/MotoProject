@@ -26,10 +26,7 @@
             android:id="@+id/navigation_menu_layout"
             />
 
-        <include layout="@layout/navigation_friends_list"
-            android:id="@+id/navigation_friends_layout"
-            android:visibility="gone"
-            />
+
 
     </android.support.design.widget.NavigationView>
 

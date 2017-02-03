@@ -22,7 +22,7 @@
             style="@style/MyNavigationButtonCustom"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:text="@string/friends" />
+            android:text="@string/who_is_online" />
 
         <Button
             android:id="@+id/navigation_btn_signout"
