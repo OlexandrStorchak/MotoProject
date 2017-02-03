@@ -27,6 +27,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
+import com.example.alex.motoproject.events.CancelAlertEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
 import com.example.alex.motoproject.fragments.AuthFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
@@ -438,11 +439,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Subscribe
-    //the method called when received an event from EventBus
+    //the method called when received an event from EventBus asking for showing alert
     public void onShouldShowAlertEvent(ShowAlertEvent event) {
         int receivedAlertType = event.alertType;
         if (!mActiveAlerts.contains(receivedAlertType))
         showAlert(event.alertType);
+    }
+
+    @Subscribe
+    //the method called when received an event from EventBus asking for canceling alert
+    public void onShouldCancelEvent(CancelAlertEvent event) {
+        int receivedAlertType = event.alertType;
+        if (mActiveAlerts.contains(receivedAlertType)) {
+            if (alert != null) {
+                alert.dismiss();
+            }
+        }
+
     }
 
     private void registerNetworkStateReceiver() {

@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
+import com.example.alex.motoproject.events.CancelAlertEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
 import com.example.alex.motoproject.utils.NotificationBuilderUtil;
 
@@ -37,6 +38,7 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
         if (isInternetEnabled()) {
             cancelNotificationIfExists(INTERNET_NOTIFICATION_ID);
+            postCancelAlertEvent(INTERNET_NOTIFICATION_ID);
         } else {
             if (isMainActivityVisible()) {
                 postShowAlertEvent(INTERNET_NOTIFICATION_ID);
@@ -48,6 +50,7 @@ public class NetworkStateReceiver extends BroadcastReceiver {
         if (isGpsNeeded()) {
             if (isGpsEnabled()) {
                 cancelNotificationIfExists(GPS_NOTIFICATION_ID);
+                postCancelAlertEvent(GPS_NOTIFICATION_ID);
             } else {
                 if (isMainActivityVisible()) {
                     postShowAlertEvent(GPS_NOTIFICATION_ID);
@@ -104,6 +107,16 @@ public class NetworkStateReceiver extends BroadcastReceiver {
             case GPS_NOTIFICATION_ID:
                 EventBus.getDefault().post(new ShowAlertEvent(MainActivity.ALERT_GPS_OFF));
                 break;
+        }
+    }
+
+    private void postCancelAlertEvent(int notificationId) {
+        switch (notificationId) {
+            case INTERNET_NOTIFICATION_ID:
+                EventBus.getDefault().post(new CancelAlertEvent(MainActivity.ALERT_INTERNET_OFF));
+                break;
+            case GPS_NOTIFICATION_ID:
+                EventBus.getDefault().post(new CancelAlertEvent(MainActivity.ALERT_GPS_OFF));
         }
     }
 }
