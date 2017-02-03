@@ -51,6 +51,9 @@ public final class NotificationBuilderUtil {
                 );
         mBuilder.setContentIntent(pendingIntent);
 
-        return mBuilder.build();
+        Notification notification = mBuilder.build();
+        notification.flags = Notification.FLAG_ONLY_ALERT_ONCE;
+
+        return notification;
     }
 }

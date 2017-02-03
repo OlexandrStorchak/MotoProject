@@ -24,6 +24,7 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     public static final int GPS_NOTIFICATION_ID = 2;
     Context context;
     NotificationManager mNotifyMgr;
+    App app;
 
     public NetworkStateReceiver() {
     }
@@ -31,36 +32,8 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     @Override
     @SuppressWarnings("deprecation")
     public void onReceive(Context context, Intent intent) {
-//        ConnectivityManager cm = (ConnectivityManager)
-//                context.getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-//
-//        boolean networkIsOn = (activeNetwork != null);
-//
-//        if (networkIsOn) { //Internet connection is on
-//            if ((activeNetwork.getState() == NetworkInfo.State.CONNECTED) &&
-//                    (mNotifyMgr != null)) {
-//                //if a notification was created before, dismiss it
-//                mNotifyMgr.cancel(INTERNET_NOTIFICATION_ID);
-//            }
-//        } else {
-//            //Internet connection is turned off
-//            App app = (App) context.getApplicationContext();
-//            boolean isMainActivityVisible = app.isMainActivityVisible();
-//            if (isMainActivityVisible) { //show alert
-//                EventBus.getDefault().post(new ShowAlertEvent(MainActivity.ALERT_INTERNET_OFF));
-//            } else { //show notification
-//                Notification notification = NotificationBuilderUtil
-//                        .buildNotification(context, INTERNET_NOTIFICATION_ID);
-//                // get an instance of the NotificationManager service
-//                mNotifyMgr = (NotificationManager)
-//                        context.getSystemService(NOTIFICATION_SERVICE);
-//                // send notification
-//                mNotifyMgr.notify(INTERNET_NOTIFICATION_ID, notification);
-//            }
-//        }
-
         this.context = context;
+        app = (App) context.getApplicationContext();
 
         if (isInternetEnabled()) {
             cancelNotificationIfExists(INTERNET_NOTIFICATION_ID);
@@ -100,11 +73,11 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     }
 
     private boolean isGpsNeeded() {
-        return ((App) context.getApplicationContext()).isLocationListenerServiceOn();
+        return (app).isLocationListenerServiceOn();
     }
 
     private boolean isMainActivityVisible() {
-        return ((App) context.getApplicationContext()).isMainActivityVisible();
+        return (app).isMainActivityVisible();
     }
 
     private void showNotification(int notificationId) {

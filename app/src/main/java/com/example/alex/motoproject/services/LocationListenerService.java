@@ -72,7 +72,7 @@ public class LocationListenerService extends Service implements
         registerReceiver();
 
         super.onCreate();
-        ((App) this.getApplication()).setIsLocationListenerServiceOn(true);
+        ((App) this.getApplication()).setLocationListenerServiceOn(true);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class LocationListenerService extends Service implements
         mGoogleApiClient.disconnect();
         unregisterReceivers();
 
-        ((App) this.getApplication()).setIsLocationListenerServiceOn(false);
+        ((App) this.getApplication()).setLocationListenerServiceOn(false);
         super.onDestroy();
     }
 

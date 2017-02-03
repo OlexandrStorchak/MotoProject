@@ -15,7 +15,7 @@ import io.realm.RealmConfiguration;
 public class App extends Application
         implements Application.ActivityLifecycleCallbacks {
     private static final String TAG = "log";
-    private static boolean isMainActivityVisible = false;
+    private boolean isMainActivityVisible = false;
     private boolean isLocationListenerServiceOn = false;
 
     @Override
@@ -39,11 +39,12 @@ public class App extends Application
         return isLocationListenerServiceOn;
     }
 
-    public void setIsLocationListenerServiceOn(boolean locationListenerServiceOn) {
+    public void setLocationListenerServiceOn(boolean locationListenerServiceOn) {
         isLocationListenerServiceOn = locationListenerServiceOn;
     }
 
     public boolean isMainActivityVisible() {
+
         return isMainActivityVisible;
     }
 

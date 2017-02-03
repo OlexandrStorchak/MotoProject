@@ -178,7 +178,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void fetchUserLocations() {
         mDatabase.child("location").addChildEventListener(new ChildEventListener() {
-            //// TODO: do not receive updates for only one updated value
+            // TODO: do not receive updates for only one updated value
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d(LOG_TAG, dataSnapshot.toString());

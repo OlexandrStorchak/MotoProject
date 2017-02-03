@@ -39,6 +39,8 @@ import com.google.firebase.auth.FirebaseUser;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.ArrayList;
+
 import static com.example.alex.motoproject.fragments.MapFragment.LOG_TAG;
 
 public class MainActivity extends AppCompatActivity
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity
     private static final String FRAGMENT_MAP_TAG = FRAGMENT_MAP;
     public static boolean loginWithEmail = false; // Flag for validate with email login method
     FragmentManager mFragmentManager;
+    ArrayList<Integer> mActiveAlerts = new ArrayList<>();
     android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
     private NetworkStateReceiver mNetworkStateReceiver;
     private AlertDialog alert;
@@ -90,7 +93,7 @@ public class MainActivity extends AppCompatActivity
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        registerNetworkStateReceiver();
+//        registerNetworkStateReceiver();
 
         Log.d(TAG, "onCreate: Main activity ");
 
@@ -230,6 +233,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        registerNetworkStateReceiver();
         EventBus.getDefault().register(this);
         // Attach the listener of Firebase Auth
         mFirebaseAuth.addAuthStateListener(mFirebaseAuthStateListener);
@@ -240,6 +244,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
+        unregisterNetworkStateReceiver();
         EventBus.getDefault().unregister(this);
         Log.d(TAG, "onStop: ");
         if (mFirebaseAuthStateListener != null) {
@@ -289,7 +294,7 @@ public class MainActivity extends AppCompatActivity
         if (alert != null) {
             alert.dismiss();
         }
-        unregisterNetworkStateReceiver();
+//        unregisterNetworkStateReceiver();
         super.onDestroy();
         Log.d(TAG, "onDestroy: ");
     }
@@ -306,7 +311,10 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "onResume: ");
     }
 
-    public void showAlert(int alertType) {
+    public void showAlert(final int alertType) {
+        if (mActiveAlerts.contains(alertType)) {
+            return; //do nothing if this alert has already been created
+        }
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         switch (alertType) {
             case ALERT_GPS_OFF:
@@ -399,7 +407,16 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
         alert = alertDialogBuilder.create();
+        alert.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                if (mActiveAlerts.contains(alertType))
+                    mActiveAlerts.remove((Integer) alertType);
+            }
+        });
         alert.show();
+        if (!mActiveAlerts.contains(alertType))
+            mActiveAlerts.add(alertType);
     }
 
     private boolean checkLocationPermission() {
@@ -423,6 +440,8 @@ public class MainActivity extends AppCompatActivity
     @Subscribe
     //the method called when received an event from EventBus
     public void onShouldShowAlertEvent(ShowAlertEvent event) {
+        int receivedAlertType = event.alertType;
+        if (!mActiveAlerts.contains(receivedAlertType))
         showAlert(event.alertType);
     }
 
