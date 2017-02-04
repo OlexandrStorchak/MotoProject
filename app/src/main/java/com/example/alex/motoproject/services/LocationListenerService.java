@@ -10,16 +10,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -31,13 +32,15 @@ public class LocationListenerService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
-//TODO: do something if there`s no Internet or GPS connection
+    //TODO: do something if there`s no Internet or GPS connection
     private static final String LOG_TAG = "LocationListenerService";
 
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation;
     String mLastUpdateTime;
     String mRequestFrequency = "default";
+    FirebaseDatabaseHelper firebaseDatabaseHelper = new FirebaseDatabaseHelper();
+    FirebaseAuth firebaseAuth;
 
     public LocationListenerService() {
         // Required empty public constructor
@@ -56,7 +59,7 @@ public class LocationListenerService extends Service implements
                     .build();
         }
         mGoogleApiClient.connect();
-
+        firebaseAuth = FirebaseAuth.getInstance();
         createNotification();
 
         super.onCreate();
@@ -98,7 +101,7 @@ public class LocationListenerService extends Service implements
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-        updateFirebaseData();
+        updateFirebaseData(location);
     }
 
     @Override
@@ -145,15 +148,16 @@ public class LocationListenerService extends Service implements
         }
     }
 
-    private void updateFirebaseData() {
-        //TODO: push data to the server
+    private void updateFirebaseData(Location location) {
+
+        double lat = location.getLatitude();
+        double lon = location.getLongitude();
+        String userId = firebaseAuth.getCurrentUser().getUid();
+        firebaseDatabaseHelper.updateOnlineUserLocation(lat, lon, userId);
         Log.d(LOG_TAG, "Lat " + mCurrentLocation.getLatitude() +
                 " Lon " + mCurrentLocation.getLongitude() +
                 " Time " + mLastUpdateTime);
-        //TODO: delete this, only for testing purposes
-        Toast.makeText(this, "Lat " + mCurrentLocation.getLatitude() +
-                " Lon " + mCurrentLocation.getLongitude() +
-                " Time " + mLastUpdateTime, Toast.LENGTH_LONG).show();
+
     }
 
     protected void stopLocationUpdates() {
