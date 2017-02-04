@@ -21,9 +21,11 @@ import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
 
+
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
+
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -32,8 +34,10 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 
+
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
 
 
 import java.text.DateFormat;
@@ -58,8 +62,10 @@ public class LocationListenerService extends Service implements
     FirebaseDatabaseHelper firebaseDatabaseHelper = new FirebaseDatabaseHelper();
     FirebaseAuth firebaseAuth;
 
+
     private NetworkStateReceiver mNetworkStateReceiver;
     private DatabaseReference mDatabase;
+
 
 
     public LocationListenerService() {
@@ -80,6 +86,7 @@ public class LocationListenerService extends Service implements
         mGoogleApiClient.connect();
 
         firebaseAuth = FirebaseAuth.getInstance();
+
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -195,7 +202,7 @@ public class LocationListenerService extends Service implements
                 " Time " + mLastUpdateTime);
 
 
-   
+
     }
 
     protected void stopLocationUpdates() {

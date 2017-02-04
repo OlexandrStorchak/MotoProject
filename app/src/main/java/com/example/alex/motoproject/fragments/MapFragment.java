@@ -37,6 +37,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.HashMap;
 
 
+
 import static com.example.alex.motoproject.R.id.map;
 
 
@@ -56,6 +57,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     MapFragmentListener mMapFragmentListener;
     Marker marker;
     boolean isServiceOn;
+
 
     //for methods calling, like creating pins
     private GoogleMap mMap;
@@ -162,9 +164,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(cherkasy, 11));
     }
 
-    @Override
-
-    
+       
     public void setMarker(double lat,double lon,String name){
         LatLng location = new LatLng(lat,lon);
 

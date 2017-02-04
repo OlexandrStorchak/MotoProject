@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
@@ -39,6 +40,7 @@ import com.example.alex.motoproject.fragments.AuthFragment;
 import com.example.alex.motoproject.fragments.CheckEmailDialogFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.fragments.SignUpFragment;
+
 
 import com.example.alex.motoproject.fragments.UsersOnlineFragment;
 import com.example.alex.motoproject.utils.CircleTransform;
@@ -51,10 +53,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
+
 
 
 import static com.example.alex.motoproject.fragments.MapFragment.LOG_TAG;
@@ -72,6 +76,7 @@ public class MainActivity extends AppCompatActivity
     private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
     private static final String FRAGMENT_MAP = "fragmentMap";
+
 
     private static final String FRAGMENT_ONLINE_USERS = "fragmentOnlineUsers";
 
@@ -116,6 +121,9 @@ public class MainActivity extends AppCompatActivity
 
         //init FragmentManager
         mFragmentManager = getSupportFragmentManager();
+
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -187,6 +195,7 @@ public class MainActivity extends AppCompatActivity
                 mFirebaseCurrentUser = firebaseAuth.getCurrentUser();
                 if (loginWithEmail) {
 
+
                     //Sign in method by email
                     if (mFirebaseCurrentUser != null) {
                         if (mFirebaseCurrentUser.isEmailVerified()) {
@@ -237,6 +246,7 @@ public class MainActivity extends AppCompatActivity
 
 
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[],
@@ -259,9 +269,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-
-    
-
 
 
 
@@ -303,11 +310,13 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.replace(R.id.main_activity_frame, new AuthFragment());
                 fragmentTransaction.commit();
                 break;
-            case FRAGMENT_MAP:
+           
 
-                fragmentTransaction.replace(R.id.main_activity_frame, MapFragment.getInstance());
-                fragmentTransaction.commit();
-                break;
+            case FRAGMENT_MAP:
+                fragmentTransaction.replace(R.id.main_activity_frame,
+                        MapFragment.getInstance(),
+                        FRAGMENT_MAP_TAG);
+
 
             case FRAGMENT_ONLINE_USERS:
 
@@ -509,6 +518,7 @@ public class MainActivity extends AppCompatActivity
             mActiveAlerts.add(alertType);
     }
 
+
     private boolean checkLocationPermission() {
         return ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -534,6 +544,7 @@ public class MainActivity extends AppCompatActivity
         if (!mActiveAlerts.contains(receivedAlertType))
             showAlert(event.alertType);
     }
+
 
     @Subscribe
     //the method called when received an event from EventBus asking for canceling alert
