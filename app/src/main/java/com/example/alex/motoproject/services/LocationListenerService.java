@@ -135,7 +135,7 @@ public class LocationListenerService extends Service implements
             if (mLastLocation != null) {
                 mCurrentLocation = mLastLocation;
                 mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-                updateFirebaseData();
+                updateFirebaseData(mLastLocation);
             }
         }
         startLocationUpdates();

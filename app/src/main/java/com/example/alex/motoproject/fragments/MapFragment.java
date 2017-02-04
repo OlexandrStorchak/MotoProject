@@ -49,10 +49,11 @@ import static com.example.alex.motoproject.R.id.map;
 //TODO if user is offline, hide his pin
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     public static final String LOG_TAG = MapFragment.class.getSimpleName();
+    private static final String TAG = "log";
 
 //    static final String STATE_SERVICE = "isServiceOn";
 
-    private static MapFragment mapFragmentInstance;
+    public static MapFragment mapFragmentInstance;
     private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
     MapFragmentListener mMapFragmentListener;
     Marker marker;

@@ -29,7 +29,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
@@ -53,19 +52,16 @@ import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
 
-
 import static com.example.alex.motoproject.fragments.MapFragment.LOG_TAG;
+import static com.example.alex.motoproject.fragments.MapFragment.mapFragmentInstance;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        MapFragment.MapFragmentListener {
+public class MainActivity extends AppCompatActivity implements MapFragment.MapFragmentListener {
 
     public static final int ALERT_GPS_OFF = 20;
     public static final int ALERT_INTERNET_OFF = 21;
@@ -94,7 +90,6 @@ public class MainActivity extends AppCompatActivity
     private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
 
 
-
     private NavigationView mNavigationView;
     private TextView mNameHeader;
     private TextView mEmailHeader;
@@ -109,7 +104,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       mainActivity = this;
+        mainActivity = this;
 
 
         //Firebase auth instance
@@ -245,8 +240,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[],
@@ -269,7 +262,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-
 
 
     @Override
@@ -310,13 +302,14 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.replace(R.id.main_activity_frame, new AuthFragment());
                 fragmentTransaction.commit();
                 break;
-           
+
 
             case FRAGMENT_MAP:
                 fragmentTransaction.replace(R.id.main_activity_frame,
                         MapFragment.getInstance(),
                         FRAGMENT_MAP_TAG);
-
+                fragmentTransaction.commit();
+                break;
 
             case FRAGMENT_ONLINE_USERS:
 
@@ -337,8 +330,8 @@ public class MainActivity extends AppCompatActivity
 
 
     private void isSignedIn() {
-        String avatarUri=null;
-        Log.d(TAG, "isSignedIn: "+mFirebaseAuth.getCurrentUser().getUid());
+        String avatarUri = null;
+        Log.d(TAG, "isSignedIn: " + mFirebaseAuth.getCurrentUser().getUid());
         mNavigationBtnSignOut.setVisibility(View.VISIBLE);
         mNavigationBtnMap.setVisibility(View.VISIBLE);
 

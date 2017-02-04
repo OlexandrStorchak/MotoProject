@@ -69,4 +69,5 @@ dependencies {
     compile 'org.greenrobot:eventbus:3.0.0'
 
 
-apply plugin: 'com.google.gms.google-services'
+    apply plugin: 'com.google.gms.google-services'
+}

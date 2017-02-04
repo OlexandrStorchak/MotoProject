@@ -71,10 +71,10 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
             public void onClick(View view) {
                 mainActivity.replaceFragment("fragmentMap");
                 Toast.makeText(holder.name.getContext(), holder.name.getText(), Toast.LENGTH_SHORT).show();
-                mapFragmentInstance.setMarker(friendsList.get(holder.getAdapterPosition()).getLat(),
-                        friendsList.get(holder.getAdapterPosition()).getLon(),
-                        friendsList.get(holder.getAdapterPosition()).getEmail()
-                );
+//                mapFragmentInstance.setMarker(friendsList.get(holder.getAdapterPosition()).getLat(),
+//                        friendsList.get(holder.getAdapterPosition()).getLon(),
+//                        friendsList.get(holder.getAdapterPosition()).getEmail()
+//                );
 
             }
         });
