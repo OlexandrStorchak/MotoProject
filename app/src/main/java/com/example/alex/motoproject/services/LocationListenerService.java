@@ -1,26 +1,40 @@
 package com.example.alex.motoproject.services;
 
+import android.Manifest;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
+
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+
+import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -32,15 +46,21 @@ public class LocationListenerService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
-    //TODO: do something if there`s no Internet or GPS connection
-    private static final String LOG_TAG = "LocationListenerService";
 
+    private static final String LOG_TAG = "LocationListenerService";
+    //TODO: where to store notification ids?
+    int mNotificationId = 3;
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation;
     String mLastUpdateTime;
     String mRequestFrequency = "default";
+
     FirebaseDatabaseHelper firebaseDatabaseHelper = new FirebaseDatabaseHelper();
     FirebaseAuth firebaseAuth;
+
+    private NetworkStateReceiver mNetworkStateReceiver;
+    private DatabaseReference mDatabase;
+
 
     public LocationListenerService() {
         // Required empty public constructor
@@ -48,9 +68,8 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onCreate() {
-        ((App) this.getApplication()).setIsLocationListenerServiceOn(true);
         Log.d(LOG_TAG, "onCreate");
-        // Create an instance of GoogleAPIClient
+        // create an instance of GoogleAPIClient
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -59,18 +78,26 @@ public class LocationListenerService extends Service implements
                     .build();
         }
         mGoogleApiClient.connect();
+
         firebaseAuth = FirebaseAuth.getInstance();
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+
         createNotification();
+        registerReceiver();
 
         super.onCreate();
+        ((App) this.getApplication()).setLocationListenerServiceOn(true);
     }
 
     @Override
     public void onDestroy() {
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
-        Log.d(LOG_TAG, "onDestroy");
-        ((App) this.getApplication()).setIsLocationListenerServiceOn(false);
+        unregisterReceivers();
+
+        ((App) this.getApplication()).setLocationListenerServiceOn(false);
         super.onDestroy();
     }
 
@@ -93,6 +120,17 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+            if (mLastLocation != null) {
+                mCurrentLocation = mLastLocation;
+                mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+                updateFirebaseData();
+            }
+        }
         startLocationUpdates();
 
     }
@@ -106,12 +144,10 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
     }
 
     //different variants of LocationRequest that might be changed via settings
@@ -139,14 +175,14 @@ public class LocationListenerService extends Service implements
 
     protected void startLocationUpdates() {
         //handle unexpected permission absence
-        try {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, createLocationRequest(), this);
-        } catch (SecurityException e) {
-            Log.e(LOG_TAG, e.getMessage());
-            stopSelf();
         }
     }
+
 
     private void updateFirebaseData(Location location) {
 
@@ -158,17 +194,21 @@ public class LocationListenerService extends Service implements
                 " Lon " + mCurrentLocation.getLongitude() +
                 " Time " + mLastUpdateTime);
 
+
+   
     }
 
     protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(
-                mGoogleApiClient, this);
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(
+                    mGoogleApiClient, this);
+        }
     }
 
     private void createNotification() {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setSmallIcon(R.drawable.ic_notification)
                         .setContentTitle("MotoProject")
                         .setContentText("Місцезнаходження відстежується.")
                         .setShowWhen(false);
@@ -176,31 +216,47 @@ public class LocationListenerService extends Service implements
         //create pending intent used when tapping on the app notification
         //open up MapFragment
         Intent resultIntent = new Intent(this, MainActivity.class);
+        //TODO is this line still needed?
         resultIntent.putExtra("isShouldLaunchMapFragment", true);
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
                         this,
                         0,
                         resultIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
+                        PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(resultPendingIntent);
 
-        //create pending intent user when tapping on big notification`s button
-        //finish this service
+        //create pending intent to finish this service
         Intent stopSelfIntent = new Intent(this, LocationListenerService.class);
         stopSelfIntent.putExtra("isShouldStopService", true);
+        //TODO: make a better logic for service killing
         PendingIntent StopSelfPendingIntent =
                 PendingIntent.getService(
                         this,
                         0,
                         stopSelfIntent,
                         PendingIntent.FLAG_CANCEL_CURRENT);
-        mBuilder.addAction(R.drawable.ic_clear_gray_24dp, "Прибрати мене з мапи", StopSelfPendingIntent);
+        mBuilder.addAction(R.drawable.ic_clear_gray_24dp,
+                "Прибрати мене з мапи",
+                StopSelfPendingIntent);
 
-        // set an ID for the notification
-        int mNotificationId = 1;
         // send notification
         startForeground(mNotificationId, mBuilder.build());
+    }
+
+    private void registerReceiver() {
+        IntentFilter intentFilterNetwork = new IntentFilter(
+                ConnectivityManager.CONNECTIVITY_ACTION);
+        mNetworkStateReceiver = new NetworkStateReceiver();
+        registerReceiver(
+                mNetworkStateReceiver, intentFilterNetwork);
+    }
+
+    private void unregisterReceivers() {
+        unregisterReceiver(mNetworkStateReceiver);
+        //cleanup unneeded notifications
+        NotificationManager mNotifyMgr =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mNotifyMgr.cancelAll();
     }
 }
