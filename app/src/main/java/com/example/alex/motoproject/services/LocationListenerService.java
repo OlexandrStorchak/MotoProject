@@ -20,15 +20,21 @@ import android.util.Log;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
+
+import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
+
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -40,6 +46,7 @@ public class LocationListenerService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
+
     private static final String LOG_TAG = "LocationListenerService";
     //TODO: where to store notification ids?
     int mNotificationId = 3;
@@ -47,8 +54,13 @@ public class LocationListenerService extends Service implements
     Location mCurrentLocation;
     String mLastUpdateTime;
     String mRequestFrequency = "default";
+
+    FirebaseDatabaseHelper firebaseDatabaseHelper = new FirebaseDatabaseHelper();
+    FirebaseAuth firebaseAuth;
+
     private NetworkStateReceiver mNetworkStateReceiver;
     private DatabaseReference mDatabase;
+
 
     public LocationListenerService() {
         // Required empty public constructor
@@ -66,7 +78,11 @@ public class LocationListenerService extends Service implements
                     .build();
         }
         mGoogleApiClient.connect();
+
+        firebaseAuth = FirebaseAuth.getInstance();
+
         mDatabase = FirebaseDatabase.getInstance().getReference();
+
 
         createNotification();
         registerReceiver();
@@ -123,7 +139,7 @@ public class LocationListenerService extends Service implements
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-        updateFirebaseData();
+        updateFirebaseData(location);
     }
 
     @Override
@@ -167,21 +183,19 @@ public class LocationListenerService extends Service implements
         }
     }
 
-    private void updateFirebaseData() {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() != null) {
-            String uid = auth.getCurrentUser().getUid();
 
-            DatabaseReference userLocationReference =
-                    mDatabase.child("location").child(uid);
-            Double lat = mCurrentLocation.getLatitude();
-            Double lng = mCurrentLocation.getLongitude();
-            String updateTime = mLastUpdateTime;
+    private void updateFirebaseData(Location location) {
 
-            userLocationReference.child("lat").setValue(lat);
-            userLocationReference.child("lng").setValue(lng);
-            userLocationReference.child("updateTime").setValue(updateTime);
-        }
+        double lat = location.getLatitude();
+        double lon = location.getLongitude();
+        String userId = firebaseAuth.getCurrentUser().getUid();
+        firebaseDatabaseHelper.updateOnlineUserLocation(lat, lon, userId);
+        Log.d(LOG_TAG, "Lat " + mCurrentLocation.getLatitude() +
+                " Lon " + mCurrentLocation.getLongitude() +
+                " Time " + mLastUpdateTime);
+
+
+   
     }
 
     protected void stopLocationUpdates() {

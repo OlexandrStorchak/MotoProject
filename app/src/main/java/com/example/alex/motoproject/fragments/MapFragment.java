@@ -24,6 +24,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,6 +35,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
+
 
 import static com.example.alex.motoproject.R.id.map;
 
@@ -46,6 +48,7 @@ import static com.example.alex.motoproject.R.id.map;
 //TODO if user is offline, hide his pin
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     public static final String LOG_TAG = MapFragment.class.getSimpleName();
+
 //    static final String STATE_SERVICE = "isServiceOn";
 
     private static MapFragment mapFragmentInstance;
@@ -53,6 +56,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     MapFragmentListener mMapFragmentListener;
     Marker marker;
     boolean isServiceOn;
+
     //for methods calling, like creating pins
     private GoogleMap mMap;
     //for map lifecycle
@@ -159,6 +163,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
+
+    
+    public void setMarker(double lat,double lon,String name){
+        LatLng location = new LatLng(lat,lon);
+
+        mMap.addMarker(new MarkerOptions().position(location).title(name));
+        Log.d(TAG, "setMarker: ");
+    }
+
+    
+    @Override
+
     public void onDestroyView() {
         mMapView.onDestroy();
         super.onDestroyView();

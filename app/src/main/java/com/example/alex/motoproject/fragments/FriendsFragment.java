@@ -7,32 +7,44 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
 
+public class FriendsFragment extends Fragment {
 
-public class WelcomeFragment extends Fragment {
 
-    TextView mTitle;
+private static FriendsFragment friendsFragmentInstance;
 
-    public WelcomeFragment() {
+
+    public FriendsFragment() {
         // Required empty public constructor
     }
+    public static FriendsFragment getInstance(){
+        if (friendsFragmentInstance==null){
+            friendsFragmentInstance = new FriendsFragment();
+        }
+        return friendsFragmentInstance;
+    }
 
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_welcome, container, false);
+        return inflater.inflate(R.layout.navigation_friends_list, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mTitle = (TextView) view.findViewById(R.id.welcome_title);
 
 
     }

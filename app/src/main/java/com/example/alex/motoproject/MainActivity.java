@@ -22,25 +22,40 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+
+import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.events.CancelAlertEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
+
 import com.example.alex.motoproject.fragments.AuthFragment;
+import com.example.alex.motoproject.fragments.CheckEmailDialogFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.fragments.SignUpFragment;
-import com.example.alex.motoproject.fragments.WelcomeFragment;
+
+import com.example.alex.motoproject.fragments.UsersOnlineFragment;
+import com.example.alex.motoproject.utils.CircleTransform;
+
+
 import com.example.alex.motoproject.services.LocationListenerService;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
+
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
+
 
 import static com.example.alex.motoproject.fragments.MapFragment.LOG_TAG;
 
@@ -56,9 +71,12 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
-    private static final String FRAGMENT_WELCOME = "fragmentWelcome";
     private static final String FRAGMENT_MAP = "fragmentMap";
+
+    private static final String FRAGMENT_ONLINE_USERS = "fragmentOnlineUsers";
+
     private static final String FRAGMENT_MAP_TAG = FRAGMENT_MAP;
+
     public static boolean loginWithEmail = false; // Flag for validate with email login method
     FragmentManager mFragmentManager;
     ArrayList<Integer> mActiveAlerts = new ArrayList<>();
@@ -68,10 +86,26 @@ public class MainActivity extends AppCompatActivity
     //FireBase vars :
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mFirebaseAuthStateListener;
+    private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
+
+
+
+    private NavigationView mNavigationView;
+    private TextView mNameHeader;
+    private TextView mEmailHeader;
+    private ImageView mAvatarHeader;
+    private FirebaseUser mFirebaseCurrentUser;
+    private Button mNavigationBtnMap;
+    private Button mNavigationBtnSignOut;
+    private DrawerLayout mDrawerLayout;
+    private Button mNavigationBtnFriendsList;
+    public static MainActivity mainActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+       mainActivity = this;
+
 
         //Firebase auth instance
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -83,16 +117,66 @@ public class MainActivity extends AppCompatActivity
         //init FragmentManager
         mFragmentManager = getSupportFragmentManager();
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
 
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        //Define view of Navigation Drawer
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
 
-        final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        //Get View of Navigation menu Header
+        final View header = mNavigationView.getHeaderView(0);
+
+        //Define View elements of Header in Navigation Drawer
+        mNameHeader = (TextView) header.findViewById(R.id.header_name);
+        mEmailHeader = (TextView) header.findViewById(R.id.header_email);
+        mAvatarHeader = (ImageView) header.findViewById(R.id.header_avatar);
+
+        //Button in Navigation Drawer for show the Map fragment
+        mNavigationBtnMap = (Button) mNavigationView.findViewById(R.id.navigatio_btn_map);
+        mNavigationBtnMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                replaceFragment(FRAGMENT_MAP);
+                mDrawerLayout.closeDrawers();
+            }
+        });
+        //Button in Navigation Drawer for SignOut
+        mNavigationBtnSignOut = (Button) mNavigationView.findViewById(R.id.navigation_btn_signout);
+        mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                databaseHelper.removeFromOnline(mFirebaseCurrentUser.getUid());
+                mFirebaseAuth.signOut();
+            }
+        });
+        //Button in Navigation Drawer for display Friends List
+        mNavigationBtnFriendsList = (Button) mNavigationView.findViewById(R.id.navigation_btn_friends);
+        mNavigationBtnFriendsList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                replaceFragment(FRAGMENT_ONLINE_USERS);
+                mDrawerLayout.closeDrawers();
+
+            }
+        });
+
+
+//        // Button in Navigation Drawer, which visible when click to friends list, for back to main menu
+//        Button mNavigationBtnBackToMenu = (Button) mNavigationView.findViewById(R.id.navigatio_btn_back_to_menu);
+//        mNavigationBtnBackToMenu.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                View mFriendList = findViewById(R.id.navigation_friends_layout);
+//                mFriendList.setVisibility(View.GONE);
+//                View mMenu = findViewById(R.id.navigation_menu_layout);
+//                mMenu.setVisibility(View.VISIBLE);
+//            }
+//        });
 
         Log.d(TAG, "onCreate: Main activity ");
 
@@ -100,38 +184,38 @@ public class MainActivity extends AppCompatActivity
         mFirebaseAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser firebaseAuthCurrentUser = firebaseAuth.getCurrentUser();
+                mFirebaseCurrentUser = firebaseAuth.getCurrentUser();
                 if (loginWithEmail) {
-                    if (firebaseAuthCurrentUser != null) {
-                        if (firebaseAuthCurrentUser.isEmailVerified()) {
-                            // User is signed in
-                            //start MapFragment if an intent has that command
-                            if (getIntent().getExtras() != null) {
-                                replaceFragment(FRAGMENT_MAP);
-                            }
-                            navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
-                            replaceFragment(FRAGMENT_MAP);
+
+                    //Sign in method by email
+                    if (mFirebaseCurrentUser != null) {
+                        if (mFirebaseCurrentUser.isEmailVerified()) {
+                            // User is signed in with email
+                            isSignedIn();
+
+
                         } else {
-                            navigationView.getMenu().setGroupVisible(R.id.nav_group_main, false);
-                            firebaseAuthCurrentUser.sendEmailVerification();
+                            //User is login with email must confirm it by email
+                            mFirebaseCurrentUser.sendEmailVerification();
                             showToast("Check your email!");
-                            firebaseAuth.signOut();
+                            isSignedOut();
                         }
 
                     } else {
-                        // User is signed out
-                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main, false);
-                        replaceFragment(FRAGMENT_AUTH);
+                        // User is signed out with email
+
+                        isSignedOut();
                     }
                 } else {
-                    if (firebaseAuthCurrentUser != null) {
-                        // User is signed in
-                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
-                        replaceFragment(FRAGMENT_MAP);
+
+                    //Sign in method by Google account
+                    if (mFirebaseCurrentUser != null) {
+                        //Sign in with Google account
+                        isSignedIn();
+
                     } else {
-                        // User is signed out
-                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main, false);
-                        replaceFragment(FRAGMENT_AUTH);
+                        // User is signed out with Google account
+                        isSignedOut();
 
                     }
 
@@ -151,22 +235,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -191,41 +260,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        switch (id) {
-            case R.id.nav_maps:
-                replaceFragment(FRAGMENT_MAP);
-                break;
-            case R.id.nav_friends:
-                //TODO fragment friends list
-                break;
-            case R.id.nav_chat:
-                //TODO fragment public chat
-                break;
-            case R.id.nav_events:
-                //TODO fragment all events
-                break;
-            case R.id.nav_info:
-                //TODO fragment info of stores, repairs and helpers
-                break;
-            case R.id.nav_sign_out:
-                mFirebaseAuth.signOut();
-                stopService(
-                        new Intent(this, LocationListenerService.class));
-                break;
-
-        }
+    
 
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
+
 
     @Override
     protected void onStart() {
@@ -256,28 +294,25 @@ public class MainActivity extends AppCompatActivity
                 = fragmentManager.beginTransaction();
         switch (fragmentName) {
             case FRAGMENT_SIGN_UP:
-                SignUpFragment signUpFragment = new SignUpFragment();
-
-                fragmentTransaction.replace(R.id.main_activity_frame, signUpFragment);
+                fragmentTransaction.replace(R.id.main_activity_frame, SignUpFragment.getInstance());
                 fragmentTransaction.addToBackStack(FRAGMENT_SIGN_UP);
                 fragmentTransaction.commit();
                 break;
-            case FRAGMENT_WELCOME:
-                WelcomeFragment welcomeFragment = new WelcomeFragment();
 
-                fragmentTransaction.replace(R.id.main_activity_frame, welcomeFragment);
-                fragmentTransaction.commit();
-                break;
             case FRAGMENT_AUTH:
-                AuthFragment authFragment = new AuthFragment();
-
-                fragmentTransaction.replace(R.id.main_activity_frame, authFragment);
+                fragmentTransaction.replace(R.id.main_activity_frame, new AuthFragment());
                 fragmentTransaction.commit();
                 break;
             case FRAGMENT_MAP:
-                fragmentTransaction.replace(R.id.main_activity_frame,
-                        MapFragment.getInstance(),
-                        FRAGMENT_MAP_TAG);
+
+                fragmentTransaction.replace(R.id.main_activity_frame, MapFragment.getInstance());
+                fragmentTransaction.commit();
+                break;
+
+            case FRAGMENT_ONLINE_USERS:
+
+                fragmentTransaction.replace(R.id.main_activity_frame, UsersOnlineFragment.getInstance());
+
                 fragmentTransaction.commit();
                 break;
         }
@@ -285,6 +320,62 @@ public class MainActivity extends AppCompatActivity
 
     public void showToast(String text) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    }
+
+    public void showDialog() {
+        new CheckEmailDialogFragment().show(getFragmentManager(), "dialog");
+    }
+
+
+    private void isSignedIn() {
+        String avatarUri=null;
+        Log.d(TAG, "isSignedIn: "+mFirebaseAuth.getCurrentUser().getUid());
+        mNavigationBtnSignOut.setVisibility(View.VISIBLE);
+        mNavigationBtnMap.setVisibility(View.VISIBLE);
+
+        mNameHeader.setText(mFirebaseCurrentUser.getDisplayName());
+        mEmailHeader.setText(mFirebaseCurrentUser.getEmail());
+        mAvatarHeader.setVisibility(View.VISIBLE);
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+
+        if (mFirebaseCurrentUser.getPhotoUrl() != null) {
+            avatarUri = mFirebaseCurrentUser.getPhotoUrl().toString();
+            Picasso.with(getApplicationContext())
+                    .load(avatarUri)
+                    .resize(mAvatarHeader.getMaxWidth(), mAvatarHeader.getMaxHeight())
+                    .centerCrop()
+                    .transform(new CircleTransform())
+                    .into(mAvatarHeader);
+
+        }
+
+
+        replaceFragment(FRAGMENT_MAP);
+        Log.d(TAG, "isSignedIn: test");
+
+        databaseHelper.createDatabase(mFirebaseCurrentUser.getUid(),
+                mFirebaseCurrentUser.getEmail(),
+                mFirebaseCurrentUser.getDisplayName());
+
+        databaseHelper.addToOnline(mFirebaseCurrentUser.getUid(),
+                mFirebaseCurrentUser.getEmail(),
+                avatarUri
+        );
+
+    }
+
+    private void isSignedOut() {
+
+
+        replaceFragment(FRAGMENT_AUTH);
+        mNavigationBtnSignOut.setVisibility(View.GONE);
+        mNavigationBtnMap.setVisibility(View.GONE);
+        mNameHeader.setText("");
+        mEmailHeader.setText("");
+        mAvatarHeader.setVisibility(View.INVISIBLE);
+        mDrawerLayout.closeDrawers();
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+
     }
 
     @Override
@@ -295,6 +386,7 @@ public class MainActivity extends AppCompatActivity
 //        unregisterNetworkStateReceiver();
         super.onDestroy();
         Log.d(TAG, "onDestroy: ");
+
     }
 
     @Override
@@ -482,3 +574,4 @@ public class MainActivity extends AppCompatActivity
         }
     }
 }
+
