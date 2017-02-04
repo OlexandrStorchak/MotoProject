@@ -24,6 +24,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,6 +35,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
+
+
+
 
 import static com.example.alex.motoproject.R.id.map;
 
@@ -46,6 +50,7 @@ import static com.example.alex.motoproject.R.id.map;
 //TODO if user is offline, hide his pin
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     public static final String LOG_TAG = MapFragment.class.getSimpleName();
+
 //    static final String STATE_SERVICE = "isServiceOn";
 
     private static MapFragment mapFragmentInstance;
@@ -53,6 +58,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     MapFragmentListener mMapFragmentListener;
     Marker marker;
     boolean isServiceOn;
+
+    //TODO: think about making handleLocation() returning boolean
+    public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
+    public static final int ALERT_GPS_OFF = 20;
+    public static final int ALERT_INTERNET_OFF = 21;
+    public static final int ALERT_PERMISSION_RATIONALE = 22;
+    public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
+    private static final String TAG = "log";
+
+  
+
     //for methods calling, like creating pins
     private GoogleMap mMap;
     //for map lifecycle
@@ -159,6 +175,61 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
+
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_LOCATION_REQUEST_CODE) {
+            // Check the request was not cancelled
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // permission was granted
+                handleLocation();
+            } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                        Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    //user checked never ask again
+                    showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
+
+                } else {
+                    //user did not check never ask again, show rationale
+                    showAlert(ALERT_PERMISSION_RATIONALE);
+                }
+            }
+        }
+    }
+
+    public void setMarker(double lat,double lon,String name){
+        LatLng location = new LatLng(lat,lon);
+
+        mMap.addMarker(new MarkerOptions().position(location).title(name));
+        Log.d(TAG, "setMarker: ");
+    }
+
+    //handle location runtime permission and setup listener service
+    private void handleLocation() {
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            //TODO: check if there is a GPS connection
+//            LocationManager locationManager =
+//                    (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+//            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+//                showAlert(ALERT_GPS_OFF);
+//            }
+
+            //the app is allowed to get location, setup service
+            getActivity().startService(new Intent(getActivity(), LocationListenerService.class));
+            mMap.setMyLocationEnabled(true);
+        } else {
+            //show the permission prompt
+            requestPermissions(
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSION_LOCATION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+
     public void onDestroyView() {
         mMapView.onDestroy();
         super.onDestroyView();

@@ -1,11 +1,13 @@
 package com.example.alex.motoproject.fragments;
 
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
@@ -25,6 +26,9 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class SignUpFragment extends Fragment {
 
+    @SuppressLint("StaticFieldLeak")
+    private static SignUpFragment signUpFragmentInstance;
+
 
     private static final String TAG = "log";
     private EditText mEmail, mPassword, mRepeatPassword;
@@ -32,6 +36,13 @@ public class SignUpFragment extends Fragment {
 
     public SignUpFragment() {
         // Required empty public constructor
+    }
+
+    public static SignUpFragment getInstance(){
+        if(signUpFragmentInstance==null){
+            signUpFragmentInstance=new SignUpFragment();
+        }
+        return signUpFragmentInstance;
     }
 
     @Override
@@ -64,31 +75,34 @@ public class SignUpFragment extends Fragment {
 
 
                 if (mEmail.getText().length() == 0) {
-                    mEmail.setError("Email is empty");
+                    mEmail.setError(getString(R.string.email_is_empty));
 
                 }
                 if (mPassword.getText().length() < 5) {
 
                     mPassword.setText("");
-                    mPassword.setError("min 6 characters");
+                    mPassword.setError(getString(R.string.less_6_chars));
                 }
                 if (mRepeatPassword.getText().length() < 5) {
 
                     mRepeatPassword.setText("");
-                    mRepeatPassword.setError("repeat password");
+                    mRepeatPassword.setError(getString(R.string.hint_repeat_pass));
                 }
                 if (!mPassword.getText().toString().equals(mRepeatPassword.getText().toString())) {
 
                     mPassword.setText("");
-                    mPassword.setError("enter mPassword end repeat");
+                    mPassword.setError(getString(R.string.hint_repeat_pass));
                     mRepeatPassword.setText("");
-                    mRepeatPassword.setError("mPassword not mutch");
+                    mRepeatPassword.setError(getString(R.string.pass_not_mutch));
                 } else if (mPassword.getText().toString().equals(mRepeatPassword.getText().toString())
                         & mEmail.getText().length() > 0
                         & mPassword.getText().length() > 5) {
 
                     addNewUserToFireBase(mEmail.getText().toString(), mPassword.getText().toString());
                     ((MainActivity) getActivity()).replaceFragment("fragmentAuth");
+                    ((MainActivity) getActivity()).showDialog();
+
+
                 }
             }
         });

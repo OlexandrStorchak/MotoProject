@@ -24,6 +24,7 @@
     <string name="close">Закрити</string>
     <string name="multiple_button_pressing_easter_egg">Схоже, у вас з\'явилися перші ознаки хвороби паркінсона. Радимо вам звернутися до лікаря</string>
 
+
     <string name="auth_sign_out">SignOut</string>
     <string name="hint_e_mail">e-mail</string>
     <string name="hint_pass">pass</string>
@@ -37,4 +38,30 @@
     <string name="email_is_empty">E-mail is empty</string>
     <string name="enter_password">Enter password</string>
     <string name="less_6_chars">Password less than 6 chars</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="auth_sign_out">Вихід</string>
+    <string name="hint_e_mail">Імейл</string>
+    <string name="hint_pass">Пароль</string>
+    <string name="hint_repeat_pass">Повторіть пароль</string>
+    <string name="btn_sign_in">Увійти</string>
+    <string name="sign_up">Приєднатись</string>
+    <string name="google">Google аккаунт</string>
+    <string name="login_screen_title">Увійти</string>
+    <string name="login">Логін</string>
+    <string name="submit">Підтвердити</string>
+    <string name="email_is_empty">Введіть імейл адресу</string>
+    <string name="enter_password">Введіть пароль</string>
+    <string name="less_6_chars">Пароль коротший за 6 символів</string>
+    <string name="avatar">avatar</string>
+    <string name="enter_email">Введіть імейл</string>
+    <string name="pass_not_mutch">mPassword not mutch</string>
+    <string name="who_is_online">Хто онлайн</string>
+
+    <string name="alert_dialog_ok">Зрозуміло!</string>
+    <string name="alert_dialog_text">На ваш імейл відправлено лист активації облікового запису</string>
+    <string name="back_to_menu">В меню</string>
+    <string name="friends">Друзі</string>
+
 </resources>
