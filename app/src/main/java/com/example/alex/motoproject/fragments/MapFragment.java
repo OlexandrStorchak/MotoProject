@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.services.LocationListenerService;
@@ -47,14 +46,16 @@ import static com.example.alex.motoproject.R.id.map;
 //TODO if user is offline, hide his pin
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     public static final String LOG_TAG = MapFragment.class.getSimpleName();
+//    static final String STATE_SERVICE = "isServiceOn";
 
     private static MapFragment mapFragmentInstance;
     private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
     MapFragmentListener mMapFragmentListener;
     Marker marker;
+    boolean isServiceOn;
     //for methods calling, like creating pins
     private GoogleMap mMap;
-    //for lifecycle
+    //for map lifecycle
     private MapView mMapView;
     private DatabaseReference mDatabase;
     private String userUid;
@@ -85,9 +86,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+//        isServiceOn = ((App) getActivity().getApplication()).isLocationListenerServiceOn();
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
+
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        outState.putBoolean(STATE_SERVICE, isServiceOn);
+//        super.onSaveInstanceState(outState);
+//    }
+//
+//    @Override
+//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+//        if (savedInstanceState != null) {
+//            isServiceOn = savedInstanceState.getBoolean(STATE_SERVICE);
+//        }
+//        super.onViewStateRestored(savedInstanceState);
+//    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -95,6 +111,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
+
+        if (checkLocationPermission() && isServiceOn) {
+            mMap.setMyLocationEnabled(true);
+        }
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -110,8 +130,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         drivingToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean isServiceOn =
-                        ((App) getActivity().getApplication()).isLocationListenerServiceOn();
                 if (!isServiceOn) {
                     mMapFragmentListener.handleLocation();
                 } else if (checkLocationPermission()) {
@@ -253,10 +271,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             Log.v(LOG_TAG, "mNetworkReceiver has already been unregistered");
         }
 
-        try { //suppress SecurityException
+        if (checkLocationPermission()) {
             mMap.setMyLocationEnabled(true);
-        } catch (SecurityException e) {
-            e.printStackTrace();
         }
     }
 

@@ -209,8 +209,7 @@ public class LocationListenerService extends Service implements
                         this,
                         0,
                         resultIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
+                        PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(resultPendingIntent);
 
         //create pending intent to finish this service

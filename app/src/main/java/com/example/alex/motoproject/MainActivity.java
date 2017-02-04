@@ -94,8 +94,6 @@ public class MainActivity extends AppCompatActivity
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-//        registerNetworkStateReceiver();
-
         Log.d(TAG, "onCreate: Main activity ");
 
         //FireBase auth listener
@@ -108,12 +106,10 @@ public class MainActivity extends AppCompatActivity
                         if (firebaseAuthCurrentUser.isEmailVerified()) {
                             // User is signed in
                             //start MapFragment if an intent has that command
-                            if (getIntent().getExtras() != null &&
-                                    getIntent().getExtras().getBoolean("isShouldLaunchMapFragment")) {
+                            if (getIntent().getExtras() != null) {
                                 replaceFragment(FRAGMENT_MAP);
                             }
                             navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
-//                            replaceFragment(FRAGMENT_WELCOME);
                             replaceFragment(FRAGMENT_MAP);
                         } else {
                             navigationView.getMenu().setGroupVisible(R.id.nav_group_main, false);
@@ -234,6 +230,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d(LOG_TAG, "onStart");
         registerNetworkStateReceiver();
         EventBus.getDefault().register(this);
         // Attach the listener of Firebase Auth
@@ -443,7 +440,7 @@ public class MainActivity extends AppCompatActivity
     public void onShouldShowAlertEvent(ShowAlertEvent event) {
         int receivedAlertType = event.alertType;
         if (!mActiveAlerts.contains(receivedAlertType))
-        showAlert(event.alertType);
+            showAlert(event.alertType);
     }
 
     @Subscribe
