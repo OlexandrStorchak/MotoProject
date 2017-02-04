@@ -29,24 +29,29 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+
+import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.events.CancelAlertEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
-import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+
 import com.example.alex.motoproject.fragments.AuthFragment;
 import com.example.alex.motoproject.fragments.CheckEmailDialogFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.fragments.SignUpFragment;
 
-import com.example.alex.motoproject.fragments.WelcomeFragment;
-import com.example.alex.motoproject.services.LocationListenerService;
 
 import com.example.alex.motoproject.fragments.UsersOnlineFragment;
 import com.example.alex.motoproject.utils.CircleTransform;
 
+
+import com.example.alex.motoproject.services.LocationListenerService;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
+
 
 
 import org.greenrobot.eventbus.EventBus;
@@ -54,7 +59,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
 
 
 import static com.example.alex.motoproject.fragments.MapFragment.LOG_TAG;
@@ -73,9 +77,11 @@ public class MainActivity extends AppCompatActivity
     private static final String FRAGMENT_AUTH = "fragmentAuth";
     private static final String FRAGMENT_MAP = "fragmentMap";
 
-    private static final String FRAGMENT_MAP_TAG = FRAGMENT_MAP;
 
     private static final String FRAGMENT_ONLINE_USERS = "fragmentOnlineUsers";
+
+    private static final String FRAGMENT_MAP_TAG = FRAGMENT_MAP;
+
     public static boolean loginWithEmail = false; // Flag for validate with email login method
     FragmentManager mFragmentManager;
     ArrayList<Integer> mActiveAlerts = new ArrayList<>();
@@ -86,6 +92,7 @@ public class MainActivity extends AppCompatActivity
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mFirebaseAuthStateListener;
     private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
+
 
 
     private NavigationView mNavigationView;
@@ -188,15 +195,6 @@ public class MainActivity extends AppCompatActivity
                 mFirebaseCurrentUser = firebaseAuth.getCurrentUser();
                 if (loginWithEmail) {
 
-                    if (firebaseAuthCurrentUser != null) {
-                        if (firebaseAuthCurrentUser.isEmailVerified()) {
-                            // User is signed in
-                            //start MapFragment if an intent has that command
-                            if (getIntent().getExtras() != null) {
-                                replaceFragment(FRAGMENT_MAP);
-                            }
-                            navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
-                            replaceFragment(FRAGMENT_MAP);
 
                     //Sign in method by email
                     if (mFirebaseCurrentUser != null) {
@@ -218,11 +216,6 @@ public class MainActivity extends AppCompatActivity
                         isSignedOut();
                     }
                 } else {
-
-                    if (firebaseAuthCurrentUser != null) {
-                        // User is signed in
-                        navigationView.getMenu().setGroupVisible(R.id.nav_group_main, true);
-                        replaceFragment(FRAGMENT_MAP);
 
                     //Sign in method by Google account
                     if (mFirebaseCurrentUser != null) {
@@ -252,17 +245,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-  
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -287,41 +270,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        switch (id) {
-            case R.id.nav_maps:
-                replaceFragment(FRAGMENT_MAP);
-                break;
-            case R.id.nav_friends:
-                //TODO fragment friends list
-                break;
-            case R.id.nav_chat:
-                //TODO fragment public chat
-                break;
-            case R.id.nav_events:
-                //TODO fragment all events
-                break;
-            case R.id.nav_info:
-                //TODO fragment info of stores, repairs and helpers
-                break;
-            case R.id.nav_sign_out:
-                mFirebaseAuth.signOut();
-                stopService(
-                        new Intent(this, LocationListenerService.class));
-                break;
-
-        }
-
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
 
 
     @Override
@@ -368,6 +316,7 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.replace(R.id.main_activity_frame,
                         MapFragment.getInstance(),
                         FRAGMENT_MAP_TAG);
+
 
             case FRAGMENT_ONLINE_USERS:
 
@@ -569,6 +518,7 @@ public class MainActivity extends AppCompatActivity
             mActiveAlerts.add(alertType);
     }
 
+
     private boolean checkLocationPermission() {
         return ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
@@ -594,6 +544,7 @@ public class MainActivity extends AppCompatActivity
         if (!mActiveAlerts.contains(receivedAlertType))
             showAlert(event.alertType);
     }
+
 
     @Subscribe
     //the method called when received an event from EventBus asking for canceling alert

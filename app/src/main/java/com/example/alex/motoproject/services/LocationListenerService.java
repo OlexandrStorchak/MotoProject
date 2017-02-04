@@ -21,9 +21,11 @@ import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
 
-import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+
+import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
+
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -31,6 +33,10 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
+
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 
 
@@ -57,6 +63,11 @@ public class LocationListenerService extends Service implements
     FirebaseAuth firebaseAuth;
 
 
+    private NetworkStateReceiver mNetworkStateReceiver;
+    private DatabaseReference mDatabase;
+
+
+
     public LocationListenerService() {
         // Required empty public constructor
     }
@@ -64,7 +75,7 @@ public class LocationListenerService extends Service implements
     @Override
     public void onCreate() {
         Log.d(LOG_TAG, "onCreate");
-        // Create an instance of GoogleAPIClient
+        // create an instance of GoogleAPIClient
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -75,6 +86,10 @@ public class LocationListenerService extends Service implements
         mGoogleApiClient.connect();
 
         firebaseAuth = FirebaseAuth.getInstance();
+
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
 
         createNotification();
         registerReceiver();
@@ -185,6 +200,7 @@ public class LocationListenerService extends Service implements
         Log.d(LOG_TAG, "Lat " + mCurrentLocation.getLatitude() +
                 " Lon " + mCurrentLocation.getLongitude() +
                 " Time " + mLastUpdateTime);
+
 
 
     }
