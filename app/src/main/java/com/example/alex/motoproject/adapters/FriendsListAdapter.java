@@ -32,8 +32,6 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
     private List<usersOnline> friendsList;
 
 
-
-
     public FriendsListAdapter(List<usersOnline> friendsList) {
         this.friendsList = friendsList;
 
@@ -46,13 +44,13 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
         return new VH(view);
     }
 
-    public void setList(List<usersOnline> newList){
+    public void setList(List<usersOnline> newList) {
         friendsList = newList;
 
     }
 
     @Override
-    public void onBindViewHolder(final VH holder, final int position) {
+    public void onBindViewHolder(final VH holder, int position) {
         holder.name.setText(friendsList.get(position).getEmail());
 
         Picasso.with(holder.avatar.getContext())
@@ -61,21 +59,22 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
                 .centerCrop()
                 .transform(new CircleTransform())
                 .into(holder.avatar);
-
-            if (friendsList.get(position).getStatus().equals("public")){
+        if (friendsList.get(position).getStatus() != null) {
+            if (friendsList.get(position).getStatus().equals("public")) {
                 holder.mapCur.setVisibility(View.VISIBLE);
             } else {
                 holder.mapCur.setVisibility(View.GONE);
             }
+        }
         holder.mapCur.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mainActivity.replaceFragment("fragmentMap");
-                Toast.makeText(holder.name.getContext(),holder.name.getText(),Toast.LENGTH_SHORT).show();
-                mapFragmentInstance.setMarker(friendsList.get(position).getLat(),
-                        friendsList.get(position).getLon(),
-                        friendsList.get(position).getEmail()
-                        );
+                Toast.makeText(holder.name.getContext(), holder.name.getText(), Toast.LENGTH_SHORT).show();
+                mapFragmentInstance.setMarker(friendsList.get(holder.getAdapterPosition()).getLat(),
+                        friendsList.get(holder.getAdapterPosition()).getLon(),
+                        friendsList.get(holder.getAdapterPosition()).getEmail()
+                );
 
             }
         });
@@ -86,11 +85,12 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
         return friendsList.size();
     }
 
-    class VH extends RecyclerView.ViewHolder{
+    class VH extends RecyclerView.ViewHolder {
         ImageView avatar;
         ImageView mapCur;
 
         TextView name;
+
         VH(final View itemView) {
             super(itemView);
 
@@ -98,14 +98,14 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.d(TAG, "onClick: "+getAdapterPosition());
+                    Log.d(TAG, "onClick: " + getAdapterPosition());
 
                 }
             });
 
             avatar = (ImageView) itemView.findViewById(R.id.friends_list_ava);
             name = (TextView) itemView.findViewById(R.id.userName);
-            mapCur = (ImageView)itemView.findViewById(R.id.friends_list_map_icon);
+            mapCur = (ImageView) itemView.findViewById(R.id.friends_list_map_icon);
 
         }
     }
