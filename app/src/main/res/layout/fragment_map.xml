@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_motorcycle_black_24dp"
+        android:src="@drawable/ic_motorcycle_white_24dp"
         app:fabSize="normal"
         app:layout_anchorGravity="bottom|right|end" />
 
