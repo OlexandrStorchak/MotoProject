@@ -1,6 +1,5 @@
 package com.example.alex.motoproject;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -27,8 +26,6 @@ import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
-
-import java.net.URI;
 
 public class MainActivity extends AppCompatActivity {
 
