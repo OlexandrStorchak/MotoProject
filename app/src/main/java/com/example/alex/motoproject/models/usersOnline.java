@@ -1,12 +1,14 @@
 package com.example.alex.motoproject.models;
 
 public class usersOnline {
-    String name,status, email,avatar;
-    double lat,lon;
+
+    private String name, status, email, avatar;
+    private double lat, lon;
+    @SuppressWarnings("unused")
     public usersOnline() {
-
+        //required empty public constructor
     }
-
+    @SuppressWarnings("unused")
     public usersOnline(String name, String status, String email, double lat, double lon, String avatar) {
         this.name = name;
         this.status = status;
@@ -15,6 +17,7 @@ public class usersOnline {
         this.lon = lon;
         this.avatar = avatar;
     }
+
 
     public String getName() {
         return name;
@@ -27,7 +30,7 @@ public class usersOnline {
     public String getStatus() {
         return status;
     }
-
+    @SuppressWarnings("unused")
     public void setStatus(String status) {
         this.status = status;
     }
@@ -35,33 +38,32 @@ public class usersOnline {
     public String getEmail() {
         return email;
     }
-
+    @SuppressWarnings("unused")
     public void setEmail(String email) {
         this.email = email;
     }
-
+    @SuppressWarnings("unused")
     public double getLat() {
         return lat;
     }
-
+    @SuppressWarnings("unused")
     public void setLat(double lat) {
         this.lat = lat;
     }
-
+    @SuppressWarnings("unused")
     public double getLon() {
         return lon;
     }
-
+    @SuppressWarnings("unused")
     public void setLon(double lon) {
         this.lon = lon;
     }
+
     public String getAvatar() {
         return avatar;
     }
-
+    @SuppressWarnings("unused")
     public void setAvatar(String avatar) {
         this.avatar = avatar;
     }
-
-
 }

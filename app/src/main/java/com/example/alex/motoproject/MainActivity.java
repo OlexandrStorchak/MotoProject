@@ -45,8 +45,6 @@ import com.example.alex.motoproject.fragments.UsersOnlineFragment;
 import com.example.alex.motoproject.utils.CircleTransform;
 
 
-import com.example.alex.motoproject.services.LocationListenerService;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
@@ -57,10 +55,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
-
-import static com.example.alex.motoproject.fragments.MapFragment.LOG_TAG;
-import static com.example.alex.motoproject.fragments.MapFragment.mapFragmentInstance;
-
 public class MainActivity extends AppCompatActivity implements MapFragment.MapFragmentListener {
 
     public static final int ALERT_GPS_OFF = 20;
@@ -68,11 +62,10 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     public static final int ALERT_PERMISSION_RATIONALE = 22;
     public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
     private static final String FRAGMENT_MAP = "fragmentMap";
-
 
     private static final String FRAGMENT_ONLINE_USERS = "fragmentOnlineUsers";
 
@@ -90,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
 
 
-    private NavigationView mNavigationView;
     private TextView mNameHeader;
     private TextView mEmailHeader;
     private ImageView mAvatarHeader;
@@ -98,7 +90,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     private Button mNavigationBtnMap;
     private Button mNavigationBtnSignOut;
     private DrawerLayout mDrawerLayout;
-    private Button mNavigationBtnFriendsList;
     public static MainActivity mainActivity;
 
     @Override
@@ -117,10 +108,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         //init FragmentManager
         mFragmentManager = getSupportFragmentManager();
 
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -129,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         toggle.syncState();
 
         //Define view of Navigation Drawer
-        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView mNavigationView = (NavigationView) findViewById(R.id.nav_view);
 
         //Get View of Navigation menu Header
         final View header = mNavigationView.getHeaderView(0);
@@ -158,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
             }
         });
         //Button in Navigation Drawer for display Friends List
-        mNavigationBtnFriendsList = (Button) mNavigationView.findViewById(R.id.navigation_btn_friends);
+        Button mNavigationBtnFriendsList = (Button) mNavigationView.findViewById(R.id.navigation_btn_friends);
         mNavigationBtnFriendsList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -181,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 //            }
 //        });
 
-        Log.d(TAG, "onCreate: Main activity ");
+        Log.d(LOG_TAG, "onCreate: Main activity ");
 
         //FireBase auth listener
         mFirebaseAuthStateListener = new FirebaseAuth.AuthStateListener() {
@@ -281,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         super.onStop();
         unregisterNetworkStateReceiver();
         EventBus.getDefault().unregister(this);
-        Log.d(TAG, "onStop: ");
+        Log.d(LOG_TAG, "onStop: ");
         if (mFirebaseAuthStateListener != null) {
             mFirebaseAuth.removeAuthStateListener(mFirebaseAuthStateListener);
         }
@@ -331,7 +318,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
     private void isSignedIn() {
         String avatarUri = null;
-        Log.d(TAG, "isSignedIn: " + mFirebaseAuth.getCurrentUser().getUid());
+        Log.d(LOG_TAG, "isSignedIn: " + mFirebaseAuth.getCurrentUser().getUid());
         mNavigationBtnSignOut.setVisibility(View.VISIBLE);
         mNavigationBtnMap.setVisibility(View.VISIBLE);
 
@@ -353,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
 
         replaceFragment(FRAGMENT_MAP);
-        Log.d(TAG, "isSignedIn: test");
+        Log.d(LOG_TAG, "isSignedIn: test");
 
         databaseHelper.createDatabase(mFirebaseCurrentUser.getUid(),
                 mFirebaseCurrentUser.getEmail(),
@@ -387,20 +374,20 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         }
 //        unregisterNetworkStateReceiver();
         super.onDestroy();
-        Log.d(TAG, "onDestroy: ");
+        Log.d(LOG_TAG, "onDestroy: ");
 
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d(TAG, "onPause: ");
+        Log.d(LOG_TAG, "onPause: ");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume: ");
+        Log.d(LOG_TAG, "onResume: ");
     }
 
     public void showAlert(final int alertType) {

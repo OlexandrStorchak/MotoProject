@@ -31,7 +31,6 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void onReceive(Context context, Intent intent) {
         this.context = context;
         app = (App) context.getApplicationContext();

@@ -1,8 +1,5 @@
 package com.example.alex.motoproject.adapters;
 
-import android.content.Context;
-import android.provider.ContactsContract;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,18 +9,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.models.usersOnline;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
-import java.net.URL;
 import java.util.List;
 
 import static com.example.alex.motoproject.MainActivity.mainActivity;
-import static com.example.alex.motoproject.fragments.MapFragment.mapFragmentInstance;
 
 
 public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.VH> {

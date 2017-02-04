@@ -1,13 +1,9 @@
 package com.example.alex.motoproject.firebase;
 
-import android.net.Uri;
 import android.util.Log;
-
 
 import com.example.alex.motoproject.adapters.FriendsListAdapter;
 import com.example.alex.motoproject.models.usersOnline;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -22,7 +18,7 @@ import java.util.List;
 public class FirebaseDatabaseHelper {
     private static final String TAG = "log";
 
-    FriendsListAdapter adapter;
+    private FriendsListAdapter adapter;
 
 
     public FirebaseDatabaseHelper() {

@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.services.LocationListenerService;
@@ -24,7 +25,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
-
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,8 +36,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 
-
-
 import static com.example.alex.motoproject.R.id.map;
 
 
@@ -48,8 +46,7 @@ import static com.example.alex.motoproject.R.id.map;
 //TODO: custom pins
 //TODO if user is offline, hide his pin
 public class MapFragment extends Fragment implements OnMapReadyCallback {
-    public static final String LOG_TAG = MapFragment.class.getSimpleName();
-    private static final String TAG = "log";
+    private static final String LOG_TAG = MapFragment.class.getSimpleName();
 
 //    static final String STATE_SERVICE = "isServiceOn";
 
@@ -57,7 +54,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
     MapFragmentListener mMapFragmentListener;
     Marker marker;
-    boolean isServiceOn;
+    private App app;
 
 
     //for methods calling, like creating pins
@@ -93,7 +90,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-//        isServiceOn = ((App) getActivity().getApplication()).isLocationListenerServiceOn();
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
@@ -114,14 +110,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        app = (App) getContext().getApplicationContext();
         //add Google map
         mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
-
-        if (checkLocationPermission() && isServiceOn) {
-            mMap.setMyLocationEnabled(true);
-        }
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -137,7 +130,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         drivingToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!isServiceOn) {
+                if (!app.isLocationListenerServiceOn()) {
                     mMapFragmentListener.handleLocation();
                 } else if (checkLocationPermission()) {
                     mMap.setMyLocationEnabled(false);
@@ -159,23 +152,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         //make map accessible from other methods
         mMap = map;
         mMap.getUiSettings().setMapToolbarEnabled(false);
+        if (checkLocationPermission() && app.isLocationListenerServiceOn()) {
+            mMap.setMyLocationEnabled(true);
+        }
 
         LatLng cherkasy = new LatLng(49.443, 32.0727);
 
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(cherkasy, 11));
     }
+//    public void setMarker(double lat,double lon,String name){
+//        LatLng location = new LatLng(lat,lon);
+//
+//        mMap.addMarker(new MarkerOptions().position(location).title(name));
+//        Log.d(TAG, "setMarker: ");
+//    }
 
-       
-    public void setMarker(double lat,double lon,String name){
-        LatLng location = new LatLng(lat,lon);
-
-        mMap.addMarker(new MarkerOptions().position(location).title(name));
-        Log.d(TAG, "setMarker: ");
-    }
-
-    
     @Override
-
     public void onDestroyView() {
         mMapView.onDestroy();
         super.onDestroyView();

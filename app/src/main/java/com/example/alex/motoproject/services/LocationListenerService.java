@@ -20,25 +20,14 @@ import android.util.Log;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
-
-
-import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
-
-
+import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
-
-
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -62,9 +51,7 @@ public class LocationListenerService extends Service implements
     FirebaseDatabaseHelper firebaseDatabaseHelper = new FirebaseDatabaseHelper();
     FirebaseAuth firebaseAuth;
 
-
     private NetworkStateReceiver mNetworkStateReceiver;
-    private DatabaseReference mDatabase;
 
 
 
@@ -86,10 +73,6 @@ public class LocationListenerService extends Service implements
         mGoogleApiClient.connect();
 
         firebaseAuth = FirebaseAuth.getInstance();
-
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
 
         createNotification();
         registerReceiver();
@@ -192,7 +175,6 @@ public class LocationListenerService extends Service implements
 
 
     private void updateFirebaseData(Location location) {
-
         double lat = location.getLatitude();
         double lon = location.getLongitude();
         String userId = firebaseAuth.getCurrentUser().getUid();
