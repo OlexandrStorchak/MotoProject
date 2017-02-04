@@ -57,7 +57,7 @@ public class LocationListenerService extends Service implements
     @Override
     public void onCreate() {
         Log.d(LOG_TAG, "onCreate");
-        // Create an instance of GoogleAPIClient
+        // create an instance of GoogleAPIClient
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
