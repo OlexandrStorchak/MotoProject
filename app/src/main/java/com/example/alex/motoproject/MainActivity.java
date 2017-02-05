@@ -54,15 +54,11 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     public static final int ALERT_PERMISSION_RATIONALE = 22;
     public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
+    public static final String FRAGMENT_MAP = "fragmentMap";
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
-    private static final String FRAGMENT_MAP = "fragmentMap";
-
     private static final String FRAGMENT_ONLINE_USERS = "fragmentOnlineUsers";
-
-    private static final String FRAGMENT_MAP_TAG = FRAGMENT_MAP;
-
     public static boolean loginWithEmail = false; // Flag for validate with email login method
     public static MainActivity mainActivity;
     FragmentManager mFragmentManager;
@@ -284,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
             case FRAGMENT_MAP:
                 fragmentTransaction.replace(R.id.main_activity_frame,
                         MapFragment.getInstance(),
-                        FRAGMENT_MAP_TAG);
+                        FRAGMENT_MAP);
                 fragmentTransaction.commit();
                 break;
 
@@ -499,7 +495,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     public void handleLocation() {
         if (checkLocationPermission()) { //permission granted
             MapFragment fragment = (MapFragment)
-                    fragmentManager.findFragmentByTag(FRAGMENT_MAP_TAG);
+                    fragmentManager.findFragmentByTag(FRAGMENT_MAP);
             fragment.onLocationAllowed();
         } else { //permission was not granted, show the permission prompt
             ActivityCompat.requestPermissions(MainActivity.this,

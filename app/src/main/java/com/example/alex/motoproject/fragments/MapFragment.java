@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -20,6 +21,7 @@ import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.services.LocationListenerService;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -64,6 +66,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private String mUserUid;
     private HashMap<String, Marker> mMarkerHashMap;
     private ChildEventListener mUsersLocationsListener;
+    private CameraUpdate mCameraUpdate;
 
     public MapFragment() {
         // Required empty public constructor
@@ -153,9 +156,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (checkLocationPermission() && mApp.isLocationListenerServiceOn()) {
             mMap.setMyLocationEnabled(true);
         }
+        if (mCameraUpdate == null) {
+            LatLng cherkasy = new LatLng(49.443, 32.0727);
+            int zoom = 11;
+            mCameraUpdate = CameraUpdateFactory.newLatLngZoom(cherkasy, zoom);
+        }
+        map.moveCamera(mCameraUpdate);
 
-        LatLng cherkasy = new LatLng(49.443, 32.0727);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(cherkasy, 11));
+
+//        LatLng cherkasy = new LatLng(49.443, 32.0727);
+//        map.moveCamera(CameraUpdateFactory.newLatLngZoom(cherkasy, 11));
     }
 //    public void setMarker(double lat,double lon,String name){
 //        LatLng location = new LatLng(lat,lon);
@@ -254,7 +264,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             }
         };
-        mDatabase.addChildEventListener(mUsersLocationsListener);
+        mDatabase.child("location").addChildEventListener(mUsersLocationsListener);
     }
 
     private void createPinOnMap(LatLng latLng, String uid) {
@@ -281,6 +291,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         if (checkLocationPermission()) {
             mMap.setMyLocationEnabled(true);
+        }
+    }
+
+    public void moveToMarker(@NonNull String uid) {
+        if (mMarkerHashMap.containsKey(uid)) {
+            LatLng position = mMarkerHashMap.get(uid).getPosition();
+//            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 100));
+            mCameraUpdate = CameraUpdateFactory.newLatLngZoom(position, 15);
         }
     }
 
