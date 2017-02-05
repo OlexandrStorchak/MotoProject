@@ -41,6 +41,7 @@ public class LocationListenerService extends Service implements
         LocationListener {
 
     private static final String LOG_TAG = "LocationListenerService";
+    private static final String SHOULD_STOP_SERVICE_EXTRA = "isShouldStopService";
     //TODO: where to store notification ids?
     int mNotificationId = 3;
     GoogleApiClient mGoogleApiClient;
@@ -101,7 +102,7 @@ public class LocationListenerService extends Service implements
     public int onStartCommand(Intent intent, int flags, int startId) {
         //stop service if that was the purpose of intent
         if (intent.getExtras() != null &&
-                intent.getExtras().getBoolean("isShouldStopService")) {
+                intent.getExtras().getBoolean(SHOULD_STOP_SERVICE_EXTRA)) {
             Log.d(LOG_TAG, "onStartCommand with action stop service");
             stopSelf();
         }
@@ -177,8 +178,7 @@ public class LocationListenerService extends Service implements
     private void updateFirebaseData(Location location) {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
-        String userId = firebaseAuth.getCurrentUser().getUid();
-        firebaseDatabaseHelper.updateOnlineUserLocation(lat, lon, userId);
+        firebaseDatabaseHelper.updateOnlineUserLocation(lat, lon);
         Log.d(LOG_TAG, "Lat " + mCurrentLocation.getLatitude() +
                 " Lon " + mCurrentLocation.getLongitude() +
                 " Time " + mLastUpdateTime);
@@ -205,8 +205,8 @@ public class LocationListenerService extends Service implements
         //create pending intent used when tapping on the app notification
         //open up MapFragment
         Intent resultIntent = new Intent(this, MainActivity.class);
-        //TODO is this line still needed?
-        resultIntent.putExtra("isShouldLaunchMapFragment", true);
+//        //TODO is this line still needed?
+//        resultIntent.putExtra("isShouldLaunchMapFragment", true);
         PendingIntent resultPendingIntent =
                 PendingIntent.getActivity(
                         this,
@@ -217,8 +217,7 @@ public class LocationListenerService extends Service implements
 
         //create pending intent to finish this service
         Intent stopSelfIntent = new Intent(this, LocationListenerService.class);
-        stopSelfIntent.putExtra("isShouldStopService", true);
-        //TODO: make a better logic for service killing
+        stopSelfIntent.putExtra(SHOULD_STOP_SERVICE_EXTRA, true);
         PendingIntent StopSelfPendingIntent =
                 PendingIntent.getService(
                         this,

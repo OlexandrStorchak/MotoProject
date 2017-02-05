@@ -53,17 +53,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public static MapFragment mapFragmentInstance;
     private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
     MapFragmentListener mMapFragmentListener;
-    Marker marker;
-    private App app;
-
+    Marker mMarker;
+    private App mApp;
 
     //for methods calling, like creating pins
     private GoogleMap mMap;
     //for map lifecycle
     private MapView mMapView;
     private DatabaseReference mDatabase;
-    private String userUid;
-    private HashMap<String, Marker> hashMap;
+    private String mUserUid;
+    private HashMap<String, Marker> mMarkerHashMap;
+    private ChildEventListener mUsersLocationsListener;
 
     public MapFragment() {
         // Required empty public constructor
@@ -110,7 +110,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        app = (App) getContext().getApplicationContext();
+        mApp = (App) getContext().getApplicationContext();
         //add Google map
         mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);
@@ -120,7 +120,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() != null) {
-            userUid = auth.getCurrentUser().getUid();
+            mUserUid = auth.getCurrentUser().getUid();
         } else {
             auth.signOut();
         }
@@ -130,19 +130,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         drivingToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!app.isLocationListenerServiceOn()) {
+                if (!mApp.isLocationListenerServiceOn()) {
                     mMapFragmentListener.handleLocation();
                 } else if (checkLocationPermission()) {
                     mMap.setMyLocationEnabled(false);
-                    getActivity().stopService(
-                            new Intent(getActivity(), LocationListenerService.class));
+                    getContext().stopService(
+                            new Intent(getContext(), LocationListenerService.class));
                 }
             }
         });
 
-        hashMap = new HashMap<>();
-
-        fetchUserLocations();
+        mMarkerHashMap = new HashMap<>();
 
         super.onViewCreated(view, savedInstanceState);
     }
@@ -152,12 +150,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         //make map accessible from other methods
         mMap = map;
         mMap.getUiSettings().setMapToolbarEnabled(false);
-        if (checkLocationPermission() && app.isLocationListenerServiceOn()) {
+        if (checkLocationPermission() && mApp.isLocationListenerServiceOn()) {
             mMap.setMyLocationEnabled(true);
         }
 
         LatLng cherkasy = new LatLng(49.443, 32.0727);
-
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(cherkasy, 11));
     }
 //    public void setMarker(double lat,double lon,String name){
@@ -182,6 +179,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onStop() {
         mMapView.onStop();
+        mDatabase.removeEventListener(mUsersLocationsListener);
         super.onStop();
     }
 
@@ -194,6 +192,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onStart() {
         mMapView.onStart();
+        fetchUserLocations();
         super.onStart();
     }
 
@@ -204,13 +203,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void fetchUserLocations() {
-        mDatabase.child("location").addChildEventListener(new ChildEventListener() {
+        mUsersLocationsListener = new ChildEventListener() {
             // TODO: do not receive updates for only one updated value
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d(LOG_TAG, dataSnapshot.toString());
                 String uid = dataSnapshot.getKey();
-                if (!uid.equals(userUid)) {
+                if (!uid.equals(mUserUid)) {
                     Double lat = (Double) dataSnapshot.child("lat").getValue();
                     Double lng = (Double) dataSnapshot.child("lng").getValue();
                     if (lat != null && lng != null) {
@@ -225,19 +224,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 String uid = dataSnapshot.getKey();
-                if (!uid.equals(userUid)) {
+                if (!uid.equals(mUserUid)) {
                     Double lat = (Double) dataSnapshot.child("lat").getValue();
                     Double lng = (Double) dataSnapshot.child("lng").getValue();
                     if (lat != null && lng != null) {
                         LatLng latLng = new LatLng(lat, lng);
-                        if (hashMap.containsKey(uid)) {
-                            Marker changeableMarker = hashMap.get(uid);
+                        if (mMarkerHashMap.containsKey(uid)) {
+                            Marker changeableMarker = mMarkerHashMap.get(uid);
                             changeableMarker.setPosition(latLng);
                         } else {
                             createPinOnMap(latLng, uid);
                         }
                     }
-
                 }
             }
 
@@ -255,15 +253,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
+        mDatabase.addChildEventListener(mUsersLocationsListener);
     }
 
     private void createPinOnMap(LatLng latLng, String uid) {
-        marker = mMap.addMarker(new MarkerOptions()
+        mMarker = mMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title(uid));
         Log.d(LOG_TAG, "pin created!");
-        hashMap.put(uid, marker);
+        mMarkerHashMap.put(uid, mMarker);
     }
 
     private boolean checkLocationPermission() {
@@ -273,9 +272,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void onLocationAllowed() {
-        getActivity().startService(new Intent(getActivity(), LocationListenerService.class));
+        getContext().startService(new Intent(getContext(), LocationListenerService.class));
         try {
-            getActivity().unregisterReceiver(mNetworkStateReceiver);
+            getContext().unregisterReceiver(mNetworkStateReceiver);
         } catch (IllegalArgumentException e) {
             Log.v(LOG_TAG, "mNetworkReceiver has already been unregistered");
         }

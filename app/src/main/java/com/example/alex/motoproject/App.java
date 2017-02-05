@@ -55,26 +55,26 @@ public class App extends Application
 
     @Override
     public void onActivityStarted(Activity activity) {
-
-    }
-
-    @Override
-    public void onActivityResumed(Activity activity) {
         if (activity instanceof MainActivity) {
             isMainActivityVisible = true;
         }
     }
 
     @Override
+    public void onActivityResumed(Activity activity) {
+
+    }
+
+    @Override
     public void onActivityPaused(Activity activity) {
-        if (activity instanceof MainActivity) {
-            isMainActivityVisible = false;
-        }
+
     }
 
     @Override
     public void onActivityStopped(Activity activity) {
-
+        if (activity instanceof MainActivity) {
+            isMainActivityVisible = false;
+        }
     }
 
     @Override

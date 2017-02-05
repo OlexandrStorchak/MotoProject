@@ -28,27 +28,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.events.CancelAlertEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
-
+import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.fragments.AuthFragment;
 import com.example.alex.motoproject.fragments.CheckEmailDialogFragment;
 import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.fragments.SignUpFragment;
-
-
 import com.example.alex.motoproject.fragments.UsersOnlineFragment;
 import com.example.alex.motoproject.utils.CircleTransform;
-
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
-
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -72,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     private static final String FRAGMENT_MAP_TAG = FRAGMENT_MAP;
 
     public static boolean loginWithEmail = false; // Flag for validate with email login method
+    public static MainActivity mainActivity;
     FragmentManager mFragmentManager;
     ArrayList<Integer> mActiveAlerts = new ArrayList<>();
     android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
@@ -81,8 +74,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mFirebaseAuthStateListener;
     private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
-
-
     private TextView mNameHeader;
     private TextView mEmailHeader;
     private ImageView mAvatarHeader;
@@ -90,7 +81,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     private Button mNavigationBtnMap;
     private Button mNavigationBtnSignOut;
     private DrawerLayout mDrawerLayout;
-    public static MainActivity mainActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -318,7 +308,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
     private void isSignedIn() {
         String avatarUri = null;
-        Log.d(LOG_TAG, "isSignedIn: " + mFirebaseAuth.getCurrentUser().getUid());
         mNavigationBtnSignOut.setVisibility(View.VISIBLE);
         mNavigationBtnMap.setVisibility(View.VISIBLE);
 
@@ -410,13 +399,9 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
                                                 .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                                         startActivity(callGPSSettingIntent);
 
-                                        if (checkLocationPermission()) {
-                                            MapFragment fragment = (MapFragment)
-                                                    fragmentManager.findFragmentByTag(FRAGMENT_MAP_TAG);
-                                            fragment.onLocationAllowed();
-                                        }
-
+                                        handleLocation();
                                     }
+
                                 });
                 break;
             case ALERT_INTERNET_OFF:
@@ -426,11 +411,12 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         Intent callWirelessSettingIntent = new Intent(
+// TODO: 05.02.2017 make this button start mobile internet settings
                                                 Settings.ACTION_WIRELESS_SETTINGS);
                                         startActivity(callWirelessSettingIntent);
                                     }
                                 });
-                alertDialogBuilder.setPositiveButton(R.string.turn_on_wifi,
+                alertDialogBuilder.setNeutralButton(R.string.turn_on_wifi,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent callWifiSettingIntent = new Intent(
@@ -485,14 +471,19 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
                         });
                 break;
         }
+
         alert = alertDialogBuilder.create();
-        alert.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                if (mActiveAlerts.contains(alertType))
-                    mActiveAlerts.remove((Integer) alertType);
-            }
-        });
+        alert.setOnDismissListener(new DialogInterface.OnDismissListener()
+
+                                   {
+                                       @Override
+                                       public void onDismiss(DialogInterface dialogInterface) {
+                                           if (mActiveAlerts.contains(alertType))
+                                               mActiveAlerts.remove((Integer) alertType);
+                                       }
+                                   }
+
+        );
         alert.show();
         if (!mActiveAlerts.contains(alertType))
             mActiveAlerts.add(alertType);
@@ -562,6 +553,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
             } catch (IllegalArgumentException e) {
                 Log.v(LOG_TAG, "receiver was unregistered before onDestroy");
             }
+//            unregisterReceiver(mNetworkStateReceiver);
         }
     }
 }
