@@ -3,7 +3,7 @@ package com.example.alex.motoproject.firebase;
 import android.util.Log;
 
 import com.example.alex.motoproject.adapters.FriendsListAdapter;
-import com.example.alex.motoproject.models.usersOnline;
+import com.example.alex.motoproject.models.userOnline;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,7 +26,7 @@ public class FirebaseDatabaseHelper {
     }
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
 
-    private final List<usersOnline> listModels = new ArrayList<>();
+    private final List<userOnline> listModels = new ArrayList<>();
 
 
 
@@ -77,7 +77,7 @@ public class FirebaseDatabaseHelper {
         myRef.setValue(lon);
     }
 
-    public List<usersOnline> getAllOnlineUsers(){
+    public List<userOnline> getAllOnlineUsers() {
         // Read from the database
 
         DatabaseReference myRef = database.getReference().child("onlineUsers");
@@ -87,7 +87,7 @@ public class FirebaseDatabaseHelper {
                 listModels.clear();
 
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                    usersOnline friend = postSnapshot.getValue(usersOnline.class);
+                    userOnline friend = postSnapshot.getValue(userOnline.class);
                     Log.d(TAG, "onDataChange: " +friend.getEmail() + " - ");
                     listModels.add(friend);
                     adapter.notifyDataSetChanged();

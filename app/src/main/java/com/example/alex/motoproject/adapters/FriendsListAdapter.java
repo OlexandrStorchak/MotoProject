@@ -10,7 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.models.usersOnline;
+import com.example.alex.motoproject.models.userOnline;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -22,10 +22,10 @@ import static com.example.alex.motoproject.MainActivity.mainActivity;
 public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.VH> {
 
     private static final String TAG = "log";
-    private List<usersOnline> friendsList;
+    private List<userOnline> friendsList;
 
 
-    public FriendsListAdapter(List<usersOnline> friendsList) {
+    public FriendsListAdapter(List<userOnline> friendsList) {
         this.friendsList = friendsList;
 
     }
@@ -37,7 +37,7 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
         return new VH(view);
     }
 
-    public void setList(List<usersOnline> newList) {
+    public void setList(List<userOnline> newList) {
         friendsList = newList;
 
     }

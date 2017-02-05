@@ -15,7 +15,7 @@ public final class NotificationBuilderUtil {
             Context context, int notificationId) {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.ic_notification)
+                        .setSmallIcon(R.drawable.ic_notification_v1)
                         .setContentTitle("MotoProject")
                         .setContentText("Інтернет вимкнено. Ввімкнути")
                         .setPriority(Notification.PRIORITY_HIGH)

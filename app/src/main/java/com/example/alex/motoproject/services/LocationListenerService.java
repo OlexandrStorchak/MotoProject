@@ -85,7 +85,7 @@ public class LocationListenerService extends Service implements
     public void onDestroy() {
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
-        unregisterReceivers();
+        unregisterReceiver();
 
         ((App) this.getApplication()).setLocationListenerServiceOn(false);
         super.onDestroy();
@@ -197,7 +197,7 @@ public class LocationListenerService extends Service implements
     private void createNotification() {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_notification)
+                        .setSmallIcon(R.drawable.ic_notification_v1)
                         .setContentTitle("MotoProject")
                         .setContentText("Місцезнаходження відстежується.")
                         .setShowWhen(false);
@@ -241,7 +241,7 @@ public class LocationListenerService extends Service implements
                 mNetworkStateReceiver, intentFilterNetwork);
     }
 
-    private void unregisterReceivers() {
+    private void unregisterReceiver() {
         unregisterReceiver(mNetworkStateReceiver);
         //cleanup unneeded notifications
         NotificationManager mNotifyMgr =
