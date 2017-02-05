@@ -97,20 +97,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        outState.putBoolean(STATE_SERVICE, isServiceOn);
-//        super.onSaveInstanceState(outState);
-//    }
-//
-//    @Override
-//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-//        if (savedInstanceState != null) {
-//            isServiceOn = savedInstanceState.getBoolean(STATE_SERVICE);
-//        }
-//        super.onViewStateRestored(savedInstanceState);
-//    }
-
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         mApp = (App) getContext().getApplicationContext();

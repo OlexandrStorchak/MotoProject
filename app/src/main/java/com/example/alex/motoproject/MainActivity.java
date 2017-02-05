@@ -201,7 +201,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         };
     }
 
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -281,13 +280,12 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
                 fragmentTransaction.replace(R.id.main_activity_frame,
                         MapFragment.getInstance(),
                         FRAGMENT_MAP);
-                fragmentTransaction.commit();
+                fragmentTransaction.commitAllowingStateLoss();
                 break;
 
             case FRAGMENT_ONLINE_USERS:
 
                 fragmentTransaction.replace(R.id.main_activity_frame, UsersOnlineFragment.getInstance());
-
                 fragmentTransaction.commit();
                 break;
         }
