@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.example.alex.motoproject.adapters.FriendsListAdapter;
 import com.example.alex.motoproject.models.userOnline;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -17,18 +19,13 @@ import java.util.List;
 
 public class FirebaseDatabaseHelper {
     private static final String TAG = "log";
-
+    private final List<userOnline> listModels = new ArrayList<>();
     private FriendsListAdapter adapter;
-
+    private FirebaseDatabase database = FirebaseDatabase.getInstance();
 
     public FirebaseDatabaseHelper() {
 
     }
-    private FirebaseDatabase database = FirebaseDatabase.getInstance();
-
-    private final List<userOnline> listModels = new ArrayList<>();
-
-
 
     public void createDatabase(String userId,String email,String name){
 
@@ -69,11 +66,12 @@ public class FirebaseDatabaseHelper {
         myRef.removeValue();
     }
 
-    public void updateOnlineUserLocation(double lat, double lon, String userId){
-        Log.d(TAG, "updateOnlineUserLocation: "+userId);
-        DatabaseReference myRef = database.getReference().child("onlineUsers").child(userId).child("lat");
+    public void updateOnlineUserLocation(double lat, double lon) {
+        String uid = getCurrentUser().getUid();
+        Log.d(TAG, "updateOnlineUserLocation: " + uid);
+        DatabaseReference myRef = database.getReference().child("onlineUsers").child(uid).child("lat");
         myRef.setValue(lat);
-        myRef = database.getReference().child("onlineUsers").child(userId).child("lon");
+        myRef = database.getReference().child("onlineUsers").child(uid).child("lon");
         myRef.setValue(lon);
     }
 
@@ -107,7 +105,12 @@ public class FirebaseDatabaseHelper {
         this.adapter=adapter;
     }
 
-
-
-
+    private FirebaseUser getCurrentUser() {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser != null) {
+            return auth.getCurrentUser();
+        }
+        throw new RuntimeException("Current user is null");
+    }
 }
