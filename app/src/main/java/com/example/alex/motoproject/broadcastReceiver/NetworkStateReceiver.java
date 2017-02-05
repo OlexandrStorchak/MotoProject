@@ -36,8 +36,11 @@ public class NetworkStateReceiver extends BroadcastReceiver {
         app = (App) context.getApplicationContext();
 
         if (isInternetEnabled()) {
-            cancelNotificationIfExists(INTERNET_NOTIFICATION_ID);
-            postCancelAlertEvent(INTERNET_NOTIFICATION_ID);
+            if (isMainActivityVisible()) {
+                postCancelAlertEvent(INTERNET_NOTIFICATION_ID);
+            } else {
+                cancelNotificationIfExists(INTERNET_NOTIFICATION_ID);
+            }
         } else {
             if (isMainActivityVisible()) {
                 postShowAlertEvent(INTERNET_NOTIFICATION_ID);
@@ -48,8 +51,11 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
         if (isGpsNeeded()) {
             if (isGpsEnabled()) {
-                cancelNotificationIfExists(GPS_NOTIFICATION_ID);
-                postCancelAlertEvent(GPS_NOTIFICATION_ID);
+                if (isMainActivityVisible()) {
+                    postCancelAlertEvent(GPS_NOTIFICATION_ID);
+                } else {
+                    cancelNotificationIfExists(GPS_NOTIFICATION_ID);
+                }
             } else {
                 if (isMainActivityVisible()) {
                     postShowAlertEvent(GPS_NOTIFICATION_ID);
@@ -74,6 +80,7 @@ public class NetworkStateReceiver extends BroadcastReceiver {
                 activeNetwork.getState() == NetworkInfo.State.CONNECTED;
     }
 
+    //if LocationListenerService is off, no need for location monitoring
     private boolean isGpsNeeded() {
         return (app).isLocationListenerServiceOn();
     }

@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         mAvatarHeader = (ImageView) header.findViewById(R.id.header_avatar);
 
         //Button in Navigation Drawer for show the Map fragment
-        mNavigationBtnMap = (Button) mNavigationView.findViewById(R.id.navigatio_btn_map);
+        mNavigationBtnMap = (Button) mNavigationView.findViewById(R.id.navigation_btn_map);
         mNavigationBtnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -217,7 +217,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
                                            @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_LOCATION_REQUEST_CODE) {
-            // Check the request was not cancelled
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // permission was granted
                 handleLocation();
@@ -226,7 +225,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
                         Manifest.permission.ACCESS_FINE_LOCATION)) {
                     //user checked never ask again
                     showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
-
                 } else {
                     //user did not check never ask again, show rationale
                     showAlert(ALERT_PERMISSION_RATIONALE);
@@ -547,7 +545,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
             } catch (IllegalArgumentException e) {
                 Log.v(LOG_TAG, "receiver was unregistered before onDestroy");
             }
-//            unregisterReceiver(mNetworkStateReceiver);
         }
     }
 }

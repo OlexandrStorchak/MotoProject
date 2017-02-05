@@ -75,7 +75,7 @@ public class LocationListenerService extends Service implements
 
         firebaseAuth = FirebaseAuth.getInstance();
 
-        createNotification();
+        showNotification();
         registerReceiver();
 
         super.onCreate();
@@ -86,7 +86,8 @@ public class LocationListenerService extends Service implements
     public void onDestroy() {
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
-        unregisterReceiver();
+        unregisterReceiver(mNetworkStateReceiver);
+        cleanupNotifications();
 
         ((App) this.getApplication()).setLocationListenerServiceOn(false);
         super.onDestroy();
@@ -111,9 +112,7 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+        if (checkLocationPermission()) {
             Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
             if (mLastLocation != null) {
@@ -164,11 +163,9 @@ public class LocationListenerService extends Service implements
         return mLocationRequest;
     }
 
-    protected void startLocationUpdates() {
+    private void startLocationUpdates() {
         //handle unexpected permission absence
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+        if (checkLocationPermission()) {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, createLocationRequest(), this);
         }
@@ -179,22 +176,16 @@ public class LocationListenerService extends Service implements
         double lat = location.getLatitude();
         double lon = location.getLongitude();
         firebaseDatabaseHelper.updateOnlineUserLocation(lat, lon);
-        Log.d(LOG_TAG, "Lat " + mCurrentLocation.getLatitude() +
-                " Lon " + mCurrentLocation.getLongitude() +
-                " Time " + mLastUpdateTime);
-
-
-
     }
 
-    protected void stopLocationUpdates() {
+    private void stopLocationUpdates() {
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(
                     mGoogleApiClient, this);
         }
     }
 
-    private void createNotification() {
+    private void showNotification() {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_notification_v1)
@@ -240,11 +231,16 @@ public class LocationListenerService extends Service implements
                 mNetworkStateReceiver, intentFilterNetwork);
     }
 
-    private void unregisterReceiver() {
-        unregisterReceiver(mNetworkStateReceiver);
+    private void cleanupNotifications() {
         //cleanup unneeded notifications
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNotifyMgr.cancelAll();
+    }
+
+    private boolean checkLocationPermission() {
+        return ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
     }
 }

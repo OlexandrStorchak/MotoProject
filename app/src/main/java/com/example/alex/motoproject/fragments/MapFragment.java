@@ -49,22 +49,20 @@ import static com.example.alex.motoproject.R.id.map;
 //TODO if user is offline, hide his pin
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String LOG_TAG = MapFragment.class.getSimpleName();
-
-//    static final String STATE_SERVICE = "isServiceOn";
-
     public static MapFragment mapFragmentInstance;
     private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
-    MapFragmentListener mMapFragmentListener;
-    Marker mMarker;
+    private MapFragmentListener mMapFragmentListener;
     private App mApp;
 
     //for methods calling, like creating pins
     private GoogleMap mMap;
     //for map lifecycle
     private MapView mMapView;
+    //stores created markers
+    private HashMap<String, Marker> mMarkerHashMap;
+
     private DatabaseReference mDatabase;
     private String mUserUid;
-    private HashMap<String, Marker> mMarkerHashMap;
     private ChildEventListener mUsersLocationsListener;
     private CameraUpdate mCameraUpdate;
 
@@ -113,7 +111,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         } else {
             auth.signOut();
         }
-
+        //setup fab that starts or stops LocationListenerService
         FloatingActionButton drivingToggleButton =
                 (FloatingActionButton) view.findViewById(R.id.button_drive_toggle);
         drivingToggleButton.setOnClickListener(new View.OnClickListener() {
@@ -254,7 +252,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void createPinOnMap(LatLng latLng, String uid) {
-        mMarker = mMap.addMarker(new MarkerOptions()
+        Marker mMarker = mMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title(uid));
         Log.d(LOG_TAG, "pin created!");
@@ -280,10 +278,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    //changes CameraUpdate so the map will be showing a chosen user location after gets ready
     public void moveToMarker(@NonNull String uid) {
         if (mMarkerHashMap.containsKey(uid)) {
             LatLng position = mMarkerHashMap.get(uid).getPosition();
-//            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 100));
             mCameraUpdate = CameraUpdateFactory.newLatLngZoom(position, 15);
         }
     }
