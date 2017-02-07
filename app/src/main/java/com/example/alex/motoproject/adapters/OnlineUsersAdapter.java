@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.models.userOnline;
+import com.example.alex.motoproject.models.Friend;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -22,10 +22,10 @@ import static com.example.alex.motoproject.fragments.MapFragment.mapFragmentInst
 public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
 
     private static final String TAG = "log";
-    private List<userOnline> friendsList;
+    private List<Friend> friendsList;
 
 
-    public OnlineUsersAdapter(List<userOnline> friendsList) {
+    public OnlineUsersAdapter(List<Friend> friendsList) {
         this.friendsList = friendsList;
 
     }
@@ -37,7 +37,7 @@ public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.
         return new VH(view);
     }
 
-    public void setList(List<userOnline> newList) {
+    public void setList(List<Friend> newList) {
         friendsList = newList;
 
     }
@@ -52,13 +52,13 @@ public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.
                 .centerCrop()
                 .transform(new CircleTransform())
                 .into(holder.avatar);
-        if (friendsList.get(position).getStatus() != null) {
-            if (friendsList.get(position).getStatus().equals("public")) {
-                holder.mapCur.setVisibility(View.VISIBLE);
-            } else {
-                holder.mapCur.setVisibility(View.GONE);
-            }
-        }
+//        if (friendsList.get(position).getStatus() != null) {
+//            if (friendsList.get(position).getStatus().equals("public")) {
+//                holder.mapCur.setVisibility(View.VISIBLE);
+//            } else {
+//                holder.mapCur.setVisibility(View.GONE);
+//            }
+//        }
         holder.mapCur.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

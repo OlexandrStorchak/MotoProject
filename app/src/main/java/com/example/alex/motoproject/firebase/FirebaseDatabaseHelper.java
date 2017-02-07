@@ -3,8 +3,9 @@ package com.example.alex.motoproject.firebase;
 import android.util.Log;
 
 import com.example.alex.motoproject.adapters.OnlineUsersAdapter;
+import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
-import com.example.alex.motoproject.models.userOnline;
+import com.example.alex.motoproject.models.Friend;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,7 +25,7 @@ import java.util.List;
 public class FirebaseDatabaseHelper {
     private static final String TAG = "log";
     private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
-    private final List<userOnline> listModels = new ArrayList<>();
+    private final List<Friend> listModels = new ArrayList<>();
     private OnlineUsersAdapter adapter;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private ChildEventListener mOnlineUsersLocationListener;
@@ -95,7 +96,6 @@ public class FirebaseDatabaseHelper {
                                 LatLng latLng = new LatLng(lat, lng);
                                 EventBus.getDefault().post(new MapMarkerEvent(latLng, uid, "IBFLD"));
                             }
-
                         } else {
                             Log.w(LOG_TAG, "data snapshot is null");
                         }
@@ -139,37 +139,6 @@ public class FirebaseDatabaseHelper {
         }
     }
 
-//
-//    private void listenMapUpdates() {
-//        for (Map.Entry<String, String> entry : onlineUsers.entrySet()) {
-//            if (entry.getValue().equals("public")) {
-//                DatabaseReference location =
-//                        database.getReference().child("location").child(entry.getKey());
-//                location.addValueEventListener(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(DataSnapshot dataSnapshot) {
-//                        Log.e("LOG", dataSnapshot.getValue().toString());
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(DatabaseError databaseError) {
-//
-//                    }
-//                });
-//            }
-//
-//        }
-//    }
-
-//    public void addToOnline(String userId, String email, String avatar) {
-//        DatabaseReference myRef = database.getReference().child("onlineUsers").child(userId).child("email");
-//        myRef.setValue(email);
-//        myRef = database.getReference().child("onlineUsers").child(userId).child("avatar");
-//        myRef.setValue(avatar);
-//        myRef = database.getReference().child("onlineUsers").child(userId).child("status");
-//        myRef.setValue("public");
-//    }
-
     public void removeFromOnline(String userId) {
         DatabaseReference myRef = database.getReference().child("onlineUsers").child(userId);
         myRef.removeValue();
@@ -183,21 +152,22 @@ public class FirebaseDatabaseHelper {
         myRef.child("lng").setValue(lng);
     }
 
-    public List<userOnline> getAllOnlineUsers() {
+    public void getAllOnlineUsers() {
         // Read from the database
 
-        DatabaseReference myRef = database.getReference().child("onlineUsers");
+        DatabaseReference myRef = database.getReference().child("users");
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 listModels.clear();
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    userOnline friend = postSnapshot.getValue(userOnline.class);
-                    Log.d(TAG, "onDataChange: " + friend.getEmail() + " - ");
-                    listModels.add(friend);
-                    adapter.notifyDataSetChanged();
-
+//                    User friend = postSnapshot.getValue(User.class);
+//                    Log.d(TAG, "onDataChange: " + friend.getEmail() + " - ");
+//                    listModels.add(friend);
+//                    adapter.notifyDataSetChanged();
+                    String uid = postSnapshot.getKey();
+                    getFriendDataByUid(uid);
                 }
             }
 
@@ -207,7 +177,7 @@ public class FirebaseDatabaseHelper {
             }
         });
 
-        return listModels;
+//        return listModels;
     }
 
     public void setAdapter(OnlineUsersAdapter adapter) {
@@ -222,13 +192,13 @@ public class FirebaseDatabaseHelper {
         }
         throw new RuntimeException("Current user is null");
     }
-//
-//    private String getUserName(String uid) {
+
+//    private User getUserName(String uid) {
 //        database.getReference().child("users").child(uid).
 //                child("name").addListenerForSingleValueEvent(new ValueEventListener() {
 //            @Override
 //            public void onDataChange(DataSnapshot dataSnapshot) {
-//                String name = (String) dataSnapshot.getValue();
+//                User user = dataSnapshot.getValue(User.class);
 //            }
 //
 //            @Override
@@ -236,6 +206,33 @@ public class FirebaseDatabaseHelper {
 //
 //            }
 //        });
-//        return
+//        return null;
 //    }
+
+    private void getFriendDataByUid(String uid) {
+        DatabaseReference ref = database.getReference().child("users").child(uid);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String name = (String) dataSnapshot.child("name").getValue();
+                String email = (String) dataSnapshot.child("email").getValue();
+                String avatar = (String) dataSnapshot.child("avatar").getValue();
+                avatar = "hgccv";
+                if (name != null && email != null && avatar != null) {
+                    listModels.add(new Friend(name, email, avatar));
+                    EventBus.getDefault().post(new FriendDataReadyEvent());
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public List<Friend> getFriends() {
+        return listModels;
+    }
 }

@@ -12,7 +12,11 @@ import android.view.ViewGroup;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.adapters.OnlineUsersAdapter;
+import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 public class UsersOnlineFragment extends Fragment {
 
@@ -30,6 +34,17 @@ public class UsersOnlineFragment extends Fragment {
         return usersOnlineFragmentInstance;
     }
 
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    @Override
+    public void onStart() {
+        EventBus.getDefault().register(this);
+        super.onStart();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,14 +56,20 @@ public class UsersOnlineFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        databaseHelper.getAllOnlineUsers();
+
+
+    }
+
+    @Subscribe
+    public void onFriendDataReady(FriendDataReadyEvent event) {
         databaseHelper.setAdapter(adapter);
-        adapter.setList(databaseHelper.getAllOnlineUsers());
+        adapter.setList(databaseHelper.getFriends());
         adapter.notifyDataSetChanged();
-        RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
+        RecyclerView rv = (RecyclerView) getActivity().findViewById(R.id.navigation_friends_list_recycler);
 
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
 
         rv.setAdapter(adapter);
-
     }
 }

@@ -31,9 +31,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -64,8 +61,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     //stores created markers
     private HashMap<String, Marker> mMarkerHashMap;
 
-    private DatabaseReference mDatabase;
-    private String mUserUid;
     private CameraUpdate mCameraUpdate;
 
     public MapFragment() {
@@ -105,14 +100,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() != null) {
-            mUserUid = auth.getCurrentUser().getUid();
-        } else {
-            auth.signOut();
-        }
         //setup fab that starts or stops LocationListenerService
         FloatingActionButton drivingToggleButton =
                 (FloatingActionButton) view.findViewById(R.id.button_drive_toggle);
@@ -148,17 +135,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mCameraUpdate = CameraUpdateFactory.newLatLngZoom(cherkasy, zoom);
         }
         map.moveCamera(mCameraUpdate);
-
-
-//        LatLng cherkasy = new LatLng(49.443, 32.0727);
-//        map.moveCamera(CameraUpdateFactory.newLatLngZoom(cherkasy, 11));
     }
-//    public void setMarker(double lat,double lon,String name){
-//        LatLng location = new LatLng(lat,lon);
-//
-//        mMap.addMarker(new MarkerOptions().position(location).title(name));
-//        Log.d(TAG, "setMarker: ");
-//    }
 
     @Override
     public void onDestroyView() {
@@ -199,61 +176,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMapView.onResume();
         super.onResume();
     }
-
-//    private void fetchUserLocations() {
-//        mUsersLocationsListener = new ChildEventListener() {
-//            // TODO: do not receive updates for only one updated value
-//            @Override
-//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                Log.d(LOG_TAG, dataSnapshot.toString());
-//                String uid = dataSnapshot.getKey();
-//                if (!uid.equals(mUserUid)) {
-//                    Double lat = (Double) dataSnapshot.child("lat").getValue();
-//                    Double lng = (Double) dataSnapshot.child("lng").getValue();
-//                    if (lat != null && lng != null) {
-//                        LatLng latLng = new LatLng(lat, lng);
-//                        createPinOnMap(latLng, uid);
-//                    }
-//                    Log.d(LOG_TAG, lat + " " + lng);
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//                String uid = dataSnapshot.getKey();
-//                if (!uid.equals(mUserUid)) {
-//                    Double lat = (Double) dataSnapshot.child("lat").getValue();
-//                    Double lng = (Double) dataSnapshot.child("lng").getValue();
-//                    if (lat != null && lng != null) {
-//                        LatLng latLng = new LatLng(lat, lng);
-//                        if (mMarkerHashMap.containsKey(uid)) {
-//                            Marker changeableMarker = mMarkerHashMap.get(uid);
-//                            changeableMarker.setPosition(latLng);
-//                        } else {
-//                            createPinOnMap(latLng, uid);
-//                        }
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onChildRemoved(DataSnapshot dataSnapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        };
-//        mDatabase.child("location").addChildEventListener(mUsersLocationsListener);
-//    }
 
     @Subscribe
     public void createPinOnMap(MapMarkerEvent event) {
