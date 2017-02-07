@@ -17,6 +17,13 @@ import android.widget.ProgressBar;
 
 import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -27,6 +34,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
@@ -37,7 +45,10 @@ import static com.example.alex.motoproject.MainActivity.loginWithEmail;
 
 public class AuthFragment extends Fragment {
     private static final int GOOGLE_SIGN_IN = 13;
+    private static final int FACEBOOK_SIGN_IN = 14;
+
     private static final String TAG = "log";
+    CallbackManager callbackManager;
     private EditText mEmail, mPassword;
     private ProgressBar mProgressBar;
     private FirebaseAuth mFireBaseAuth;
@@ -55,6 +66,8 @@ public class AuthFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        callbackManager=CallbackManager.Factory.create();
+
         mFireBaseAuth = FirebaseAuth.getInstance();
     }
 
@@ -70,6 +83,7 @@ public class AuthFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
 
         Log.d(TAG, "onViewCreated: test");
         mEmail = (EditText) view.findViewById(R.id.auth_email);
@@ -136,6 +150,35 @@ public class AuthFragment extends Fragment {
                 mProgressBar.setVisibility(View.VISIBLE);
             }
         });
+
+
+
+
+        Button mButtonSignInFacebook = (Button)view.findViewById(R.id.auth_btn_facebook_sign_in);
+        mButtonSignInFacebook.setReadPermissions("email", "public_profile");
+        mButtonSignInFacebook.setFragment(this);
+        mButtonSignInFacebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                // App code
+                Log.d(TAG, "onSuccess: FACEBOOK");
+
+                handleFacebookAccessToken(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+                // App code
+                Log.d(TAG, "onCancel: FACEBOOK");
+            }
+
+            @Override
+            public void onError(FacebookException exception) {
+                // App code
+                Log.d(TAG, "onError: FACEBOOK");
+            }
+        });
+
     }
 
 
@@ -241,6 +284,30 @@ public class AuthFragment extends Fragment {
                     }
                 });
     }
+    public void handleFacebookAccessToken(AccessToken token) {
+        Log.d(TAG, "handleFacebookAccessToken:" + token);
+
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        mFireBaseAuth.signInWithCredential(credential)
+                .addOnCompleteListener((MainActivity) getContext(), new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
+
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "signInWithCredential", task.getException());
+
+                        }
+
+
+                    }
+                });
+    }
+
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -280,6 +347,12 @@ public class AuthFragment extends Fragment {
                     mButtonSignInGoogle.setClickable(true);
                 }
             }
+        } else {
+            Log.d(TAG, "onActivityResult: facebook");
+            callbackManager.onActivityResult(requestCode, resultCode, data);
+
         }
     }
+
+
 }

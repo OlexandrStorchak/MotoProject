@@ -4,7 +4,9 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -13,6 +15,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -21,6 +24,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -38,6 +42,10 @@ import com.example.alex.motoproject.fragments.MapFragment;
 import com.example.alex.motoproject.fragments.SignUpFragment;
 import com.example.alex.motoproject.fragments.UsersOnlineFragment;
 import com.example.alex.motoproject.utils.CircleTransform;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
@@ -45,6 +53,8 @@ import com.squareup.picasso.Picasso;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements MapFragment.MapFragmentListener {
@@ -59,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
     private static final String FRAGMENT_AUTH = "fragmentAuth";
     private static final String FRAGMENT_ONLINE_USERS = "fragmentOnlineUsers";
+    private static final String TAG = "log";
     public static boolean loginWithEmail = false; // Flag for validate with email login method
     public static MainActivity mainActivity;
     FragmentManager mFragmentManager;
@@ -128,6 +139,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
             public void onClick(View view) {
                 databaseHelper.removeFromOnline(mFirebaseCurrentUser.getUid());
                 mFirebaseAuth.signOut();
+                LoginManager.getInstance().logOut();
             }
         });
         //Button in Navigation Drawer for display Friends List
@@ -238,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     protected void onStart() {
         super.onStart();
         Log.d(LOG_TAG, "onStart");
+
         registerNetworkStateReceiver();
         EventBus.getDefault().register(this);
         // Attach the listener of Firebase Auth
@@ -297,18 +310,28 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         new CheckEmailDialogFragment().show(getFragmentManager(), "dialog");
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult: FACEBOOK");
+        CallbackManager callbackManager= CallbackManager.Factory.create();
+        callbackManager.onActivityResult(requestCode,resultCode,data);
+
+    }
 
     private void isSignedIn() {
         String avatarUri = null;
         mNavigationBtnSignOut.setVisibility(View.VISIBLE);
         mNavigationBtnMap.setVisibility(View.VISIBLE);
+        mAvatarHeader.setVisibility(View.GONE);
 
         mNameHeader.setText(mFirebaseCurrentUser.getDisplayName());
         mEmailHeader.setText(mFirebaseCurrentUser.getEmail());
-        mAvatarHeader.setVisibility(View.VISIBLE);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
         if (mFirebaseCurrentUser.getPhotoUrl() != null) {
+            mAvatarHeader.setVisibility(View.VISIBLE);
+
             avatarUri = mFirebaseCurrentUser.getPhotoUrl().toString();
             Picasso.with(getApplicationContext())
                     .load(avatarUri)
@@ -368,6 +391,8 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     @Override
     protected void onResume() {
         super.onResume();
+
+
         Log.d(LOG_TAG, "onResume: ");
     }
 

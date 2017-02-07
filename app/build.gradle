@@ -36,7 +36,9 @@ android {
     }
     return true
 }
-
+repositories {
+    mavenCentral()
+}
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -45,6 +47,8 @@ dependencies {
     // FireBase auth
     //Google Api auth
     compile 'com.android.support:support-v4:25.1.0'
+
+    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
 
     //picaso
     compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') {

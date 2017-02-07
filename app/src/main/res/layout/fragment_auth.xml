@@ -75,9 +75,18 @@
                 android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="20dp"
                 android:layout_marginTop="20dp"
                 android:text="@string/google" />
+
+            <Button
+                android:id="@+id/auth_btn_facebook_sign_in"
+                style="@style/MyButtonCustom"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:text="@string/facebook" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

@@ -11,6 +11,8 @@
     <string name="menu_navi_tittle_events">Події</string>
     <string name="menu_navi_tittle_info">Інформація</string>
 
+    <string name="facebook_app_id">1738320186485515</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="location_rationale">Без дозволу на використання GPS ви не зможете ділитися своїм місцезнаходженням з іншими користувачами. Дозволити використання GPS?</string>
     <string name="start_driving">Я виїхав</string>
@@ -49,5 +51,6 @@
     <string name="alert_dialog_text">На ваш імейл відправлено лист активації облікового запису</string>
     <string name="back_to_menu">В меню</string>
     <string name="friends">Друзі</string>
+    <string name="facebook">Facebook</string>
 
 </resources>
