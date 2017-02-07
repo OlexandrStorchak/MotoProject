@@ -22,6 +22,9 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
@@ -38,6 +41,12 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static com.example.alex.motoproject.MainActivity.loginWithEmail;
@@ -48,7 +57,7 @@ public class AuthFragment extends Fragment {
     private static final int FACEBOOK_SIGN_IN = 14;
 
     private static final String TAG = "log";
-    CallbackManager callbackManager;
+    static CallbackManager callbackManager;
     private EditText mEmail, mPassword;
     private ProgressBar mProgressBar;
     private FirebaseAuth mFireBaseAuth;
@@ -57,9 +66,12 @@ public class AuthFragment extends Fragment {
     private Button mButtonSignInGoogle;
     private Button mButtonSignIn;
     private Button mButtonSubmit;
-
+    private LoginManager loginManager = LoginManager.getInstance();
     public AuthFragment() {
         // Required empty public constructor
+    }
+    public static CallbackManager getCallbackManager(){
+        return callbackManager;
     }
 
 
@@ -67,6 +79,39 @@ public class AuthFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         callbackManager=CallbackManager.Factory.create();
+        loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                // App code
+                Log.d(TAG, "onSuccess: FACEBOOK");
+                GraphRequest request = GraphRequest.newMeRequest(
+                        loginResult.getAccessToken(),
+                        new GraphRequest.GraphJSONObjectCallback() {
+                            @Override
+                            public void onCompleted(
+                                    JSONObject object,
+                                    GraphResponse response) {
+                                // Application code
+                                Log.v("LoginActivity", response.toString());
+                            }
+                        });
+
+                handleFacebookAccessToken(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+                // App code
+                Log.d(TAG, "onCancel: FACEBOOK");
+            }
+
+            @Override
+            public void onError(FacebookException exception) {
+                // App code
+                Log.d(TAG, "onError: FACEBOOK");
+            }
+        });
+
 
         mFireBaseAuth = FirebaseAuth.getInstance();
     }
@@ -154,30 +199,22 @@ public class AuthFragment extends Fragment {
 
 
 
-        Button mButtonSignInFacebook = (Button)view.findViewById(R.id.auth_btn_facebook_sign_in);
-        mButtonSignInFacebook.setReadPermissions("email", "public_profile");
-        mButtonSignInFacebook.setFragment(this);
-        mButtonSignInFacebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                // App code
-                Log.d(TAG, "onSuccess: FACEBOOK");
+        final Button mButtonSignInFacebook = (Button)view.findViewById(R.id.auth_btn_facebook_sign_in);
 
-                handleFacebookAccessToken(loginResult.getAccessToken());
-            }
-
+        mButtonSignInFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCancel() {
-                // App code
-                Log.d(TAG, "onCancel: FACEBOOK");
-            }
+            public void onClick(View view) {
+                mButtonSignIn.setVisibility(View.INVISIBLE);
+                mButtonSignInGoogle.setVisibility(View.INVISIBLE);
+                mButtonSubmit.setVisibility(View.INVISIBLE);
+                mButtonSignInFacebook.setVisibility(View.INVISIBLE);
 
-            @Override
-            public void onError(FacebookException exception) {
-                // App code
-                Log.d(TAG, "onError: FACEBOOK");
+                Collection<String> permissions = Arrays.asList("public_profile", "email");
+
+                loginManager.logInWithReadPermissions(getActivity(),permissions);
             }
         });
+
 
     }
 

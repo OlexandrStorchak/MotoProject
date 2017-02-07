@@ -314,8 +314,8 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult: FACEBOOK");
-        CallbackManager callbackManager= CallbackManager.Factory.create();
-        callbackManager.onActivityResult(requestCode,resultCode,data);
+
+        AuthFragment.getCallbackManager().onActivityResult(requestCode,resultCode,data);
 
     }
 
