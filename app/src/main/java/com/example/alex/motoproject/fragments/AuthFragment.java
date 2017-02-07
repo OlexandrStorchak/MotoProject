@@ -169,7 +169,7 @@ public class AuthFragment extends Fragment {
                         mPassword.setError(getResources().getString(R.string.less_6_chars));
                     }
                     if (mPassword.getText().length() > 5 & mEmail.getText().length() > 0) {
-
+                        loginWithEmail = true;
                         mEmail.setVisibility(View.GONE);
                         mProgressBar.setVisibility(View.VISIBLE);
                         mPassword.setVisibility(View.GONE);
@@ -195,12 +195,14 @@ public class AuthFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 view.setVisibility(View.INVISIBLE);
+                loginWithEmail = false;
                 signInGoogle();
                 mEmail.setVisibility(View.GONE);
                 mPassword.setVisibility(View.GONE);
                 mButtonSignIn.setVisibility(View.GONE);
                 mButtonSubmit.setVisibility(View.GONE);
                 mButtonSignInGoogle.setVisibility(View.GONE);
+                mButtonSignInFacebook.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.VISIBLE);
             }
         });
@@ -213,10 +215,13 @@ public class AuthFragment extends Fragment {
         mButtonSignInFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                loginWithEmail = false;
                 mButtonSignIn.setVisibility(View.INVISIBLE);
                 mButtonSignInGoogle.setVisibility(View.INVISIBLE);
                 mButtonSubmit.setVisibility(View.INVISIBLE);
                 mButtonSignInFacebook.setVisibility(View.INVISIBLE);
+                mEmail.setVisibility(View.GONE);
+                mPassword.setVisibility(View.GONE);
 
                 Collection<String> permissions = Arrays.asList("public_profile", "email");
 
@@ -377,6 +382,7 @@ public class AuthFragment extends Fragment {
                     mGoogleApiClient.disconnect();
                     mButtonSignIn.setVisibility(View.VISIBLE);
                     mButtonSubmit.setVisibility(View.VISIBLE);
+                    mButtonSignInFacebook.setVisibility(View.VISIBLE);
                     mButtonSignInGoogle.setVisibility(View.VISIBLE);
                     mButtonSignInGoogle.setClickable(true);
                 }
@@ -389,6 +395,7 @@ public class AuthFragment extends Fragment {
                     mGoogleApiClient.disconnect();
                     mButtonSignIn.setVisibility(View.VISIBLE);
                     mButtonSubmit.setVisibility(View.VISIBLE);
+                    mButtonSignInFacebook.setVisibility(View.VISIBLE);
                     mButtonSignInGoogle.setVisibility(View.VISIBLE);
                     mButtonSignInGoogle.setClickable(true);
                 }
