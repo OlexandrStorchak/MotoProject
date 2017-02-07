@@ -48,7 +48,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements MapFragment.MapFragmentListener {
+public class MainActivity extends AppCompatActivity implements MapFragment.MapFragmentListener, MainView {
 
     public static final int ALERT_GPS_OFF = 20;
     public static final int ALERT_INTERNET_OFF = 21;
@@ -79,11 +79,14 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     private Button mNavigationBtnMap;
     private Button mNavigationBtnSignOut;
     private DrawerLayout mDrawerLayout;
+    private PresenterImp presenterImp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mainActivity = this;
+
+        presenterImp = new PresenterImp(this);
 
 
         //Firebase auth instance
@@ -165,38 +168,39 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 mFirebaseCurrentUser = firebaseAuth.getCurrentUser();
                 if (loginWithEmail) {
-
-
                     //Sign in method by email
                     if (mFirebaseCurrentUser != null) {
                         if (mFirebaseCurrentUser.isEmailVerified()) {
                             // User is signed in with email
-                            isSignedIn();
-
+                            //isSignedIn();
+                            presenterImp.isLogedIn(true);
 
                         } else {
                             //User is login with email must confirm it by email
                             mFirebaseCurrentUser.sendEmailVerification();
                             showToast("Check your email!");
-                            isSignedOut();
+                            //isSignedOut();
+                            presenterImp.isLogedIn(false);
                         }
 
                     } else {
                         // User is signed out with email
 
-                        isSignedOut();
+                        //isSignedOut();
+                        presenterImp.isLogedIn(false);
                     }
                 } else {
 
                     //Sign in method by Google account
                     if (mFirebaseCurrentUser != null) {
                         //Sign in with Google account
-                        isSignedIn();
+                        //isSignedIn();
+                        presenterImp.isLogedIn(true);
 
                     } else {
                         // User is signed out with Google account
-                        isSignedOut();
-
+                        //isSignedOut();
+                        presenterImp.isLogedIn(false);
                     }
 
                 }
@@ -306,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         super.onActivityResult(requestCode, resultCode, data);
         Log.d(TAG, "onActivityResult: FACEBOOK");
 
-        AuthFragment.getCallbackManager().onActivityResult(requestCode,resultCode,data);
+        AuthFragment.getCallbackManager().onActivityResult(requestCode, resultCode, data);
 
     }
 
@@ -562,6 +566,16 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
                 Log.v(LOG_TAG, "receiver was unregistered before onDestroy");
             }
         }
+    }
+
+    @Override
+    public void login() {
+        isSignedIn();
+    }
+
+    @Override
+    public void logout() {
+        isSignedOut();
     }
 }
 
