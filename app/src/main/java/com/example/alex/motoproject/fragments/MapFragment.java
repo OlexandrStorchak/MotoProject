@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
+import com.example.alex.motoproject.events.MapMarkerEvent;
+import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.services.LocationListenerService;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -30,11 +32,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.HashMap;
 
@@ -53,6 +55,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
     private MapFragmentListener mMapFragmentListener;
     private App mApp;
+    private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
 
     //for methods calling, like creating pins
     private GoogleMap mMap;
@@ -63,7 +66,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private DatabaseReference mDatabase;
     private String mUserUid;
-    private ChildEventListener mUsersLocationsListener;
     private CameraUpdate mCameraUpdate;
 
     public MapFragment() {
@@ -173,7 +175,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onStop() {
         mMapView.onStop();
-        mDatabase.removeEventListener(mUsersLocationsListener);
+        EventBus.getDefault().unregister(this);
+        databaseHelper.unregisterOnlineUsersLocationListener();
         super.onStop();
     }
 
@@ -186,7 +189,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onStart() {
         mMapView.onStart();
-        fetchUserLocations();
+        EventBus.getDefault().register(this);
+        databaseHelper.registerOnlineUsersLocationListener();
         super.onStart();
     }
 
@@ -196,67 +200,76 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         super.onResume();
     }
 
-    private void fetchUserLocations() {
-        mUsersLocationsListener = new ChildEventListener() {
-            // TODO: do not receive updates for only one updated value
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d(LOG_TAG, dataSnapshot.toString());
-                String uid = dataSnapshot.getKey();
-                if (!uid.equals(mUserUid)) {
-                    Double lat = (Double) dataSnapshot.child("lat").getValue();
-                    Double lng = (Double) dataSnapshot.child("lng").getValue();
-                    if (lat != null && lng != null) {
-                        LatLng latLng = new LatLng(lat, lng);
-                        createPinOnMap(latLng, uid);
-                    }
-                    Log.d(LOG_TAG, lat + " " + lng);
-                }
+//    private void fetchUserLocations() {
+//        mUsersLocationsListener = new ChildEventListener() {
+//            // TODO: do not receive updates for only one updated value
+//            @Override
+//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//                Log.d(LOG_TAG, dataSnapshot.toString());
+//                String uid = dataSnapshot.getKey();
+//                if (!uid.equals(mUserUid)) {
+//                    Double lat = (Double) dataSnapshot.child("lat").getValue();
+//                    Double lng = (Double) dataSnapshot.child("lng").getValue();
+//                    if (lat != null && lng != null) {
+//                        LatLng latLng = new LatLng(lat, lng);
+//                        createPinOnMap(latLng, uid);
+//                    }
+//                    Log.d(LOG_TAG, lat + " " + lng);
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+//                String uid = dataSnapshot.getKey();
+//                if (!uid.equals(mUserUid)) {
+//                    Double lat = (Double) dataSnapshot.child("lat").getValue();
+//                    Double lng = (Double) dataSnapshot.child("lng").getValue();
+//                    if (lat != null && lng != null) {
+//                        LatLng latLng = new LatLng(lat, lng);
+//                        if (mMarkerHashMap.containsKey(uid)) {
+//                            Marker changeableMarker = mMarkerHashMap.get(uid);
+//                            changeableMarker.setPosition(latLng);
+//                        } else {
+//                            createPinOnMap(latLng, uid);
+//                        }
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onChildRemoved(DataSnapshot dataSnapshot) {
+//
+//            }
+//
+//            @Override
+//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        };
+//        mDatabase.child("location").addChildEventListener(mUsersLocationsListener);
+//    }
 
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                String uid = dataSnapshot.getKey();
-                if (!uid.equals(mUserUid)) {
-                    Double lat = (Double) dataSnapshot.child("lat").getValue();
-                    Double lng = (Double) dataSnapshot.child("lng").getValue();
-                    if (lat != null && lng != null) {
-                        LatLng latLng = new LatLng(lat, lng);
-                        if (mMarkerHashMap.containsKey(uid)) {
-                            Marker changeableMarker = mMarkerHashMap.get(uid);
-                            changeableMarker.setPosition(latLng);
-                        } else {
-                            createPinOnMap(latLng, uid);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        mDatabase.child("location").addChildEventListener(mUsersLocationsListener);
+    @Subscribe
+    public void createPinOnMap(MapMarkerEvent event) {
+        Marker marker = mMap.addMarker(new MarkerOptions()
+                .position(event.latLng)
+                .title(event.userName));
+        Log.d(LOG_TAG, "pin created!");
+        mMarkerHashMap.put(event.uid, marker);
     }
 
-    private void createPinOnMap(LatLng latLng, String uid) {
-        Marker mMarker = mMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title(uid));
-        Log.d(LOG_TAG, "pin created!");
-        mMarkerHashMap.put(uid, mMarker);
+    @Subscribe
+    public void updatePinOnMap(MapMarkerEvent event) {
+        if (mMarkerHashMap.containsKey(event.uid)) {
+            Marker changeableMarker = mMarkerHashMap.get(event.uid);
+            changeableMarker.setPosition(event.latLng);
+        }
     }
 
     private boolean checkLocationPermission() {

@@ -11,20 +11,17 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.adapters.FriendsListAdapter;
+import com.example.alex.motoproject.adapters.OnlineUsersAdapter;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
 public class UsersOnlineFragment extends Fragment {
 
     public static UsersOnlineFragment usersOnlineFragmentInstance;
-
+    OnlineUsersAdapter adapter = new OnlineUsersAdapter(null);
+    private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
     public UsersOnlineFragment() {
         // Required empty public constructor
     }
-
-    private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
-    FriendsListAdapter adapter = new FriendsListAdapter(null);
-
 
     public static UsersOnlineFragment getInstance() {
         if (usersOnlineFragmentInstance == null) {

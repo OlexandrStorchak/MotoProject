@@ -323,20 +323,23 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         replaceFragment(FRAGMENT_MAP);
         Log.d(LOG_TAG, "isSignedIn: test");
 
-        databaseHelper.createDatabase(mFirebaseCurrentUser.getUid(),
+//        databaseHelper.createDatabase(mFirebaseCurrentUser.getUid(),
+//                mFirebaseCurrentUser.getEmail(),
+//                mFirebaseCurrentUser.getDisplayName());
+//
+//        databaseHelper.addToOnline(mFirebaseCurrentUser.getUid(),
+//                mFirebaseCurrentUser.getEmail(),
+//                avatarUri
+//        );
+        databaseHelper.addUser(mFirebaseCurrentUser.getUid(),
                 mFirebaseCurrentUser.getEmail(),
-                mFirebaseCurrentUser.getDisplayName());
-
-        databaseHelper.addToOnline(mFirebaseCurrentUser.getUid(),
-                mFirebaseCurrentUser.getEmail(),
-                avatarUri
-        );
-
+                mFirebaseCurrentUser.getDisplayName(),
+                avatarUri);
+        databaseHelper.setUserOnline("public");
+        // TODO: 07.02.2017 change public to user preferred value
     }
 
     private void isSignedOut() {
-
-
         replaceFragment(FRAGMENT_AUTH);
         mNavigationBtnSignOut.setVisibility(View.GONE);
         mNavigationBtnMap.setVisibility(View.GONE);
@@ -346,6 +349,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         mDrawerLayout.closeDrawers();
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
+//        databaseHelper.setUserOffline();
     }
 
     @Override
@@ -353,7 +357,9 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         if (alert != null) {
             alert.dismiss();
         }
-//        unregisterNetworkStateReceiver();
+        if (!isServiceOn()) {
+            databaseHelper.setUserOffline();
+        }
         super.onDestroy();
         Log.d(LOG_TAG, "onDestroy: ");
 
@@ -523,9 +529,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
     private void registerNetworkStateReceiver() {
         //if LocationListenerService is on, this receiver has already been registered
-        boolean isServiceOn =
-                ((App) getApplication()).isLocationListenerServiceOn();
-        if (!isServiceOn) {
+        if (!isServiceOn()) {
             IntentFilter intentFilter = new IntentFilter(
                     ConnectivityManager.CONNECTIVITY_ACTION);
             intentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
@@ -537,15 +541,17 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     }
 
     private void unregisterNetworkStateReceiver() {
-        boolean isServiceOn =
-                ((App) getApplication()).isLocationListenerServiceOn();
-        if (!isServiceOn) {
+        if (!isServiceOn()) {
             try {
                 unregisterReceiver(mNetworkStateReceiver);
             } catch (IllegalArgumentException e) {
-                Log.v(LOG_TAG, "receiver was unregistered before onDestroy");
+                Log.v(LOG_TAG, "receiver was unregistered before onPause");
             }
         }
+    }
+
+    private boolean isServiceOn() {
+        return ((App) getApplication()).isLocationListenerServiceOn();
     }
 }
 

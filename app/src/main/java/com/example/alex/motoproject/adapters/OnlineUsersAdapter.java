@@ -19,13 +19,13 @@ import static com.example.alex.motoproject.MainActivity.mainActivity;
 import static com.example.alex.motoproject.fragments.MapFragment.mapFragmentInstance;
 
 
-public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.VH> {
+public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
 
     private static final String TAG = "log";
     private List<userOnline> friendsList;
 
 
-    public FriendsListAdapter(List<userOnline> friendsList) {
+    public OnlineUsersAdapter(List<userOnline> friendsList) {
         this.friendsList = friendsList;
 
     }

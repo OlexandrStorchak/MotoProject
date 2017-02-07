@@ -55,7 +55,6 @@ public class LocationListenerService extends Service implements
     private NetworkStateReceiver mNetworkStateReceiver;
 
 
-
     public LocationListenerService() {
         // Required empty public constructor
     }
@@ -79,7 +78,7 @@ public class LocationListenerService extends Service implements
         registerReceiver();
 
         super.onCreate();
-        ((App) this.getApplication()).setLocationListenerServiceOn(true);
+        ((App) getApplication()).setLocationListenerServiceOn(true);
     }
 
     @Override
@@ -89,7 +88,10 @@ public class LocationListenerService extends Service implements
         unregisterReceiver(mNetworkStateReceiver);
         cleanupNotifications();
 
-        ((App) this.getApplication()).setLocationListenerServiceOn(false);
+        ((App) getApplication()).setLocationListenerServiceOn(false);
+        if (!isMainActivityVisible()) {
+            firebaseDatabaseHelper.setUserOffline();
+        }
         super.onDestroy();
     }
 
@@ -104,7 +106,6 @@ public class LocationListenerService extends Service implements
         //stop service if that was the purpose of intent
         if (intent.getExtras() != null &&
                 intent.getExtras().getBoolean(SHOULD_STOP_SERVICE_EXTRA)) {
-            Log.d(LOG_TAG, "onStartCommand with action stop service");
             stopSelf();
         }
         return super.onStartCommand(intent, flags, startId);
@@ -129,7 +130,9 @@ public class LocationListenerService extends Service implements
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-        updateFirebaseData(location);
+        double lat = location.getLatitude();
+        double lon = location.getLongitude();
+        firebaseDatabaseHelper.updateOnlineUserLocation(lat, lon);
     }
 
     @Override
@@ -195,16 +198,16 @@ public class LocationListenerService extends Service implements
 
         //create pending intent used when tapping on the app notification
         //open up MapFragment
-        Intent resultIntent = new Intent(this, MainActivity.class);
+        Intent mapIntent = new Intent(this, MainActivity.class);
 //        //TODO is this line still needed?
 //        resultIntent.putExtra("isShouldLaunchMapFragment", true);
-        PendingIntent resultPendingIntent =
+        PendingIntent mapPendingIntent =
                 PendingIntent.getActivity(
                         this,
                         0,
-                        resultIntent,
+                        mapIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
-        mBuilder.setContentIntent(resultPendingIntent);
+        mBuilder.setContentIntent(mapPendingIntent);
 
         //create pending intent to finish this service
         Intent stopSelfIntent = new Intent(this, LocationListenerService.class);
@@ -242,5 +245,9 @@ public class LocationListenerService extends Service implements
         return ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private boolean isMainActivityVisible() {
+        return ((App) getApplication()).isMainActivityVisible();
     }
 }
