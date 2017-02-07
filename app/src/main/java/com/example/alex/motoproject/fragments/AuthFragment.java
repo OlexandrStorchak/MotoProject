@@ -21,12 +21,10 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -43,7 +41,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -54,7 +51,7 @@ import static com.example.alex.motoproject.MainActivity.loginWithEmail;
 
 public class AuthFragment extends Fragment {
     private static final int GOOGLE_SIGN_IN = 13;
-    private static final int FACEBOOK_SIGN_IN = 14;
+
 
     private static final String TAG = "log";
     static CallbackManager callbackManager;
@@ -84,7 +81,7 @@ public class AuthFragment extends Fragment {
             public void onSuccess(LoginResult loginResult) {
                 // App code
                 Log.d(TAG, "onSuccess: FACEBOOK");
-                GraphRequest request = GraphRequest.newMeRequest(
+                final GraphRequest request = GraphRequest.newMeRequest(
                         loginResult.getAccessToken(),
                         new GraphRequest.GraphJSONObjectCallback() {
                             @Override
@@ -92,9 +89,11 @@ public class AuthFragment extends Fragment {
                                     JSONObject object,
                                     GraphResponse response) {
                                 // Application code
+
                                 Log.v("LoginActivity", response.toString());
                             }
                         });
+                Log.d(TAG, "onCompleted: "+request.toString());
 
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
