@@ -64,6 +64,8 @@ public class AuthFragment extends Fragment {
     private Button mButtonSignIn;
     private Button mButtonSubmit;
     private LoginManager loginManager = LoginManager.getInstance();
+    private Button mButtonSignInFacebook;
+
     public AuthFragment() {
         // Required empty public constructor
     }
@@ -101,12 +103,20 @@ public class AuthFragment extends Fragment {
             @Override
             public void onCancel() {
                 // App code
+                mButtonSignIn.setVisibility(View.VISIBLE);
+                mButtonSignInGoogle.setVisibility(View.VISIBLE);
+                mButtonSubmit.setVisibility(View.VISIBLE);
+                mButtonSignInFacebook.setVisibility(View.VISIBLE);
                 Log.d(TAG, "onCancel: FACEBOOK");
             }
 
             @Override
             public void onError(FacebookException exception) {
                 // App code
+                mButtonSignIn.setVisibility(View.VISIBLE);
+                mButtonSignInGoogle.setVisibility(View.VISIBLE);
+                mButtonSubmit.setVisibility(View.VISIBLE);
+                mButtonSignInFacebook.setVisibility(View.VISIBLE);
                 Log.d(TAG, "onError: FACEBOOK");
             }
         });
@@ -198,7 +208,7 @@ public class AuthFragment extends Fragment {
 
 
 
-        final Button mButtonSignInFacebook = (Button)view.findViewById(R.id.auth_btn_facebook_sign_in);
+         mButtonSignInFacebook = (Button)view.findViewById(R.id.auth_btn_facebook_sign_in);
 
         mButtonSignInFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
