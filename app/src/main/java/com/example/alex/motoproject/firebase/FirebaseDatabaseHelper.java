@@ -89,10 +89,10 @@ public class FirebaseDatabaseHelper {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
-                            String uid = dataSnapshot.getKey();
                             Double lat = (Double) dataSnapshot.child("lat").getValue();
                             Double lng = (Double) dataSnapshot.child("lng").getValue();
                             if (lat != null && lng != null) { // TODO: 07.02.2017 delete if statement
+                                String uid = dataSnapshot.getKey();
                                 LatLng latLng = new LatLng(lat, lng);
                                 EventBus.getDefault().post(new MapMarkerEvent(latLng, uid, "IBFLD"));
                             }
@@ -205,7 +205,7 @@ public class FirebaseDatabaseHelper {
         throw new RuntimeException("Current user is null");
     }
 
-    private void getOnlineUserDataByUid(String uid, final String userStatus) {
+    private void getOnlineUserDataByUid(final String uid, final String userStatus) {
         DatabaseReference ref = database.getReference().child("users").child(uid);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -214,7 +214,7 @@ public class FirebaseDatabaseHelper {
 //                String email = (String) dataSnapshot.child("email").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
                 if (name != null) {
-                    listModels.add(new OnlineUser(name, avatar, userStatus));
+                    listModels.add(new OnlineUser(uid, name, avatar, userStatus));
                     EventBus.getDefault().post(new FriendDataReadyEvent());
                 }
             }

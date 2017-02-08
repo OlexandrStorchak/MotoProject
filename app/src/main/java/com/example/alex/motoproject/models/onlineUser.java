@@ -1,9 +1,10 @@
 package com.example.alex.motoproject.models;
 
 public class OnlineUser {
-    private String name, avatar, status;
+    private String uid, name, avatar, status;
 
-    public OnlineUser(String name, String avatar, String status) {
+    public OnlineUser(String uid, String name, String avatar, String status) {
+        this.uid = uid;
         this.name = name;
         this.avatar = avatar;
         this.status = status;
@@ -19,5 +20,9 @@ public class OnlineUser {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getUid() {
+        return uid;
     }
 }
