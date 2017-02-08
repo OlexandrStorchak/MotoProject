@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentController;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +16,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import com.example.alex.motoproject.MainActivity;
+import com.example.alex.motoproject.mainActivity.FragmentReplace;
+import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.R;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -46,7 +48,8 @@ import java.util.Collection;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
-import static com.example.alex.motoproject.MainActivity.loginWithEmail;
+import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_MAP;
+import static com.example.alex.motoproject.mainActivity.MainActivity.loginWithEmail;
 
 
 public class AuthFragment extends Fragment {
@@ -65,6 +68,7 @@ public class AuthFragment extends Fragment {
     private Button mButtonSubmit;
     private LoginManager loginManager = LoginManager.getInstance();
     private Button mButtonSignInFacebook;
+
 
     public AuthFragment() {
         // Required empty public constructor
@@ -186,7 +190,7 @@ public class AuthFragment extends Fragment {
         mButtonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity) getActivity()).replaceFragment("fragmentSignUp");
+                new FragmentReplace(getFragmentManager()).replaceFragment(FRAGMENT_MAP);
             }
         });
 

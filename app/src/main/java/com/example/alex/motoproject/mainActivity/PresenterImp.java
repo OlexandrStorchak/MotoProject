@@ -1,23 +1,26 @@
-package com.example.alex.motoproject;
+package com.example.alex.motoproject.mainActivity;
 
 
 import com.example.alex.motoproject.utils.PresenterInterface;
+import com.google.firebase.auth.FirebaseUser;
 
 public class PresenterImp implements PresenterInterface {
     private MainView mainView;
 
+
     public PresenterImp(MainView mainView) {
+
         this.mainView = mainView;
     }
 
 
     @Override
-    public void isLogedIn(Boolean logedIn) {
-        if (logedIn){
-            mainView.login();
-        } else
-        {
-            mainView.logout();
-        }
+    public void isLogedOut() {
+        mainView.logout();
+    }
+
+    @Override
+    public void isLogedIn(FirebaseUser user) {
+        mainView.login(user);
     }
 }

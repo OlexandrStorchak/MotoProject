@@ -15,7 +15,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import static com.example.alex.motoproject.MainActivity.mainActivity;
+
 import static com.example.alex.motoproject.fragments.MapFragment.mapFragmentInstance;
 
 
@@ -62,12 +62,7 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
         holder.mapCur.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.replaceFragment("fragmentMap");
-//                Toast.makeText(holder.name.getContext(), holder.name.getText(), Toast.LENGTH_SHORT).show();
-////                mapFragmentInstance.setMarker(friendsList.get(holder.getAdapterPosition()).getLat(),
-////                        friendsList.get(holder.getAdapterPosition()).getLon(),
-////                        friendsList.get(holder.getAdapterPosition()).getEmail()
-////                );
+
                 // TODO: 05.02.2017 get user`s uid
                 mapFragmentInstance.moveToMarker("KAMUHSEh2VX2hLygvhkM9StSEa32");
 // friendsList.get(holder.getAdapterPosition()).getEmail());

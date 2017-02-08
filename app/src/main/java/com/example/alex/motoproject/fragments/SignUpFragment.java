@@ -15,12 +15,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.alex.motoproject.MainActivity;
+import com.example.alex.motoproject.mainActivity.FragmentReplace;
+import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+
+import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_AUTH;
 
 
 public class SignUpFragment extends Fragment {
@@ -98,7 +101,7 @@ public class SignUpFragment extends Fragment {
                         & mPassword.getText().length() > 5) {
 
                     addNewUserToFireBase(mEmail.getText().toString(), mPassword.getText().toString());
-                    ((MainActivity) getActivity()).replaceFragment("fragmentAuth");
+                    new FragmentReplace(getFragmentManager()).replaceFragment(FRAGMENT_AUTH);
                     ((MainActivity) getActivity()).showDialog();
 
 
