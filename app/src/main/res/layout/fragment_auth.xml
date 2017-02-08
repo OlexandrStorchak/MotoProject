@@ -2,30 +2,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg2_xxxhdpi"
-    android:gravity="center"
+    android:background="@color/gray500a2"
+    android:gravity="bottom"
     android:orientation="vertical"
     tools:context="com.example.alex.motoproject.fragments.AuthFragment">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_gravity="top"
+        android:layout_height="0dp"
+        android:layout_weight="0.7"
+        >
+        <ImageView
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
+            android:background="@drawable/engine_icon3"
+            android:id="@+id/login_screen_logo"
+            />
 
+    </FrameLayout>
 
-    <ProgressBar
-        android:id="@+id/auth_progress_bar"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:visibility="gone" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
+        android:layout_height="0dp"
+        android:layout_weight="1"
         >
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical">
+            <ProgressBar
+                android:id="@+id/auth_progress_bar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="100dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:visibility="gone" />
 
             <EditText
                 android:id="@+id/auth_email"

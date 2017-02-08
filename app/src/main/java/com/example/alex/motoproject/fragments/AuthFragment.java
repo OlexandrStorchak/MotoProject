@@ -49,6 +49,7 @@ import java.util.Collection;
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_MAP;
+import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_SIGN_UP;
 import static com.example.alex.motoproject.mainActivity.MainActivity.loginWithEmail;
 
 
@@ -190,7 +191,7 @@ public class AuthFragment extends Fragment {
         mButtonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new FragmentReplace(getFragmentManager()).replaceFragment(FRAGMENT_MAP);
+                new FragmentReplace(getFragmentManager()).replaceFragment(FRAGMENT_SIGN_UP);
             }
         });
 

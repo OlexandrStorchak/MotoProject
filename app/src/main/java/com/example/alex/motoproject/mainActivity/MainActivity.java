@@ -413,6 +413,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     @Override
     public void login(FirebaseUser user) {
         String avatarUri = null;
+        getSupportActionBar().show();
         mNavigationBtnSignOut.setVisibility(View.VISIBLE);
         mNavigationBtnMap.setVisibility(View.VISIBLE);
         mAvatarHeader.setVisibility(View.GONE);
@@ -449,6 +450,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
     @Override
     public void logout() {
+        getSupportActionBar().hide();
         fragmentReplace.replaceFragment(FRAGMENT_AUTH);
         mNavigationBtnSignOut.setVisibility(View.GONE);
         mNavigationBtnMap.setVisibility(View.GONE);
