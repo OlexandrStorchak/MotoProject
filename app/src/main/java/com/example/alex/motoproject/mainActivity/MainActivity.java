@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     public void showDialog() {
         new CheckEmailDialogFragment().show(getFragmentManager(), "dialog");
     }
-    //Need for callback from Facebook
+    //Need for Facebook login
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         if (alert != null) {
             alert.dismiss();
         }
-        unregisterNetworkStateReceiver();
+
         super.onDestroy();
 
 
