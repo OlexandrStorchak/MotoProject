@@ -43,7 +43,7 @@ public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.
     }
 
     @Override
-    public void onBindViewHolder(final VH holder, final int position) {
+    public void onBindViewHolder(final VH holder, int position) {
         holder.name.setText(friendsList.get(position).getName());
 
         Picasso.with(holder.avatar.getContext())
@@ -63,14 +63,8 @@ public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.
             @Override
             public void onClick(View view) {
                 mainActivity.replaceFragment("fragmentMap");
-//                Toast.makeText(holder.name.getContext(), holder.name.getText(), Toast.LENGTH_SHORT).show();
-////                mapFragmentInstance.setMarker(friendsList.get(holder.getAdapterPosition()).getLat(),
-////                        friendsList.get(holder.getAdapterPosition()).getLon(),
-////                        friendsList.get(holder.getAdapterPosition()).getEmail()
-////                );
-                // TODO: 05.02.2017 get user`s uid
-                mapFragmentInstance.moveToMarker(friendsList.get(position).getUid());
-// friendsList.get(holder.getAdapterPosition()).getEmail());
+                mapFragmentInstance.moveToMarker(friendsList
+                        .get(holder.getAdapterPosition()).getUid());
             }
         });
     }

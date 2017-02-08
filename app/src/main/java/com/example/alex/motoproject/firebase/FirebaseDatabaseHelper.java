@@ -2,7 +2,6 @@ package com.example.alex.motoproject.firebase;
 
 import android.util.Log;
 
-import com.example.alex.motoproject.adapters.OnlineUsersAdapter;
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
 import com.example.alex.motoproject.models.OnlineUser;
@@ -26,7 +25,6 @@ public class FirebaseDatabaseHelper {
     private static final String TAG = "log";
     private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
     private final List<OnlineUser> listModels = new ArrayList<>();
-    private OnlineUsersAdapter adapter;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private ChildEventListener mOnlineUsersLocationListener;
     private DatabaseReference mOnlineUsersRef;
@@ -158,6 +156,7 @@ public class FirebaseDatabaseHelper {
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                listModels.clear();
                 String uid = dataSnapshot.getKey();
                 Object userStatus = dataSnapshot.getValue();
                 if (userStatus instanceof String) // TODO: 08.02.2017 remove this line
@@ -188,12 +187,6 @@ public class FirebaseDatabaseHelper {
             }
         };
         myRef.addChildEventListener(childEventListener);
-
-//        return listModels;
-    }
-
-    public void setAdapter(OnlineUsersAdapter adapter) {
-        this.adapter = adapter;
     }
 
     private FirebaseUser getCurrentUser() {
@@ -207,11 +200,10 @@ public class FirebaseDatabaseHelper {
 
     private void getOnlineUserDataByUid(final String uid, final String userStatus) {
         DatabaseReference ref = database.getReference().child("users").child(uid);
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
-//                String email = (String) dataSnapshot.child("email").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
                 if (name != null) {
                     listModels.add(new OnlineUser(uid, name, avatar, userStatus));
