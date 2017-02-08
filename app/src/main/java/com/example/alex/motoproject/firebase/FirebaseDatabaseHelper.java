@@ -92,7 +92,7 @@ public class FirebaseDatabaseHelper {
                             if (lat != null && lng != null) { // TODO: 07.02.2017 delete if statement
                                 String uid = dataSnapshot.getKey();
                                 LatLng latLng = new LatLng(lat, lng);
-                                EventBus.getDefault().post(new MapMarkerEvent(latLng, uid, "IBFLD"));
+                                getNameByUid(uid, latLng);
                             }
                         } else {
                             Log.w(LOG_TAG, "data snapshot is null");
@@ -128,6 +128,22 @@ public class FirebaseDatabaseHelper {
             }
         };
         mOnlineUsersRef.addChildEventListener(mOnlineUsersLocationListener);
+    }
+
+    private void getNameByUid(final String uid, final LatLng latLng) {
+        DatabaseReference nameRef = database.getReference().child("users").child(uid).child("name");
+        nameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String name = (String) dataSnapshot.getValue();
+                EventBus.getDefault().post(new MapMarkerEvent(latLng, uid, name));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void unregisterOnlineUsersLocationListener() {
