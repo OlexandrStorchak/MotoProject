@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.models.Friend;
+import com.example.alex.motoproject.models.OnlineUser;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -22,10 +22,10 @@ import static com.example.alex.motoproject.fragments.MapFragment.mapFragmentInst
 public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
 
     private static final String TAG = "log";
-    private List<Friend> friendsList;
+    private List<OnlineUser> friendsList;
 
 
-    public OnlineUsersAdapter(List<Friend> friendsList) {
+    public OnlineUsersAdapter(List<OnlineUser> friendsList) {
         this.friendsList = friendsList;
 
     }
@@ -37,14 +37,14 @@ public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.
         return new VH(view);
     }
 
-    public void setList(List<Friend> newList) {
+    public void setList(List<OnlineUser> newList) {
         friendsList = newList;
 
     }
 
     @Override
     public void onBindViewHolder(final VH holder, int position) {
-        holder.name.setText(friendsList.get(position).getEmail());
+        holder.name.setText(friendsList.get(position).getName());
 
         Picasso.with(holder.avatar.getContext())
                 .load(friendsList.get(position).getAvatar())
@@ -52,13 +52,13 @@ public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.
                 .centerCrop()
                 .transform(new CircleTransform())
                 .into(holder.avatar);
-//        if (friendsList.get(position).getStatus() != null) {
-//            if (friendsList.get(position).getStatus().equals("public")) {
-//                holder.mapCur.setVisibility(View.VISIBLE);
-//            } else {
-//                holder.mapCur.setVisibility(View.GONE);
-//            }
-//        }
+        if (friendsList.get(position).getStatus() != null) {
+            if (friendsList.get(position).getStatus().equals("public")) {
+                holder.mapCur.setVisibility(View.VISIBLE);
+            } else {
+                holder.mapCur.setVisibility(View.GONE);
+            }
+        }
         holder.mapCur.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

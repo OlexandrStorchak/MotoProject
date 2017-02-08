@@ -22,6 +22,7 @@ public class UsersOnlineFragment extends Fragment {
 
     public static UsersOnlineFragment usersOnlineFragmentInstance;
     OnlineUsersAdapter adapter = new OnlineUsersAdapter(null);
+    RecyclerView rv;
     private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
     public UsersOnlineFragment() {
         // Required empty public constructor
@@ -56,6 +57,7 @@ public class UsersOnlineFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         databaseHelper.getAllOnlineUsers();
 
 
@@ -63,13 +65,18 @@ public class UsersOnlineFragment extends Fragment {
 
     @Subscribe
     public void onFriendDataReady(FriendDataReadyEvent event) {
+        adapter.notifyDataSetChanged();
+        if (rv.getAdapter() == null) {
+            setOnlineUsersAdapter();
+        }
+    }
+
+    private void setOnlineUsersAdapter() {
         databaseHelper.setAdapter(adapter);
         adapter.setList(databaseHelper.getFriends());
-        adapter.notifyDataSetChanged();
+
         RecyclerView rv = (RecyclerView) getActivity().findViewById(R.id.navigation_friends_list_recycler);
-
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
-
         rv.setAdapter(adapter);
     }
 }

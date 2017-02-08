@@ -5,7 +5,7 @@ import android.util.Log;
 import com.example.alex.motoproject.adapters.OnlineUsersAdapter;
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
-import com.example.alex.motoproject.models.Friend;
+import com.example.alex.motoproject.models.OnlineUser;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,7 +25,7 @@ import java.util.List;
 public class FirebaseDatabaseHelper {
     private static final String TAG = "log";
     private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
-    private final List<Friend> listModels = new ArrayList<>();
+    private final List<OnlineUser> listModels = new ArrayList<>();
     private OnlineUsersAdapter adapter;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private ChildEventListener mOnlineUsersLocationListener;
@@ -154,28 +154,40 @@ public class FirebaseDatabaseHelper {
 
     public void getAllOnlineUsers() {
         // Read from the database
-
-        DatabaseReference myRef = database.getReference().child("users");
-        myRef.addValueEventListener(new ValueEventListener() {
+        DatabaseReference myRef = database.getReference().child("onlineUsers");
+        ChildEventListener childEventListener = new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                listModels.clear();
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String uid = dataSnapshot.getKey();
+                Object userStatus = dataSnapshot.getValue();
+                if (userStatus instanceof String) // TODO: 08.02.2017 remove this line
+                    getOnlineUserDataByUid(uid, (String) userStatus);
+            }
 
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-//                    User friend = postSnapshot.getValue(User.class);
-//                    Log.d(TAG, "onDataChange: " + friend.getEmail() + " - ");
-//                    listModels.add(friend);
-//                    adapter.notifyDataSetChanged();
-                    String uid = postSnapshot.getKey();
-                    getFriendDataByUid(uid);
-                }
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                String uid = dataSnapshot.getKey();
+                Object userStatus = dataSnapshot.getValue();
+                if (userStatus instanceof String) // TODO: 08.02.2017 remove this line
+                    getOnlineUserDataByUid(uid, (String) userStatus);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
+        myRef.addChildEventListener(childEventListener);
 
 //        return listModels;
     }
@@ -193,35 +205,17 @@ public class FirebaseDatabaseHelper {
         throw new RuntimeException("Current user is null");
     }
 
-//    private User getUserName(String uid) {
-//        database.getReference().child("users").child(uid).
-//                child("name").addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                User user = dataSnapshot.getValue(User.class);
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
-//        return null;
-//    }
-
-    private void getFriendDataByUid(String uid) {
+    private void getOnlineUserDataByUid(String uid, final String userStatus) {
         DatabaseReference ref = database.getReference().child("users").child(uid);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
-                String email = (String) dataSnapshot.child("email").getValue();
+//                String email = (String) dataSnapshot.child("email").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
-                avatar = "hgccv";
-                if (name != null && email != null && avatar != null) {
-                    listModels.add(new Friend(name, email, avatar));
+                if (name != null) {
+                    listModels.add(new OnlineUser(name, avatar, userStatus));
                     EventBus.getDefault().post(new FriendDataReadyEvent());
-                    adapter.notifyDataSetChanged();
                 }
             }
 
@@ -232,7 +226,7 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-    public List<Friend> getFriends() {
+    public List<OnlineUser> getFriends() {
         return listModels;
     }
 }
