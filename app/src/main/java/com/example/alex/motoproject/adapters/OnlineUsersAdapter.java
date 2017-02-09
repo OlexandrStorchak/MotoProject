@@ -22,11 +22,11 @@ import static com.example.alex.motoproject.fragments.MapFragment.mapFragmentInst
 public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
 
     private static final String TAG = "log";
-    private List<OnlineUser> friendsList;
+    private List<OnlineUser> onlineUsers;
 
 
     public OnlineUsersAdapter(List<OnlineUser> friendsList) {
-        this.friendsList = friendsList;
+        this.onlineUsers = friendsList;
 
     }
 
@@ -38,22 +38,22 @@ public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.
     }
 
     public void setList(List<OnlineUser> newList) {
-        friendsList = newList;
+        onlineUsers = newList;
 
     }
 
     @Override
     public void onBindViewHolder(final VH holder, int position) {
-        holder.name.setText(friendsList.get(position).getName());
+        holder.name.setText(onlineUsers.get(position).getName());
 
         Picasso.with(holder.avatar.getContext())
-                .load(friendsList.get(position).getAvatar())
+                .load(onlineUsers.get(position).getAvatar())
                 .resize(holder.avatar.getMaxWidth(), holder.avatar.getMaxHeight())
                 .centerCrop()
                 .transform(new CircleTransform())
                 .into(holder.avatar);
-        if (friendsList.get(position).getStatus() != null) {
-            if (friendsList.get(position).getStatus().equals("public")) {
+        if (onlineUsers.get(position).getStatus() != null) {
+            if (onlineUsers.get(position).getStatus().equals("public")) {
                 holder.mapCur.setVisibility(View.VISIBLE);
             } else {
                 holder.mapCur.setVisibility(View.GONE);
@@ -63,7 +63,7 @@ public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.
             @Override
             public void onClick(View view) {
                 mainActivity.replaceFragment("fragmentMap");
-                mapFragmentInstance.moveToMarker(friendsList
+                mapFragmentInstance.moveToMarker(onlineUsers
                         .get(holder.getAdapterPosition()).getUid());
             }
         });
@@ -71,7 +71,7 @@ public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.
 
     @Override
     public int getItemCount() {
-        return friendsList.size();
+        return onlineUsers.size();
     }
 
     class VH extends RecyclerView.ViewHolder {

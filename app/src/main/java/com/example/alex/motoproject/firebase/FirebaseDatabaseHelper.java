@@ -35,11 +35,27 @@ public class FirebaseDatabaseHelper {
 
     }
 
-    public void addUser(String uid, String email, String name, String avatar) {
-        DatabaseReference users = mDatabase.getReference().child("users").child(uid);
-        users.child("email").setValue(email);
-        users.child("name").setValue(name);
-        users.child("avatar").setValue(avatar);
+    public void addUserToFirebase(
+            final String uid, final String email, final String name, final String avatar) {
+        final DatabaseReference users = mDatabase.getReference().child("users").child(uid);
+        users.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    return;
+                }
+                users.child("email").setValue(email);
+                users.child("name").setValue(name);
+                users.child("avatar").setValue(avatar);
+                users.child("friendsRequest").child("userId").setValue("1");
+                users.child("friendsRequest").child("time").setValue("1");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void setUserOnline(String status) {
@@ -126,7 +142,7 @@ public class FirebaseDatabaseHelper {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         String uid = dataSnapshot.getKey();
                         if (!uid.equals(getCurrentUser().getUid())) {
-                            EventBus.getDefault().post(new MapMarkerEvent(null, uid, null));
+                            EventBus.getDefault().post(new MapMarkerEvent(null, uid, null, null));
                         }
                     }
 
@@ -146,7 +162,7 @@ public class FirebaseDatabaseHelper {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         String uid = dataSnapshot.getKey();
                         if (!uid.equals(getCurrentUser().getUid())) {
-                            EventBus.getDefault().post(new MapMarkerEvent(null, uid, null));
+                            EventBus.getDefault().post(new MapMarkerEvent(null, uid, null, null));
                         }
                     }
 
@@ -177,7 +193,7 @@ public class FirebaseDatabaseHelper {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.getValue();
-                EventBus.getDefault().post(new MapMarkerEvent(latLng, uid, name));
+                getAvatarByUid(latLng, uid, name);
             }
 
             @Override
@@ -270,7 +286,23 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-    public List<OnlineUser> getFriends() {
+    private void getAvatarByUid(final LatLng latLng, final String uid, final String name) {
+        DatabaseReference ref = mDatabase.getReference().child("users").child(uid).child("avatar");
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String avatarRef = (String) dataSnapshot.getValue();
+                EventBus.getDefault().post(new MapMarkerEvent(latLng, uid, name, avatarRef));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public List<OnlineUser> getOnlineUserList() {
         return onlineUserList;
     }
 

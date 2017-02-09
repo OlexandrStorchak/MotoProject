@@ -6,6 +6,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,14 +25,18 @@ import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.events.MapMarkerEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.services.LocationListenerService;
+import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -189,11 +195,46 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             marker.setPosition(event.latLng);
             return;
         }
+//
+//
+//        if (mFirebaseCurrentUser.getPhotoUrl() != null) {
+//            String avatarUri = mFirebaseCurrentUser.getPhotoUrl().toString();
+//            Picasso.with(getApplicationContext())
+//                    .load(avatarUri)
+//                    .resize(mAvatarHeader.getMaxWidth(), mAvatarHeader.getMaxHeight())
+//                    .centerCrop()
+//                    .transform(new CircleTransform())
+//                    .into(mAvatarHeader);
+//
+//        }
         Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(event.latLng)
                 .title(event.userName));
         Log.d(LOG_TAG, "pin created!");
         mMarkerHashMap.put(event.uid, marker);
+        fetchMarkerIcon(event.uid, event.avatarRef);
+    }
+
+    private void fetchMarkerIcon(final String uid, String avatarRef) {
+        // TODO: 10.02.2017 change to Glide or use a workaround to avoid garbage collecting
+        Target picassoTarget = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                mMarkerHashMap.get(uid).setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        };
+        Picasso.with(getContext()).load(avatarRef).resize(100, 100)
+                .centerCrop().transform(new CircleTransform()).into(picassoTarget);
     }
 
     @Subscribe

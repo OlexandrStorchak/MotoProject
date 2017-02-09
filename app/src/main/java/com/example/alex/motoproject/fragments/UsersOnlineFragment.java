@@ -71,7 +71,7 @@ public class UsersOnlineFragment extends Fragment {
     }
 
     private void setOnlineUsersAdapter() {
-        adapter.setList(databaseHelper.getFriends());
+        adapter.setList(databaseHelper.getOnlineUserList());
 
         RecyclerView rv = (RecyclerView) getActivity().findViewById(R.id.navigation_friends_list_recycler);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));

@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         replaceFragment(FRAGMENT_MAP);
         Log.d(LOG_TAG, "isSignedIn: test");
 
-        databaseHelper.addUser(mFirebaseCurrentUser.getUid(),
+        databaseHelper.addUserToFirebase(mFirebaseCurrentUser.getUid(),
                 mFirebaseCurrentUser.getEmail(),
                 mFirebaseCurrentUser.getDisplayName(),
                 avatarUri);
