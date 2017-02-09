@@ -43,6 +43,13 @@
         <item name="android:textColor">@color/Blue900</item>
         <item name="android:textColorHint">@color/greenA400</item>
     </style>
+    <style name="MyButtonCustomMenu">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:background">@drawable/button_background</item>
+        <item name="android:textColor">@color/Blue900</item>
+        <item name="android:textColorHint">@color/greenA400</item>
+    </style>
     <style name="MyNavigationButtonCustom">
         <item name="android:background">@drawable/navigation_button</item>
         <item name="android:textColor">@color/gray500a2</item>

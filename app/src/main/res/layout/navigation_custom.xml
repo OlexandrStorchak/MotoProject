@@ -7,8 +7,4 @@
     android:layout_gravity="start"
     android:paddingTop="50dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
-
-
-
-
     </android.support.design.widget.NavigationView>
