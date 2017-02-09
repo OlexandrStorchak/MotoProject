@@ -414,6 +414,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     public void login(FirebaseUser user) {
         String avatarUri = null;
         getSupportActionBar().show();
+
         mNavigationBtnSignOut.setVisibility(View.VISIBLE);
         mNavigationBtnMap.setVisibility(View.VISIBLE);
         mAvatarHeader.setVisibility(View.GONE);

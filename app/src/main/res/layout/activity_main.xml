@@ -16,8 +16,10 @@
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"
         style="@style/Navigation"
+
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:paddingTop="?attr/actionBarSize"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main">
