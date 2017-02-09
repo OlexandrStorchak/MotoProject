@@ -4,10 +4,10 @@ package com.example.alex.motoproject.mainActivity;
 import android.support.v4.app.FragmentManager;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.fragments.AuthFragment;
-import com.example.alex.motoproject.fragments.MapFragment;
-import com.example.alex.motoproject.fragments.SignUpFragment;
-import com.example.alex.motoproject.fragments.UsersOnlineFragment;
+import com.example.alex.motoproject.screenLogin.AuthFragment;
+import com.example.alex.motoproject.screenMap.MapFragment;
+import com.example.alex.motoproject.screenLogin.SignUpFragment;
+import com.example.alex.motoproject.screenOnlineUsers.UsersOnlineFragment;
 
 import static com.example.alex.motoproject.mainActivity.FragmentContract.*;
 

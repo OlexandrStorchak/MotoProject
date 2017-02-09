@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.fragments;
+package com.example.alex.motoproject.screenLogin;
 
 
 import android.annotation.SuppressLint;
@@ -15,9 +15,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.alex.motoproject.mainActivity.FragmentReplace;
-import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.mainActivity.FragmentReplace;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -102,7 +101,7 @@ public class SignUpFragment extends Fragment {
 
                     addNewUserToFireBase(mEmail.getText().toString(), mPassword.getText().toString());
                     new FragmentReplace(getFragmentManager()).replaceFragment(FRAGMENT_AUTH);
-                    ((MainActivity) getActivity()).showDialog();
+
 
 
                 }
@@ -130,7 +129,7 @@ public class SignUpFragment extends Fragment {
 
                         if (!task.isSuccessful()) {
                             Log.d(TAG, "onComplete: ");
-                            ((MainActivity) getActivity()).showToast("Authentication failed");
+
                         }
 
                         // ...

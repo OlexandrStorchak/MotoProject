@@ -1,15 +1,15 @@
-package com.example.alex.motoproject.models;
+package com.example.alex.motoproject.screenOnlineUsers;
 
-public class userOnline {
+public class UsersOnline {
 
     private String name, status, email, avatar;
     private double lat, lon;
     @SuppressWarnings("unused")
-    public userOnline() {
+    public UsersOnline() {
         //required empty public constructor
     }
     @SuppressWarnings("unused")
-    public userOnline(String name, String status, String email, double lat, double lon, String avatar) {
+    public UsersOnline(String name, String status, String email, double lat, double lon, String avatar) {
         this.name = name;
         this.status = status;
         this.email = email;

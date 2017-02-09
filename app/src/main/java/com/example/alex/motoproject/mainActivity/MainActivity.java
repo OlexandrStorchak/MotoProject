@@ -24,7 +24,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
@@ -32,9 +31,9 @@ import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.events.CancelAlertEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.fragments.AuthFragment;
-import com.example.alex.motoproject.fragments.CheckEmailDialogFragment;
-import com.example.alex.motoproject.fragments.MapFragment;
+import com.example.alex.motoproject.screenLogin.AuthFragment;
+import com.example.alex.motoproject.screenMap.MapFragment;
+import com.example.alex.motoproject.screenLogin.LoginController;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
@@ -55,20 +54,23 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     public static final int ALERT_PERMISSION_RATIONALE = 22;
     public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
-    public static boolean loginWithEmail = false; // Flag for validate with email login method
+
+    // Flag for validate with email login method
+    public static boolean loginWithEmail = false;
+
     private NetworkStateReceiver mNetworkStateReceiver;
-    private AlertDialog alert;
-    private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
-    private FragmentReplace fragmentReplace;
+    private AlertDialog mAlert;
 
     private TextView mNameHeader;
     private TextView mEmailHeader;
     private ImageView mAvatarHeader;
     private Button mNavigationBtnMap;
     private Button mNavigationBtnSignOut;
-
     private DrawerLayout mDrawerLayout;
-    protected LoginController loginController;
+
+    private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
+    private FragmentReplace mFragmentReplace;
+    private LoginController loginController;
 
     ArrayList<Integer> mActiveAlerts = new ArrayList<>();
     private android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
@@ -79,9 +81,9 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
         PresenterImp presenterImp = new PresenterImp(this);
 
-        fragmentReplace = new FragmentReplace(getSupportFragmentManager());
+        mFragmentReplace = new FragmentReplace(getSupportFragmentManager());
 
-        loginController = new LoginController(databaseHelper, presenterImp);
+        loginController = new LoginController(mDatabaseHelper, presenterImp);
 
         loginController.start();
 
@@ -114,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         mNavigationBtnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fragmentReplace.replaceFragment(FRAGMENT_MAP);
+                mFragmentReplace.replaceFragment(FRAGMENT_MAP);
                 mDrawerLayout.closeDrawers();
             }
         });
@@ -129,11 +131,11 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
             }
         });
         //Button in Navigation Drawer for display Friends List
-        Button mNavigationBtnFriendsList = (Button) mNavigationView.findViewById(R.id.navigation_btn_friends);
-        mNavigationBtnFriendsList.setOnClickListener(new View.OnClickListener() {
+        Button mNavigationBtnUsersOnline = (Button) mNavigationView.findViewById(R.id.navigation_btn_users_online);
+        mNavigationBtnUsersOnline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fragmentReplace.replaceFragment(FRAGMENT_ONLINE_USERS);
+                mFragmentReplace.replaceFragment(FRAGMENT_ONLINE_USERS);
                 mDrawerLayout.closeDrawers();
 
             }
@@ -148,28 +150,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
-        }
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
-        if (requestCode == PERMISSION_LOCATION_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // permission was granted
-                handleLocation();
-            } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    //user checked never ask again
-                    showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
-                } else {
-                    //user did not check never ask again, show rationale
-                    showAlert(ALERT_PERMISSION_RATIONALE);
-                }
-            }
         }
     }
 
@@ -190,14 +170,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         loginController.stop();
     }
 
-//TODO : do something with this method
-    public void showToast(String text) {
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-    }
-//TODO : to
-    public void showDialog() {
-        new CheckEmailDialogFragment().show(getFragmentManager(), "dialog");
-    }
+
     //Need for Facebook login
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -211,8 +184,8 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
     @Override
     protected void onDestroy() {
-        if (alert != null) {
-            alert.dismiss();
+        if (mAlert != null) {
+            mAlert.dismiss();
         }
 
         super.onDestroy();
@@ -235,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
     public void showAlert(final int alertType) {
         if (mActiveAlerts.contains(alertType)) {
-            return; //do nothing if this alert has already been created
+            return; //do nothing if this mAlert has already been created
         }
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         switch (alertType) {
@@ -326,21 +299,42 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
                 break;
         }
 
-        alert = alertDialogBuilder.create();
-        alert.setOnDismissListener(new DialogInterface.OnDismissListener()
+        mAlert = alertDialogBuilder.create();
+        mAlert.setOnDismissListener(new DialogInterface.OnDismissListener()
 
-                                   {
-                                       @Override
-                                       public void onDismiss(DialogInterface dialogInterface) {
-                                           if (mActiveAlerts.contains(alertType))
-                                               mActiveAlerts.remove((Integer) alertType);
-                                       }
-                                   }
+                                    {
+                                        @Override
+                                        public void onDismiss(DialogInterface dialogInterface) {
+                                            if (mActiveAlerts.contains(alertType))
+                                                mActiveAlerts.remove((Integer) alertType);
+                                        }
+                                    }
 
         );
-        alert.show();
+        mAlert.show();
         if (!mActiveAlerts.contains(alertType))
             mActiveAlerts.add(alertType);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_LOCATION_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // permission was granted
+                handleLocation();
+            } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    //user checked never ask again
+                    showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
+                } else {
+                    //user did not check never ask again, show rationale
+                    showAlert(ALERT_PERMISSION_RATIONALE);
+                }
+            }
+        }
     }
 
 
@@ -363,7 +357,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     }
 
     @Subscribe
-    //the method called when received an event from EventBus asking for showing alert
+    //the method called when received an event from EventBus asking for showing mAlert
     public void onShouldShowAlertEvent(ShowAlertEvent event) {
         int receivedAlertType = event.alertType;
         if (!mActiveAlerts.contains(receivedAlertType))
@@ -372,12 +366,12 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
 
     @Subscribe
-    //the method called when received an event from EventBus asking for canceling alert
+    //the method called when received an event from EventBus asking for canceling mAlert
     public void onShouldCancelEvent(CancelAlertEvent event) {
         int receivedAlertType = event.alertType;
         if (mActiveAlerts.contains(receivedAlertType)) {
-            if (alert != null) {
-                alert.dismiss();
+            if (mAlert != null) {
+                mAlert.dismiss();
             }
         }
 
@@ -436,13 +430,13 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
         }
 
-        fragmentReplace.replaceFragment(FRAGMENT_MAP);
+        mFragmentReplace.replaceFragment(FRAGMENT_MAP);
 
-        databaseHelper.createDatabase(user.getUid(),
+        mDatabaseHelper.createDatabase(user.getUid(),
                 user.getEmail(),
                 user.getDisplayName());
 
-        databaseHelper.addToOnline(user.getUid(),
+        mDatabaseHelper.addToOnline(user.getUid(),
                 user.getEmail(),
                 avatarUri
         );
@@ -452,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     @Override
     public void logout() {
         getSupportActionBar().hide();
-        fragmentReplace.replaceFragment(FRAGMENT_AUTH);
+        mFragmentReplace.replaceFragment(FRAGMENT_AUTH);
         mNavigationBtnSignOut.setVisibility(View.GONE);
         mNavigationBtnMap.setVisibility(View.GONE);
         mNameHeader.setText("");

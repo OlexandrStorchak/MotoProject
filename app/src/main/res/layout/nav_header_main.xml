@@ -20,7 +20,6 @@
         android:layout_gravity="center_horizontal"
         android:contentDescription="@string/avatar"
         android:maxHeight="75dp"
-
         android:maxWidth="75dp" />
 
     <TextView

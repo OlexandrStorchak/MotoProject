@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.adapters;
+package com.example.alex.motoproject.screenOnlineUsers;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -9,23 +9,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.models.userOnline;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 
-import static com.example.alex.motoproject.fragments.MapFragment.mapFragmentInstance;
+import static com.example.alex.motoproject.screenMap.MapFragment.mapFragmentInstance;
 
 
-public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.VH> {
+public class UsersOnlineAdapter extends RecyclerView.Adapter<UsersOnlineAdapter.VH> {
 
     private static final String TAG = "log";
-    private List<userOnline> friendsList;
+    private List<UsersOnline> friendsList;
 
 
-    public FriendsListAdapter(List<userOnline> friendsList) {
+    public UsersOnlineAdapter(List<UsersOnline> friendsList) {
         this.friendsList = friendsList;
 
     }
@@ -37,7 +36,7 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
         return new VH(view);
     }
 
-    public void setList(List<userOnline> newList) {
+    public void setList(List<UsersOnline> newList) {
         friendsList = newList;
 
     }

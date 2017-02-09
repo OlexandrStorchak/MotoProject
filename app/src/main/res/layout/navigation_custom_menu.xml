@@ -19,7 +19,7 @@
             android:layout_height="48dp"
             android:text="@string/menu_navi_tittle_maps" />
         <Button
-            android:id="@+id/navigation_btn_friends"
+            android:id="@+id/navigation_btn_users_online"
             style="@style/MyButtonCustomMenu"
             android:layout_marginTop="5dp"
             android:layout_width="match_parent"

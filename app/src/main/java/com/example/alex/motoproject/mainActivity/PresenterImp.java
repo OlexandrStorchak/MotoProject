@@ -1,7 +1,6 @@
 package com.example.alex.motoproject.mainActivity;
 
 
-import com.example.alex.motoproject.utils.PresenterInterface;
 import com.google.firebase.auth.FirebaseUser;
 
 public class PresenterImp implements PresenterInterface {
@@ -23,4 +22,6 @@ public class PresenterImp implements PresenterInterface {
     public void isLogedIn(FirebaseUser user) {
         mainView.login(user);
     }
+
+
 }

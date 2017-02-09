@@ -6,7 +6,7 @@
     android:gravity="bottom"
 
     android:orientation="vertical"
-    tools:context="com.example.alex.motoproject.fragments.SignUpFragment">
+    tools:context="com.example.alex.motoproject.screenLogin.SignUpFragment">
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_gravity="top"

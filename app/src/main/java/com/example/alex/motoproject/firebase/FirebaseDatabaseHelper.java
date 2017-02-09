@@ -2,8 +2,8 @@ package com.example.alex.motoproject.firebase;
 
 import android.util.Log;
 
-import com.example.alex.motoproject.adapters.FriendsListAdapter;
-import com.example.alex.motoproject.models.userOnline;
+import com.example.alex.motoproject.screenOnlineUsers.UsersOnlineAdapter;
+import com.example.alex.motoproject.screenOnlineUsers.UsersOnline;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -19,8 +19,8 @@ import java.util.List;
 
 public class FirebaseDatabaseHelper {
     private static final String TAG = "log";
-    private final List<userOnline> listModels = new ArrayList<>();
-    private FriendsListAdapter adapter;
+    private final List<UsersOnline> listModels = new ArrayList<>();
+    private UsersOnlineAdapter adapter;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
 
     public FirebaseDatabaseHelper() {
@@ -75,7 +75,7 @@ public class FirebaseDatabaseHelper {
         myRef.setValue(lon);
     }
 
-    public List<userOnline> getAllOnlineUsers() {
+    public List<UsersOnline> getAllOnlineUsers() {
         // Read from the database
 
         DatabaseReference myRef = database.getReference().child("onlineUsers");
@@ -85,7 +85,7 @@ public class FirebaseDatabaseHelper {
                 listModels.clear();
 
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                    userOnline friend = postSnapshot.getValue(userOnline.class);
+                    UsersOnline friend = postSnapshot.getValue(UsersOnline.class);
                     Log.d(TAG, "onDataChange: " +friend.getEmail() + " - ");
                     listModels.add(friend);
                     adapter.notifyDataSetChanged();
@@ -101,7 +101,7 @@ public class FirebaseDatabaseHelper {
 
         return listModels;
     }
-    public void setAdapter(FriendsListAdapter adapter){
+    public void setAdapter(UsersOnlineAdapter adapter){
         this.adapter=adapter;
     }
 
