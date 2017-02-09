@@ -253,7 +253,7 @@ public class LocationListenerService extends Service implements
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    private boolean isMainActivityVisible() {
-        return ((App) getApplication()).isMainActivityVisible();
-    }
+//    private boolean isMainActivityVisible() {
+//        return ((App) getApplication()).isMainActivityVisible();
+//    }
 }

@@ -131,11 +131,6 @@ public class FirebaseDatabaseHelper {
         }
     }
 
-    public void removeFromOnline(String userId) {
-        DatabaseReference myRef = mDatabase.getReference().child("onlineUsers").child(userId);
-        myRef.removeValue();
-    }
-
     public void updateOnlineUserLocation(double lat, double lng) {
         String uid = getCurrentUser().getUid();
         Log.d(TAG, "updateOnlineUserLocation: " + uid);

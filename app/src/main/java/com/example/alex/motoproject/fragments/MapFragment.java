@@ -178,7 +178,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Subscribe
-    public void createPinOnMap(MapMarkerEvent event) {
+    public void updateMapPin(MapMarkerEvent event) {
+        if (mMarkerHashMap.containsKey(event.uid)) {
+            Marker marker = mMarkerHashMap.get(event.uid);
+            marker.setPosition(event.latLng);
+            return;
+        }
         Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(event.latLng)
                 .title(event.userName));
@@ -188,10 +193,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Subscribe
     public void updatePinOnMap(MapMarkerEvent event) {
-        if (mMarkerHashMap.containsKey(event.uid)) {
-            Marker changeableMarker = mMarkerHashMap.get(event.uid);
-            changeableMarker.setPosition(event.latLng);
-        }
+
     }
 
     private boolean checkLocationPermission() {
