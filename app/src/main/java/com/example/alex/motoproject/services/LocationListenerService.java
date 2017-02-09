@@ -49,8 +49,8 @@ public class LocationListenerService extends Service implements
     String mLastUpdateTime;
     String mRequestFrequency = "default";
 
-    FirebaseDatabaseHelper firebaseDatabaseHelper = new FirebaseDatabaseHelper();
-    FirebaseAuth firebaseAuth;
+    FirebaseDatabaseHelper mFirebaseHelper = new FirebaseDatabaseHelper();
+    FirebaseAuth mFirebaseAuth;
 
     private NetworkStateReceiver mNetworkStateReceiver;
 
@@ -72,10 +72,12 @@ public class LocationListenerService extends Service implements
         }
         mGoogleApiClient.connect();
 
-        firebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseAuth = FirebaseAuth.getInstance();
 
         showNotification();
         registerReceiver();
+
+        mFirebaseHelper.setUserOnline("public");
 
         super.onCreate();
         ((App) getApplication()).setLocationListenerServiceOn(true);
@@ -89,9 +91,13 @@ public class LocationListenerService extends Service implements
         cleanupNotifications();
 
         ((App) getApplication()).setLocationListenerServiceOn(false);
-        if (!isMainActivityVisible()) {
-            firebaseDatabaseHelper.setUserOffline();
+        if (((App) getApplication()).isMainActivityDestroyed()) {
+            mFirebaseHelper.setUserOffline();
+        } else {
+            mFirebaseHelper.setUserOnline("noGps");
         }
+
+
         super.onDestroy();
     }
 
@@ -132,7 +138,7 @@ public class LocationListenerService extends Service implements
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
         double lat = location.getLatitude();
         double lon = location.getLongitude();
-        firebaseDatabaseHelper.updateOnlineUserLocation(lat, lon);
+        mFirebaseHelper.updateOnlineUserLocation(lat, lon);
     }
 
     @Override
@@ -178,7 +184,7 @@ public class LocationListenerService extends Service implements
     private void updateFirebaseData(Location location) {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
-        firebaseDatabaseHelper.updateOnlineUserLocation(lat, lon);
+        mFirebaseHelper.updateOnlineUserLocation(lat, lon);
     }
 
     private void stopLocationUpdates() {

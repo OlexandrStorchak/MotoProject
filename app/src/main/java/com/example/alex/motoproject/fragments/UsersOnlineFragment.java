@@ -37,12 +37,14 @@ public class UsersOnlineFragment extends Fragment {
     @Override
     public void onStop() {
         EventBus.getDefault().unregister(this);
+        databaseHelper.unregisterOnlineUsersListener();
         super.onStop();
     }
 
     @Override
     public void onStart() {
         EventBus.getDefault().register(this);
+        databaseHelper.registerOnlineUsersListener();
         super.onStart();
     }
 
@@ -56,9 +58,6 @@ public class UsersOnlineFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        databaseHelper.getAllOnlineUsers();
-
-
     }
 
     @Subscribe

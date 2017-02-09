@@ -24,41 +24,19 @@ import java.util.List;
 public class FirebaseDatabaseHelper {
     private static final String TAG = "log";
     private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
-    private final List<OnlineUser> listModels = new ArrayList<>();
-    private FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private final List<OnlineUser> onlineUserList = new ArrayList<>();
+    private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private ChildEventListener mOnlineUsersLocationListener;
+    private ChildEventListener onlineUsersListener;
     private DatabaseReference mOnlineUsersRef;
+
+
     public FirebaseDatabaseHelper() {
 
     }
 
-//    public void createDatabase(String userId, String email, String name) {
-//
-//
-//        DatabaseReference myRef = database.getReference().child("users").child(userId).child("name");
-//        myRef.setValue(name);
-//
-//        myRef = database.getReference().child("users").child(userId).child("email");
-//        myRef.setValue(email);
-//
-//        myRef = database.getReference().child("users").child(userId).child("friendsList").child("userID");
-//        myRef.setValue("2363524");
-//        myRef = database.getReference().child("users").child(userId).child("friendsList").child("userID").child("name");
-//        myRef.setValue("User");
-//        myRef = database.getReference().child("users").child(userId).child("friendsList").child("userID").child("email");
-//        myRef.setValue("test@best.mail.com");
-//
-//        myRef = database.getReference().child("users").child(userId).child("friendsRequest").child("userID");
-//        myRef.setValue("234256");
-//        myRef = database.getReference().child("users").child(userId).child("friendsRequest").child("userID").child("name");
-//        myRef.setValue("TestUser");
-//        myRef = database.getReference().child("users").child(userId).child("friendsRequest").child("userID").child("email");
-//        myRef.setValue("test@best.mail.com");
-//
-//    }
-
     public void addUser(String uid, String email, String name, String avatar) {
-        DatabaseReference users = database.getReference().child("users").child(uid);
+        DatabaseReference users = mDatabase.getReference().child("users").child(uid);
         users.child("email").setValue(email);
         users.child("name").setValue(name);
         users.child("avatar").setValue(avatar);
@@ -66,23 +44,23 @@ public class FirebaseDatabaseHelper {
 
     public void setUserOnline(String status) {
         String uid = getCurrentUser().getUid();
-        DatabaseReference onlineUsers = database.getReference().child("onlineUsers").child(uid);
+        DatabaseReference onlineUsers = mDatabase.getReference().child("onlineUsers").child(uid);
         onlineUsers.setValue(status);
     }
 
     public void setUserOffline() {
         String uid = getCurrentUser().getUid();
-        DatabaseReference onlineUsers = database.getReference().child("onlineUsers").child(uid);
+        DatabaseReference onlineUsers = mDatabase.getReference().child("onlineUsers").child(uid);
         onlineUsers.removeValue();
     }
 
     public void registerOnlineUsersLocationListener() {
-        mOnlineUsersRef = database.getReference().child("onlineUsers");
+        mOnlineUsersRef = mDatabase.getReference().child("onlineUsers");
         mOnlineUsersLocationListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 DatabaseReference location =
-                        database.getReference().child("location").child(dataSnapshot.getKey());
+                        mDatabase.getReference().child("location").child(dataSnapshot.getKey());
                 location.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -131,7 +109,7 @@ public class FirebaseDatabaseHelper {
     }
 
     private void getNameByUid(final String uid, final LatLng latLng) {
-        DatabaseReference nameRef = database.getReference().child("users").child(uid).child("name");
+        DatabaseReference nameRef = mDatabase.getReference().child("users").child(uid).child("name");
         nameRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -148,31 +126,31 @@ public class FirebaseDatabaseHelper {
 
     public void unregisterOnlineUsersLocationListener() {
         if (mOnlineUsersLocationListener != null) {
-            mOnlineUsersRef = database.getReference().child("onlineUsers");
+            mOnlineUsersRef = mDatabase.getReference().child("onlineUsers");
             mOnlineUsersRef.removeEventListener(mOnlineUsersLocationListener);
         }
     }
 
     public void removeFromOnline(String userId) {
-        DatabaseReference myRef = database.getReference().child("onlineUsers").child(userId);
+        DatabaseReference myRef = mDatabase.getReference().child("onlineUsers").child(userId);
         myRef.removeValue();
     }
 
     public void updateOnlineUserLocation(double lat, double lng) {
         String uid = getCurrentUser().getUid();
         Log.d(TAG, "updateOnlineUserLocation: " + uid);
-        DatabaseReference myRef = database.getReference().child("location").child(uid);
+        DatabaseReference myRef = mDatabase.getReference().child("location").child(uid);
         myRef.child("lat").setValue(lat);
         myRef.child("lng").setValue(lng);
     }
 
-    public void getAllOnlineUsers() {
-        // Read from the database
-        DatabaseReference myRef = database.getReference().child("onlineUsers");
-        ChildEventListener childEventListener = new ChildEventListener() {
+    public void registerOnlineUsersListener() {
+        // Read from the mDatabase
+        DatabaseReference myRef = mDatabase.getReference().child("onlineUsers");
+        onlineUsersListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                listModels.clear();
+                onlineUserList.clear();
                 String uid = dataSnapshot.getKey();
                 Object userStatus = dataSnapshot.getValue();
                 if (userStatus instanceof String) // TODO: 08.02.2017 remove this line
@@ -202,7 +180,7 @@ public class FirebaseDatabaseHelper {
 
             }
         };
-        myRef.addChildEventListener(childEventListener);
+        myRef.addChildEventListener(onlineUsersListener);
     }
 
     private FirebaseUser getCurrentUser() {
@@ -215,14 +193,14 @@ public class FirebaseDatabaseHelper {
     }
 
     private void getOnlineUserDataByUid(final String uid, final String userStatus) {
-        DatabaseReference ref = database.getReference().child("users").child(uid);
+        DatabaseReference ref = mDatabase.getReference().child("users").child(uid);
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
                 if (name != null) {
-                    listModels.add(new OnlineUser(uid, name, avatar, userStatus));
+                    onlineUserList.add(new OnlineUser(uid, name, avatar, userStatus));
                     EventBus.getDefault().post(new FriendDataReadyEvent());
                 }
             }
@@ -235,6 +213,11 @@ public class FirebaseDatabaseHelper {
     }
 
     public List<OnlineUser> getFriends() {
-        return listModels;
+        return onlineUserList;
+    }
+
+    public void unregisterOnlineUsersListener() {
+        DatabaseReference myRef = mDatabase.getReference().child("onlineUsers");
+        myRef.removeEventListener(onlineUsersListener);
     }
 }

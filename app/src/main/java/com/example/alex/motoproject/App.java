@@ -17,6 +17,7 @@ public class App extends Application
     private static final String TAG = "log";
     private boolean isMainActivityVisible = false;
     private boolean isLocationListenerServiceOn = false;
+    private boolean isMainActivityDestroyed;
 
     @Override
     public void onCreate() {
@@ -48,6 +49,10 @@ public class App extends Application
         return isMainActivityVisible;
     }
 
+    public boolean isMainActivityDestroyed() {
+        return isMainActivityDestroyed;
+    }
+
     @Override
     public void onActivityCreated(Activity activity, Bundle bundle) {
 
@@ -62,7 +67,9 @@ public class App extends Application
 
     @Override
     public void onActivityResumed(Activity activity) {
-
+        if (activity instanceof MainActivity) {
+            isMainActivityDestroyed = false;
+        }
     }
 
     @Override
@@ -84,6 +91,8 @@ public class App extends Application
 
     @Override
     public void onActivityDestroyed(Activity activity) {
-
+        if (activity instanceof MainActivity) {
+            isMainActivityDestroyed = true;
+        }
     }
 }

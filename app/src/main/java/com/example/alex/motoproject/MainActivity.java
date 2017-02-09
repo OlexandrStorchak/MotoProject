@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                databaseHelper.removeFromOnline(mFirebaseCurrentUser.getUid());
+                databaseHelper.setUserOffline();
                 mFirebaseAuth.signOut();
             }
         });
@@ -319,23 +319,14 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
         }
 
-
         replaceFragment(FRAGMENT_MAP);
         Log.d(LOG_TAG, "isSignedIn: test");
 
-//        databaseHelper.createDatabase(mFirebaseCurrentUser.getUid(),
-//                mFirebaseCurrentUser.getEmail(),
-//                mFirebaseCurrentUser.getDisplayName());
-//
-//        databaseHelper.addToOnline(mFirebaseCurrentUser.getUid(),
-//                mFirebaseCurrentUser.getEmail(),
-//                avatarUri
-//        );
         databaseHelper.addUser(mFirebaseCurrentUser.getUid(),
                 mFirebaseCurrentUser.getEmail(),
                 mFirebaseCurrentUser.getDisplayName(),
                 avatarUri);
-        databaseHelper.setUserOnline("public");
+        databaseHelper.setUserOnline("noGps");
         // TODO: 07.02.2017 change public to user preferred value
     }
 
