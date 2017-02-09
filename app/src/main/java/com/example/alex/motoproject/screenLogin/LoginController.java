@@ -22,6 +22,10 @@ public class LoginController extends MainActivity implements FirebaseAuth.AuthSt
         this.presenterImp = presenterImp;
     }
 
+    public FirebaseAuth getmFirebaseAuth(){
+        return mFirebaseAuth;
+    }
+
 
     public void start() {
 

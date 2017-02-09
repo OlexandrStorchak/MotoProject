@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     private Button mNavigationBtnSignOut;
     private DrawerLayout mDrawerLayout;
 
-    private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
+    private FirebaseDatabaseHelper mDatabaseHelper =new FirebaseDatabaseHelper();
     private FragmentReplace mFragmentReplace;
     private LoginController loginController;
 
@@ -86,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         loginController = new LoginController(mDatabaseHelper, presenterImp);
 
         loginController.start();
+
+
 
         setContentView(R.layout.activity_main);
 
