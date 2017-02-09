@@ -23,7 +23,7 @@ import java.util.List;
 
 public class FirebaseDatabaseHelper {
     private static final String TAG = "log";
-    private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
+    //    private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
     private final List<OnlineUser> onlineUserList = new ArrayList<>();
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private ChildEventListener mOnlineUsersLocationListener;
@@ -59,6 +59,14 @@ public class FirebaseDatabaseHelper {
         mOnlineUsersLocationListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                if (dataSnapshot.getValue() instanceof String) {
+
+
+                    String status = (String) dataSnapshot.getValue();
+                    if (!status.equals("public")) {
+                        return;
+                    }
+                }
                 DatabaseReference location =
                         mDatabase.getReference().child("location").child(dataSnapshot.getKey());
                 location.addValueEventListener(new ValueEventListener() {
@@ -72,10 +80,7 @@ public class FirebaseDatabaseHelper {
                                 LatLng latLng = new LatLng(lat, lng);
                                 getNameByUid(uid, latLng);
                             }
-                        } else {
-                            Log.w(LOG_TAG, "data snapshot is null");
                         }
-
                     }
 
                     @Override
@@ -87,11 +92,69 @@ public class FirebaseDatabaseHelper {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                if (dataSnapshot.getValue() instanceof String) {
+                    String status = (String) dataSnapshot.getValue();
+                    if (status.equals("public")) {
+                        DatabaseReference location =
+                                mDatabase.getReference().child("location").child(dataSnapshot.getKey());
+                        location.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if (!dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
+                                    Double lat = (Double) dataSnapshot.child("lat").getValue();
+                                    Double lng = (Double) dataSnapshot.child("lng").getValue();
+                                    if (lat != null && lng != null) { // TODO: 07.02.2017 delete if statement
+                                        String uid = dataSnapshot.getKey();
+                                        LatLng latLng = new LatLng(lat, lng);
+                                        getNameByUid(uid, latLng);
+                                    }
+                                }
+                            }
 
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                        return;
+                    }
+                }
+                DatabaseReference location =
+                        mDatabase.getReference().child("location").child(dataSnapshot.getKey());
+                location.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String uid = dataSnapshot.getKey();
+                        if (!uid.equals(getCurrentUser().getUid())) {
+                            EventBus.getDefault().post(new MapMarkerEvent(null, uid, null));
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+                DatabaseReference location =
+                        mDatabase.getReference().child("location").child(dataSnapshot.getKey());
+                location.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String uid = dataSnapshot.getKey();
+                        if (!uid.equals(getCurrentUser().getUid())) {
+                            EventBus.getDefault().post(new MapMarkerEvent(null, uid, null));
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
             }
 

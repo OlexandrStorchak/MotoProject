@@ -181,6 +181,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void updateMapPin(MapMarkerEvent event) {
         if (mMarkerHashMap.containsKey(event.uid)) {
             Marker marker = mMarkerHashMap.get(event.uid);
+            if (event.latLng == null) {
+                marker.remove();
+                mMarkerHashMap.remove(event.uid);
+                return;
+            }
             marker.setPosition(event.latLng);
             return;
         }
