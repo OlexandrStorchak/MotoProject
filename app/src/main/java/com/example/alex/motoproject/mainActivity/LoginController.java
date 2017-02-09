@@ -22,7 +22,7 @@ public class LoginController extends MainActivity implements FirebaseAuth.AuthSt
 
 
     protected void start() {
-        //Firebase auth instance
+
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseAuth.addAuthStateListener(this);
