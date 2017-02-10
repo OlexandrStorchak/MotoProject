@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.fragments;
+package com.example.alex.motoproject.screenLogin;
 
 
 import android.app.Dialog;

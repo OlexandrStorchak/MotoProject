@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.adapters;
+package com.example.alex.motoproject.screenOnlineUsers;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -9,23 +9,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.models.userOnline;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import static com.example.alex.motoproject.MainActivity.mainActivity;
-import static com.example.alex.motoproject.fragments.MapFragment.mapFragmentInstance;
+
+import static com.example.alex.motoproject.screenMap.MapFragment.mapFragmentInstance;
 
 
-public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.VH> {
+public class UsersOnlineAdapter extends RecyclerView.Adapter<UsersOnlineAdapter.VH> {
 
     private static final String TAG = "log";
-    private List<userOnline> friendsList;
+    private List<UsersOnline> friendsList;
 
 
-    public FriendsListAdapter(List<userOnline> friendsList) {
+    public UsersOnlineAdapter(List<UsersOnline> friendsList) {
         this.friendsList = friendsList;
 
     }
@@ -37,7 +36,7 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
         return new VH(view);
     }
 
-    public void setList(List<userOnline> newList) {
+    public void setList(List<UsersOnline> newList) {
         friendsList = newList;
 
     }
@@ -62,12 +61,7 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
         holder.mapCur.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.replaceFragment("fragmentMap");
-//                Toast.makeText(holder.name.getContext(), holder.name.getText(), Toast.LENGTH_SHORT).show();
-////                mapFragmentInstance.setMarker(friendsList.get(holder.getAdapterPosition()).getLat(),
-////                        friendsList.get(holder.getAdapterPosition()).getLon(),
-////                        friendsList.get(holder.getAdapterPosition()).getEmail()
-////                );
+
                 // TODO: 05.02.2017 get user`s uid
                 mapFragmentInstance.moveToMarker("KAMUHSEh2VX2hLygvhkM9StSEa32");
 // friendsList.get(holder.getAdapterPosition()).getEmail());

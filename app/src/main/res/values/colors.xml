@@ -9,10 +9,12 @@
     <color name="greenA400">#00e676</color>
     <color name="blueGray900">#263238</color>
     <color name="gray500">#9e9e9e</color>
-    <color name="gray500a2">#e6faf9f9</color>
+    <color name="gray500a2">#faf9f9</color>
 
     <color name="gray900">#f0212121</color>
     <color name="gray900a2">#c8313131</color>
     <color name="teal900">#004d40</color>
     <color name="teal300">#4db6ac</color>
+    <color name="Blue900">#0d47a1</color>
+    <color name="indigo300">#7986cb</color>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.fragments;
+package com.example.alex.motoproject.screenLogin;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,8 +15,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.mainActivity.FragmentReplace;
+import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -46,7 +47,8 @@ import java.util.Collection;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
-import static com.example.alex.motoproject.MainActivity.loginWithEmail;
+import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_SIGN_UP;
+import static com.example.alex.motoproject.mainActivity.MainActivity.loginWithEmail;
 
 
 public class AuthFragment extends Fragment {
@@ -65,6 +67,7 @@ public class AuthFragment extends Fragment {
     private Button mButtonSubmit;
     private LoginManager loginManager = LoginManager.getInstance();
     private Button mButtonSignInFacebook;
+
 
     public AuthFragment() {
         // Required empty public constructor
@@ -186,7 +189,7 @@ public class AuthFragment extends Fragment {
         mButtonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity) getActivity()).replaceFragment("fragmentSignUp");
+                new FragmentReplace(getFragmentManager()).replaceFragment(FRAGMENT_SIGN_UP);
             }
         });
 
@@ -278,7 +281,6 @@ public class AuthFragment extends Fragment {
                         // signed in firebaseUser can be handled in the listener.
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithEmail", task.getException());
-                            ((MainActivity) getActivity()).showToast("no such account found");
 
                             mProgressBar.setVisibility(View.GONE);
                             firstStart = true;
@@ -371,10 +373,10 @@ public class AuthFragment extends Fragment {
                     GoogleSignInAccount account = result.getSignInAccount();
                     firebaseAuthWithGoogle(account);
                 } else {
-                    ((MainActivity) getActivity()).showToast("Google account connection failed");
+                    Log.d(TAG, "onActivityResult: ");
                 }
             } else if (resultCode == RESULT_CANCELED) {
-                ((MainActivity) getActivity()).showToast("Google account canceled");
+
                 mProgressBar.setVisibility(View.GONE);
                 firstStart = true;
                 if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
@@ -387,7 +389,7 @@ public class AuthFragment extends Fragment {
                     mButtonSignInGoogle.setClickable(true);
                 }
             } else {
-                ((MainActivity) getActivity()).showToast("Google account canceled");
+
                 mProgressBar.setVisibility(View.GONE);
                 firstStart = true;
                 if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {

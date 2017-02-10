@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.example.alex.motoproject.mainActivity.MainActivity;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;

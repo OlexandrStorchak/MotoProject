@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.fragments;
+package com.example.alex.motoproject.screenOnlineUsers;
 
 
 import android.os.Bundle;
@@ -11,8 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.adapters.FriendsListAdapter;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+import com.example.alex.motoproject.screenLogin.LoginController;
 
 public class UsersOnlineFragment extends Fragment {
 
@@ -23,7 +23,7 @@ public class UsersOnlineFragment extends Fragment {
     }
 
     private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
-    FriendsListAdapter adapter = new FriendsListAdapter(null);
+    UsersOnlineAdapter adapter = new UsersOnlineAdapter(null);
 
 
     public static UsersOnlineFragment getInstance() {

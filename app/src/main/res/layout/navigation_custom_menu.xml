@@ -13,20 +13,23 @@
 
         <Button
             android:id="@+id/navigation_btn_map"
-            style="@style/MyNavigationButtonCustom"
+            style="@style/MyButtonCustomMenu"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="@string/menu_navi_tittle_maps" />
         <Button
-            android:id="@+id/navigation_btn_friends"
-            style="@style/MyNavigationButtonCustom"
+            android:id="@+id/navigation_btn_users_online"
+            style="@style/MyButtonCustomMenu"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="@string/who_is_online" />
 
         <Button
             android:id="@+id/navigation_btn_signout"
-            style="@style/MyNavigationButtonCustom"
+            style="@style/MyButtonCustomMenu"
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="@string/auth_sign_out" />

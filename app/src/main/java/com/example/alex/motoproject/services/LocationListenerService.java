@@ -18,7 +18,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.example.alex.motoproject.App;
-import com.example.alex.motoproject.MainActivity;
+import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;

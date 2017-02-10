@@ -1,4 +1,4 @@
-package com.example.alex.motoproject;
+package com.example.alex.motoproject.mainActivity;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -13,7 +13,6 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -21,25 +20,21 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.alex.motoproject.App;
+import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.events.CancelAlertEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.fragments.AuthFragment;
-import com.example.alex.motoproject.fragments.CheckEmailDialogFragment;
-import com.example.alex.motoproject.fragments.MapFragment;
-import com.example.alex.motoproject.fragments.SignUpFragment;
-import com.example.alex.motoproject.fragments.UsersOnlineFragment;
+import com.example.alex.motoproject.screenLogin.AuthFragment;
+import com.example.alex.motoproject.screenMap.MapFragment;
+import com.example.alex.motoproject.screenLogin.LoginController;
 import com.example.alex.motoproject.utils.CircleTransform;
-import com.facebook.login.LoginManager;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
@@ -48,59 +43,63 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements MapFragment.MapFragmentListener {
+import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_AUTH;
+import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_MAP;
+import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_ONLINE_USERS;
+
+public class MainActivity extends AppCompatActivity implements MapFragment.MapFragmentListener, MainView {
 
     public static final int ALERT_GPS_OFF = 20;
     public static final int ALERT_INTERNET_OFF = 21;
     public static final int ALERT_PERMISSION_RATIONALE = 22;
     public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
-    public static final String FRAGMENT_MAP = "fragmentMap";
-    private static final String LOG_TAG = MainActivity.class.getSimpleName();
-    private static final String FRAGMENT_SIGN_UP = "fragmentSignUp";
-    private static final String FRAGMENT_AUTH = "fragmentAuth";
-    private static final String FRAGMENT_ONLINE_USERS = "fragmentOnlineUsers";
-    private static final String TAG = "log";
-    public static boolean loginWithEmail = false; // Flag for validate with email login method
-    public static MainActivity mainActivity;
-    FragmentManager mFragmentManager;
-    ArrayList<Integer> mActiveAlerts = new ArrayList<>();
-    android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+
+    // Flag for validate with email login method
+    public static boolean loginWithEmail = false;
+
     private NetworkStateReceiver mNetworkStateReceiver;
-    private AlertDialog alert;
-    //FireBase vars :
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mFirebaseAuthStateListener;
-    private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
+    private AlertDialog mAlert;
+
     private TextView mNameHeader;
     private TextView mEmailHeader;
     private ImageView mAvatarHeader;
-    private FirebaseUser mFirebaseCurrentUser;
     private Button mNavigationBtnMap;
     private Button mNavigationBtnSignOut;
     private DrawerLayout mDrawerLayout;
 
+    private FirebaseDatabaseHelper mDatabaseHelper =new FirebaseDatabaseHelper();
+    private FragmentReplace mFragmentReplace;
+    private LoginController loginController;
+
+    ArrayList<Integer> mActiveAlerts = new ArrayList<>();
+    private android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mainActivity = this;
+
+        PresenterImp presenterImp = new PresenterImp(this);
+
+        mFragmentReplace = new FragmentReplace(getSupportFragmentManager());
+
+        loginController = new LoginController(mDatabaseHelper, presenterImp);
+
+        loginController.start();
 
 
-        //Firebase auth instance
-        mFirebaseAuth = FirebaseAuth.getInstance();
 
         setContentView(R.layout.activity_main);
+
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        //init FragmentManager
-        mFragmentManager = getSupportFragmentManager();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawerLayout.addDrawerListener(toggle);
+
         toggle.syncState();
 
         //Define view of Navigation Drawer
@@ -119,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         mNavigationBtnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                replaceFragment(FRAGMENT_MAP);
+                mFragmentReplace.replaceFragment(FRAGMENT_MAP);
                 mDrawerLayout.closeDrawers();
             }
         });
@@ -128,80 +127,22 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                databaseHelper.removeFromOnline(mFirebaseCurrentUser.getUid());
-                mFirebaseAuth.signOut();
-                LoginManager.getInstance().logOut();
+
+                loginController.signOut();
+
             }
         });
         //Button in Navigation Drawer for display Friends List
-        Button mNavigationBtnFriendsList = (Button) mNavigationView.findViewById(R.id.navigation_btn_friends);
-        mNavigationBtnFriendsList.setOnClickListener(new View.OnClickListener() {
+        Button mNavigationBtnUsersOnline = (Button) mNavigationView.findViewById(R.id.navigation_btn_users_online);
+        mNavigationBtnUsersOnline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                replaceFragment(FRAGMENT_ONLINE_USERS);
+                mFragmentReplace.replaceFragment(FRAGMENT_ONLINE_USERS);
                 mDrawerLayout.closeDrawers();
 
             }
         });
 
-
-//        // Button in Navigation Drawer, which visible when click to friends list, for back to main menu
-//        Button mNavigationBtnBackToMenu = (Button) mNavigationView.findViewById(R.id.navigatio_btn_back_to_menu);
-//        mNavigationBtnBackToMenu.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                View mFriendList = findViewById(R.id.navigation_friends_layout);
-//                mFriendList.setVisibility(View.GONE);
-//                View mMenu = findViewById(R.id.navigation_menu_layout);
-//                mMenu.setVisibility(View.VISIBLE);
-//            }
-//        });
-
-        Log.d(LOG_TAG, "onCreate: Main activity ");
-
-        //FireBase auth listener
-        mFirebaseAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                mFirebaseCurrentUser = firebaseAuth.getCurrentUser();
-                if (loginWithEmail) {
-
-
-                    //Sign in method by email
-                    if (mFirebaseCurrentUser != null) {
-                        if (mFirebaseCurrentUser.isEmailVerified()) {
-                            // User is signed in with email
-                            isSignedIn();
-
-
-                        } else {
-                            //User is login with email must confirm it by email
-                            mFirebaseCurrentUser.sendEmailVerification();
-                            showToast("Check your email!");
-                            isSignedOut();
-                        }
-
-                    } else {
-                        // User is signed out with email
-
-                        isSignedOut();
-                    }
-                } else {
-
-                    //Sign in method by Google account
-                    if (mFirebaseCurrentUser != null) {
-                        //Sign in with Google account
-                        isSignedIn();
-
-                    } else {
-                        // User is signed out with Google account
-                        isSignedOut();
-
-                    }
-
-                }
-            }
-        };
     }
 
     @Override
@@ -216,37 +157,10 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
-        if (requestCode == PERMISSION_LOCATION_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // permission was granted
-                handleLocation();
-            } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    //user checked never ask again
-                    showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
-                } else {
-                    //user did not check never ask again, show rationale
-                    showAlert(ALERT_PERMISSION_RATIONALE);
-                }
-            }
-        }
-    }
-
-
-    @Override
     protected void onStart() {
         super.onStart();
-        Log.d(LOG_TAG, "onStart");
-
         registerNetworkStateReceiver();
         EventBus.getDefault().register(this);
-        // Attach the listener of Firebase Auth
-        mFirebaseAuth.addAuthStateListener(mFirebaseAuthStateListener);
-
     }
 
 
@@ -255,128 +169,36 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         super.onStop();
         unregisterNetworkStateReceiver();
         EventBus.getDefault().unregister(this);
-        Log.d(LOG_TAG, "onStop: ");
-        if (mFirebaseAuthStateListener != null) {
-            mFirebaseAuth.removeAuthStateListener(mFirebaseAuthStateListener);
-        }
+        loginController.stop();
     }
 
-    // manage fragments
-    public void replaceFragment(String fragmentName) {
-        android.support.v4.app.FragmentTransaction fragmentTransaction
-                = fragmentManager.beginTransaction();
-        switch (fragmentName) {
-            case FRAGMENT_SIGN_UP:
-                fragmentTransaction.replace(R.id.main_activity_frame, SignUpFragment.getInstance());
-                fragmentTransaction.addToBackStack(FRAGMENT_SIGN_UP);
-                fragmentTransaction.commit();
-                break;
 
-            case FRAGMENT_AUTH:
-                fragmentTransaction.replace(R.id.main_activity_frame, new AuthFragment());
-                fragmentTransaction.commit();
-                break;
-
-
-            case FRAGMENT_MAP:
-                fragmentTransaction.replace(R.id.main_activity_frame,
-                        MapFragment.getInstance(),
-                        FRAGMENT_MAP);
-                fragmentTransaction.commitAllowingStateLoss();
-                break;
-
-            case FRAGMENT_ONLINE_USERS:
-
-                fragmentTransaction.replace(R.id.main_activity_frame, UsersOnlineFragment.getInstance());
-                fragmentTransaction.commit();
-                break;
-        }
-    }
-
-    public void showToast(String text) {
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-    }
-
-    public void showDialog() {
-        new CheckEmailDialogFragment().show(getFragmentManager(), "dialog");
-    }
-
+    //Need for Facebook login
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult: FACEBOOK");
 
-        AuthFragment.getCallbackManager().onActivityResult(requestCode,resultCode,data);
+        //Send result to AuthFragment for Facebook auth.manager
 
-    }
-
-    private void isSignedIn() {
-        String avatarUri = null;
-        mNavigationBtnSignOut.setVisibility(View.VISIBLE);
-        mNavigationBtnMap.setVisibility(View.VISIBLE);
-        mAvatarHeader.setVisibility(View.GONE);
-
-        mNameHeader.setText(mFirebaseCurrentUser.getDisplayName());
-        mEmailHeader.setText(mFirebaseCurrentUser.getEmail());
-        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-
-        if (mFirebaseCurrentUser.getPhotoUrl() != null) {
-            mAvatarHeader.setVisibility(View.VISIBLE);
-
-            avatarUri = mFirebaseCurrentUser.getPhotoUrl().toString();
-            Picasso.with(getApplicationContext())
-                    .load(avatarUri)
-                    .resize(mAvatarHeader.getMaxWidth(), mAvatarHeader.getMaxHeight())
-                    .centerCrop()
-                    .transform(new CircleTransform())
-                    .into(mAvatarHeader);
-
-        }
-
-
-        replaceFragment(FRAGMENT_MAP);
-        Log.d(LOG_TAG, "isSignedIn: test");
-
-        databaseHelper.createDatabase(mFirebaseCurrentUser.getUid(),
-                mFirebaseCurrentUser.getEmail(),
-                mFirebaseCurrentUser.getDisplayName());
-
-        databaseHelper.addToOnline(mFirebaseCurrentUser.getUid(),
-                mFirebaseCurrentUser.getEmail(),
-                avatarUri
-        );
-
-    }
-
-    private void isSignedOut() {
-
-
-        replaceFragment(FRAGMENT_AUTH);
-        mNavigationBtnSignOut.setVisibility(View.GONE);
-        mNavigationBtnMap.setVisibility(View.GONE);
-        mNameHeader.setText("");
-        mEmailHeader.setText("");
-        mAvatarHeader.setVisibility(View.INVISIBLE);
-        mDrawerLayout.closeDrawers();
-        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        AuthFragment.getCallbackManager().onActivityResult(requestCode, resultCode, data);
 
     }
 
     @Override
     protected void onDestroy() {
-        if (alert != null) {
-            alert.dismiss();
+        if (mAlert != null) {
+            mAlert.dismiss();
         }
-//        unregisterNetworkStateReceiver();
+
         super.onDestroy();
-        Log.d(LOG_TAG, "onDestroy: ");
+
 
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d(LOG_TAG, "onPause: ");
+
     }
 
     @Override
@@ -384,12 +206,11 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         super.onResume();
 
 
-        Log.d(LOG_TAG, "onResume: ");
     }
 
     public void showAlert(final int alertType) {
         if (mActiveAlerts.contains(alertType)) {
-            return; //do nothing if this alert has already been created
+            return; //do nothing if this mAlert has already been created
         }
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         switch (alertType) {
@@ -480,21 +301,42 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
                 break;
         }
 
-        alert = alertDialogBuilder.create();
-        alert.setOnDismissListener(new DialogInterface.OnDismissListener()
+        mAlert = alertDialogBuilder.create();
+        mAlert.setOnDismissListener(new DialogInterface.OnDismissListener()
 
-                                   {
-                                       @Override
-                                       public void onDismiss(DialogInterface dialogInterface) {
-                                           if (mActiveAlerts.contains(alertType))
-                                               mActiveAlerts.remove((Integer) alertType);
-                                       }
-                                   }
+                                    {
+                                        @Override
+                                        public void onDismiss(DialogInterface dialogInterface) {
+                                            if (mActiveAlerts.contains(alertType))
+                                                mActiveAlerts.remove((Integer) alertType);
+                                        }
+                                    }
 
         );
-        alert.show();
+        mAlert.show();
         if (!mActiveAlerts.contains(alertType))
             mActiveAlerts.add(alertType);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_LOCATION_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // permission was granted
+                handleLocation();
+            } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    //user checked never ask again
+                    showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
+                } else {
+                    //user did not check never ask again, show rationale
+                    showAlert(ALERT_PERMISSION_RATIONALE);
+                }
+            }
+        }
     }
 
 
@@ -517,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     }
 
     @Subscribe
-    //the method called when received an event from EventBus asking for showing alert
+    //the method called when received an event from EventBus asking for showing mAlert
     public void onShouldShowAlertEvent(ShowAlertEvent event) {
         int receivedAlertType = event.alertType;
         if (!mActiveAlerts.contains(receivedAlertType))
@@ -526,12 +368,12 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
 
     @Subscribe
-    //the method called when received an event from EventBus asking for canceling alert
+    //the method called when received an event from EventBus asking for canceling mAlert
     public void onShouldCancelEvent(CancelAlertEvent event) {
         int receivedAlertType = event.alertType;
         if (mActiveAlerts.contains(receivedAlertType)) {
-            if (alert != null) {
-                alert.dismiss();
+            if (mAlert != null) {
+                mAlert.dismiss();
             }
         }
 
@@ -559,9 +401,60 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
             try {
                 unregisterReceiver(mNetworkStateReceiver);
             } catch (IllegalArgumentException e) {
-                Log.v(LOG_TAG, "receiver was unregistered before onDestroy");
+
             }
         }
     }
-}
 
+    @Override
+    public void login(FirebaseUser user) {
+        String avatarUri = null;
+        getSupportActionBar().show();
+
+        mNavigationBtnSignOut.setVisibility(View.VISIBLE);
+        mNavigationBtnMap.setVisibility(View.VISIBLE);
+        mAvatarHeader.setVisibility(View.GONE);
+
+        mNameHeader.setText(user.getDisplayName());
+        mEmailHeader.setText(user.getEmail());
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+
+        if (user.getPhotoUrl() != null) {
+            mAvatarHeader.setVisibility(View.VISIBLE);
+
+            avatarUri = user.getPhotoUrl().toString();
+            Picasso.with(getApplicationContext())
+                    .load(avatarUri)
+                    .resize(mAvatarHeader.getMaxWidth(), mAvatarHeader.getMaxHeight())
+                    .centerCrop()
+                    .transform(new CircleTransform())
+                    .into(mAvatarHeader);
+
+        }
+
+        mFragmentReplace.replaceFragment(FRAGMENT_MAP);
+
+        mDatabaseHelper.createDatabase(user.getUid(),
+                user.getEmail(),
+                user.getDisplayName());
+
+        mDatabaseHelper.addToOnline(user.getUid(),
+                user.getEmail(),
+                avatarUri
+        );
+
+    }
+
+    @Override
+    public void logout() {
+        getSupportActionBar().hide();
+        mFragmentReplace.replaceFragment(FRAGMENT_AUTH);
+        mNavigationBtnSignOut.setVisibility(View.GONE);
+        mNavigationBtnMap.setVisibility(View.GONE);
+        mNameHeader.setText("");
+        mEmailHeader.setText("");
+        mAvatarHeader.setVisibility(View.INVISIBLE);
+        mDrawerLayout.closeDrawers();
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+}

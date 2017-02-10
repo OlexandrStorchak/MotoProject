@@ -2,15 +2,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg2_xxxhdpi"
-    android:gravity="center"
-    android:orientation="vertical"
-    tools:context="com.example.alex.motoproject.fragments.SignUpFragment">
+    android:background="@color/gray500a2"
+    android:gravity="bottom"
 
+    android:orientation="vertical"
+    tools:context="com.example.alex.motoproject.screenLogin.SignUpFragment">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_gravity="top"
+        android:layout_height="0dp"
+        android:layout_weight="0.7"
+        >
+        <ImageView
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
+            android:background="@drawable/engine_icon3"
+            android:id="@+id/login_screen_logo"
+            />
+
+    </FrameLayout>
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:ignore="ScrollViewCount"
+        android:layout_height="0dp"
+        android:layout_weight="1"
 
         >
 
