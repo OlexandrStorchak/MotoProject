@@ -123,10 +123,10 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                mDatabaseHelper.setUserOffline();
                 loginController.signOut();
 
-                mDatabaseHelper.setUserOffline();
+
             }
         });
         //Button in Navigation Drawer for display Friends List
