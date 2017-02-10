@@ -1,5 +1,6 @@
 package com.example.alex.motoproject.firebase;
 
+import android.location.Location;
 import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
@@ -89,11 +90,11 @@ public class FirebaseDatabaseHelper {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
-                            Double lat = (Double) dataSnapshot.child("lat").getValue();
-                            Double lng = (Double) dataSnapshot.child("lng").getValue();
-                            if (lat != null && lng != null) { // TODO: 07.02.2017 delete if statement
+                            Number lat = (Number) dataSnapshot.child("lat").getValue();
+                            Number lng = (Number) dataSnapshot.child("lng").getValue();
+                            if (lat != null && lng != null) { 
                                 String uid = dataSnapshot.getKey();
-                                LatLng latLng = new LatLng(lat, lng);
+                                LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
                                 getNameByUid(uid, latLng);
                             }
                         }
@@ -210,8 +211,10 @@ public class FirebaseDatabaseHelper {
         }
     }
 
-    public void updateOnlineUserLocation(double lat, double lng) {
+    public void updateOnlineUserLocation(Location location) {
         String uid = getCurrentUser().getUid();
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
         Log.d(TAG, "updateOnlineUserLocation: " + uid);
         DatabaseReference myRef = mDatabase.getReference().child("location").child(uid);
         myRef.child("lat").setValue(lat);

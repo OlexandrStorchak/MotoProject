@@ -29,9 +29,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 /**
  * The Service that listens for location changes and sends them to Firebase
  */
@@ -45,8 +42,6 @@ public class LocationListenerService extends Service implements
     //TODO: where to store notification ids?
     int mNotificationId = 3;
     GoogleApiClient mGoogleApiClient;
-    Location mCurrentLocation;
-    String mLastUpdateTime;
     String mRequestFrequency = "default";
 
     FirebaseDatabaseHelper mFirebaseHelper = new FirebaseDatabaseHelper();
@@ -120,12 +115,10 @@ public class LocationListenerService extends Service implements
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (checkLocationPermission()) {
-            Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+            Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
-            if (mLastLocation != null) {
-                mCurrentLocation = mLastLocation;
-                mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-                updateFirebaseData(mLastLocation);
+            if (lastLocation != null) {
+                mFirebaseHelper.updateOnlineUserLocation(lastLocation);
             }
         }
         startLocationUpdates();
@@ -134,11 +127,7 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onLocationChanged(Location location) {
-        mCurrentLocation = location;
-        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-        double lat = location.getLatitude();
-        double lon = location.getLongitude();
-        mFirebaseHelper.updateOnlineUserLocation(lat, lon);
+        mFirebaseHelper.updateOnlineUserLocation(location);
     }
 
     @Override
@@ -178,13 +167,6 @@ public class LocationListenerService extends Service implements
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, createLocationRequest(), this);
         }
-    }
-
-
-    private void updateFirebaseData(Location location) {
-        double lat = location.getLatitude();
-        double lon = location.getLongitude();
-        mFirebaseHelper.updateOnlineUserLocation(lat, lon);
     }
 
     private void stopLocationUpdates() {

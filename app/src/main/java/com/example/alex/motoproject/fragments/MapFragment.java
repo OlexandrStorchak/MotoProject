@@ -209,15 +209,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 //        }
         Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(event.latLng)
-                .title(event.userName));
+                .title(event.userName)
+                .anchor(0.5f, 0.5f));
         Log.d(LOG_TAG, "pin created!");
         mMarkerHashMap.put(event.uid, marker);
         fetchMarkerIcon(event.uid, event.avatarRef);
     }
 
     private void fetchMarkerIcon(final String uid, String avatarRef) {
-        // TODO: 10.02.2017 change to Glide or use a workaround to avoid garbage collecting
-        Target picassoTarget = new Target() {
+        Target target = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 mMarkerHashMap.get(uid).setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
@@ -234,7 +234,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         };
         Picasso.with(getContext()).load(avatarRef).resize(100, 100)
-                .centerCrop().transform(new CircleTransform()).into(picassoTarget);
+                .centerCrop().transform(new CircleTransform()).into(target);
     }
 
     @Subscribe
