@@ -93,7 +93,7 @@ public class FirebaseDatabaseHelper {
                         if (!dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
                             Number lat = (Number) dataSnapshot.child("lat").getValue();
                             Number lng = (Number) dataSnapshot.child("lng").getValue();
-                            if (lat != null && lng != null) { 
+                            if (lat != null && lng != null) {
                                 String uid = dataSnapshot.getKey();
                                 LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
                                 getNameByUid(uid, latLng);
@@ -163,6 +163,9 @@ public class FirebaseDatabaseHelper {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         String uid = dataSnapshot.getKey();
+                        if (getCurrentUser() == null) {
+                            return;
+                        }
                         if (!uid.equals(getCurrentUser().getUid())) {
                             EventBus.getDefault().post(new MapMarkerEvent(null, uid, null, null));
                         }
@@ -206,7 +209,7 @@ public class FirebaseDatabaseHelper {
     }
 
     public void unregisterOnlineUsersLocationListener() {
-        if (mOnlineUsersLocationListener != null) {
+        if (mOnlineUsersLocationListener != null && getCurrentUser() != null) {
             mOnlineUsersRef = mDatabase.getReference().child("onlineUsers");
             mOnlineUsersRef.removeEventListener(mOnlineUsersLocationListener);
         }
@@ -263,11 +266,7 @@ public class FirebaseDatabaseHelper {
 
     private FirebaseUser getCurrentUser() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = auth.getCurrentUser();
-        if (currentUser != null) {
-            return auth.getCurrentUser();
-        }
-        throw new RuntimeException("Current user is null");
+        return auth.getCurrentUser();
     }
 
     private void getOnlineUserDataByUid(final String uid, final String userStatus) {
