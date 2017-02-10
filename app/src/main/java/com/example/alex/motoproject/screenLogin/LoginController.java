@@ -66,7 +66,6 @@ public class LoginController extends MainActivity implements FirebaseAuth.AuthSt
 
             } else {
                 // User is signed out with email
-
                 presenterImp.isLogedOut();
             }
         } else {
