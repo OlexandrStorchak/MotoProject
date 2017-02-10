@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.fragments;
+package com.example.alex.motoproject.screenLogin;
 
 
 import android.annotation.SuppressLint;
@@ -15,21 +15,21 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.mainActivity.FragmentReplace;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_AUTH;
+
 
 public class SignUpFragment extends Fragment {
 
+    private static final String TAG = "log";
     @SuppressLint("StaticFieldLeak")
     private static SignUpFragment signUpFragmentInstance;
-
-
-    private static final String TAG = "log";
     private EditText mEmail, mPassword, mRepeatPassword;
     private FirebaseAuth mFireBaseAuth;
 
@@ -98,8 +98,7 @@ public class SignUpFragment extends Fragment {
                         & mPassword.getText().length() > 5) {
 
                     addNewUserToFireBase(mEmail.getText().toString(), mPassword.getText().toString());
-                    ((MainActivity) getActivity()).replaceFragment("fragmentAuth");
-                    ((MainActivity) getActivity()).showDialog();
+                    new FragmentReplace(getFragmentManager()).replaceFragment(FRAGMENT_AUTH);
 
 
                 }
@@ -127,7 +126,7 @@ public class SignUpFragment extends Fragment {
 
                         if (!task.isSuccessful()) {
                             Log.d(TAG, "onComplete: ");
-                            ((MainActivity) getActivity()).showToast("Authentication failed");
+
                         }
 
                         // ...

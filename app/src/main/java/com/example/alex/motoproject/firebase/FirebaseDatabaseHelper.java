@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.firebase;
 
 import android.location.Location;
+import android.net.Uri;
 import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
@@ -37,7 +38,7 @@ public class FirebaseDatabaseHelper {
     }
 
     public void addUserToFirebase(
-            final String uid, final String email, final String name, final String avatar) {
+            final String uid, final String email, final String name, final Uri avatar) {
         final DatabaseReference users = mDatabase.getReference().child("users").child(uid);
         users.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

@@ -2,12 +2,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.alex.motoproject.fragments.UsersOnlineFragment">
+    tools:context="com.example.alex.motoproject.screenOnlineUsers.UsersOnlineFragment">
 
     <android.support.v7.widget.RecyclerView
+        android:id="@+id/navigation_friends_list_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/navigation_friends_list_recycler"
 
         >
 

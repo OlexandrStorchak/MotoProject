@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.adapters;
+package com.example.alex.motoproject.screenOnlineUsers;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,17 +15,16 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import static com.example.alex.motoproject.MainActivity.mainActivity;
-import static com.example.alex.motoproject.fragments.MapFragment.mapFragmentInstance;
+import static com.example.alex.motoproject.screenMap.MapFragment.mapFragmentInstance;
 
 
-public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
+public class UsersOnlineAdapter extends RecyclerView.Adapter<UsersOnlineAdapter.VH> {
 
     private static final String TAG = "log";
     private List<OnlineUser> onlineUsers;
 
 
-    public OnlineUsersAdapter(List<OnlineUser> friendsList) {
+    public UsersOnlineAdapter(List<OnlineUser> friendsList) {
         this.onlineUsers = friendsList;
 
     }
@@ -60,9 +59,10 @@ public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.
             }
         }
         holder.mapCur.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
-                mainActivity.replaceFragment("fragmentMap");
+                UsersOnlineFragment.getInstance().showMapFragment();
                 mapFragmentInstance.moveToMarker(onlineUsers
                         .get(holder.getAdapterPosition()).getUid());
             }

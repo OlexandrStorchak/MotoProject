@@ -18,10 +18,10 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.example.alex.motoproject.App;
-import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;

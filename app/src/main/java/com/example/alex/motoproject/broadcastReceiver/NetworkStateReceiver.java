@@ -10,9 +10,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import com.example.alex.motoproject.App;
-import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.events.CancelAlertEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
+import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.utils.NotificationBuilderUtil;
 
 import org.greenrobot.eventbus.EventBus;
