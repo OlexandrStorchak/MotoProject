@@ -50,8 +50,6 @@ import static com.example.alex.motoproject.R.id.map;
  * The fragment that contains a map from Google Play Services.
  */
 
-//TODO: custom pins
-//TODO if user is offline, hide his pin
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String LOG_TAG = MapFragment.class.getSimpleName();
     public static MapFragment mapFragmentInstance;
@@ -195,18 +193,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             marker.setPosition(event.latLng);
             return;
         }
-//
-//
-//        if (mFirebaseCurrentUser.getPhotoUrl() != null) {
-//            String avatarUri = mFirebaseCurrentUser.getPhotoUrl().toString();
-//            Picasso.with(getApplicationContext())
-//                    .load(avatarUri)
-//                    .resize(mAvatarHeader.getMaxWidth(), mAvatarHeader.getMaxHeight())
-//                    .centerCrop()
-//                    .transform(new CircleTransform())
-//                    .into(mAvatarHeader);
-//
-//        }
         Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(event.latLng)
                 .title(event.userName)
@@ -236,11 +222,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         };
         Picasso.with(getContext()).load(avatarRef).resize(100, 100)
                 .centerCrop().transform(new CircleTransform()).into(target);
-    }
-
-    @Subscribe
-    public void updatePinOnMap(MapMarkerEvent event) {
-
     }
 
     private boolean checkLocationPermission() {

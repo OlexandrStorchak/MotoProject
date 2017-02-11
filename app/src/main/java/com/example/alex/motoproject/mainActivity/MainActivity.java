@@ -402,7 +402,8 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     @Override
 
     public void login(FirebaseUser user) {
-        String avatarUri = null;
+        // TODO: 11.02.2017 let users choose avatars
+        String avatarUri = "https://lh6.googleusercontent.com/8CHEec13FeJmLtv2Nbb55RNnIIwTBb0yzWOIuHoYgZeTM3JWSZVqW4iCgmEpqbP1xbfmm4HJXy7ayQc=w1920-h955";
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
             ab.show();

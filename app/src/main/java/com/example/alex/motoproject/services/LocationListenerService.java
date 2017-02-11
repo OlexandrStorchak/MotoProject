@@ -49,7 +49,6 @@ public class LocationListenerService extends Service implements
 
     private NetworkStateReceiver mNetworkStateReceiver;
 
-
     public LocationListenerService() {
         // Required empty public constructor
     }

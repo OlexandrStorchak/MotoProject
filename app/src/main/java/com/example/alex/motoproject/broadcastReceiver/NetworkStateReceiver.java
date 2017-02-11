@@ -21,6 +21,8 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class NetworkStateReceiver extends BroadcastReceiver {
 
+    // TODO: 11.02.2017 make only one instance of this class
+
     public static final int INTERNET_NOTIFICATION_ID = 1;
     public static final int GPS_NOTIFICATION_ID = 2;
     Context context;
