@@ -33,8 +33,8 @@ import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.events.CancelAlertEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.screenLogin.AuthFragment;
-import com.example.alex.motoproject.screenLogin.LoginController;
+import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
+import com.example.alex.motoproject.screenLogin.ScreenLoginController;
 import com.example.alex.motoproject.screenMap.MapFragment;
 import com.example.alex.motoproject.services.LocationListenerService;
 import com.example.alex.motoproject.utils.CircleTransform;
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     private DrawerLayout mDrawerLayout;
     private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
     private FragmentReplace mFragmentReplace;
-    private LoginController loginController;
+    private ScreenLoginController loginController;
     private android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
 
     @Override
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
         mFragmentReplace = new FragmentReplace(getSupportFragmentManager());
 
-        loginController = new LoginController(presenterImp);
+        loginController = new ScreenLoginController(presenterImp);
 
         loginController.start();
 
@@ -178,9 +178,9 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        //Send result to AuthFragment for Facebook auth.manager
+        //Send result to ScreenLoginFragment for Facebook auth.manager
 
-        AuthFragment.getCallbackManager().onActivityResult(requestCode, resultCode, data);
+        ScreenLoginFragment.getCallbackManager().onActivityResult(requestCode, resultCode, data);
 
     }
 

@@ -9,14 +9,14 @@ import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class LoginController extends MainActivity implements FirebaseAuth.AuthStateListener {
+public class ScreenLoginController extends MainActivity implements FirebaseAuth.AuthStateListener {
 
 
     private FirebaseAuth mFirebaseAuth;
     private PresenterImp presenterImp;
 
 
-    public LoginController(PresenterImp presenterImp) {
+    public ScreenLoginController(PresenterImp presenterImp) {
         this.presenterImp = presenterImp;
     }
 

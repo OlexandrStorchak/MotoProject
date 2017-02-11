@@ -4,7 +4,7 @@ package com.example.alex.motoproject.mainActivity;
 import android.support.v4.app.FragmentManager;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.screenLogin.AuthFragment;
+import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
 import com.example.alex.motoproject.screenLogin.SignUpFragment;
 import com.example.alex.motoproject.screenMap.MapFragment;
 import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersFragment;
@@ -34,7 +34,7 @@ public class FragmentReplace extends MainActivity {
                 break;
 
             case FRAGMENT_AUTH:
-                fragmentTransaction.replace(R.id.main_activity_frame, new AuthFragment());
+                fragmentTransaction.replace(R.id.main_activity_frame, new ScreenLoginFragment());
                 fragmentTransaction.commit();
                 break;
 

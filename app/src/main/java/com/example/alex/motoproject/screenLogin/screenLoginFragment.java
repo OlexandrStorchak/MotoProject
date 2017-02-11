@@ -51,7 +51,7 @@ import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMEN
 import static com.example.alex.motoproject.mainActivity.MainActivity.loginWithEmail;
 
 
-public class AuthFragment extends Fragment {
+public class ScreenLoginFragment extends Fragment {
     private static final int GOOGLE_SIGN_IN = 13;
 
 
@@ -69,7 +69,7 @@ public class AuthFragment extends Fragment {
     private Button mButtonSignInFacebook;
 
 
-    public AuthFragment() {
+    public ScreenLoginFragment() {
         // Required empty public constructor
     }
 
