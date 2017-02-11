@@ -44,6 +44,7 @@ public class ManageFragment extends MainActivity {
                         ScreenMapFragment.getInstance(),
                         FRAGMENT_MAP);
                 fragmentTransaction.commitAllowingStateLoss();
+
                 break;
 
             case FRAGMENT_ONLINE_USERS:

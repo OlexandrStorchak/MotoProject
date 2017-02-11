@@ -66,6 +66,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     private HashMap<String, Marker> mMarkerHashMap;
 
     private CameraUpdate mCameraUpdate;
+    public static final LatLng CHERKASY = new LatLng(49.443, 32.0727);
 
     public ScreenMapFragment() {
         // Required empty public constructor
@@ -134,11 +135,16 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             mMap.setMyLocationEnabled(true);
         }
         if (mCameraUpdate == null) {
-            LatLng cherkasy = new LatLng(49.443, 32.0727);
             int zoom = 11;
-            mCameraUpdate = CameraUpdateFactory.newLatLngZoom(cherkasy, zoom);
+            mCameraUpdate = CameraUpdateFactory.newLatLngZoom(CHERKASY, zoom);
         }
         map.moveCamera(mCameraUpdate);
+    }
+
+    public void onMapCk(){
+        int zoom = 11;
+        mCameraUpdate = CameraUpdateFactory.newLatLngZoom(CHERKASY, zoom);
+        mMap.moveCamera(mCameraUpdate);
     }
 
     @Override

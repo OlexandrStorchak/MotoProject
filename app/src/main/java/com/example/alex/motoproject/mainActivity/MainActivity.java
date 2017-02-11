@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
             public void onClick(View view) {
                 mFragmentReplace.replaceFragment(FRAGMENT_MAP);
                 mDrawerLayout.closeDrawers();
+                ScreenMapFragment.getInstance().onMapCk();
             }
         });
         //Button in Navigation Drawer for SignOut
