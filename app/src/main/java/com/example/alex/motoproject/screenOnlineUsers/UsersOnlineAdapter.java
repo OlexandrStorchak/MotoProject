@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.screenLogin.OnlineUser;
+import com.example.alex.motoproject.screenLogin.OnlineUserModel;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -23,10 +23,10 @@ import static com.example.alex.motoproject.screenMap.MapFragment.mapFragmentInst
 class UsersOnlineAdapter extends RecyclerView.Adapter<UsersOnlineAdapter.VH> {
 
     private static final String TAG = "log";
-    private List<OnlineUser> onlineUsers;
+    private List<OnlineUserModel> onlineUsers;
 
 
-    UsersOnlineAdapter(List<OnlineUser> friendsList) {
+    UsersOnlineAdapter(List<OnlineUserModel> friendsList) {
         this.onlineUsers = friendsList;
 
     }
@@ -38,7 +38,7 @@ class UsersOnlineAdapter extends RecyclerView.Adapter<UsersOnlineAdapter.VH> {
         return new VH(view);
     }
 
-    void setList(HashMap<String, OnlineUser> hashMap) {
+    void setList(HashMap<String, OnlineUserModel> hashMap) {
         if (onlineUsers == null) {
             onlineUsers = new ArrayList<>(hashMap.values());
         } else {
