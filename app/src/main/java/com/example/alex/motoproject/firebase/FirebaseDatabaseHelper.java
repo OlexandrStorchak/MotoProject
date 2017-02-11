@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
-import com.example.alex.motoproject.screenLogin.OnlineUserModel;
+import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class FirebaseDatabaseHelper {
     private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
-    private final HashMap<String, OnlineUserModel> onlineUserHashMap = new HashMap<>();
+    private final HashMap<String, OnlineUsersModel> onlineUserHashMap = new HashMap<>();
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference mDbReference = mDatabase.getReference();
     private ChildEventListener mOnlineUsersLocationListener;
@@ -39,7 +39,7 @@ public class FirebaseDatabaseHelper {
 
     }
 
-    public HashMap<String, OnlineUserModel> getOnlineUserHashMap() {
+    public HashMap<String, OnlineUsersModel> getOnlineUserHashMap() {
         return onlineUserHashMap;
     }
 
@@ -285,10 +285,10 @@ public class FirebaseDatabaseHelper {
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
                 if (name != null) {
                     if (!onlineUserHashMap.containsKey(uid)) {
-                        onlineUserHashMap.put(uid, new OnlineUserModel(uid, name, avatar, userStatus));
+                        onlineUserHashMap.put(uid, new OnlineUsersModel(uid, name, avatar, userStatus));
                     } else {
                         onlineUserHashMap.remove(uid);
-                        onlineUserHashMap.put(uid, new OnlineUserModel(uid, name, avatar, userStatus));
+                        onlineUserHashMap.put(uid, new OnlineUsersModel(uid, name, avatar, userStatus));
                     }
                     EventBus.getDefault().post(new FriendDataReadyEvent());
                 }

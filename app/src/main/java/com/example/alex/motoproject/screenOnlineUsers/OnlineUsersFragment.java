@@ -13,25 +13,25 @@ import android.view.ViewGroup;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.mainActivity.FragmentReplace;
+import com.example.alex.motoproject.mainActivity.ManageFragment;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_MAP;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_MAP;
 
-public class UsersOnlineFragment extends Fragment {
+public class OnlineUsersFragment extends Fragment {
 
-    public static UsersOnlineFragment usersOnlineFragmentInstance;
-    UsersOnlineAdapter adapter = new UsersOnlineAdapter(null);
+    public static OnlineUsersFragment usersOnlineFragmentInstance;
+    OnlineUsersAdapter adapter = new OnlineUsersAdapter(null);
     private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
-    public UsersOnlineFragment() {
+    public OnlineUsersFragment() {
         // Required empty public constructor
     }
 
-    public static UsersOnlineFragment getInstance() {
+    public static OnlineUsersFragment getInstance() {
         if (usersOnlineFragmentInstance == null) {
-            usersOnlineFragmentInstance = new UsersOnlineFragment();
+            usersOnlineFragmentInstance = new OnlineUsersFragment();
         }
         return usersOnlineFragmentInstance;
     }
@@ -73,6 +73,6 @@ public class UsersOnlineFragment extends Fragment {
     }
 
     public void showMapFragment() {
-        new FragmentReplace(getFragmentManager()).replaceFragment(FRAGMENT_MAP);
+        new ManageFragment(getFragmentManager()).replaceFragment(FRAGMENT_MAP);
     }
 }

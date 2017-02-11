@@ -3,11 +3,10 @@ package com.example.alex.motoproject.mainActivity;
 
 import com.google.firebase.auth.FirebaseUser;
 
-interface PresenterInterface {
+interface MainViewInterface {
 
-    void onLogin(FirebaseUser user);
+    void login(FirebaseUser user);
 
-    void onLogout();
-
+    void logout();
 
 }

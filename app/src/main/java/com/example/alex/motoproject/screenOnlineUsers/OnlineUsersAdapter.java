@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.screenLogin.OnlineUserModel;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -17,16 +16,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.alex.motoproject.screenMap.MapFragment.mapFragmentInstance;
+import static com.example.alex.motoproject.screenMap.ScreenMapFragment.mapFragmentInstance;
 
 
-class UsersOnlineAdapter extends RecyclerView.Adapter<UsersOnlineAdapter.VH> {
+class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
 
     private static final String TAG = "log";
-    private List<OnlineUserModel> onlineUsers;
+    private List<OnlineUsersModel> onlineUsers;
 
 
-    UsersOnlineAdapter(List<OnlineUserModel> friendsList) {
+    OnlineUsersAdapter(List<OnlineUsersModel> friendsList) {
         this.onlineUsers = friendsList;
 
     }
@@ -38,7 +37,7 @@ class UsersOnlineAdapter extends RecyclerView.Adapter<UsersOnlineAdapter.VH> {
         return new VH(view);
     }
 
-    void setList(HashMap<String, OnlineUserModel> hashMap) {
+    void setList(HashMap<String, OnlineUsersModel> hashMap) {
         if (onlineUsers == null) {
             onlineUsers = new ArrayList<>(hashMap.values());
         } else {
@@ -68,7 +67,7 @@ class UsersOnlineAdapter extends RecyclerView.Adapter<UsersOnlineAdapter.VH> {
 
             @Override
             public void onClick(View view) {
-                UsersOnlineFragment.getInstance().showMapFragment();
+                OnlineUsersFragment.getInstance().showMapFragment();
                 mapFragmentInstance.moveToMarker(onlineUsers
                         .get(holder.getAdapterPosition()).getUid());
             }

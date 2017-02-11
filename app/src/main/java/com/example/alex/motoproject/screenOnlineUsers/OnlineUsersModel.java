@@ -1,9 +1,9 @@
-package com.example.alex.motoproject.screenLogin;
+package com.example.alex.motoproject.screenOnlineUsers;
 
-public class OnlineUserModel {
+public class OnlineUsersModel {
     private String uid, name, avatar, status;
 
-    public OnlineUserModel(String uid, String name, String avatar, String status) {
+    public OnlineUsersModel(String uid, String name, String avatar, String status) {
         this.uid = uid;
         this.name = name;
         this.avatar = avatar;

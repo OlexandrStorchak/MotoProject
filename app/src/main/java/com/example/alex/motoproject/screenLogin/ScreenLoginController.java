@@ -4,19 +4,19 @@ package com.example.alex.motoproject.screenLogin;
 import android.support.annotation.NonNull;
 
 import com.example.alex.motoproject.mainActivity.MainActivity;
-import com.example.alex.motoproject.mainActivity.PresenterImp;
+import com.example.alex.motoproject.mainActivity.MainActivityPresenter;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class LoginController extends MainActivity implements FirebaseAuth.AuthStateListener {
+public class ScreenLoginController extends MainActivity implements FirebaseAuth.AuthStateListener {
 
 
     private FirebaseAuth mFirebaseAuth;
-    private PresenterImp presenterImp;
+    private MainActivityPresenter presenterImp;
 
 
-    public LoginController(PresenterImp presenterImp) {
+    public ScreenLoginController(MainActivityPresenter presenterImp) {
         this.presenterImp = presenterImp;
     }
 

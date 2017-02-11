@@ -186,7 +186,7 @@ public class LocationListenerService extends Service implements
                         .setShowWhen(false);
 
         //create pending intent used when tapping on the app notification
-        //open up MapFragment
+        //open up ScreenMapFragment
         Intent mapIntent = new Intent(this, MainActivity.class);
 //        //TODO is this line still needed?
 //        resultIntent.putExtra("isShouldLaunchMapFragment", true);
