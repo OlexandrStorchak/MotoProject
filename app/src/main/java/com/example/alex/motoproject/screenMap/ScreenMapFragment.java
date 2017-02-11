@@ -52,9 +52,9 @@ import static com.example.alex.motoproject.R.id.map;
 
 //TODO: custom pins
 //TODO if user is offline, hide his pin
-public class MapFragment extends Fragment implements OnMapReadyCallback {
-    private static final String LOG_TAG = MapFragment.class.getSimpleName();
-    public static MapFragment mapFragmentInstance;
+public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
+    private static final String LOG_TAG = ScreenMapFragment.class.getSimpleName();
+    public static ScreenMapFragment mapFragmentInstance;
     private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
     private MapFragmentListener mMapFragmentListener;
     private App mApp;
@@ -69,13 +69,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private CameraUpdate mCameraUpdate;
 
-    public MapFragment() {
+    public ScreenMapFragment() {
         // Required empty public constructor
     }
 
-    public static MapFragment getInstance() {
+    public static ScreenMapFragment getInstance() {
         if (mapFragmentInstance == null) {
-            mapFragmentInstance = new MapFragment();
+            mapFragmentInstance = new ScreenMapFragment();
         }
         return mapFragmentInstance;
     }

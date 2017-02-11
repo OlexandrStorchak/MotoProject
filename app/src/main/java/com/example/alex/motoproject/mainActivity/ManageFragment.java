@@ -6,18 +6,18 @@ import android.support.v4.app.FragmentManager;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
 import com.example.alex.motoproject.screenLogin.SignUpFragment;
-import com.example.alex.motoproject.screenMap.MapFragment;
+import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersFragment;
 
-import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_AUTH;
-import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_MAP;
-import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_ONLINE_USERS;
-import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_SIGN_UP;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_AUTH;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_MAP;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_ONLINE_USERS;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_SIGN_UP;
 
-public class FragmentReplace extends MainActivity {
+public class ManageFragment extends MainActivity {
     FragmentManager fragmentManager;
 
-    public FragmentReplace(FragmentManager fragmentManager) {
+    public ManageFragment(FragmentManager fragmentManager) {
 
         this.fragmentManager = fragmentManager;
     }
@@ -41,7 +41,7 @@ public class FragmentReplace extends MainActivity {
 
             case FRAGMENT_MAP:
                 fragmentTransaction.replace(R.id.main_activity_frame,
-                        MapFragment.getInstance(),
+                        ScreenMapFragment.getInstance(),
                         FRAGMENT_MAP);
                 fragmentTransaction.commitAllowingStateLoss();
                 break;

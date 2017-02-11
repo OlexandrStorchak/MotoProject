@@ -16,7 +16,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.mainActivity.FragmentReplace;
+import com.example.alex.motoproject.mainActivity.ManageFragment;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -47,7 +47,7 @@ import java.util.Collection;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
-import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_SIGN_UP;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_SIGN_UP;
 import static com.example.alex.motoproject.mainActivity.MainActivity.loginWithEmail;
 
 
@@ -190,7 +190,7 @@ public class ScreenLoginFragment extends Fragment {
         mButtonSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new FragmentReplace(getFragmentManager()).replaceFragment(FRAGMENT_SIGN_UP);
+                new ManageFragment(getFragmentManager()).replaceFragment(FRAGMENT_SIGN_UP);
             }
         });
 

@@ -3,11 +3,11 @@ package com.example.alex.motoproject.mainActivity;
 
 import com.google.firebase.auth.FirebaseUser;
 
-public class PresenterImp implements PresenterInterface {
-    private MainView mainView;
+public class MainActivityPresenter implements PresenterInterface {
+    private MainViewInterface mainView;
 
 
-    PresenterImp(MainView mainView) {
+    MainActivityPresenter(MainViewInterface mainView) {
 
         this.mainView = mainView;
     }

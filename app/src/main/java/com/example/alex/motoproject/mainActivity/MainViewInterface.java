@@ -3,7 +3,7 @@ package com.example.alex.motoproject.mainActivity;
 
 import com.google.firebase.auth.FirebaseUser;
 
-interface MainView {
+interface MainViewInterface {
 
     void login(FirebaseUser user);
 

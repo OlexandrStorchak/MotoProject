@@ -35,7 +35,7 @@ import com.example.alex.motoproject.events.ShowAlertEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
 import com.example.alex.motoproject.screenLogin.ScreenLoginController;
-import com.example.alex.motoproject.screenMap.MapFragment;
+import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 import com.example.alex.motoproject.services.LocationListenerService;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.firebase.auth.FirebaseUser;
@@ -46,11 +46,11 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
-import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_AUTH;
-import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_MAP;
-import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_ONLINE_USERS;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_AUTH;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_MAP;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_ONLINE_USERS;
 
-public class MainActivity extends AppCompatActivity implements MapFragment.MapFragmentListener, MainView {
+public class MainActivity extends AppCompatActivity implements ScreenMapFragment.MapFragmentListener, MainViewInterface {
 
     public static final int ALERT_GPS_OFF = 20;
     public static final int ALERT_INTERNET_OFF = 21;
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
     private Button mNavigationBtnSignOut;
     private DrawerLayout mDrawerLayout;
     private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
-    private FragmentReplace mFragmentReplace;
+    private ManageFragment mFragmentReplace;
     private ScreenLoginController loginController;
     private android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
 
@@ -78,9 +78,9 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         super.onCreate(savedInstanceState);
 
 
-        PresenterImp presenterImp = new PresenterImp(this);
+        MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
-        mFragmentReplace = new FragmentReplace(getSupportFragmentManager());
+        mFragmentReplace = new ManageFragment(getSupportFragmentManager());
 
         loginController = new ScreenLoginController(presenterImp);
 
@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
     public void handleLocation() {
         if (checkLocationPermission()) { //permission granted
-            MapFragment fragment = (MapFragment)
+            ScreenMapFragment fragment = (ScreenMapFragment)
                     fragmentManager.findFragmentByTag(FRAGMENT_MAP);
             fragment.onLocationAllowed();
         } else { //permission was not granted, show the permission prompt

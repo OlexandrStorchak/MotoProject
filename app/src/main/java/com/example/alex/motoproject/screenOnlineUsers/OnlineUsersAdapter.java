@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.alex.motoproject.screenMap.MapFragment.mapFragmentInstance;
+import static com.example.alex.motoproject.screenMap.ScreenMapFragment.mapFragmentInstance;
 
 
 class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
