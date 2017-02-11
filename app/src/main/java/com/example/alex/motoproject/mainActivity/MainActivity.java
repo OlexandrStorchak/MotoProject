@@ -400,8 +400,9 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
 
     @Override
+
     public void login(FirebaseUser user) {
-        String avatarUri;
+        String avatarUri = null;
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
             ab.show();
@@ -417,7 +418,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
         if (user.getPhotoUrl() != null) {
             mAvatarHeader.setVisibility(View.VISIBLE);
-
             avatarUri = user.getPhotoUrl().toString();
             Picasso.with(getApplicationContext())
                     .load(avatarUri)
@@ -425,16 +425,14 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
                     .centerCrop()
                     .transform(new CircleTransform())
                     .into(mAvatarHeader);
-
         }
 
         mFragmentReplace.replaceFragment(FRAGMENT_MAP);
-
-        mDatabaseHelper.addUserToFirebase(user.getUid(),
+        mDatabaseHelper.addUserToFirebase(
+                user.getUid(),
                 user.getEmail(),
                 user.getDisplayName(),
-                user.getPhotoUrl());
-
+                avatarUri);
         mDatabaseHelper.setUserOnline("noGps");
 
     }

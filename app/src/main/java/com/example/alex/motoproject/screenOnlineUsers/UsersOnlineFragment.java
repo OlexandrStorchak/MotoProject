@@ -39,7 +39,7 @@ public class UsersOnlineFragment extends Fragment {
     @Override
     public void onStop() {
         EventBus.getDefault().unregister(this);
-        databaseHelper.unregisterOnlineUsersListener();
+        databaseHelper.unregisterOnlineUsersDataListener();
         databaseHelper.getOnlineUserHashMap().clear();
         super.onStop();
     }

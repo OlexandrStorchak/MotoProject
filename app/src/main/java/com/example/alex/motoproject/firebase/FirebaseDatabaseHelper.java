@@ -1,7 +1,6 @@
 package com.example.alex.motoproject.firebase;
 
 import android.location.Location;
-import android.net.Uri;
 import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
@@ -20,15 +19,21 @@ import com.google.firebase.database.ValueEventListener;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class FirebaseDatabaseHelper {
     private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
     private final HashMap<String, OnlineUser> onlineUserHashMap = new HashMap<>();
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
+    private DatabaseReference mDbReference = mDatabase.getReference();
     private ChildEventListener mOnlineUsersLocationListener;
-    private ChildEventListener onlineUsersListener;
+    private ChildEventListener mOnlineUsersDataListener;
     private DatabaseReference mOnlineUsersRef;
+
+    //    private ArrayList<ValueEventListener> mLocationListeners = new ArrayList<>();
+    private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
+    private HashMap<DatabaseReference, ValueEventListener> mUsersDataListeners = new HashMap<>();
 
     public FirebaseDatabaseHelper() {
 
@@ -38,15 +43,20 @@ public class FirebaseDatabaseHelper {
         return onlineUserHashMap;
     }
 
+    public FirebaseUser getCurrentUser() {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        return auth.getCurrentUser();
+    }
+
     public void setUserOnline(String status) {
         String uid = getCurrentUser().getUid();
-        DatabaseReference onlineUsers = mDatabase.getReference().child("onlineUsers").child(uid);
+        DatabaseReference onlineUsers = mDbReference.child("onlineUsers").child(uid);
         onlineUsers.setValue(status);
     }
 
     public void setUserOffline() {
         String uid = getCurrentUser().getUid();
-        DatabaseReference onlineUsers = mDatabase.getReference().child("onlineUsers").child(uid);
+        DatabaseReference onlineUsers = mDbReference.child("onlineUsers").child(uid);
         onlineUsers.removeValue();
     }
 
@@ -55,15 +65,15 @@ public class FirebaseDatabaseHelper {
         double lat = location.getLatitude();
         double lng = location.getLongitude();
         Log.d(LOG_TAG, "updateUserLocation: " + uid);
-        DatabaseReference myRef = mDatabase.getReference().child("location").child(uid);
+        DatabaseReference myRef = mDbReference.child("location").child(uid);
         myRef.child("lat").setValue(lat);
         myRef.child("lng").setValue(lng);
     }
 
     //Called when user auth state changes. Adds required user data to Firebase
     public void addUserToFirebase(
-            final String uid, final String email, final String name, final Uri avatar) {
-        final DatabaseReference currentUserRef = mDatabase.getReference().child("users").child(uid);
+            final String uid, final String email, final String name, final String avatar) {
+        final DatabaseReference currentUserRef = mDbReference.child("users").child(uid);
         currentUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -86,108 +96,21 @@ public class FirebaseDatabaseHelper {
     }
 
     public void registerOnlineUsersLocationListener() {
-        mOnlineUsersRef = mDatabase.getReference().child("onlineUsers");
+        mOnlineUsersRef = mDbReference.child("onlineUsers");
         mOnlineUsersLocationListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (dataSnapshot.getValue() instanceof String) {
-                    String status = (String) dataSnapshot.getValue();
-                    if (!status.equals("public")) {
-                        return;
-                    }
-                }
-                DatabaseReference location =
-                        mDatabase.getReference().child("location").child(dataSnapshot.getKey());
-                location.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
-                            Number lat = (Number) dataSnapshot.child("lat").getValue();
-                            Number lng = (Number) dataSnapshot.child("lng").getValue();
-                            if (lat != null && lng != null) {
-                                String uid = dataSnapshot.getKey();
-                                LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
-                                getNameByUid(uid, latLng);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                postChangeMarkerEvent(dataSnapshot);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                if (dataSnapshot.getValue() instanceof String) {
-                    String status = (String) dataSnapshot.getValue();
-                    if (status.equals("public")) {
-                        DatabaseReference location =
-                                mDatabase.getReference().child("location").child(dataSnapshot.getKey());
-                        location.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (!dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
-                                    Double lat = (Double) dataSnapshot.child("lat").getValue();
-                                    Double lng = (Double) dataSnapshot.child("lng").getValue();
-                                    if (lat != null && lng != null) { // TODO: 07.02.2017 delete if statement
-                                        String uid = dataSnapshot.getKey();
-                                        LatLng latLng = new LatLng(lat, lng);
-                                        getNameByUid(uid, latLng);
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                        return;
-                    }
-                }
-                DatabaseReference location =
-                        mDatabase.getReference().child("location").child(dataSnapshot.getKey());
-                location.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        String uid = dataSnapshot.getKey();
-                        if (!uid.equals(getCurrentUser().getUid())) {
-                            EventBus.getDefault().post(new MapMarkerEvent(null, uid, null, null));
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                postChangeMarkerEvent(dataSnapshot);
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                DatabaseReference location =
-                        mDatabase.getReference().child("location").child(dataSnapshot.getKey());
-                location.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        String uid = dataSnapshot.getKey();
-                        if (getCurrentUser() == null) {
-                            return;
-                        }
-                        if (!uid.equals(getCurrentUser().getUid())) {
-                            EventBus.getDefault().post(new MapMarkerEvent(null, uid, null, null));
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
+                postDeleteMarkerEvent(dataSnapshot);
             }
 
             @Override
@@ -205,23 +128,60 @@ public class FirebaseDatabaseHelper {
 
     public void unregisterOnlineUsersLocationListener() {
         if (mOnlineUsersLocationListener != null && getCurrentUser() != null) {
-            mOnlineUsersRef = mDatabase.getReference().child("onlineUsers");
+            mOnlineUsersRef = mDbReference.child("onlineUsers");
             mOnlineUsersRef.removeEventListener(mOnlineUsersLocationListener);
+        }
+
+        if (!mLocationListeners.isEmpty()) {
+            for (Map.Entry<DatabaseReference, ValueEventListener> entry :
+                    mLocationListeners.entrySet()) {
+                DatabaseReference ref = entry.getKey();
+                ValueEventListener listener = entry.getValue();
+                ref.removeEventListener(listener);
+            }
         }
     }
 
-    private void getNameByUid(final String uid, final LatLng latLng) {
-        DatabaseReference nameRef = mDatabase.getReference().child("users").child(uid).child("name");
-        nameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void postChangeMarkerEvent(DataSnapshot dataSnapshot) {
+        if (dataSnapshot.getValue() instanceof String) {
+            String status = (String) dataSnapshot.getValue();
+            if (!status.equals("public")) {
+                return;
+            }
+        }
+        DatabaseReference location =
+                mDbReference.child("location").child(dataSnapshot.getKey());
+        ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                final String name = (String) dataSnapshot.getValue();
-                DatabaseReference ref = mDatabase.getReference().child("users").child(uid).child("avatar");
-                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
+                    return;
+                }
+                Number lat = (Number) dataSnapshot.child("lat").getValue();
+                Number lng = (Number) dataSnapshot.child("lng").getValue();
+                if (lat == null || lng == null) {
+                    return;
+                }
+                final String uid = dataSnapshot.getKey();
+                final LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
+                DatabaseReference nameRef = mDbReference.child("users").child(uid).child("name");
+                nameRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        String avatarRef = (String) dataSnapshot.getValue();
-                        EventBus.getDefault().post(new MapMarkerEvent(latLng, uid, name, avatarRef));
+                        final String name = (String) dataSnapshot.getValue();
+                        DatabaseReference ref = mDbReference.child("users").child(uid).child("avatar");
+                        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                String avatarRef = (String) dataSnapshot.getValue();
+                                EventBus.getDefault().post(new MapMarkerEvent(latLng, uid, name, avatarRef));
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
                     }
 
                     @Override
@@ -229,6 +189,31 @@ public class FirebaseDatabaseHelper {
 
                     }
                 });
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        location.addValueEventListener(listener);
+        mLocationListeners.put(location, listener);
+    }
+
+    private void postDeleteMarkerEvent(DataSnapshot dataSnapshot) {
+        DatabaseReference location =
+                mDbReference.child("location").child(dataSnapshot.getKey());
+        location.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (getCurrentUser() == null) {
+                    return;
+                }
+                String uid = dataSnapshot.getKey();
+                if (!uid.equals(getCurrentUser().getUid())) {
+                    EventBus.getDefault().post(new MapMarkerEvent(null, uid, null, null));
+                }
             }
 
             @Override
@@ -240,41 +225,21 @@ public class FirebaseDatabaseHelper {
 
     public void registerOnlineUsersListener() {
         // Read from the mDatabase
-        DatabaseReference myRef = mDatabase.getReference().child("onlineUsers");
-        onlineUsersListener = new ChildEventListener() {
+        DatabaseReference myRef = mDbReference.child("onlineUsers");
+        mOnlineUsersDataListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                String uid = dataSnapshot.getKey();
-                Object userStatus = dataSnapshot.getValue();
-                if (userStatus instanceof String) // TODO: 08.02.2017 remove this line
-                    getOnlineUserDataByUid(uid, (String) userStatus);
+                postUserDataReadyEvent(dataSnapshot);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                String uid = dataSnapshot.getKey();
-                Object userStatus = dataSnapshot.getValue();
-                if (userStatus instanceof String) { // TODO: 08.02.2017 remove this line
-                    getOnlineUserDataByUid(uid, (String) userStatus);
-                }
+                postUserDataReadyEvent(dataSnapshot);
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                final String uid = dataSnapshot.getKey();
-                DatabaseReference ref = mDatabase.getReference().child("users").child(uid);
-                ref.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        onlineUserHashMap.remove(uid);
-                        EventBus.getDefault().post(new FriendDataReadyEvent());
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                postUserDataDeletedEvent(dataSnapshot);
             }
 
             @Override
@@ -287,22 +252,33 @@ public class FirebaseDatabaseHelper {
 
             }
         };
-        myRef.addChildEventListener(onlineUsersListener);
+        myRef.addChildEventListener(mOnlineUsersDataListener);
     }
 
-    public void unregisterOnlineUsersListener() {
-        DatabaseReference myRef = mDatabase.getReference().child("onlineUsers");
-        myRef.removeEventListener(onlineUsersListener);
+    public void unregisterOnlineUsersDataListener() {
+        if (mOnlineUsersDataListener != null && getCurrentUser() != null) {
+            DatabaseReference myRef = mDbReference.child("onlineUsers");
+            myRef.removeEventListener(mOnlineUsersDataListener);
+        }
+
+        if (!mUsersDataListeners.isEmpty()) {
+            for (Map.Entry<DatabaseReference, ValueEventListener> entry :
+                    mUsersDataListeners.entrySet()) {
+                DatabaseReference ref = entry.getKey();
+                ValueEventListener listener = entry.getValue();
+                ref.removeEventListener(listener);
+            }
+        }
     }
 
-    public FirebaseUser getCurrentUser() {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        return auth.getCurrentUser();
-    }
-
-    private void getOnlineUserDataByUid(final String uid, final String userStatus) {
-        DatabaseReference ref = mDatabase.getReference().child("users").child(uid);
-        ref.addValueEventListener(new ValueEventListener() {
+    private void postUserDataReadyEvent(DataSnapshot dataSnapshot) {
+        if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
+            return;
+        }
+        final String uid = dataSnapshot.getKey();
+        final String userStatus = (String) dataSnapshot.getValue();
+        DatabaseReference ref = mDbReference.child("users").child(uid);
+        ValueEventListener userDataListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
@@ -316,6 +292,25 @@ public class FirebaseDatabaseHelper {
                     }
                     EventBus.getDefault().post(new FriendDataReadyEvent());
                 }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        ref.addValueEventListener(userDataListener);
+        mUsersDataListeners.put(ref, userDataListener);
+    }
+
+    private void postUserDataDeletedEvent(DataSnapshot dataSnapshot) {
+        final String uid = dataSnapshot.getKey();
+        DatabaseReference ref = mDbReference.child("users").child(uid);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                onlineUserHashMap.remove(uid);
+                EventBus.getDefault().post(new FriendDataReadyEvent());
             }
 
             @Override
