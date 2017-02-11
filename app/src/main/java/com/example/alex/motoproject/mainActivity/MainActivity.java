@@ -36,6 +36,7 @@ import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.screenLogin.AuthFragment;
 import com.example.alex.motoproject.screenLogin.LoginController;
 import com.example.alex.motoproject.screenMap.MapFragment;
+import com.example.alex.motoproject.services.LocationListenerService;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
@@ -126,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
             public void onClick(View view) {
                 mDatabaseHelper.setUserOffline();
                 loginController.signOut();
+                stopService(new Intent(MainActivity.this, LocationListenerService.class));
 
 
             }

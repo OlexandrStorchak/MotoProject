@@ -89,7 +89,9 @@ public class LocationListenerService extends Service implements
         if (((App) getApplication()).isMainActivityDestroyed()) {
             mFirebaseHelper.setUserOffline();
         } else {
-            mFirebaseHelper.setUserOnline("noGps");
+            if (mFirebaseHelper.getCurrentUser() != null) {
+                mFirebaseHelper.setUserOnline("noGps");
+            }
         }
 
 

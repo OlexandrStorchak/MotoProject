@@ -283,7 +283,7 @@ public class FirebaseDatabaseHelper {
         myRef.removeEventListener(onlineUsersListener);
     }
 
-    private FirebaseUser getCurrentUser() {
+    public FirebaseUser getCurrentUser() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         return auth.getCurrentUser();
     }
