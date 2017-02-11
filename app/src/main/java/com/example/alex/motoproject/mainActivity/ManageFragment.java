@@ -35,7 +35,7 @@ public class ManageFragment extends MainActivity {
 
             case FRAGMENT_AUTH:
                 fragmentTransaction.replace(R.id.main_activity_frame, new ScreenLoginFragment());
-                fragmentTransaction.commit();
+                fragmentTransaction.commitAllowingStateLoss();
                 break;
 
 

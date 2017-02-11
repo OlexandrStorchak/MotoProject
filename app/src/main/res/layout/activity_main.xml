@@ -24,9 +24,7 @@
         android:paddingTop="?attr/actionBarSize"
         app:headerLayout="@layout/navigation_header">
 
-        <include
-            android:id="@+id/navigation_menu_layout"
-            layout="@layout/navigation_custom_menu"
+        <include layout="@layout/navigation_custom_menu"
             />
 
 

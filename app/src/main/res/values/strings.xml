@@ -4,18 +4,12 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Налаштування</string>
     <string name="menu_navi_tittle_maps">Мапа</string>
-    <string name="menu_navi_tittle_friends">Друзі</string>
-    <string name="menu_navi_tittle_chat">Чат</string>
-    <string name="menu_navi_tittle_events">Події</string>
-    <string name="menu_navi_tittle_info">Інформація</string>
 
     <string name="facebook_app_id">1738320186485515</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="location_rationale">Без дозволу на використання GPS ви не зможете ділитися своїм місцезнаходженням з іншими користувачами. Дозволити використання GPS?</string>
-    <string name="start_driving">Я виїхав</string>
     <string name="gps_turned_off_alert">GPS вимкнено. Увімкнути?</string>
     <string name="internet_turned_off_alert">Інтернет-з\'єднання вимкнено. Увімкнути?</string>
     <string name="turn_on_mobile_internet">Увімкнути моб. Інтернет</string>
@@ -24,33 +18,24 @@
     <string name="how_to_change_location_setting">Ви можете змінити свій вибір у налаштуваннях. Дозволи —> Ваше місцезнаходження</string>
     <string name="ok">Гаразд</string>
     <string name="close">Закрити</string>
-    <string name="multiple_button_pressing_easter_egg">Схоже, у вас з\'явилися перші ознаки хвороби паркінсона. Радимо вам звернутися до лікаря</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="auth_sign_out">Вихід</string>
     <string name="hint_e_mail">Імейл</string>
     <string name="hint_pass">Пароль</string>
     <string name="hint_repeat_pass">Повторіть пароль</string>
-    <string name="btn_sign_in">Увійти</string>
     <string name="sign_up">Приєднатись</string>
     <string name="google">Google аккаунт</string>
-    <string name="login_screen_title">Увійти</string>
     <string name="login">Логін</string>
     <string name="submit">Підтвердити</string>
     <string name="email_is_empty">Введіть імейл адресу</string>
     <string name="enter_password">Введіть пароль</string>
     <string name="less_6_chars">Пароль коротший за 6 символів</string>
     <string name="avatar">avatar</string>
-    <string name="enter_email">Введіть імейл</string>
     <string name="pass_not_mutch">mPassword not mutch</string>
     <string name="who_is_online">Хто онлайн</string>
 
-    <string name="alert_dialog_ok">Зрозуміло!</string>
-    <string name="alert_dialog_text">На ваш імейл відправлено лист активації облікового запису</string>
-    <string name="back_to_menu">В меню</string>
-    <string name="friends">Друзі</string>
     <string name="facebook">Facebook</string>
 
 </resources>
