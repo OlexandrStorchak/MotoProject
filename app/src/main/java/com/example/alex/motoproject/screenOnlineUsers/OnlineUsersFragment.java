@@ -20,18 +20,18 @@ import org.greenrobot.eventbus.Subscribe;
 
 import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_MAP;
 
-public class UsersOnlineFragment extends Fragment {
+public class OnlineUsersFragment extends Fragment {
 
-    public static UsersOnlineFragment usersOnlineFragmentInstance;
-    UsersOnlineAdapter adapter = new UsersOnlineAdapter(null);
+    public static OnlineUsersFragment usersOnlineFragmentInstance;
+    OnlineUsersAdapter adapter = new OnlineUsersAdapter(null);
     private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
-    public UsersOnlineFragment() {
+    public OnlineUsersFragment() {
         // Required empty public constructor
     }
 
-    public static UsersOnlineFragment getInstance() {
+    public static OnlineUsersFragment getInstance() {
         if (usersOnlineFragmentInstance == null) {
-            usersOnlineFragmentInstance = new UsersOnlineFragment();
+            usersOnlineFragmentInstance = new OnlineUsersFragment();
         }
         return usersOnlineFragmentInstance;
     }

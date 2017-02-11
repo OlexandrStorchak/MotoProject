@@ -7,7 +7,7 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.screenLogin.AuthFragment;
 import com.example.alex.motoproject.screenLogin.SignUpFragment;
 import com.example.alex.motoproject.screenMap.MapFragment;
-import com.example.alex.motoproject.screenOnlineUsers.UsersOnlineFragment;
+import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersFragment;
 
 import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_AUTH;
 import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_MAP;
@@ -48,7 +48,7 @@ public class FragmentReplace extends MainActivity {
 
             case FRAGMENT_ONLINE_USERS:
 
-                fragmentTransaction.replace(R.id.main_activity_frame, UsersOnlineFragment.getInstance());
+                fragmentTransaction.replace(R.id.main_activity_frame, OnlineUsersFragment.getInstance());
                 fragmentTransaction.commit();
                 break;
         }
