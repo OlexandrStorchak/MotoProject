@@ -40,6 +40,7 @@ public class UsersOnlineFragment extends Fragment {
     public void onStop() {
         EventBus.getDefault().unregister(this);
         databaseHelper.unregisterOnlineUsersListener();
+        databaseHelper.getOnlineUserHashMap().clear();
         super.onStop();
     }
 
@@ -64,16 +65,7 @@ public class UsersOnlineFragment extends Fragment {
 
     @Subscribe
     public void onFriendDataReady(FriendDataReadyEvent event) {
-        RecyclerView rv = (RecyclerView) getActivity()
-                .findViewById(R.id.navigation_friends_list_recycler);
-        adapter.notifyDataSetChanged();
-        if (rv.getAdapter() == null) {
-            setOnlineUsersAdapter();
-        }
-    }
-
-    private void setOnlineUsersAdapter() {
-        adapter.setList(databaseHelper.getOnlineUserList());
+        adapter.setList(databaseHelper.getOnlineUserHashMap());
 
         RecyclerView rv = (RecyclerView) getActivity().findViewById(R.id.navigation_friends_list_recycler);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));

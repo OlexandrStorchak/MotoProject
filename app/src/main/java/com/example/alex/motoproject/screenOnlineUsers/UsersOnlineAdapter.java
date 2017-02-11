@@ -13,6 +13,8 @@ import com.example.alex.motoproject.models.OnlineUser;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.example.alex.motoproject.screenMap.MapFragment.mapFragmentInstance;
@@ -36,9 +38,13 @@ class UsersOnlineAdapter extends RecyclerView.Adapter<UsersOnlineAdapter.VH> {
         return new VH(view);
     }
 
-    void setList(List<OnlineUser> newList) {
-        onlineUsers = newList;
-
+    void setList(HashMap<String, OnlineUser> hashMap) {
+        if (onlineUsers == null) {
+            onlineUsers = new ArrayList<>(hashMap.values());
+        } else {
+            onlineUsers.clear();
+            onlineUsers.addAll(hashMap.values());
+        }
     }
 
     @Override

@@ -19,13 +19,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 
 public class FirebaseDatabaseHelper {
     private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
-    private final List<OnlineUser> onlineUserList = new ArrayList<>();
+    private final HashMap<String, OnlineUser> onlineUserHashMap = new HashMap<>();
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private ChildEventListener mOnlineUsersLocationListener;
     private ChildEventListener onlineUsersListener;
@@ -35,8 +34,8 @@ public class FirebaseDatabaseHelper {
 
     }
 
-    public List<OnlineUser> getOnlineUserList() {
-        return onlineUserList;
+    public HashMap<String, OnlineUser> getOnlineUserHashMap() {
+        return onlineUserHashMap;
     }
 
     public void setUserOnline(String status) {
@@ -245,7 +244,7 @@ public class FirebaseDatabaseHelper {
         onlineUsersListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                onlineUserList.clear();
+//                onlineUserList.clear();
                 String uid = dataSnapshot.getKey();
                 Object userStatus = dataSnapshot.getValue();
                 if (userStatus instanceof String) // TODO: 08.02.2017 remove this line
@@ -256,8 +255,9 @@ public class FirebaseDatabaseHelper {
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 String uid = dataSnapshot.getKey();
                 Object userStatus = dataSnapshot.getValue();
-                if (userStatus instanceof String) // TODO: 08.02.2017 remove this line
+                if (userStatus instanceof String) { // TODO: 08.02.2017 remove this line
                     getOnlineUserDataByUid(uid, (String) userStatus);
+                }
             }
 
             @Override
@@ -296,7 +296,12 @@ public class FirebaseDatabaseHelper {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
                 if (name != null) {
-                    onlineUserList.add(new OnlineUser(uid, name, avatar, userStatus));
+                    if (!onlineUserHashMap.containsKey(uid)) {
+                        onlineUserHashMap.put(uid, new OnlineUser(uid, name, avatar, userStatus));
+                    } else {
+                        onlineUserHashMap.remove(uid);
+                        onlineUserHashMap.put(uid, new OnlineUser(uid, name, avatar, userStatus));
+                    }
                     EventBus.getDefault().post(new FriendDataReadyEvent());
                 }
             }
