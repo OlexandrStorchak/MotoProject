@@ -3,7 +3,7 @@ package com.example.alex.motoproject.mainActivity;
 
 import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivityPresenter implements PresenterInterface {
+public class MainActivityPresenter implements MainPresenterInterface {
     private MainViewInterface mainView;
 
 
