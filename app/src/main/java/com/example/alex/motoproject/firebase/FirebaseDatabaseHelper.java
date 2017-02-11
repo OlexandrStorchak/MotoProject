@@ -244,7 +244,6 @@ public class FirebaseDatabaseHelper {
         onlineUsersListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                onlineUserList.clear();
                 String uid = dataSnapshot.getKey();
                 Object userStatus = dataSnapshot.getValue();
                 if (userStatus instanceof String) // TODO: 08.02.2017 remove this line
@@ -262,7 +261,20 @@ public class FirebaseDatabaseHelper {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+                final String uid = dataSnapshot.getKey();
+                DatabaseReference ref = mDatabase.getReference().child("users").child(uid);
+                ref.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        onlineUserHashMap.remove(uid);
+                        EventBus.getDefault().post(new FriendDataReadyEvent());
+                    }
 
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
 
             @Override
