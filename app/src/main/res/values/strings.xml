@@ -4,10 +4,38 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
     <string name="menu_navi_tittle_maps">Мапа</string>
-    <string name="menu_navi_tittle_friends">Друзі</string>
-    <string name="menu_navi_tittle_chat">Чат</string>
-    <string name="menu_navi_tittle_events">Події</string>
-    <string name="menu_navi_tittle_info">Інформація</string>
+
+    <string name="facebook_app_id">1738320186485515</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="location_rationale">Без дозволу на використання GPS ви не зможете ділитися своїм місцезнаходженням з іншими користувачами. Дозволити використання GPS?</string>
+    <string name="gps_turned_off_alert">GPS вимкнено. Увімкнути?</string>
+    <string name="internet_turned_off_alert">Інтернет-з\'єднання вимкнено. Увімкнути?</string>
+    <string name="turn_on_mobile_internet">Увімкнути моб. Інтернет</string>
+    <string name="turn_on_wifi">Увімкнути WIFI</string>
+    <string name="to_settings">В налаштування</string>
+    <string name="how_to_change_location_setting">Ви можете змінити свій вибір у налаштуваннях. Дозволи —> Ваше місцезнаходження</string>
+    <string name="ok">Гаразд</string>
+    <string name="close">Закрити</string>
+
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="auth_sign_out">Вихід</string>
+    <string name="hint_e_mail">Імейл</string>
+    <string name="hint_pass">Пароль</string>
+    <string name="hint_repeat_pass">Повторіть пароль</string>
+    <string name="sign_up">Приєднатись</string>
+    <string name="google">Google аккаунт</string>
+    <string name="login">Логін</string>
+    <string name="submit">Підтвердити</string>
+    <string name="email_is_empty">Введіть імейл адресу</string>
+    <string name="enter_password">Введіть пароль</string>
+    <string name="less_6_chars">Пароль коротший за 6 символів</string>
+    <string name="avatar">avatar</string>
+    <string name="pass_not_mutch">mPassword not mutch</string>
+    <string name="who_is_online">Хто онлайн</string>
+
+    <string name="facebook">Facebook</string>
+
 </resources>

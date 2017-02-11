@@ -1,0 +1,322 @@
+package com.example.alex.motoproject.firebase;
+
+import android.location.Location;
+import android.util.Log;
+
+import com.example.alex.motoproject.events.FriendDataReadyEvent;
+import com.example.alex.motoproject.events.MapMarkerEvent;
+import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersModel;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.HashMap;
+import java.util.Map;
+
+
+public class FirebaseDatabaseHelper {
+    private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
+    private final HashMap<String, OnlineUsersModel> onlineUserHashMap = new HashMap<>();
+    private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
+    private DatabaseReference mDbReference = mDatabase.getReference();
+    private ChildEventListener mOnlineUsersLocationListener;
+    private ChildEventListener mOnlineUsersDataListener;
+    private DatabaseReference mOnlineUsersRef;
+
+    //    private ArrayList<ValueEventListener> mLocationListeners = new ArrayList<>();
+    private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
+    private HashMap<DatabaseReference, ValueEventListener> mUsersDataListeners = new HashMap<>();
+
+    public FirebaseDatabaseHelper() {
+
+    }
+
+    public HashMap<String, OnlineUsersModel> getOnlineUserHashMap() {
+        return onlineUserHashMap;
+    }
+
+    public FirebaseUser getCurrentUser() {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        return auth.getCurrentUser();
+    }
+
+    public void setUserOnline(String status) {
+        String uid = getCurrentUser().getUid();
+        DatabaseReference onlineUsers = mDbReference.child("onlineUsers").child(uid);
+        onlineUsers.setValue(status);
+    }
+
+    public void setUserOffline() {
+        String uid = getCurrentUser().getUid();
+        DatabaseReference onlineUsers = mDbReference.child("onlineUsers").child(uid);
+        onlineUsers.removeValue();
+    }
+
+    public void updateUserLocation(Location location) {
+        String uid = getCurrentUser().getUid();
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
+        Log.d(LOG_TAG, "updateUserLocation: " + uid);
+        DatabaseReference myRef = mDbReference.child("location").child(uid);
+        myRef.child("lat").setValue(lat);
+        myRef.child("lng").setValue(lng);
+    }
+
+    //Called when user auth state changes. Adds required user data to Firebase
+    public void addUserToFirebase(
+            final String uid, final String email, final String name, final String avatar) {
+        final DatabaseReference currentUserRef = mDbReference.child("users").child(uid);
+        currentUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) { //Required data already exists
+                    return;
+                }
+                //No data found by the reference, add new data
+                currentUserRef.child("email").setValue(email);
+                currentUserRef.child("name").setValue(name);
+                currentUserRef.child("avatar").setValue(avatar);
+                currentUserRef.child("friendsRequest").child("userId").setValue("1");
+                currentUserRef.child("friendsRequest").child("time").setValue("1");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void registerOnlineUsersLocationListener() {
+        mOnlineUsersRef = mDbReference.child("onlineUsers");
+        mOnlineUsersLocationListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                postChangeMarkerEvent(dataSnapshot);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                postChangeMarkerEvent(dataSnapshot);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                postDeleteMarkerEvent(dataSnapshot);
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        mOnlineUsersRef.addChildEventListener(mOnlineUsersLocationListener);
+    }
+
+    public void unregisterOnlineUsersLocationListener() {
+        if (mOnlineUsersLocationListener != null && getCurrentUser() != null) {
+            mOnlineUsersRef = mDbReference.child("onlineUsers");
+            mOnlineUsersRef.removeEventListener(mOnlineUsersLocationListener);
+        }
+
+        if (!mLocationListeners.isEmpty()) {
+            for (Map.Entry<DatabaseReference, ValueEventListener> entry :
+                    mLocationListeners.entrySet()) {
+                DatabaseReference ref = entry.getKey();
+                ValueEventListener listener = entry.getValue();
+                ref.removeEventListener(listener);
+            }
+        }
+    }
+
+    private void postChangeMarkerEvent(DataSnapshot dataSnapshot) {
+        if (dataSnapshot.getValue() instanceof String) {
+            String status = (String) dataSnapshot.getValue();
+            if (!status.equals("public")) {
+                return;
+            }
+        }
+        DatabaseReference location =
+                mDbReference.child("location").child(dataSnapshot.getKey());
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
+                    return;
+                }
+                Number lat = (Number) dataSnapshot.child("lat").getValue();
+                Number lng = (Number) dataSnapshot.child("lng").getValue();
+                if (lat == null || lng == null) {
+                    return;
+                }
+                final String uid = dataSnapshot.getKey();
+                final LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
+                DatabaseReference nameRef = mDbReference.child("users").child(uid).child("name");
+                nameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final String name = (String) dataSnapshot.getValue();
+                        DatabaseReference ref = mDbReference.child("users").child(uid).child("avatar");
+                        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                String avatarRef = (String) dataSnapshot.getValue();
+                                EventBus.getDefault().post(new MapMarkerEvent(latLng, uid, name, avatarRef));
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        location.addValueEventListener(listener);
+        mLocationListeners.put(location, listener);
+    }
+
+    private void postDeleteMarkerEvent(DataSnapshot dataSnapshot) {
+        DatabaseReference location =
+                mDbReference.child("location").child(dataSnapshot.getKey());
+        location.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (getCurrentUser() == null) {
+                    return;
+                }
+                String uid = dataSnapshot.getKey();
+                if (!uid.equals(getCurrentUser().getUid())) {
+                    EventBus.getDefault().post(new MapMarkerEvent(null, uid, null, null));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void registerOnlineUsersListener() {
+        // Read from the mDatabase
+        DatabaseReference myRef = mDbReference.child("onlineUsers");
+        mOnlineUsersDataListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                postUserDataReadyEvent(dataSnapshot);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                postUserDataReadyEvent(dataSnapshot);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                postUserDataDeletedEvent(dataSnapshot);
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        myRef.addChildEventListener(mOnlineUsersDataListener);
+    }
+
+    public void unregisterOnlineUsersDataListener() {
+        if (mOnlineUsersDataListener != null && getCurrentUser() != null) {
+            DatabaseReference myRef = mDbReference.child("onlineUsers");
+            myRef.removeEventListener(mOnlineUsersDataListener);
+        }
+
+        if (!mUsersDataListeners.isEmpty()) {
+            for (Map.Entry<DatabaseReference, ValueEventListener> entry :
+                    mUsersDataListeners.entrySet()) {
+                DatabaseReference ref = entry.getKey();
+                ValueEventListener listener = entry.getValue();
+                ref.removeEventListener(listener);
+            }
+        }
+    }
+
+    private void postUserDataReadyEvent(DataSnapshot dataSnapshot) {
+        if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
+            return;
+        }
+        final String uid = dataSnapshot.getKey();
+        final String userStatus = (String) dataSnapshot.getValue();
+        DatabaseReference ref = mDbReference.child("users").child(uid);
+        ValueEventListener userDataListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String name = (String) dataSnapshot.child("name").getValue();
+                String avatar = (String) dataSnapshot.child("avatar").getValue();
+                if (name != null) {
+                    if (!onlineUserHashMap.containsKey(uid)) {
+                        onlineUserHashMap.put(uid, new OnlineUsersModel(uid, name, avatar, userStatus));
+                    } else {
+                        onlineUserHashMap.remove(uid);
+                        onlineUserHashMap.put(uid, new OnlineUsersModel(uid, name, avatar, userStatus));
+                    }
+                    EventBus.getDefault().post(new FriendDataReadyEvent());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        ref.addValueEventListener(userDataListener);
+        mUsersDataListeners.put(ref, userDataListener);
+    }
+
+    private void postUserDataDeletedEvent(DataSnapshot dataSnapshot) {
+        final String uid = dataSnapshot.getKey();
+        DatabaseReference ref = mDbReference.child("users").child(uid);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                onlineUserHashMap.remove(uid);
+                EventBus.getDefault().post(new FriendDataReadyEvent());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+}
