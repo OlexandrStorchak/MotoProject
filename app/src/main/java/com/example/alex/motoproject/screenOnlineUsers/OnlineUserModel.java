@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.screenLogin;
+package com.example.alex.motoproject.screenOnlineUsers;
 
 public class OnlineUserModel {
     private String uid, name, avatar, status;

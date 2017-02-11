@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
-import com.example.alex.motoproject.screenLogin.OnlineUserModel;
+import com.example.alex.motoproject.screenOnlineUsers.OnlineUserModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

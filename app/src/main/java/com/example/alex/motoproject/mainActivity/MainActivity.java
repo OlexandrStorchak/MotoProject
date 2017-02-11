@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
         }
 
         if (!isServiceOn()) {
-            mDatabaseHelper.setUserOffline();
+            logout();
         }
         super.onDestroy();
 
