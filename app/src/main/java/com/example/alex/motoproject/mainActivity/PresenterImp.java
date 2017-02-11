@@ -7,19 +7,19 @@ public class PresenterImp implements PresenterInterface {
     private MainView mainView;
 
 
-    public PresenterImp(MainView mainView) {
+    PresenterImp(MainView mainView) {
 
         this.mainView = mainView;
     }
 
 
     @Override
-    public void isLogedOut() {
+    public void onLogout() {
         mainView.logout();
     }
 
     @Override
-    public void isLogedIn(FirebaseUser user) {
+    public void onLogin(FirebaseUser user) {
         mainView.login(user);
     }
 

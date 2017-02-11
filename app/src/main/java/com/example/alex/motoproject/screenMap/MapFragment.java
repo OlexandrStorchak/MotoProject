@@ -214,6 +214,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Log.d(LOG_TAG, "pin created!");
         mMarkerHashMap.put(event.uid, marker);
         fetchMarkerIcon(event.uid, event.avatarRef);
+
     }
 
     private void fetchMarkerIcon(final String uid, String avatarRef) {

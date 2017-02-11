@@ -18,13 +18,13 @@ import java.util.List;
 import static com.example.alex.motoproject.screenMap.MapFragment.mapFragmentInstance;
 
 
-public class UsersOnlineAdapter extends RecyclerView.Adapter<UsersOnlineAdapter.VH> {
+class UsersOnlineAdapter extends RecyclerView.Adapter<UsersOnlineAdapter.VH> {
 
     private static final String TAG = "log";
     private List<OnlineUser> onlineUsers;
 
 
-    public UsersOnlineAdapter(List<OnlineUser> friendsList) {
+    UsersOnlineAdapter(List<OnlineUser> friendsList) {
         this.onlineUsers = friendsList;
 
     }
@@ -36,7 +36,7 @@ public class UsersOnlineAdapter extends RecyclerView.Adapter<UsersOnlineAdapter.
         return new VH(view);
     }
 
-    public void setList(List<OnlineUser> newList) {
+    void setList(List<OnlineUser> newList) {
         onlineUsers = newList;
 
     }

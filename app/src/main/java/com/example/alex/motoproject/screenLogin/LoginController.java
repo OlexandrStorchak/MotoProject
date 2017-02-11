@@ -3,7 +3,6 @@ package com.example.alex.motoproject.screenLogin;
 
 import android.support.annotation.NonNull;
 
-import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.mainActivity.PresenterImp;
 import com.facebook.login.LoginManager;
@@ -15,21 +14,17 @@ public class LoginController extends MainActivity implements FirebaseAuth.AuthSt
 
     private FirebaseAuth mFirebaseAuth;
     private PresenterImp presenterImp;
-    private FirebaseDatabaseHelper databaseHelper;
 
-    public LoginController(FirebaseDatabaseHelper databaseHelper, PresenterImp presenterImp) {
-        this.databaseHelper = databaseHelper;
+
+    public LoginController(PresenterImp presenterImp) {
         this.presenterImp = presenterImp;
     }
 
-    public FirebaseAuth getmFirebaseAuth() {
-        return mFirebaseAuth;
-    }
-
+//    public FirebaseAuth getmFirebaseAuth() {
+//        return mFirebaseAuth;
+//    }
 
     public void start() {
-
-
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseAuth.addAuthStateListener(this);
     }
@@ -54,40 +49,33 @@ public class LoginController extends MainActivity implements FirebaseAuth.AuthSt
             if (mFirebaseCurrentUser != null) {
                 if (mFirebaseCurrentUser.isEmailVerified()) {
                     // User is signed in with email
-                    presenterImp.isLogedIn(mFirebaseCurrentUser);
+                    presenterImp.onLogin(mFirebaseCurrentUser);
 
                 } else {
                     //User is login with email must confirm it by email
                     mFirebaseCurrentUser.sendEmailVerification();
                     //TODO: alert to check email
 
-                    presenterImp.isLogedOut();
+                    presenterImp.onLogout();
                 }
 
             } else {
                 // User is signed out with email
-                presenterImp.isLogedOut();
+                presenterImp.onLogout();
             }
         } else {
 
             //Sign in method by Google account
             if (mFirebaseCurrentUser != null) {
                 //Sign in with Google account
-
-                presenterImp.isLogedIn(mFirebaseCurrentUser);
+                presenterImp.onLogin(mFirebaseCurrentUser);
 
             } else {
                 // User is signed out with Google account
-
-                presenterImp.isLogedOut();
+                presenterImp.onLogout();
             }
-
         }
-
-
     }
-
-
 }
 
 

@@ -16,6 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
         mFragmentReplace = new FragmentReplace(getSupportFragmentManager());
 
-        loginController = new LoginController(mDatabaseHelper, presenterImp);
+        loginController = new LoginController(presenterImp);
 
         loginController.start();
 
@@ -195,19 +196,6 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-
-    }
-
     public void showAlert(final int alertType) {
         if (mActiveAlerts.contains(alertType)) {
             return; //do nothing if this mAlert has already been created
@@ -262,9 +250,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
                         .setPositiveButton(R.string.ok,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
-                                        ActivityCompat.requestPermissions(MainActivity.this,
-                                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                                PERMISSION_LOCATION_REQUEST_CODE);
+                                        requestLocationPermission();
                                     }
                                 });
                 alertDialogBuilder.setNegativeButton(R.string.close,
@@ -327,13 +313,13 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
                 // permission was granted
                 handleLocation();
             } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                         Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    //user checked never ask again
-                    showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
-                } else {
                     //user did not check never ask again, show rationale
                     showAlert(ALERT_PERMISSION_RATIONALE);
+                } else {
+                    //user checked never ask again
+                    showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
                 }
             }
         }
@@ -346,15 +332,19 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
                 == PackageManager.PERMISSION_GRANTED;
     }
 
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                PERMISSION_LOCATION_REQUEST_CODE);
+    }
+
     public void handleLocation() {
         if (checkLocationPermission()) { //permission granted
             MapFragment fragment = (MapFragment)
                     fragmentManager.findFragmentByTag(FRAGMENT_MAP);
             fragment.onLocationAllowed();
         } else { //permission was not granted, show the permission prompt
-            ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSION_LOCATION_REQUEST_CODE);
+            requestLocationPermission();
         }
     }
 
@@ -397,7 +387,7 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
             try {
                 unregisterReceiver(mNetworkStateReceiver);
             } catch (IllegalArgumentException e) {
-                Log.v(LOG_TAG, "receiver was unregistered before onPause");
+                Log.v(LOG_TAG, "receiver was unregistered before onStop");
             }
         }
     }
@@ -409,8 +399,11 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
     @Override
     public void login(FirebaseUser user) {
-        String avatarUri = null;
-        getSupportActionBar().show();
+        String avatarUri;
+        ActionBar ab = getSupportActionBar();
+        if (ab != null) {
+            ab.show();
+        }
 
         mNavigationBtnSignOut.setVisibility(View.VISIBLE);
         mNavigationBtnMap.setVisibility(View.VISIBLE);
@@ -446,7 +439,10 @@ public class MainActivity extends AppCompatActivity implements MapFragment.MapFr
 
     @Override
     public void logout() {
-        getSupportActionBar().hide();
+        ActionBar ab = getSupportActionBar();
+        if (ab != null) {
+            ab.hide();
+        }
         mFragmentReplace.replaceFragment(FRAGMENT_AUTH);
         mNavigationBtnSignOut.setVisibility(View.GONE);
         mNavigationBtnMap.setVisibility(View.GONE);
