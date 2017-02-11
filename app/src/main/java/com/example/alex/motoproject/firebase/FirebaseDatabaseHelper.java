@@ -24,40 +24,19 @@ import java.util.List;
 
 
 public class FirebaseDatabaseHelper {
-    private static final String TAG = "log";
-    //    private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
+    private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
     private final List<OnlineUser> onlineUserList = new ArrayList<>();
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private ChildEventListener mOnlineUsersLocationListener;
     private ChildEventListener onlineUsersListener;
     private DatabaseReference mOnlineUsersRef;
 
-
     public FirebaseDatabaseHelper() {
 
     }
 
-    public void addUserToFirebase(
-            final String uid, final String email, final String name, final Uri avatar) {
-        final DatabaseReference users = mDatabase.getReference().child("users").child(uid);
-        users.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    return;
-                }
-                users.child("email").setValue(email);
-                users.child("name").setValue(name);
-                users.child("avatar").setValue(avatar);
-                users.child("friendsRequest").child("userId").setValue("1");
-                users.child("friendsRequest").child("time").setValue("1");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+    public List<OnlineUser> getOnlineUserList() {
+        return onlineUserList;
     }
 
     public void setUserOnline(String status) {
@@ -72,14 +51,47 @@ public class FirebaseDatabaseHelper {
         onlineUsers.removeValue();
     }
 
+    public void updateUserLocation(Location location) {
+        String uid = getCurrentUser().getUid();
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
+        Log.d(LOG_TAG, "updateUserLocation: " + uid);
+        DatabaseReference myRef = mDatabase.getReference().child("location").child(uid);
+        myRef.child("lat").setValue(lat);
+        myRef.child("lng").setValue(lng);
+    }
+
+    //Called when user auth state changes. Adds required user data to Firebase
+    public void addUserToFirebase(
+            final String uid, final String email, final String name, final Uri avatar) {
+        final DatabaseReference currentUserRef = mDatabase.getReference().child("users").child(uid);
+        currentUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) { //Required data already exists
+                    return;
+                }
+                //No data found by the reference, add new data
+                currentUserRef.child("email").setValue(email);
+                currentUserRef.child("name").setValue(name);
+                currentUserRef.child("avatar").setValue(avatar);
+                currentUserRef.child("friendsRequest").child("userId").setValue("1");
+                currentUserRef.child("friendsRequest").child("time").setValue("1");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     public void registerOnlineUsersLocationListener() {
         mOnlineUsersRef = mDatabase.getReference().child("onlineUsers");
         mOnlineUsersLocationListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if (dataSnapshot.getValue() instanceof String) {
-
-
                     String status = (String) dataSnapshot.getValue();
                     if (!status.equals("public")) {
                         return;
@@ -192,22 +204,6 @@ public class FirebaseDatabaseHelper {
         mOnlineUsersRef.addChildEventListener(mOnlineUsersLocationListener);
     }
 
-    private void getNameByUid(final String uid, final LatLng latLng) {
-        DatabaseReference nameRef = mDatabase.getReference().child("users").child(uid).child("name");
-        nameRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String name = (String) dataSnapshot.getValue();
-                getAvatarByUid(latLng, uid, name);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
     public void unregisterOnlineUsersLocationListener() {
         if (mOnlineUsersLocationListener != null && getCurrentUser() != null) {
             mOnlineUsersRef = mDatabase.getReference().child("onlineUsers");
@@ -215,14 +211,32 @@ public class FirebaseDatabaseHelper {
         }
     }
 
-    public void updateOnlineUserLocation(Location location) {
-        String uid = getCurrentUser().getUid();
-        double lat = location.getLatitude();
-        double lng = location.getLongitude();
-        Log.d(TAG, "updateOnlineUserLocation: " + uid);
-        DatabaseReference myRef = mDatabase.getReference().child("location").child(uid);
-        myRef.child("lat").setValue(lat);
-        myRef.child("lng").setValue(lng);
+    private void getNameByUid(final String uid, final LatLng latLng) {
+        DatabaseReference nameRef = mDatabase.getReference().child("users").child(uid).child("name");
+        nameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                final String name = (String) dataSnapshot.getValue();
+                DatabaseReference ref = mDatabase.getReference().child("users").child(uid).child("avatar");
+                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String avatarRef = (String) dataSnapshot.getValue();
+                        EventBus.getDefault().post(new MapMarkerEvent(latLng, uid, name, avatarRef));
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void registerOnlineUsersListener() {
@@ -264,6 +278,11 @@ public class FirebaseDatabaseHelper {
         myRef.addChildEventListener(onlineUsersListener);
     }
 
+    public void unregisterOnlineUsersListener() {
+        DatabaseReference myRef = mDatabase.getReference().child("onlineUsers");
+        myRef.removeEventListener(onlineUsersListener);
+    }
+
     private FirebaseUser getCurrentUser() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         return auth.getCurrentUser();
@@ -287,30 +306,5 @@ public class FirebaseDatabaseHelper {
 
             }
         });
-    }
-
-    private void getAvatarByUid(final LatLng latLng, final String uid, final String name) {
-        DatabaseReference ref = mDatabase.getReference().child("users").child(uid).child("avatar");
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String avatarRef = (String) dataSnapshot.getValue();
-                EventBus.getDefault().post(new MapMarkerEvent(latLng, uid, name, avatarRef));
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    public List<OnlineUser> getOnlineUserList() {
-        return onlineUserList;
-    }
-
-    public void unregisterOnlineUsersListener() {
-        DatabaseReference myRef = mDatabase.getReference().child("onlineUsers");
-        myRef.removeEventListener(onlineUsersListener);
     }
 }

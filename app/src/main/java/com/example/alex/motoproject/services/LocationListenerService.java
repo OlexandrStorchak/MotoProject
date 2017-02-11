@@ -118,7 +118,7 @@ public class LocationListenerService extends Service implements
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
             if (lastLocation != null) {
-                mFirebaseHelper.updateOnlineUserLocation(lastLocation);
+                mFirebaseHelper.updateUserLocation(lastLocation);
             }
         }
         startLocationUpdates();
@@ -127,7 +127,7 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onLocationChanged(Location location) {
-        mFirebaseHelper.updateOnlineUserLocation(location);
+        mFirebaseHelper.updateUserLocation(location);
     }
 
     @Override
