@@ -18,10 +18,10 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.example.alex.motoproject.App;
-import com.example.alex.motoproject.MainActivity;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -89,7 +89,9 @@ public class LocationListenerService extends Service implements
         if (((App) getApplication()).isMainActivityDestroyed()) {
             mFirebaseHelper.setUserOffline();
         } else {
-            mFirebaseHelper.setUserOnline("noGps");
+            if (mFirebaseHelper.getCurrentUser() != null) {
+                mFirebaseHelper.setUserOnline("noGps");
+            }
         }
 
 
@@ -118,7 +120,7 @@ public class LocationListenerService extends Service implements
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
             if (lastLocation != null) {
-                mFirebaseHelper.updateOnlineUserLocation(lastLocation);
+                mFirebaseHelper.updateUserLocation(lastLocation);
             }
         }
         startLocationUpdates();
@@ -127,7 +129,7 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onLocationChanged(Location location) {
-        mFirebaseHelper.updateOnlineUserLocation(location);
+        mFirebaseHelper.updateUserLocation(location);
     }
 
     @Override

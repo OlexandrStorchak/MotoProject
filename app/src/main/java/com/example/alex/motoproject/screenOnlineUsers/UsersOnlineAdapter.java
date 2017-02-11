@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.adapters;
+package com.example.alex.motoproject.screenOnlineUsers;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,19 +13,20 @@ import com.example.alex.motoproject.models.OnlineUser;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import static com.example.alex.motoproject.MainActivity.mainActivity;
-import static com.example.alex.motoproject.fragments.MapFragment.mapFragmentInstance;
+import static com.example.alex.motoproject.screenMap.MapFragment.mapFragmentInstance;
 
 
-public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
+class UsersOnlineAdapter extends RecyclerView.Adapter<UsersOnlineAdapter.VH> {
 
     private static final String TAG = "log";
     private List<OnlineUser> onlineUsers;
 
 
-    public OnlineUsersAdapter(List<OnlineUser> friendsList) {
+    UsersOnlineAdapter(List<OnlineUser> friendsList) {
         this.onlineUsers = friendsList;
 
     }
@@ -37,9 +38,13 @@ public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.
         return new VH(view);
     }
 
-    public void setList(List<OnlineUser> newList) {
-        onlineUsers = newList;
-
+    void setList(HashMap<String, OnlineUser> hashMap) {
+        if (onlineUsers == null) {
+            onlineUsers = new ArrayList<>(hashMap.values());
+        } else {
+            onlineUsers.clear();
+            onlineUsers.addAll(hashMap.values());
+        }
     }
 
     @Override
@@ -60,9 +65,10 @@ public class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.
             }
         }
         holder.mapCur.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
-                mainActivity.replaceFragment("fragmentMap");
+                UsersOnlineFragment.getInstance().showMapFragment();
                 mapFragmentInstance.moveToMarker(onlineUsers
                         .get(holder.getAdapterPosition()).getUid());
             }

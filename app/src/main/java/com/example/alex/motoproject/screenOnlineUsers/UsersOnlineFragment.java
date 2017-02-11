@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.fragments;
+package com.example.alex.motoproject.screenOnlineUsers;
 
 
 import android.os.Bundle;
@@ -11,17 +11,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.adapters.OnlineUsersAdapter;
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+import com.example.alex.motoproject.mainActivity.FragmentReplace;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import static com.example.alex.motoproject.mainActivity.FragmentContract.FRAGMENT_MAP;
+
 public class UsersOnlineFragment extends Fragment {
 
     public static UsersOnlineFragment usersOnlineFragmentInstance;
-    OnlineUsersAdapter adapter = new OnlineUsersAdapter(null);
+    UsersOnlineAdapter adapter = new UsersOnlineAdapter(null);
     private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
     public UsersOnlineFragment() {
         // Required empty public constructor
@@ -38,6 +40,7 @@ public class UsersOnlineFragment extends Fragment {
     public void onStop() {
         EventBus.getDefault().unregister(this);
         databaseHelper.unregisterOnlineUsersListener();
+        databaseHelper.getOnlineUserHashMap().clear();
         super.onStop();
     }
 
@@ -62,19 +65,14 @@ public class UsersOnlineFragment extends Fragment {
 
     @Subscribe
     public void onFriendDataReady(FriendDataReadyEvent event) {
-        RecyclerView rv = (RecyclerView) getActivity()
-                .findViewById(R.id.navigation_friends_list_recycler);
-        adapter.notifyDataSetChanged();
-        if (rv.getAdapter() == null) {
-            setOnlineUsersAdapter();
-        }
-    }
-
-    private void setOnlineUsersAdapter() {
-        adapter.setList(databaseHelper.getOnlineUserList());
+        adapter.setList(databaseHelper.getOnlineUserHashMap());
 
         RecyclerView rv = (RecyclerView) getActivity().findViewById(R.id.navigation_friends_list_recycler);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
         rv.setAdapter(adapter);
+    }
+
+    public void showMapFragment() {
+        new FragmentReplace(getFragmentManager()).replaceFragment(FRAGMENT_MAP);
     }
 }

@@ -11,6 +11,6 @@
         android:layout_height="48dp"
         android:layout_gravity="center_horizontal"
         android:contentDescription="@null"
-        android:src="@drawable/default_avatar" />
+        android:src="@drawable/avatar_default" />
 
 </FrameLayout>
