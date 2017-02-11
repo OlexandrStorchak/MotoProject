@@ -14,6 +14,7 @@ public class OnlineUser {
         return name;
     }
 
+
     public String getAvatar() {
         return avatar;
     }
