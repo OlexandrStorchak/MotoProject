@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
+import com.example.alex.motoproject.screenChat.ChatMessage;
+import com.example.alex.motoproject.screenChat.ReceivedChatMessage;
 import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -318,5 +320,58 @@ public class FirebaseDatabaseHelper {
 
             }
         });
+    }
+
+    public void registerChatMessagesListener() {
+        final ChildEventListener chatMessageListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String uid = (String) dataSnapshot.child("uid").getValue();
+                String text = (String) dataSnapshot.child("text").getValue();
+                final ReceivedChatMessage message = new ReceivedChatMessage(uid, text);
+
+                mDbReference.child("users").child(uid)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                String name = (String) dataSnapshot.child("name").getValue();
+                                String avatarRef = (String) dataSnapshot.child("avatarRef").getValue();
+                                message.setName(name);
+                                message.setAvatarRef(avatarRef);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        mDbReference.child("chat").addChildEventListener(chatMessageListener);
+    }
+
+    public void sendChatMessage(String message) {
+        mDbReference.child("chat").push()
+                .setValue(new ChatMessage(getCurrentUser().getUid(), message));
     }
 }
