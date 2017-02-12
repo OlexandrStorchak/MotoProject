@@ -47,6 +47,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.ArrayList;
 
 import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_AUTH;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_CHAT;
 import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_MAP;
 import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_ONLINE_USERS;
 
@@ -85,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
         loginController = new ScreenLoginController(presenterImp);
 
         loginController.start();
-
 
         setContentView(R.layout.activity_main);
 
@@ -141,6 +141,16 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
                 mFragmentReplace.replaceFragment(FRAGMENT_ONLINE_USERS);
                 mDrawerLayout.closeDrawers();
 
+            }
+        });
+
+        //Button in Navigation Drawer for displaying chat
+        Button navigationBtnChat = (Button) mNavigationView.findViewById(R.id.navigation_btn_chat);
+        navigationBtnChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mFragmentReplace.replaceFragment(FRAGMENT_CHAT);
+                mDrawerLayout.closeDrawers();
             }
         });
 

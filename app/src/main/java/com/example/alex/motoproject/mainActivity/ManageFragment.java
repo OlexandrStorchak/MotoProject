@@ -4,12 +4,14 @@ package com.example.alex.motoproject.mainActivity;
 import android.support.v4.app.FragmentManager;
 
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
 import com.example.alex.motoproject.screenLogin.SignUpFragment;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersFragment;
 
 import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_AUTH;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_CHAT;
 import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_MAP;
 import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_ONLINE_USERS;
 import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_SIGN_UP;
@@ -52,6 +54,10 @@ public class ManageFragment extends MainActivity {
                 fragmentTransaction.replace(R.id.main_activity_frame, OnlineUsersFragment.getInstance());
                 fragmentTransaction.commit();
                 break;
+
+            case FRAGMENT_CHAT:
+                fragmentTransaction.replace(R.id.main_activity_frame, new ChatFragment());
+                fragmentTransaction.commit();
         }
     }
 }
