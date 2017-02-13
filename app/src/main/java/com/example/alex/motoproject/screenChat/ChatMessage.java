@@ -1,12 +1,11 @@
 package com.example.alex.motoproject.screenChat;
 
 public class ChatMessage {
-    private final String uid, text;
+    private String uid, text, name, avatarRef;
 
     public ChatMessage(String uid, String text) {
         this.uid = uid;
         this.text = text;
-
     }
 
     public String getUid() {
@@ -15,5 +14,21 @@ public class ChatMessage {
 
     public String getText() {
         return text;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAvatarRef() {
+        return avatarRef;
+    }
+
+    public void setAvatarRef(String avatarRef) {
+        this.avatarRef = avatarRef;
     }
 }

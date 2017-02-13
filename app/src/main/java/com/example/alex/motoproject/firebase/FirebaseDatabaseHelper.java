@@ -5,8 +5,8 @@ import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
+import com.example.alex.motoproject.screenChat.ChatCurrentUserMessage;
 import com.example.alex.motoproject.screenChat.ChatMessage;
-import com.example.alex.motoproject.screenChat.ReceivedChatMessage;
 import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,6 +31,7 @@ public class FirebaseDatabaseHelper {
     private DatabaseReference mDbReference = mDatabase.getReference();
     private ChildEventListener mOnlineUsersLocationListener;
     private ChildEventListener mOnlineUsersDataListener;
+    private ChildEventListener mChatMessagesListener;
     private DatabaseReference mOnlineUsersRef;
 
     //    private ArrayList<ValueEventListener> mLocationListeners = new ArrayList<>();
@@ -323,21 +324,22 @@ public class FirebaseDatabaseHelper {
     }
 
     public void registerChatMessagesListener() {
-        final ChildEventListener chatMessageListener = new ChildEventListener() {
+        mChatMessagesListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String uid = (String) dataSnapshot.child("uid").getValue();
                 String text = (String) dataSnapshot.child("text").getValue();
-                final ReceivedChatMessage message = new ReceivedChatMessage(uid, text);
+                final ChatMessage message = new ChatMessage(uid, text);
 
                 mDbReference.child("users").child(uid)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 String name = (String) dataSnapshot.child("name").getValue();
-                                String avatarRef = (String) dataSnapshot.child("avatarRef").getValue();
+                                String avatarRef = (String) dataSnapshot.child("avatar").getValue();
                                 message.setName(name);
                                 message.setAvatarRef(avatarRef);
+                                EventBus.getDefault().post(message);
                             }
 
                             @Override
@@ -367,11 +369,22 @@ public class FirebaseDatabaseHelper {
 
             }
         };
-        mDbReference.child("chat").addChildEventListener(chatMessageListener);
+        mDbReference.child("chat").addChildEventListener(mChatMessagesListener);
+    }
+
+    public void unregisterChatMessagesListener() {
+        if (mChatMessagesListener != null && getCurrentUser() != null) {
+            DatabaseReference myRef = mDbReference.child("chat");
+            myRef.removeEventListener(mChatMessagesListener);
+        }
     }
 
     public void sendChatMessage(String message) {
         mDbReference.child("chat").push()
-                .setValue(new ChatMessage(getCurrentUser().getUid(), message));
+                .setValue(new ChatCurrentUserMessage(getCurrentUser().getUid(), message));
+    }
+
+    public DatabaseReference getChatReference() {
+        return mDbReference.child("chat");
     }
 }

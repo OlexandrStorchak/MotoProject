@@ -4,6 +4,7 @@ package com.example.alex.motoproject.screenChat;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -17,6 +18,11 @@ import android.widget.ImageButton;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -25,7 +31,8 @@ public class ChatFragment extends Fragment {
     private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
     private EditText mEditText;
     private ImageButton mSendButton;
-    private RecyclerView mRecyclerView;
+    private List<ChatMessage> messages = new ArrayList<>();
+    private ChatAdapter mAdapter = new ChatAdapter(messages, getContext());
 
     public ChatFragment() {
         // Required empty public constructor
@@ -34,8 +41,23 @@ public class ChatFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_chat, container, false);
+    }
+
+    @Override
+    public void onStart() {
+        mDatabaseHelper.registerChatMessagesListener();
+        EventBus.getDefault().register(mAdapter);
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        mDatabaseHelper.unregisterChatMessagesListener();
+        EventBus.getDefault().unregister(mAdapter);
+        super.onStop();
     }
 
     @Override
@@ -43,10 +65,12 @@ public class ChatFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mEditText = (EditText) view.findViewById(R.id.edittext_message_chat);
         mSendButton = (ImageButton) view.findViewById(R.id.button_send_chat);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_chat);
-
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_chat);
 //        mRecyclerView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
         setupMessageSending();
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(mAdapter);
     }
 
     private void setupMessageSending() {
