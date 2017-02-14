@@ -1,7 +1,6 @@
 package com.example.alex.motoproject.screenLogin;
 
 
-import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,20 +15,15 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.mainActivity.ManageFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_AUTH;
-
 
 public class SignUpFragment extends Fragment {
 
     private static final String TAG = "log";
-    @SuppressLint("StaticFieldLeak")
-    private static SignUpFragment signUpFragmentInstance;
     private EditText mEmail, mPassword, mRepeatPassword;
     private FirebaseAuth mFireBaseAuth;
 
@@ -37,12 +31,6 @@ public class SignUpFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static SignUpFragment getInstance(){
-        if(signUpFragmentInstance==null){
-            signUpFragmentInstance=new SignUpFragment();
-        }
-        return signUpFragmentInstance;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -98,7 +86,7 @@ public class SignUpFragment extends Fragment {
                         & mPassword.getText().length() > 5) {
 
                     addNewUserToFireBase(mEmail.getText().toString(), mPassword.getText().toString());
-                    new ManageFragment(getFragmentManager()).replaceFragment(FRAGMENT_AUTH);
+
 
 
                 }
