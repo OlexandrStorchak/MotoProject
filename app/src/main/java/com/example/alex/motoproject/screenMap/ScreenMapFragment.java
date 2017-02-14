@@ -50,11 +50,20 @@ import static com.example.alex.motoproject.R.id.map;
  * The fragment that contains a map from Google Play Services.
  */
 
-public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
+public class ScreenMapFragment extends Fragment implements OnMapReadyCallback, MapViewInterface {
 
     private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
     private MapFragmentListener mMapFragmentListener;
     private App mApp;
+
+    private MapPresenter mapPresenter;
+
+
+    @Override
+    public void showOnMap() {
+        Log.d("log", "showOnMap: from presenter");
+    }
+
     private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
 
     //for methods calling, like creating pins
@@ -86,6 +95,8 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        mapPresenter = new MapPresenter(this);
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
@@ -97,6 +108,9 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
+
+
+
 
         //setup fab that starts or stops LocationListenerService
         FloatingActionButton drivingToggleButton =
