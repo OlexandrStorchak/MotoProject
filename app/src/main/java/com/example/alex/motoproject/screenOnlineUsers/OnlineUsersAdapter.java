@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.screenMap.MapPresenter;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -96,6 +97,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
                 public void onClick(View view) {
                     Log.d("log", "onClick: "+getAdapterPosition()+" name is "
                             +onlineUsers.get(getAdapterPosition()).getName());
+
                 }
             });
 
