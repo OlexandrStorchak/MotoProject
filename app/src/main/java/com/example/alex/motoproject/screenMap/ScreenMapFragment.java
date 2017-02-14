@@ -51,8 +51,7 @@ import static com.example.alex.motoproject.R.id.map;
  */
 
 public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
-    private static final String LOG_TAG = ScreenMapFragment.class.getSimpleName();
-    public static ScreenMapFragment mapFragmentInstance;
+
     private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
     private MapFragmentListener mMapFragmentListener;
     private App mApp;
@@ -72,12 +71,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         // Required empty public constructor
     }
 
-    public static ScreenMapFragment getInstance() {
-        if (mapFragmentInstance == null) {
-            mapFragmentInstance = new ScreenMapFragment();
-        }
-        return mapFragmentInstance;
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -203,7 +196,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
                 .position(event.latLng)
                 .title(event.userName)
                 .anchor(0.5f, 0.5f));
-        Log.d(LOG_TAG, "pin created!");
+
         mMarkerHashMap.put(event.uid, marker);
         fetchMarkerIcon(event.uid, event.avatarRef);
 
@@ -241,7 +234,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         try {
             getContext().unregisterReceiver(mNetworkStateReceiver);
         } catch (IllegalArgumentException e) {
-            Log.v(LOG_TAG, "mNetworkReceiver has already been unregistered");
+            Log.d("log", "onLocationAllowed: ");
         }
 
         if (checkLocationPermission()) {

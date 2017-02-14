@@ -13,6 +13,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -36,6 +37,7 @@ import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.screenLogin.ScreenLoginController;
 import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
+import com.example.alex.motoproject.screenOnlineUsers.ScreenOnlineUsersFragment;
 import com.example.alex.motoproject.services.LocationListenerService;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.firebase.auth.FirebaseUser;
@@ -46,19 +48,24 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
-import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_AUTH;
-import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_MAP;
-import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_ONLINE_USERS;
-
-public class MainActivity extends AppCompatActivity implements ScreenMapFragment.MapFragmentListener, MainViewInterface {
+public class MainActivity extends AppCompatActivity implements
+        ScreenMapFragment.MapFragmentListener,
+        MainViewInterface {
 
     public static final int ALERT_GPS_OFF = 20;
     public static final int ALERT_INTERNET_OFF = 21;
     public static final int ALERT_PERMISSION_RATIONALE = 22;
     public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
-    public static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private static final String STANDART_AVATAR = "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
+
+
+    private ScreenMapFragment screenMapFragment = new ScreenMapFragment();
+    private ScreenOnlineUsersFragment screenOnlineUsersFragment = new ScreenOnlineUsersFragment();
+    private ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
+
     public static boolean loginWithEmail = false; // Flag for validate with email login method
+
     ArrayList<Integer> mActiveAlerts = new ArrayList<>();
     private NetworkStateReceiver mNetworkStateReceiver;
     private AlertDialog mAlert;
@@ -68,24 +75,21 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
     private Button mNavigationBtnMap;
     private Button mNavigationBtnSignOut;
     private DrawerLayout mDrawerLayout;
+
     private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
-    private ManageFragment mFragmentReplace;
+
     private ScreenLoginController loginController;
-    private android.support.v4.app.FragmentManager fragmentManager = getSupportFragmentManager();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
-
-        mFragmentReplace = new ManageFragment(getSupportFragmentManager());
 
         loginController = new ScreenLoginController(presenterImp);
 
         loginController.start();
-
 
         setContentView(R.layout.activity_main);
 
@@ -116,9 +120,10 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
         mNavigationBtnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mFragmentReplace.replaceFragment(FRAGMENT_MAP);
+                replaceFragment(screenMapFragment);
+                screenMapFragment.onMapCk();
                 mDrawerLayout.closeDrawers();
-                ScreenMapFragment.getInstance().onMapCk();
+
             }
         });
         //Button in Navigation Drawer for SignOut
@@ -138,7 +143,8 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
         mNavigationBtnUsersOnline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mFragmentReplace.replaceFragment(FRAGMENT_ONLINE_USERS);
+                replaceFragment(screenOnlineUsersFragment);
+                screenOnlineUsersFragment.setScreenMapFragment(screenMapFragment);
                 mDrawerLayout.closeDrawers();
 
             }
@@ -192,7 +198,8 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
         }
 
         if (!isServiceOn()) {
-            logout();
+//            logout();
+            Log.d("log", "onDestroy: service is Off");
         }
         super.onDestroy();
 
@@ -343,9 +350,9 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
 
     public void handleLocation() {
         if (checkLocationPermission()) { //permission granted
-            ScreenMapFragment fragment = (ScreenMapFragment)
-                    fragmentManager.findFragmentByTag(FRAGMENT_MAP);
-            fragment.onLocationAllowed();
+
+            screenMapFragment.onLocationAllowed();
+
         } else { //permission was not granted, show the permission prompt
             requestLocationPermission();
         }
@@ -390,7 +397,7 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
             try {
                 unregisterReceiver(mNetworkStateReceiver);
             } catch (IllegalArgumentException e) {
-                Log.v(LOG_TAG, "receiver was unregistered before onStop");
+                Log.v("log", "receiver was unregistered before onStop");
             }
         }
     }
@@ -404,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
 
     public void login(FirebaseUser user) {
         // TODO: 11.02.2017 let users choose avatars
-        String avatarUri = "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
+        String avatarUri = STANDART_AVATAR;
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
             ab.show();
@@ -429,7 +436,7 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
                     .into(mAvatarHeader);
         }
 
-        mFragmentReplace.replaceFragment(FRAGMENT_MAP);
+        replaceFragment(screenMapFragment);
         mDatabaseHelper.addUserToFirebase(
                 user.getUid(),
                 user.getEmail(),
@@ -445,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
         if (ab != null) {
             ab.hide();
         }
-        mFragmentReplace.replaceFragment(FRAGMENT_AUTH);
+        replaceFragment(screenLoginFragment);
         mNavigationBtnSignOut.setVisibility(View.GONE);
         mNavigationBtnMap.setVisibility(View.GONE);
         mNameHeader.setText("");
@@ -453,5 +460,13 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
         mAvatarHeader.setVisibility(View.INVISIBLE);
         mDrawerLayout.closeDrawers();
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    @Override
+    public void replaceFragment(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_activity_frame, fragment)
+                .commit();
     }
 }

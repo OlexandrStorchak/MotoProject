@@ -13,16 +13,14 @@ public class ScreenLoginController extends MainActivity implements FirebaseAuth.
 
 
     private FirebaseAuth mFirebaseAuth;
-    private MainActivityPresenter presenterImp;
+    private MainActivityPresenter mainActivityPresenter;
 
 
-    public ScreenLoginController(MainActivityPresenter presenterImp) {
-        this.presenterImp = presenterImp;
+    public ScreenLoginController(MainActivityPresenter mainActivityPresenter) {
+        this.mainActivityPresenter = mainActivityPresenter;
     }
 
-//    public FirebaseAuth getmFirebaseAuth() {
-//        return mFirebaseAuth;
-//    }
+
 
     public void start() {
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -34,7 +32,9 @@ public class ScreenLoginController extends MainActivity implements FirebaseAuth.
     }
 
     public void signOut() {
+        //For Firebase logout
         mFirebaseAuth.signOut();
+        //For Facebook logout
         LoginManager.getInstance().logOut();
 
     }
@@ -49,30 +49,30 @@ public class ScreenLoginController extends MainActivity implements FirebaseAuth.
             if (mFirebaseCurrentUser != null) {
                 if (mFirebaseCurrentUser.isEmailVerified()) {
                     // User is signed in with email
-                    presenterImp.onLogin(mFirebaseCurrentUser);
+                    mainActivityPresenter.onLogin(mFirebaseCurrentUser);
 
                 } else {
-                    //User is login with email must confirm it by email
+                    //User is login with email. Must confirm by email
                     mFirebaseCurrentUser.sendEmailVerification();
                     //TODO: alert to check email
 
-                    presenterImp.onLogout();
+                    mainActivityPresenter.onLogout();
                 }
 
             } else {
                 // User is signed out with email
-                presenterImp.onLogout();
+                mainActivityPresenter.onLogout();
             }
         } else {
 
             //Sign in method by Google account
             if (mFirebaseCurrentUser != null) {
                 //Sign in with Google account
-                presenterImp.onLogin(mFirebaseCurrentUser);
+                mainActivityPresenter.onLogin(mFirebaseCurrentUser);
 
             } else {
                 // User is signed out with Google account
-                presenterImp.onLogout();
+                mainActivityPresenter.onLogout();
             }
         }
     }

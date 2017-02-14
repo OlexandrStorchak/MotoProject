@@ -16,12 +16,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.alex.motoproject.screenMap.ScreenMapFragment.mapFragmentInstance;
-
 
 class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
 
-    private static final String TAG = "log";
+
     private List<OnlineUsersModel> onlineUsers;
 
 
@@ -63,21 +61,14 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
                 holder.mapCur.setVisibility(View.GONE);
             }
         }
-        holder.mapCur.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View view) {
-                OnlineUsersFragment.getInstance().showMapFragment();
-                mapFragmentInstance.moveToMarker(onlineUsers
-                        .get(holder.getAdapterPosition()).getUid());
-            }
-        });
     }
 
     @Override
     public int getItemCount() {
         return onlineUsers.size();
     }
+
 
     class VH extends RecyclerView.ViewHolder {
         ImageView avatar;
@@ -92,7 +83,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.d(TAG, "onClick: " + getAdapterPosition());
+
 
                 }
             });
@@ -100,6 +91,13 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
             avatar = (ImageView) itemView.findViewById(R.id.friends_list_ava);
             name = (TextView) itemView.findViewById(R.id.userName);
             mapCur = (ImageView) itemView.findViewById(R.id.friends_list_map_icon);
+            mapCur.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.d("log", "onClick: "+getAdapterPosition()+" name is "
+                            +onlineUsers.get(getAdapterPosition()).getName());
+                }
+            });
 
         }
     }

@@ -13,15 +13,20 @@ public class MainActivityPresenter implements MainPresenterInterface {
     }
 
 
+
     @Override
     public void onLogout() {
         mainView.logout();
+
     }
+
+
 
     @Override
     public void onLogin(FirebaseUser user) {
         mainView.login(user);
     }
+
 
 
 }
