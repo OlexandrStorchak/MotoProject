@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.screenMap.MapPresenter;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
