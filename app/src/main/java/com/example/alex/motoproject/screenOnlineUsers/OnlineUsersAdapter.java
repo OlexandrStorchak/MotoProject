@@ -98,6 +98,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
                             +onlineUsers.get(getAdapterPosition()).getName());
 
                 }
+
             });
 
         }
