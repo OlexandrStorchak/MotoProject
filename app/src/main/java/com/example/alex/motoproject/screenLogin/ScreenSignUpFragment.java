@@ -21,13 +21,13 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 
-public class SignUpFragment extends Fragment {
+public class ScreenSignUpFragment extends Fragment {
 
     private static final String TAG = "log";
     private EditText mEmail, mPassword, mRepeatPassword;
     private FirebaseAuth mFireBaseAuth;
 
-    public SignUpFragment() {
+    public ScreenSignUpFragment() {
         // Required empty public constructor
     }
 
