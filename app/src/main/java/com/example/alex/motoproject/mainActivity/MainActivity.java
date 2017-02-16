@@ -65,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements
 
         loginController.start();
 
+        screenProfileFragment.setHelper(mDatabaseHelper);
+
         setContentView(R.layout.activity_main);
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -92,7 +94,10 @@ public class MainActivity extends AppCompatActivity implements
         mAvatarHeader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                replaceFragment(screenProfileFragment);
+                getSupportFragmentManager().beginTransaction()
+                        .addToBackStack("profile")
+                        .replace(R.id.main_activity_frame,screenProfileFragment)
+                        .commit();
 
                 mDrawerLayout.closeDrawers();
             }
