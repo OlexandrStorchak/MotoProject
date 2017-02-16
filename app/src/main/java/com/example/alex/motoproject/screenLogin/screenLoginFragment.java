@@ -17,7 +17,6 @@ import android.widget.ProgressBar;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.mainActivity.MainActivity;
-import com.example.alex.motoproject.mainActivity.MainActivityPresenter;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -47,7 +46,7 @@ import java.util.Collection;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
-import static com.example.alex.motoproject.mainActivity.MainActivity.loginWithEmail;
+import static com.example.alex.motoproject.firebase.FirebaseLoginController.loginWithEmail;
 
 
 public class ScreenLoginFragment extends Fragment {
@@ -191,7 +190,7 @@ public class ScreenLoginFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.main_activity_frame,new SignUpFragment())
+                        .replace(R.id.main_activity_frame,new ScreenSignUpFragment())
                         .addToBackStack("signUp").commit();
             }
         });

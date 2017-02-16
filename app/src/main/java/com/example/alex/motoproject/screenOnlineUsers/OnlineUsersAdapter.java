@@ -22,7 +22,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
 
 
     private List<OnlineUsersModel> onlineUsers;
-
+    private HashMap<String, OnlineUsersModel> hashMapA;
 
     OnlineUsersAdapter(List<OnlineUsersModel> friendsList) {
         this.onlineUsers = friendsList;
@@ -37,7 +37,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
     }
 
     void setList(HashMap<String, OnlineUsersModel> hashMap) {
-
+        hashMapA = hashMap;
         if (onlineUsers == null) {
             onlineUsers = new ArrayList<>(hashMap.values());
         } else {
@@ -97,9 +97,9 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
             mapCur.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.d("log", "onClick: "+getAdapterPosition()+" name is "
-                            +onlineUsers.get(getAdapterPosition()).getName());
-                    new ScreenMapFragment().moveToMarker(onlineUsers.get(getAdapterPosition()).getUid());
+                    Log.d("log", "onClick: " + getAdapterPosition() + " User Id is :  "
+                            + onlineUsers.get(getAdapterPosition()).getUid());
+
                     //This click to show user on map
                 }
 
