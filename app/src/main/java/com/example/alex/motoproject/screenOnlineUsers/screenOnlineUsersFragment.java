@@ -21,6 +21,7 @@ import org.greenrobot.eventbus.Subscribe;
 public class ScreenOnlineUsersFragment extends Fragment {
 
     private ScreenMapFragment screenMapFragment = null;
+    private RecyclerView rv;
 
 
     public void setScreenMapFragment(ScreenMapFragment screenMapFragment) {
@@ -55,24 +56,26 @@ public class ScreenOnlineUsersFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+
         return inflater.inflate(R.layout.fragment_users_online, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
+        rv.setLayoutManager(new LinearLayoutManager(getContext()));
+
     }
 
     @Subscribe
     public void onFriendDataReady(FriendDataReadyEvent event) {
         adapter.setList(databaseHelper.getOnlineUserHashMap());
-        adapter.setHasStableIds(true);
-
-        RecyclerView rv = (RecyclerView) getActivity().findViewById(R.id.navigation_friends_list_recycler);
-        rv.setLayoutManager(new LinearLayoutManager(getContext()));
         rv.setAdapter(adapter);
-    }
 
+
+    }
 
 
 }

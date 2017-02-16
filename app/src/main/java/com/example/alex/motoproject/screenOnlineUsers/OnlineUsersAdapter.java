@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -36,6 +37,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
     }
 
     void setList(HashMap<String, OnlineUsersModel> hashMap) {
+
         if (onlineUsers == null) {
             onlineUsers = new ArrayList<>(hashMap.values());
         } else {
@@ -97,6 +99,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
                 public void onClick(View view) {
                     Log.d("log", "onClick: "+getAdapterPosition()+" name is "
                             +onlineUsers.get(getAdapterPosition()).getName());
+                    new ScreenMapFragment().moveToMarker(onlineUsers.get(getAdapterPosition()).getUid());
                     //This click to show user on map
                 }
 

@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.screenLogin;
+package com.example.alex.motoproject.firebase;
 
 
 import android.support.annotation.NonNull;
@@ -9,14 +9,14 @@ import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class ScreenLoginController extends MainActivity implements FirebaseAuth.AuthStateListener {
+public class FirebaseLoginController extends MainActivity implements FirebaseAuth.AuthStateListener {
 
 
     private FirebaseAuth mFirebaseAuth;
     private MainActivityPresenter mainActivityPresenter;
 
 
-    public ScreenLoginController(MainActivityPresenter mainActivityPresenter) {
+    public FirebaseLoginController(MainActivityPresenter mainActivityPresenter) {
         this.mainActivityPresenter = mainActivityPresenter;
     }
 

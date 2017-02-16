@@ -24,6 +24,8 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.events.MapMarkerEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+import com.example.alex.motoproject.mainActivity.AlertControll;
+import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.services.LocationListenerService;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.android.gms.maps.CameraUpdate;
@@ -56,11 +58,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     private MapFragmentListener mMapFragmentListener;
     private App mApp;
 
-
-
-
-
-
     private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
 
     //for methods calling, like creating pins
@@ -81,12 +78,12 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        try {
-            mMapFragmentListener = (MapFragmentListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement OnMapFragmentListener");
-        }
+//        try {
+//            mMapFragmentListener = (MapFragmentListener) context;
+//        } catch (ClassCastException e) {
+//            throw new ClassCastException(context.toString()
+//                    + " must implement OnMapFragmentListener");
+//        }
     }
 
     @Override
@@ -116,7 +113,8 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 if (!mApp.isLocationListenerServiceOn()) {
-                    mMapFragmentListener.handleLocation();
+                    //mMapFragmentListener.handleLocation();
+                    new AlertControll((MainActivity) getActivity()).handleLocation();
                 } else if (checkLocationPermission()) {
                     mMap.setMyLocationEnabled(false);
                     getContext().stopService(
