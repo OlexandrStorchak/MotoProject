@@ -31,6 +31,7 @@ public class FirebaseDatabaseHelper {
     private ChildEventListener mOnlineUsersDataListener;
     private DatabaseReference mOnlineUsersRef;
 
+
     //    private ArrayList<ValueEventListener> mLocationListeners = new ArrayList<>();
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
     private HashMap<DatabaseReference, ValueEventListener> mUsersDataListeners = new HashMap<>();
@@ -319,4 +320,5 @@ public class FirebaseDatabaseHelper {
             }
         });
     }
+
 }

@@ -22,6 +22,7 @@ import com.example.alex.motoproject.firebase.FirebaseLoginController;
 import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 import com.example.alex.motoproject.screenOnlineUsers.ScreenOnlineUsersFragment;
+import com.example.alex.motoproject.screenProfile.ScreenProfileFragment;
 import com.example.alex.motoproject.services.LocationListenerService;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.firebase.auth.FirebaseUser;
@@ -36,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     private ScreenOnlineUsersFragment screenOnlineUsersFragment = new ScreenOnlineUsersFragment();
     private ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
+    private ScreenProfileFragment screenProfileFragment = new ScreenProfileFragment();
     AlertControll alertControll = new AlertControll(this);
 
     private TextView mNameHeader;
@@ -44,6 +46,9 @@ public class MainActivity extends AppCompatActivity implements
     private Button mNavigationBtnMap;
     private Button mNavigationBtnSignOut;
     private DrawerLayout mDrawerLayout;
+    private TextView mProfileSetting;
+
+
 
     private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
 
@@ -83,6 +88,22 @@ public class MainActivity extends AppCompatActivity implements
         mNameHeader = (TextView) header.findViewById(R.id.header_name);
         mEmailHeader = (TextView) header.findViewById(R.id.header_email);
         mAvatarHeader = (ImageView) header.findViewById(R.id.header_avatar);
+        mProfileSetting = (TextView) header.findViewById(R.id.header_profile_setting);
+        mAvatarHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                replaceFragment(screenProfileFragment);
+
+                mDrawerLayout.closeDrawers();
+            }
+        });
+//        mProfileSetting.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                replaceFragment(screenProfileFragment);
+//
+//            }
+//        });
 
         //Button in Navigation Drawer for show the Map fragment
         mNavigationBtnMap = (Button) mNavigationView.findViewById(R.id.navigation_btn_map);
@@ -211,6 +232,8 @@ public class MainActivity extends AppCompatActivity implements
                 avatarUri);
         mDatabaseHelper.setUserOnline("noGps");
 
+
+
     }
 
     @Override
@@ -236,4 +259,6 @@ public class MainActivity extends AppCompatActivity implements
                 .replace(R.id.main_activity_frame, fragment)
                 .commit();
     }
+
+
 }

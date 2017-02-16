@@ -1,6 +1,8 @@
 package com.example.alex.motoproject.mainActivity;
 
 
+import android.support.v4.app.Fragment;
+
 import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivityPresenter implements MainPresenterInterface {
@@ -27,6 +29,10 @@ public class MainActivityPresenter implements MainPresenterInterface {
         mainView.login(user);
     }
 
+
+    public void replaceFragment(Fragment fragment){
+        mainView.replaceFragment(fragment);
+    }
 
 
 }
