@@ -46,8 +46,6 @@ public class MainActivity extends AppCompatActivity implements
     private Button mNavigationBtnMap;
     private Button mNavigationBtnSignOut;
     private DrawerLayout mDrawerLayout;
-    private TextView mProfileSetting;
-
 
 
     private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
@@ -90,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements
         mNameHeader = (TextView) header.findViewById(R.id.header_name);
         mEmailHeader = (TextView) header.findViewById(R.id.header_email);
         mAvatarHeader = (ImageView) header.findViewById(R.id.header_avatar);
-        mProfileSetting = (TextView) header.findViewById(R.id.header_profile_setting);
+
         mAvatarHeader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
