@@ -5,8 +5,9 @@ import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
-import com.example.alex.motoproject.screenChat.ChatCurrentUserMessage;
+import com.example.alex.motoproject.screenChat.ChatAdapter;
 import com.example.alex.motoproject.screenChat.ChatMessage;
+import com.example.alex.motoproject.screenChat.ChatMessageSendable;
 import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,6 +38,8 @@ public class FirebaseDatabaseHelper {
     //    private ArrayList<ValueEventListener> mLocationListeners = new ArrayList<>();
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
     private HashMap<DatabaseReference, ValueEventListener> mUsersDataListeners = new HashMap<>();
+
+    private ChatUpdateListener chatMessageUpdateListener = new ChatAdapter();
 
     public FirebaseDatabaseHelper() {
 
@@ -330,6 +333,12 @@ public class FirebaseDatabaseHelper {
                 String uid = (String) dataSnapshot.child("uid").getValue();
                 String text = (String) dataSnapshot.child("text").getValue();
                 final ChatMessage message = new ChatMessage(uid, text);
+                chatMessageUpdateListener.updateChat(message);
+                EventBus.getDefault().post(message);
+                if (message.getUid().equals(getCurrentUser().getUid())) {
+                    message.setCurrentUserMsg(true);
+                    return;
+                }
 
                 mDbReference.child("users").child(uid)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -339,7 +348,6 @@ public class FirebaseDatabaseHelper {
                                 String avatarRef = (String) dataSnapshot.child("avatar").getValue();
                                 message.setName(name);
                                 message.setAvatarRef(avatarRef);
-                                EventBus.getDefault().post(message);
                             }
 
                             @Override
@@ -381,10 +389,10 @@ public class FirebaseDatabaseHelper {
 
     public void sendChatMessage(String message) {
         mDbReference.child("chat").push()
-                .setValue(new ChatCurrentUserMessage(getCurrentUser().getUid(), message));
+                .setValue(new ChatMessageSendable(getCurrentUser().getUid(), message));
     }
 
-    public DatabaseReference getChatReference() {
-        return mDbReference.child("chat");
+    public interface ChatUpdateListener {
+        void updateChat(ChatMessage message);
     }
 }

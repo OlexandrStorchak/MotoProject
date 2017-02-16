@@ -20,9 +20,6 @@ import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -31,8 +28,7 @@ public class ChatFragment extends Fragment {
     private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
     private EditText mEditText;
     private ImageButton mSendButton;
-    private List<ChatMessage> messages = new ArrayList<>();
-    private ChatAdapter mAdapter = new ChatAdapter(messages, getContext());
+    private ChatAdapter mAdapter = new ChatAdapter();
 
     public ChatFragment() {
         // Required empty public constructor
@@ -48,15 +44,15 @@ public class ChatFragment extends Fragment {
 
     @Override
     public void onStart() {
-        mDatabaseHelper.registerChatMessagesListener();
         EventBus.getDefault().register(mAdapter);
+        mDatabaseHelper.registerChatMessagesListener();
         super.onStart();
     }
 
     @Override
     public void onStop() {
-        mDatabaseHelper.unregisterChatMessagesListener();
         EventBus.getDefault().unregister(mAdapter);
+        mDatabaseHelper.unregisterChatMessagesListener();
         super.onStop();
     }
 
@@ -66,8 +62,8 @@ public class ChatFragment extends Fragment {
         mEditText = (EditText) view.findViewById(R.id.edittext_message_chat);
         mSendButton = (ImageButton) view.findViewById(R.id.button_send_chat);
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_chat);
-//        mRecyclerView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.colorPrimary));
         setupMessageSending();
+        setupTextFilter();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(mAdapter);
@@ -75,7 +71,6 @@ public class ChatFragment extends Fragment {
 
     private void setupMessageSending() {
         mSendButton.setVisibility(View.GONE);
-        mEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MESSAGE_MAX_CHARS)});
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -103,5 +98,9 @@ public class ChatFragment extends Fragment {
                 mEditText.setText("");
             }
         });
+    }
+
+    private void setupTextFilter() {
+        mEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MESSAGE_MAX_CHARS)});
     }
 }

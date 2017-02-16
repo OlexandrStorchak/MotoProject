@@ -1,12 +1,11 @@
 package com.example.alex.motoproject.screenChat;
 
-public class ChatCurrentUserMessage {
+public class ChatMessageSendable {
     private final String uid, text;
 
-    public ChatCurrentUserMessage(String uid, String text) {
+    public ChatMessageSendable(String uid, String text) {
         this.uid = uid;
         this.text = text;
-
     }
 
     public String getUid() {
