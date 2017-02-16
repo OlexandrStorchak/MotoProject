@@ -102,13 +102,7 @@ public class MainActivity extends AppCompatActivity implements
                 mDrawerLayout.closeDrawers();
             }
         });
-//        mProfileSetting.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                replaceFragment(screenProfileFragment);
-//
-//            }
-//        });
+
 
         //Button in Navigation Drawer for show the Map fragment
         mNavigationBtnMap = (Button) mNavigationView.findViewById(R.id.navigation_btn_map);
