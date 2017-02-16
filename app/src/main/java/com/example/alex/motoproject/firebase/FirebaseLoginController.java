@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class FirebaseLoginController extends MainActivity implements FirebaseAuth.AuthStateListener {
+    public static boolean loginWithEmail = false; // Flag for validate with email login method
 
 
     private FirebaseAuth mFirebaseAuth;

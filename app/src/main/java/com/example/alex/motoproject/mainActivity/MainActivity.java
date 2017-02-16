@@ -30,7 +30,6 @@ import com.squareup.picasso.Picasso;
 public class MainActivity extends AppCompatActivity implements
         MainViewInterface {
 
-    public static boolean loginWithEmail = false; // Flag for validate with email login method
 
     private static final String STANDART_AVATAR = "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
 
