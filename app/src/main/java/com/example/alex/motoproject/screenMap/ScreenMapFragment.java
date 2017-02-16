@@ -78,12 +78,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-//        try {
-//            mMapFragmentListener = (MapFragmentListener) context;
-//        } catch (ClassCastException e) {
-//            throw new ClassCastException(context.toString()
-//                    + " must implement OnMapFragmentListener");
-//        }
+
     }
 
     @Override
