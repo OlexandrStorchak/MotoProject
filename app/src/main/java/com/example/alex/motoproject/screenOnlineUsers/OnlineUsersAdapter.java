@@ -1,5 +1,6 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.screenProfile.ScreenProfileFragment;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -22,10 +24,11 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
 
     private List<OnlineUsersModel> onlineUsers;
     private HashMap<String, OnlineUsersModel> hashMapA;
+    private FragmentManager fragmentManager;
 
-    OnlineUsersAdapter(List<OnlineUsersModel> friendsList) {
+    OnlineUsersAdapter(List<OnlineUsersModel> friendsList, FragmentManager fragmentManager) {
         this.onlineUsers = friendsList;
-
+        this.fragmentManager = fragmentManager;
     }
 
     @Override
@@ -85,7 +88,6 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
                 @Override
                 public void onClick(View view) {
                     //This click to show user profie
-
 
 
                 }
