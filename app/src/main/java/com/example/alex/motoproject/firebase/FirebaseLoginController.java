@@ -9,7 +9,8 @@ import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class FirebaseLoginController extends MainActivity implements FirebaseAuth.AuthStateListener {
+public class FirebaseLoginController extends MainActivity implements FirebaseAuth.AuthStateListener
+        {
     public static boolean loginWithEmail = false; // Flag for validate with email login method
 
 
@@ -71,12 +72,15 @@ public class FirebaseLoginController extends MainActivity implements FirebaseAut
                 //Sign in with Google account
                 mainActivityPresenter.onLogin(mFirebaseCurrentUser);
 
+
             } else {
                 // User is signed out with Google account
                 mainActivityPresenter.onLogout();
             }
         }
     }
+
+
 }
 
 
