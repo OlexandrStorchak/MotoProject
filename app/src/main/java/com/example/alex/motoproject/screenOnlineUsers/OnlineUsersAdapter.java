@@ -83,6 +83,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    //This click to show user profie
 
 
                 }
@@ -96,7 +97,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
                 public void onClick(View view) {
                     Log.d("log", "onClick: "+getAdapterPosition()+" name is "
                             +onlineUsers.get(getAdapterPosition()).getName());
-
+                    //This click to show user on map
                 }
 
             });
