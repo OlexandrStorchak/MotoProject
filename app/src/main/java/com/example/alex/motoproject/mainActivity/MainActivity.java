@@ -1,25 +1,13 @@
 package com.example.alex.motoproject.mainActivity;
 
-import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -28,13 +16,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
-import com.example.alex.motoproject.events.CancelAlertEvent;
-import com.example.alex.motoproject.events.ShowAlertEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.screenLogin.ScreenLoginController;
+import com.example.alex.motoproject.firebase.FirebaseLoginController;
 import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 import com.example.alex.motoproject.screenOnlineUsers.ScreenOnlineUsersFragment;
@@ -43,32 +27,18 @@ import com.example.alex.motoproject.utils.CircleTransform;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
-import java.util.ArrayList;
-
 public class MainActivity extends AppCompatActivity implements
-        ScreenMapFragment.MapFragmentListener,
         MainViewInterface {
-
-    public static final int ALERT_GPS_OFF = 20;
-    public static final int ALERT_INTERNET_OFF = 21;
-    public static final int ALERT_PERMISSION_RATIONALE = 22;
-    public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
-    public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
-    private static final String STANDART_AVATAR = "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
-
-
-    private ScreenMapFragment screenMapFragment = new ScreenMapFragment();
-    private ScreenOnlineUsersFragment screenOnlineUsersFragment = new ScreenOnlineUsersFragment();
-    private ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
 
     public static boolean loginWithEmail = false; // Flag for validate with email login method
 
-    ArrayList<Integer> mActiveAlerts = new ArrayList<>();
-    private NetworkStateReceiver mNetworkStateReceiver;
-    private AlertDialog mAlert;
+    private static final String STANDART_AVATAR = "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
+
+    protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
+    private ScreenOnlineUsersFragment screenOnlineUsersFragment = new ScreenOnlineUsersFragment();
+    private ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
+    AlertControll alertControll = new AlertControll(this);
+
     private TextView mNameHeader;
     private TextView mEmailHeader;
     private ImageView mAvatarHeader;
@@ -78,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
 
-    private ScreenLoginController loginController;
+    private FirebaseLoginController loginController;
 
 
     @Override
@@ -87,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements
 
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
-        loginController = new ScreenLoginController(presenterImp);
+        loginController = new FirebaseLoginController(presenterImp);
 
         loginController.start();
 
@@ -166,16 +136,16 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        registerNetworkStateReceiver();
-        EventBus.getDefault().register(this);
+        alertControll.registerNetworkStateReceiver();
+        alertControll.registerEventBus();
     }
 
 
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterNetworkStateReceiver();
-        EventBus.getDefault().unregister(this);
+        alertControll.unregisterNetworkStateReceiver();
+        alertControll.unRegisterEventBus();
         loginController.stop();
     }
 
@@ -193,222 +163,20 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onDestroy() {
-        if (mAlert != null) {
-            mAlert.dismiss();
+        if (alertControll.mAlert != null) {
+            alertControll.mAlert.dismiss();
         }
 
-        if (!isServiceOn()) {
-//            logout();
+        if (!alertControll.isServiceOn()) {
+
             Log.d("log", "onDestroy: service is Off");
         }
         super.onDestroy();
 
-
-    }
-
-    public void showAlert(final int alertType) {
-        if (mActiveAlerts.contains(alertType)) {
-            return; //do nothing if this mAlert has already been created
-        }
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        switch (alertType) {
-            case ALERT_GPS_OFF:
-                //show when there is no GPS connection
-                alertDialogBuilder.setMessage(R.string.gps_turned_off_alert)
-                        .setPositiveButton(R.string.to_settings,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        Intent callGPSSettingIntent = new Intent(
-                                                android.provider.Settings
-                                                        .ACTION_LOCATION_SOURCE_SETTINGS)
-                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                                .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                                                .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-                                        startActivity(callGPSSettingIntent);
-
-                                        handleLocation();
-                                    }
-
-                                });
-                break;
-            case ALERT_INTERNET_OFF:
-                //show when there is no Internet connection
-                alertDialogBuilder.setMessage(R.string.internet_turned_off_alert)
-                        .setPositiveButton(R.string.turn_on_mobile_internet,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        Intent callWirelessSettingIntent = new Intent(
-// TODO: 05.02.2017 make this button start mobile internet settings
-                                                Settings.ACTION_WIRELESS_SETTINGS);
-                                        startActivity(callWirelessSettingIntent);
-                                    }
-                                });
-                alertDialogBuilder.setNeutralButton(R.string.turn_on_wifi,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                Intent callWifiSettingIntent = new Intent(
-                                        Settings
-                                                .ACTION_WIFI_SETTINGS);
-                                startActivity(callWifiSettingIntent);
-                            }
-                        });
-                break;
-            case ALERT_PERMISSION_RATIONALE:
-                //show when user declines gps permission
-                alertDialogBuilder.setMessage(R.string.location_rationale)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.ok,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        requestLocationPermission();
-                                    }
-                                });
-                alertDialogBuilder.setNegativeButton(R.string.close,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-                break;
-            case ALERT_PERMISSION_NEVER_ASK_AGAIN:
-                //show when user declines gps permission and checks never ask again
-                alertDialogBuilder.setMessage(R.string.how_to_change_location_setting)
-                        .setCancelable(false)
-                        .setPositiveButton(R.string.to_settings,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        Intent intent = new Intent();
-                                        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-                                        Uri uri = Uri.fromParts(
-                                                "package", getPackageName(), null);
-                                        intent.setData(uri);
-                                        startActivity(intent);
-                                    }
-                                });
-                alertDialogBuilder.setNegativeButton(R.string.close,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-                break;
-        }
-
-        mAlert = alertDialogBuilder.create();
-        mAlert.setOnDismissListener(new DialogInterface.OnDismissListener()
-
-                                    {
-                                        @Override
-                                        public void onDismiss(DialogInterface dialogInterface) {
-                                            if (mActiveAlerts.contains(alertType))
-                                                mActiveAlerts.remove((Integer) alertType);
-                                        }
-                                    }
-
-        );
-        mAlert.show();
-        if (!mActiveAlerts.contains(alertType))
-            mActiveAlerts.add(alertType);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
-        if (requestCode == PERMISSION_LOCATION_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // permission was granted
-                handleLocation();
-            } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    //user did not check never ask again, show rationale
-                    showAlert(ALERT_PERMISSION_RATIONALE);
-                } else {
-                    //user checked never ask again
-                    showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
-                }
-            }
-        }
-    }
-
-
-    private boolean checkLocationPermission() {
-        return ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestLocationPermission() {
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                PERMISSION_LOCATION_REQUEST_CODE);
-    }
-
-    public void handleLocation() {
-        if (checkLocationPermission()) { //permission granted
-
-            screenMapFragment.onLocationAllowed();
-
-        } else { //permission was not granted, show the permission prompt
-            requestLocationPermission();
-        }
-    }
-
-    @Subscribe
-    //the method called when received an event from EventBus asking for showing mAlert
-    public void onShouldShowAlertEvent(ShowAlertEvent event) {
-        int receivedAlertType = event.alertType;
-        if (!mActiveAlerts.contains(receivedAlertType))
-            showAlert(event.alertType);
-    }
-
-
-    @Subscribe
-    //the method called when received an event from EventBus asking for canceling mAlert
-    public void onShouldCancelEvent(CancelAlertEvent event) {
-        int receivedAlertType = event.alertType;
-        if (mActiveAlerts.contains(receivedAlertType)) {
-            if (mAlert != null) {
-                mAlert.dismiss();
-            }
-        }
-
-    }
-
-    private void registerNetworkStateReceiver() {
-        //if LocationListenerService is on, this receiver has already been registered
-        if (!isServiceOn()) {
-            IntentFilter intentFilter = new IntentFilter(
-                    ConnectivityManager.CONNECTIVITY_ACTION);
-            intentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
-
-            mNetworkStateReceiver = new NetworkStateReceiver();
-            registerReceiver(
-                    mNetworkStateReceiver, intentFilter);
-        }
-    }
-
-    private void unregisterNetworkStateReceiver() {
-        if (!isServiceOn()) {
-            try {
-                unregisterReceiver(mNetworkStateReceiver);
-            } catch (IllegalArgumentException e) {
-                Log.v("log", "receiver was unregistered before onStop");
-            }
-        }
-    }
-
-    private boolean isServiceOn() {
-        return ((App) getApplication()).isLocationListenerServiceOn();
     }
 
 
     @Override
-
     public void login(FirebaseUser user) {
         // TODO: 11.02.2017 let users choose avatars
         String avatarUri = STANDART_AVATAR;
