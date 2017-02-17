@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.screenChat;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -11,8 +12,10 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
@@ -34,14 +37,10 @@ public class ChatFragment extends Fragment implements FirebaseDatabaseHelper.Cha
     private ImageButton mSendButton;
     private ChatAdapter mAdapter = new ChatAdapter(mMessages);
     private Parcelable savedInstanceStateRecycler;
+    private LinearLayoutManager mLayoutManager;
+
     public ChatFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onDestroyView() {
-        mDatabaseHelper.unregisterChatMessagesListener();
-        super.onDestroyView();
     }
 
     @Override
@@ -66,6 +65,12 @@ public class ChatFragment extends Fragment implements FirebaseDatabaseHelper.Cha
     public void onStop() {
         savedInstanceStateRecycler = mRecyclerView.getLayoutManager().onSaveInstanceState();
         super.onStop();
+    }
+
+    @Override
+    public void onDestroyView() {
+        mDatabaseHelper.unregisterChatMessagesListener();
+        super.onDestroyView();
     }
 
 //    @Override
@@ -94,10 +99,7 @@ public class ChatFragment extends Fragment implements FirebaseDatabaseHelper.Cha
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_chat);
         setupMessageSending();
         setupTextFilter();
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        layoutManager.setStackFromEnd(true);
-        mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setAdapter(mAdapter);
+        setupRecyclerView();
     }
 
     private void setupMessageSending() {
@@ -136,9 +138,29 @@ public class ChatFragment extends Fragment implements FirebaseDatabaseHelper.Cha
         mEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MESSAGE_MAX_CHARS)});
     }
 
+    private void setupRecyclerView() {
+        mLayoutManager = new LinearLayoutManager(getContext());
+        mLayoutManager.setStackFromEnd(true);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                InputMethodManager imm = (InputMethodManager)
+                        getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                return false;
+            }
+        });
+    }
+
     @Override
     public void updateChat(ChatMessage message) {
         mMessages.add(message);
         mRecyclerView.getAdapter().notifyItemInserted(mMessages.size() - 1);
+        if (mMessages.size() > 1 &&
+                mLayoutManager.findLastCompletelyVisibleItemPosition() == mMessages.size() - 2) {
+            mRecyclerView.smoothScrollToPosition(mMessages.size());
+        }
     }
 }
