@@ -7,23 +7,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
-import org.greenrobot.eventbus.Subscribe;
-
-import java.util.ArrayList;
 import java.util.List;
 
-public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
-        implements FirebaseDatabaseHelper.ChatUpdateListener {
+class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int TYPE_MESSAGE = 0;
     private static final int TYPE_MESSAGE_OWN = 1;
     private List<ChatMessage> mMessages;
     private Context mContext;
 
-    public ChatAdapter() {
-        mMessages = new ArrayList<>();
+    ChatAdapter(List<ChatMessage> messages) {
+        mMessages = messages;
     }
 
     @Override
@@ -97,16 +92,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return mMessages.size();
     }
 
-    @Subscribe
-    public void onNewChatMessage(ChatMessage message) {
-        mMessages.add(message);
-        notifyItemInserted(mMessages.size() - 1);
-    }
-
-    // TODO: 15.02.2017 get rid of EventBus implementation by making this method run on UI thread
-    @Override
-    public void updateChat(ChatMessage message) {
-        mMessages.add(message);
-        notifyItemInserted(mMessages.size() - 1);
-    }
+//    @Subscribe
+//    public void onNewChatMessage(ChatMessage message) {
+//        mMessages.add(message);
+//        notifyItemInserted(mMessages.size() - 1);
+//    }
 }

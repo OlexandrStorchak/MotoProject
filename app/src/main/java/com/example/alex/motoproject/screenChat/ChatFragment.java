@@ -2,6 +2,7 @@ package com.example.alex.motoproject.screenChat;
 
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,25 +19,36 @@ import android.widget.ImageButton;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
-import org.greenrobot.eventbus.EventBus;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ChatFragment extends Fragment {
+public class ChatFragment extends Fragment implements FirebaseDatabaseHelper.ChatUpdateListener {
     private static final int MESSAGE_MAX_CHARS = 200;
+    private List<ChatMessage> mMessages = new ArrayList<>();
     private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
+    private RecyclerView mRecyclerView;
     private EditText mEditText;
     private ImageButton mSendButton;
-    private ChatAdapter mAdapter = new ChatAdapter();
-
+    private ChatAdapter mAdapter = new ChatAdapter(mMessages);
+    private Parcelable savedInstanceStateRecycler;
     public ChatFragment() {
         // Required empty public constructor
     }
 
     @Override
+    public void onDestroyView() {
+        mDatabaseHelper.unregisterChatMessagesListener();
+        super.onDestroyView();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        mDatabaseHelper.registerChatMessagesListener(this);
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_chat, container, false);
@@ -44,29 +56,48 @@ public class ChatFragment extends Fragment {
 
     @Override
     public void onStart() {
-        EventBus.getDefault().register(mAdapter);
-        mDatabaseHelper.registerChatMessagesListener();
+        if (savedInstanceStateRecycler != null) {
+            mRecyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceStateRecycler);
+        }
         super.onStart();
     }
 
     @Override
     public void onStop() {
-        EventBus.getDefault().unregister(mAdapter);
-        mDatabaseHelper.unregisterChatMessagesListener();
+        savedInstanceStateRecycler = mRecyclerView.getLayoutManager().onSaveInstanceState();
         super.onStop();
     }
+
+//    @Override
+//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+//        super.onViewStateRestored(savedInstanceState);
+//
+//        if(savedInstanceState != null) {
+//            Parcelable savedRecyclerLayoutState =
+//                    savedInstanceState.getParcelable(BUNDLE_SCROLL_POSITION);
+//            mRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+//        }
+//    }
+//
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        outState.putParcelable(BUNDLE_SCROLL_POSITION,
+//                mRecyclerView.getLayoutManager().onSaveInstanceState());
+//    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mEditText = (EditText) view.findViewById(R.id.edittext_message_chat);
         mSendButton = (ImageButton) view.findViewById(R.id.button_send_chat);
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_chat);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_chat);
         setupMessageSending();
         setupTextFilter();
-
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(mAdapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        layoutManager.setStackFromEnd(true);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     private void setupMessageSending() {
@@ -94,6 +125,7 @@ public class ChatFragment extends Fragment {
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mRecyclerView.smoothScrollToPosition(mMessages.size());
                 mDatabaseHelper.sendChatMessage(mEditText.getText().toString());
                 mEditText.setText("");
             }
@@ -102,5 +134,11 @@ public class ChatFragment extends Fragment {
 
     private void setupTextFilter() {
         mEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MESSAGE_MAX_CHARS)});
+    }
+
+    @Override
+    public void updateChat(ChatMessage message) {
+        mMessages.add(message);
+        mRecyclerView.getAdapter().notifyItemInserted(mMessages.size() - 1);
     }
 }

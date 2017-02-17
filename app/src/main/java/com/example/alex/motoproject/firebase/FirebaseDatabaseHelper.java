@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
-import com.example.alex.motoproject.screenChat.ChatAdapter;
+import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenChat.ChatMessage;
 import com.example.alex.motoproject.screenChat.ChatMessageSendable;
 import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersModel;
@@ -38,8 +38,6 @@ public class FirebaseDatabaseHelper {
     //    private ArrayList<ValueEventListener> mLocationListeners = new ArrayList<>();
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
     private HashMap<DatabaseReference, ValueEventListener> mUsersDataListeners = new HashMap<>();
-
-    private ChatUpdateListener chatMessageUpdateListener = new ChatAdapter();
 
     public FirebaseDatabaseHelper() {
 
@@ -326,7 +324,7 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-    public void registerChatMessagesListener() {
+    public void registerChatMessagesListener(final ChatFragment chatMessageUpdateListener) {
         mChatMessagesListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -334,7 +332,6 @@ public class FirebaseDatabaseHelper {
                 String text = (String) dataSnapshot.child("text").getValue();
                 final ChatMessage message = new ChatMessage(uid, text);
                 chatMessageUpdateListener.updateChat(message);
-                EventBus.getDefault().post(message);
                 if (message.getUid().equals(getCurrentUser().getUid())) {
                     message.setCurrentUserMsg(true);
                     return;
