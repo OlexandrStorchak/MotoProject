@@ -331,7 +331,7 @@ public class FirebaseDatabaseHelper {
                 String uid = (String) dataSnapshot.child("uid").getValue();
                 String text = (String) dataSnapshot.child("text").getValue();
                 final ChatMessage message = new ChatMessage(uid, text);
-                chatMessageUpdateListener.updateChat(message);
+                chatMessageUpdateListener.onNewChatMessage(message);
                 if (message.getUid().equals(getCurrentUser().getUid())) {
                     message.setCurrentUserMsg(true);
                     return;
@@ -345,6 +345,7 @@ public class FirebaseDatabaseHelper {
                                 String avatarRef = (String) dataSnapshot.child("avatar").getValue();
                                 message.setName(name);
                                 message.setAvatarRef(avatarRef);
+                                chatMessageUpdateListener.onChatMessageNewData(message);
                             }
 
                             @Override
@@ -390,6 +391,8 @@ public class FirebaseDatabaseHelper {
     }
 
     public interface ChatUpdateListener {
-        void updateChat(ChatMessage message);
+        void onNewChatMessage(ChatMessage message);
+
+        void onChatMessageNewData(ChatMessage message);
     }
 }

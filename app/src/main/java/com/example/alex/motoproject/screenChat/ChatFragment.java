@@ -155,9 +155,15 @@ public class ChatFragment extends Fragment implements FirebaseDatabaseHelper.Cha
     }
 
     @Override
-    public void updateChat(ChatMessage message) {
+    public void onChatMessageNewData(ChatMessage message) {
+        // TODO: 18.02.2017 use notify item changed instead!
+        mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onNewChatMessage(ChatMessage message) {
         mMessages.add(message);
-        mRecyclerView.getAdapter().notifyItemInserted(mMessages.size() - 1);
+        mAdapter.notifyItemInserted(mMessages.size() - 1);
         if (mMessages.size() > 1 &&
                 mLayoutManager.findLastCompletelyVisibleItemPosition() == mMessages.size() - 2) {
             mRecyclerView.smoothScrollToPosition(mMessages.size());
