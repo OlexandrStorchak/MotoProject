@@ -26,8 +26,6 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (mContext == null) {
             mContext = parent.getContext();
         }
-
-
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View itemView;
         RecyclerView.ViewHolder viewHolder = null;
@@ -91,10 +89,4 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public int getItemCount() {
         return mMessages.size();
     }
-
-//    @Subscribe
-//    public void onNewChatMessage(ChatMessage message) {
-//        mMessages.add(message);
-//        notifyItemInserted(mMessages.size() - 1);
-//    }
 }

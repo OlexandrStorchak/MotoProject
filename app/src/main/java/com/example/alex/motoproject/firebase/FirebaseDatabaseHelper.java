@@ -5,9 +5,9 @@ import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
-import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenChat.ChatMessage;
 import com.example.alex.motoproject.screenChat.ChatMessageSendable;
+import com.example.alex.motoproject.screenChat.ChatModel;
 import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -324,14 +324,15 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-    public void registerChatMessagesListener(final ChatFragment chatMessageUpdateListener) {
+    public void registerChatMessagesListener(ChatModel receiver) {
+        final ChatUpdateReceiver chatModel = receiver;
         mChatMessagesListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String uid = (String) dataSnapshot.child("uid").getValue();
                 String text = (String) dataSnapshot.child("text").getValue();
                 final ChatMessage message = new ChatMessage(uid, text);
-                chatMessageUpdateListener.onNewChatMessage(message);
+                chatModel.onNewChatMessage(message);
                 if (message.getUid().equals(getCurrentUser().getUid())) {
                     message.setCurrentUserMsg(true);
                     return;
@@ -345,7 +346,7 @@ public class FirebaseDatabaseHelper {
                                 String avatarRef = (String) dataSnapshot.child("avatar").getValue();
                                 message.setName(name);
                                 message.setAvatarRef(avatarRef);
-                                chatMessageUpdateListener.onChatMessageNewData(message);
+                                chatModel.onChatMessageNewData(message);
                             }
 
                             @Override
@@ -390,7 +391,7 @@ public class FirebaseDatabaseHelper {
                 .setValue(new ChatMessageSendable(getCurrentUser().getUid(), message));
     }
 
-    public interface ChatUpdateListener {
+    public interface ChatUpdateReceiver {
         void onNewChatMessage(ChatMessage message);
 
         void onChatMessageNewData(ChatMessage message);

@@ -20,24 +20,19 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class ChatFragment extends Fragment implements FirebaseDatabaseHelper.ChatUpdateListener {
+public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     private static final int MESSAGE_MAX_CHARS = 200;
-    private List<ChatMessage> mMessages = new ArrayList<>();
-    private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
     private RecyclerView mRecyclerView;
     private EditText mEditText;
     private ImageButton mSendButton;
-    private ChatAdapter mAdapter = new ChatAdapter(mMessages);
+    private ChatAdapter mAdapter;
     private Parcelable savedInstanceStateRecycler;
     private LinearLayoutManager mLayoutManager;
+
+    private ChatMVP.ViewToPresenter mPresenter = new ChatPresenter(this);
 
     public ChatFragment() {
         // Required empty public constructor
@@ -47,7 +42,8 @@ public class ChatFragment extends Fragment implements FirebaseDatabaseHelper.Cha
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mDatabaseHelper.registerChatMessagesListener(this);
+        mPresenter.registerChatMessagesListener();
+        mPresenter.registerAdapter();
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_chat, container, false);
@@ -69,27 +65,9 @@ public class ChatFragment extends Fragment implements FirebaseDatabaseHelper.Cha
 
     @Override
     public void onDestroyView() {
-        mDatabaseHelper.unregisterChatMessagesListener();
+        mPresenter.unregisterChatMessagesListener();
         super.onDestroyView();
     }
-
-//    @Override
-//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-//        super.onViewStateRestored(savedInstanceState);
-//
-//        if(savedInstanceState != null) {
-//            Parcelable savedRecyclerLayoutState =
-//                    savedInstanceState.getParcelable(BUNDLE_SCROLL_POSITION);
-//            mRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
-//        }
-//    }
-//
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        outState.putParcelable(BUNDLE_SCROLL_POSITION,
-//                mRecyclerView.getLayoutManager().onSaveInstanceState());
-//    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -112,11 +90,7 @@ public class ChatFragment extends Fragment implements FirebaseDatabaseHelper.Cha
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charSequence.length() > 0) {
-                    mSendButton.setVisibility(View.VISIBLE);
-                } else {
-                    mSendButton.setVisibility(View.GONE);
-                }
+                mPresenter.onTextChanged(charSequence);
             }
 
             @Override
@@ -127,11 +101,18 @@ public class ChatFragment extends Fragment implements FirebaseDatabaseHelper.Cha
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mRecyclerView.smoothScrollToPosition(mMessages.size());
-                mDatabaseHelper.sendChatMessage(mEditText.getText().toString());
-                mEditText.setText("");
+                mPresenter.onClickSendButton(mEditText.getText().toString());
             }
         });
+    }
+
+    public void scrollToPosition(int position) {
+        mRecyclerView.smoothScrollToPosition(position);
+
+    }
+
+    public void cleanupEditText() {
+        mEditText.setText("");
     }
 
     private void setupTextFilter() {
@@ -146,27 +127,46 @@ public class ChatFragment extends Fragment implements FirebaseDatabaseHelper.Cha
         mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                InputMethodManager imm = (InputMethodManager)
-                        getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                mPresenter.onTouchRecyclerView(view);
                 return false;
             }
         });
     }
 
     @Override
-    public void onChatMessageNewData(ChatMessage message) {
+    public void hideKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager)
+                getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    @Override
+    public int getLastCompletelyVisibleItemPosition() {
+        return mLayoutManager.findLastCompletelyVisibleItemPosition();
+    }
+
+    public void notifyItemInserted(int position) {
+        mAdapter.notifyItemInserted(position - 1);
+    }
+
+    @Override
+    public void setListToAdapter(List<ChatMessage> messages) {
+        mAdapter = new ChatAdapter(messages);
+    }
+
+    @Override
+    public void updateMessage(int position) {
         // TODO: 18.02.2017 use notify item changed instead!
         mAdapter.notifyDataSetChanged();
     }
 
     @Override
-    public void onNewChatMessage(ChatMessage message) {
-        mMessages.add(message);
-        mAdapter.notifyItemInserted(mMessages.size() - 1);
-        if (mMessages.size() > 1 &&
-                mLayoutManager.findLastCompletelyVisibleItemPosition() == mMessages.size() - 2) {
-            mRecyclerView.smoothScrollToPosition(mMessages.size());
-        }
+    public void hideSendButton() {
+        mSendButton.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showSendButton() {
+        mSendButton.setVisibility(View.VISIBLE);
     }
 }
