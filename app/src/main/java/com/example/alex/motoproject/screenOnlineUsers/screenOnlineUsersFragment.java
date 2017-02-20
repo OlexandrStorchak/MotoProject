@@ -4,7 +4,6 @@ package com.example.alex.motoproject.screenOnlineUsers;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,23 +13,22 @@ import android.view.ViewGroup;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 public class ScreenOnlineUsersFragment extends Fragment {
 
-    private ScreenMapFragment screenMapFragment = null;
+
     private RecyclerView rv;
 
+    OnlineUsersAdapter adapter = new OnlineUsersAdapter(null);
 
-    public void setScreenMapFragment(ScreenMapFragment screenMapFragment) {
-        this.screenMapFragment = screenMapFragment;
-    }
 
-    OnlineUsersAdapter adapter = new OnlineUsersAdapter(null,getFragmentManager() );
+
+
     private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
+
 
     public ScreenOnlineUsersFragment() {
         // Required empty public constructor

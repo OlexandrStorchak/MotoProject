@@ -18,12 +18,12 @@ import com.squareup.picasso.Picasso;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
-public class ScreenProfileFragment extends Fragment {
+public class ScreenMyProfileFragment extends Fragment {
     private TextView email;
     private ImageView avatar;
     private FirebaseDatabaseHelper firebaseDabaseHelper;
 
-    public ScreenProfileFragment() {
+    public ScreenMyProfileFragment() {
         // Required empty public constructor
     }
 

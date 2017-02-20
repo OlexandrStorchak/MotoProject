@@ -14,5 +14,4 @@ interface MainViewInterface {
     void replaceFragment(Fragment fragment);
 
 
-
 }
