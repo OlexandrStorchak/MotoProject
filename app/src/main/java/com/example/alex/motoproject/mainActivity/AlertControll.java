@@ -28,7 +28,8 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
-public class AlertControll implements ScreenMapFragment.MapFragmentListener {
+public class AlertControll implements ScreenMapFragment.MapFragmentListener,
+        ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final int ALERT_GPS_OFF = 20;
     public static final int ALERT_INTERNET_OFF = 21;
@@ -163,7 +164,7 @@ public class AlertControll implements ScreenMapFragment.MapFragmentListener {
         if (!mActiveAlerts.contains(alertType))
             mActiveAlerts.add(alertType);
     }
-
+    @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[],
                                            @NonNull int[] grantResults) {

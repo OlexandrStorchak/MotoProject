@@ -10,13 +10,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.screenProfile.ScreenProfileFragment;
+import com.example.alex.motoproject.events.ShowUserProfile;
+import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.example.alex.motoproject.mainActivity.MainActivity.FRAGMENT_ONLINE_USERS;
 
 
 class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
@@ -24,11 +29,11 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
 
     private List<OnlineUsersModel> onlineUsers;
     private HashMap<String, OnlineUsersModel> hashMapA;
-    private FragmentManager fragmentManager;
 
-    OnlineUsersAdapter(List<OnlineUsersModel> friendsList, FragmentManager fragmentManager) {
+
+    OnlineUsersAdapter(List<OnlineUsersModel> friendsList) {
         this.onlineUsers = friendsList;
-        this.fragmentManager = fragmentManager;
+
     }
 
     @Override
@@ -88,7 +93,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
                 @Override
                 public void onClick(View view) {
                     //This click to show user profie
-
+                    EventBus.getDefault().post(new ShowUserProfile(onlineUsers.get(getAdapterPosition())));
 
                 }
             });
@@ -106,6 +111,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
                 }
 
             });
+
 
         }
     }
