@@ -22,7 +22,7 @@ class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPresenter
     }
 
     @Override
-    public void onTextChanged(CharSequence charSequence) {
+    public void onEditTextTextChanged(CharSequence charSequence) {
         if (charSequence.length() > 0) {
             getView().showSendButton();
         } else {
@@ -58,6 +58,11 @@ class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPresenter
     }
 
     @Override
+    public void onRefreshSwipeLayout() {
+        mModel.fetchOlderChatMessages();
+    }
+
+    @Override
     public void showNewMessage() {
         int position = mModel.getMessagesSize();
         getView().notifyItemInserted(position);
@@ -65,6 +70,22 @@ class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPresenter
                 getView().getLastCompletelyVisibleItemPosition() == position - 2) {
             getView().scrollToPosition(mModel.getMessagesSize());
         }
+    }
+
+    @Override
+    public void showOlderMessages(int startPos, int lastPos) {
+        getView().notifyItemRangeInserted(startPos, lastPos);
+        getView().scrollToPosition(lastPos - 1);
+    }
+
+    @Override
+    public void disableRefreshingSwipeLayout() {
+        getView().disableRefreshingSwipeLayout();
+    }
+
+    @Override
+    public void disableSwipeLayout() {
+        getView().disableSwipeLayout();
     }
 
     @Override

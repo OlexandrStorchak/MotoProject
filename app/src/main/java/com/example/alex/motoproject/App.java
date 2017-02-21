@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.example.alex.motoproject.mainActivity.MainActivity;
+import com.google.firebase.database.FirebaseDatabase;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
@@ -34,6 +35,9 @@ public class App extends Application
         Log.d(TAG, "realmInit: well done");
 
         registerActivityLifecycleCallbacks(this);
+
+        //Cache some data in gadget storage for offline usage
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     }
 
 

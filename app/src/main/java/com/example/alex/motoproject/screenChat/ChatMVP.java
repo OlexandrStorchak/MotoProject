@@ -7,7 +7,7 @@ import java.util.List;
 interface ChatMVP {
 
     interface ViewToPresenter {
-        void onTextChanged(CharSequence charSequence);
+        void onEditTextTextChanged(CharSequence charSequence);
 
         void onClickSendButton(String msg);
 
@@ -18,6 +18,8 @@ interface ChatMVP {
         void unregisterChatMessagesListener();
 
         void registerAdapter();
+
+        void onRefreshSwipeLayout();
     }
 
     interface PresenterToView {
@@ -35,7 +37,13 @@ interface ChatMVP {
 
         void notifyItemInserted(int position);
 
+        void notifyItemRangeInserted(int mitPos, int lastPos);
+
         void setListToAdapter(List<ChatMessage> messages);
+
+        void disableRefreshingSwipeLayout();
+
+        void disableSwipeLayout();
 
         int getLastCompletelyVisibleItemPosition();
     }
@@ -50,10 +58,18 @@ interface ChatMVP {
         int getMessagesSize();
 
         List<ChatMessage> getMessages();
+
+        void fetchOlderChatMessages();
     }
 
     interface ModelToPresenter {
         void showNewMessage();
+
+        void showOlderMessages(int startPos, int lastPos);
+
+        void disableRefreshingSwipeLayout();
+
+        void disableSwipeLayout();
 
         void updateMessage();
     }

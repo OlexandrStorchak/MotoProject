@@ -21,12 +21,17 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 
 public class FirebaseDatabaseHelper {
     private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
+    private static final int OLDER_CHAT_MESSAGES_COUNT_LIMIT = 10;
     private final HashMap<String, OnlineUsersModel> onlineUserHashMap = new HashMap<>();
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference mDbReference = mDatabase.getReference();
@@ -35,9 +40,14 @@ public class FirebaseDatabaseHelper {
     private ChildEventListener mChatMessagesListener;
     private DatabaseReference mOnlineUsersRef;
 
-    //    private ArrayList<ValueEventListener> mLocationListeners = new ArrayList<>();
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
     private HashMap<DatabaseReference, ValueEventListener> mUsersDataListeners = new HashMap<>();
+
+    private String mLastKey;
+    private int mLimit = 10;
+
+    private boolean firstNewMessage = true;
+    private boolean firstOlderMessage = true;
 
     public FirebaseDatabaseHelper() {
 
@@ -329,6 +339,11 @@ public class FirebaseDatabaseHelper {
         mChatMessagesListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                if (firstNewMessage) {
+                    mLastKey = dataSnapshot.getKey();
+                    firstNewMessage = false;
+                    return;
+                }
                 String uid = (String) dataSnapshot.child("uid").getValue();
                 String text = (String) dataSnapshot.child("text").getValue();
                 final ChatMessage message = new ChatMessage(uid, text);
@@ -376,7 +391,78 @@ public class FirebaseDatabaseHelper {
 
             }
         };
-        mDbReference.child("chat").addChildEventListener(mChatMessagesListener);
+        mDbReference.child("chat").limitToLast(mLimit + OLDER_CHAT_MESSAGES_COUNT_LIMIT + 1)
+                .addChildEventListener(mChatMessagesListener);
+
+    }
+
+    public void fetchOlderChatMessages(ChatModel receiver) {
+        firstOlderMessage = true;
+        final ChatUpdateReceiver chatModel = receiver;
+        mDbReference.child("chat").orderByKey().endAt(mLastKey)
+                .limitToLast(mLimit + OLDER_CHAT_MESSAGES_COUNT_LIMIT + 1)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot parentSnapshot) {
+                        LinkedHashMap<String, ChatMessage> olderMsgsHashmap = new LinkedHashMap<>();
+                        for (DataSnapshot dataSnapshot : parentSnapshot.getChildren()) {
+                            String id = dataSnapshot.getKey();
+                            if (firstOlderMessage && parentSnapshot.getChildrenCount()
+                                    >= mLimit + OLDER_CHAT_MESSAGES_COUNT_LIMIT + 1) {
+                                mLastKey = id;
+                                firstOlderMessage = false;
+                            } else {
+                                String uid = (String) dataSnapshot.child("uid").getValue();
+                                String text = (String) dataSnapshot.child("text").getValue();
+                                final ChatMessage message = new ChatMessage(uid, text);
+                                olderMsgsHashmap.put(id, message);
+                                if (message.getUid().equals(getCurrentUser().getUid())) {
+                                    message.setCurrentUserMsg(true);
+                                }
+                                mDbReference.child("users").child(uid)
+                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                String name = (String) dataSnapshot.child("name").getValue();
+                                                String avatarRef = (String) dataSnapshot.child("avatar").getValue();
+                                                message.setName(name);
+                                                message.setAvatarRef(avatarRef);
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+                            }
+
+                        }
+                        if (parentSnapshot.getChildrenCount()
+                                < mLimit + OLDER_CHAT_MESSAGES_COUNT_LIMIT + 1) {
+                            chatModel.onLastMessages();
+                        }
+                        onOlderChatMessagesReady(olderMsgsHashmap, chatModel);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    private void onOlderChatMessagesReady(HashMap<String, ChatMessage> olderMsgsHashmap,
+                                          ChatUpdateReceiver chatModel) {
+        List<ChatMessage> olderMessages = new ArrayList<>();
+        for (Map.Entry<String, ChatMessage> entry : olderMsgsHashmap.entrySet()) {
+            olderMessages.add(entry.getValue());
+        }
+        Collections.reverse(olderMessages);
+        List<ChatMessage> newOldMessages = new ArrayList<>();
+
+        newOldMessages.addAll(olderMessages);
+        chatModel.onOlderChatMessages(newOldMessages, newOldMessages.size());
+        olderMsgsHashmap.clear();
     }
 
     public void unregisterChatMessagesListener() {
@@ -394,6 +480,10 @@ public class FirebaseDatabaseHelper {
     public interface ChatUpdateReceiver {
         void onNewChatMessage(ChatMessage message);
 
+        void onOlderChatMessages(List<ChatMessage> olderMessages, int lastPos);
+
         void onChatMessageNewData(ChatMessage message);
+
+        void onLastMessages();
     }
 }

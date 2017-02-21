@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -31,7 +32,9 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     private ChatAdapter mAdapter;
     private Parcelable savedInstanceStateRecycler;
     private LinearLayoutManager mLayoutManager;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
+    // TODO: 19.02.2017 dependency injection
     private ChatMVP.ViewToPresenter mPresenter = new ChatPresenter(this);
 
     public ChatFragment() {
@@ -75,9 +78,24 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
         mEditText = (EditText) view.findViewById(R.id.edittext_message_chat);
         mSendButton = (ImageButton) view.findViewById(R.id.button_send_chat);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_chat);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.container_chat_swipe);
         setupMessageSending();
         setupTextFilter();
         setupRecyclerView();
+        setupSwipeRefreshLayout();
+    }
+
+    private void setupSwipeRefreshLayout() {
+        mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mPresenter.onRefreshSwipeLayout();
+            }
+        });
     }
 
     private void setupMessageSending() {
@@ -90,7 +108,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                mPresenter.onTextChanged(charSequence);
+                mPresenter.onEditTextTextChanged(charSequence);
             }
 
             @Override
@@ -106,11 +124,13 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
         });
     }
 
+    @Override
     public void scrollToPosition(int position) {
-        mRecyclerView.smoothScrollToPosition(position);
+//        mRecyclerView.smoothScrollToPosition(position);
 
     }
 
+    @Override
     public void cleanupEditText() {
         mEditText.setText("");
     }
@@ -145,8 +165,19 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
         return mLayoutManager.findLastCompletelyVisibleItemPosition();
     }
 
+    @Override
     public void notifyItemInserted(int position) {
         mAdapter.notifyItemInserted(position - 1);
+    }
+
+    @Override
+    public void notifyItemRangeInserted(int startPos, int lastPos) {
+        mAdapter.notifyItemRangeInserted(startPos, lastPos);
+    }
+
+    @Override
+    public void disableRefreshingSwipeLayout() {
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -168,5 +199,9 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     @Override
     public void showSendButton() {
         mSendButton.setVisibility(View.VISIBLE);
+    }
+
+    public void disableSwipeLayout() {
+        mSwipeRefreshLayout.setEnabled(false);
     }
 }

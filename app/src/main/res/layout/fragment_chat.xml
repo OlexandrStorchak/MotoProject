@@ -5,14 +5,22 @@
     android:layout_height="match_parent"
     tools:context="com.example.alex.motoproject.screenChat.ChatFragment">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerview_chat"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/linearlayout_chat_edittextcontainer"
-        android:background="@color/blueGray50"
-        app:reverseLayout="true"
-        app:stackFromEnd="true" />
+    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/container_chat_swipe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/linearlayout_chat_edittextcontainer">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerview_chat"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/blueGray50"
+            android:scrollbars="vertical"
+            app:reverseLayout="true"
+            app:stackFromEnd="true" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <LinearLayout
         android:id="@+id/linearlayout_chat_edittextcontainer"

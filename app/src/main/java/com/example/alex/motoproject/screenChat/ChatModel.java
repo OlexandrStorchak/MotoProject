@@ -2,14 +2,14 @@ package com.example.alex.motoproject.screenChat;
 
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class ChatModel implements ChatMVP.PresenterToModel,
         FirebaseDatabaseHelper.ChatUpdateReceiver {
     private ChatMVP.ModelToPresenter mPresenter;
 
-    private List<ChatMessage> mMessages = new ArrayList<>();
+    private LinkedList<ChatMessage> mMessages = new LinkedList<>();
 
     private FirebaseDatabaseHelper mFirebaseHelper = new FirebaseDatabaseHelper();
 
@@ -38,6 +38,12 @@ public class ChatModel implements ChatMVP.PresenterToModel,
     }
 
     @Override
+    public void fetchOlderChatMessages() {
+        mFirebaseHelper.fetchOlderChatMessages(this);
+        mMessages.size();
+    }
+
+    @Override
     public void sendChatMessage(String msg) {
         mFirebaseHelper.sendChatMessage(msg);
     }
@@ -49,7 +55,21 @@ public class ChatModel implements ChatMVP.PresenterToModel,
     }
 
     @Override
+    public void onOlderChatMessages(List<ChatMessage> olderMessages, int lastPos) {
+        for (ChatMessage olderMessage : olderMessages) {
+            mMessages.addFirst(olderMessage);
+        }
+        mPresenter.disableRefreshingSwipeLayout();
+        mPresenter.showOlderMessages(0, lastPos);
+    }
+
+    @Override
     public void onChatMessageNewData(ChatMessage message) {
         mPresenter.updateMessage();
+    }
+
+    @Override
+    public void onLastMessages() {
+        mPresenter.disableSwipeLayout();
     }
 }
