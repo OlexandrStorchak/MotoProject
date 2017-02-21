@@ -35,6 +35,7 @@
     <string name="avatar">Аватар</string>
     <string name="pass_not_mutch">mPassword not mutch</string>
     <string name="who_is_online">Хто онлайн</string>
+    <string name="hint_chat">Введіть повідомлення…</string>
 
     <string name="facebook">Facebook</string>
 

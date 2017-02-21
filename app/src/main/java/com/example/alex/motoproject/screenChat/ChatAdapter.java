@@ -62,18 +62,23 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         String text = message.getText();
         String name = message.getName();
         String avatarRef = message.getAvatarRef();
+        String sendTime = message.getSendTime();
 
         ChatMsgHolder msgHolder = (ChatMsgHolder) holder;
         msgHolder.setMessageText(text);
         msgHolder.setName(name);
         msgHolder.setAvatar(avatarRef, mContext);
+        msgHolder.setSendTime(sendTime);
     }
 
     private void bindMessageOwn(RecyclerView.ViewHolder holder, int position) {
         ChatMessage message = mMessages.get(position);
         String text = message.getText();
+        String sendTime = message.getSendTime();
+
         ChatMsgOwnHolder msgOwnHolder = (ChatMsgOwnHolder) holder;
         msgOwnHolder.setMessageText(text);
+        msgOwnHolder.setSendTime(sendTime);
     }
 
     @Override

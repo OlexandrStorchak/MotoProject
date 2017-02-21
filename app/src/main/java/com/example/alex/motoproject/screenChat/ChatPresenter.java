@@ -23,7 +23,7 @@ class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPresenter
 
     @Override
     public void onEditTextTextChanged(CharSequence charSequence) {
-        if (charSequence.length() > 0) {
+        if (charSequence.length() > 0 && !charSequence.toString().matches("\\s+")) {
             getView().showSendButton();
         } else {
             getView().hideSendButton();
@@ -32,6 +32,8 @@ class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPresenter
 
     @Override
     public void onClickSendButton(String msg) {
+        msg = msg.trim().replaceAll(" +", " ");
+        msg = msg.replaceAll("\\n+", "\n");
         mModel.sendChatMessage(msg);
         getView().scrollToPosition(mModel.getMessagesSize());
         getView().cleanupEditText();

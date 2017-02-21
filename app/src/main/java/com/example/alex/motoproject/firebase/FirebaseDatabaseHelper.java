@@ -16,14 +16,18 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -340,7 +344,9 @@ public class FirebaseDatabaseHelper {
                 }
                 String uid = (String) dataSnapshot.child("uid").getValue();
                 String text = (String) dataSnapshot.child("text").getValue();
-                final ChatMessage message = new ChatMessage(uid, text);
+                Long sendTime = (Long) dataSnapshot.child("sendTime").getValue();
+                convertUnixTimeToDate(sendTime);
+                final ChatMessage message = new ChatMessage(uid, text, convertUnixTimeToDate(sendTime));
                 mChatModel.onNewChatMessage(message);
                 if (message.getUid().equals(getCurrentUser().getUid())) {
                     message.setCurrentUserMsg(true);
@@ -409,7 +415,9 @@ public class FirebaseDatabaseHelper {
                             } else {
                                 String uid = (String) dataSnapshot.child("uid").getValue();
                                 String text = (String) dataSnapshot.child("text").getValue();
-                                final ChatMessage message = new ChatMessage(uid, text);
+                                long sendTime = (long) dataSnapshot.child("sendTime").getValue();
+                                final ChatMessage message = new ChatMessage(uid,
+                                        text, convertUnixTimeToDate(sendTime));
                                 olderMessages.add(message);
                                 if (message.getUid().equals(getCurrentUser().getUid())) {
                                     message.setCurrentUserMsg(true);
@@ -454,6 +462,12 @@ public class FirebaseDatabaseHelper {
         olderMessages.clear();
     }
 
+    private String convertUnixTimeToDate(long unixTime) {
+        Date date = new Date(unixTime);
+        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.UK)
+                .format(date);
+    }
+
     public void unregisterChatMessagesListener() {
         if (mChatMessagesListener != null && getCurrentUser() != null) {
             DatabaseReference myRef = mDbReference.child("chat");
@@ -463,7 +477,9 @@ public class FirebaseDatabaseHelper {
 
     public void sendChatMessage(String message) {
         mDbReference.child("chat").push()
-                .setValue(new ChatMessageSendable(getCurrentUser().getUid(), message));
+                .setValue(new ChatMessageSendable(getCurrentUser().getUid(),
+                        message,
+                        ServerValue.TIMESTAMP));
     }
 
     public interface ChatUpdateReceiver {

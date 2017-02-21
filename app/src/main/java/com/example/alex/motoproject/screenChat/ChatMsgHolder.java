@@ -16,12 +16,14 @@ class ChatMsgHolder extends RecyclerView.ViewHolder {
     private ImageView mUserAvatarView;
     private TextView mNameView;
     private TextView mTextView;
+    private TextView mSendTime;
 
     ChatMsgHolder(View itemView) {
         super(itemView);
         mUserAvatarView = (ImageView) itemView.findViewById(R.id.chat_message_avatar);
         mNameView = (TextView) itemView.findViewById(R.id.chat_message_name);
         mTextView = (TextView) itemView.findViewById(R.id.chat_message_text);
+        mSendTime = (TextView) itemView.findViewById(R.id.chat_message_date);
 
         mUserAvatarView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -38,6 +40,10 @@ class ChatMsgHolder extends RecyclerView.ViewHolder {
 
     void setMessageText(String text) {
         mTextView.setText(text);
+    }
+
+    void setSendTime(String dateTime) {
+        mSendTime.setText(dateTime);
     }
 
     void setAvatar(String avatarRef, Context ctx) {
