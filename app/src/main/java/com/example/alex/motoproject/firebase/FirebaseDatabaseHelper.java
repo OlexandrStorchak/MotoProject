@@ -28,7 +28,7 @@ import java.util.Map;
 
 
 public class FirebaseDatabaseHelper {
-    private static final int CHAT_MESSAGES_COUNT_LIMIT = 21;
+    private static final int CHAT_MESSAGES_COUNT_LIMIT = 31;
     private final HashMap<String, OnlineUsersModel> mOnlineUserHashMap = new HashMap<>();
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference mDbReference = mDatabase.getReference();
@@ -42,7 +42,8 @@ public class FirebaseDatabaseHelper {
 
     private String mFirstChatMsgKeyAfterFetch;
     //    private int mChatMessagesToBeLoaded = 10;
-    private boolean isFirstChatMessageAfterFetch = true;
+    private boolean isFirstChatMessageAfterFetch;
+    private boolean isFirstNewChatMessageAfterFetch = true;
 
     public FirebaseDatabaseHelper() {
 
@@ -334,9 +335,9 @@ public class FirebaseDatabaseHelper {
         mChatMessagesListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (isFirstChatMessageAfterFetch) {
+                if (isFirstNewChatMessageAfterFetch) {
                     mFirstChatMsgKeyAfterFetch = dataSnapshot.getKey();
-                    isFirstChatMessageAfterFetch = false;
+                    isFirstNewChatMessageAfterFetch = false;
                     return;
                 }
                 String uid = (String) dataSnapshot.child("uid").getValue();
@@ -402,10 +403,10 @@ public class FirebaseDatabaseHelper {
                     public void onDataChange(DataSnapshot parentSnapshot) {
                         List<ChatMessage> olderMessages = new ArrayList<>();
                         for (DataSnapshot dataSnapshot : parentSnapshot.getChildren()) {
-                            String id = dataSnapshot.getKey();
+                            String messageId = dataSnapshot.getKey();
                             if (isFirstChatMessageAfterFetch && parentSnapshot.getChildrenCount()
                                     >= CHAT_MESSAGES_COUNT_LIMIT) {
-                                mFirstChatMsgKeyAfterFetch = id;
+                                mFirstChatMsgKeyAfterFetch = messageId;
                                 isFirstChatMessageAfterFetch = false;
                             } else {
                                 String uid = (String) dataSnapshot.child("uid").getValue();
