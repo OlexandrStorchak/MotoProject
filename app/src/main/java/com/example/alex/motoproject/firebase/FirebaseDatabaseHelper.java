@@ -96,6 +96,8 @@ public class FirebaseDatabaseHelper {
         });
     }
 
+
+
     public void registerOnlineUsersLocationListener() {
         mOnlineUsersRef = mDbReference.child("onlineUsers");
         mOnlineUsersLocationListener = new ChildEventListener() {
@@ -321,4 +323,77 @@ public class FirebaseDatabaseHelper {
         });
     }
 
+    //Send friend request
+    public void sendFriendRequest(String userId) {
+        final DatabaseReference ref = mDbReference.child("users").child(userId)
+                .child("friendsRequest").child(getCurrentUser().getUid());
+        Log.d("log", "sendFriendRequest: " + userId);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    //Request already exists
+                    Log.d("log", "onDataChange: NO ADD");
+                    return;
+                }
+                ref.setValue("timeStamp");
+                Log.d("log", "onDataChange: ADD USER REQUEST");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("log", "onCancelled: ");
+            }
+        });
+    }
+//Friend request table listener
+    public void getFriendRequest(){
+        DatabaseReference ref =  mDbReference.child("users").child(getCurrentUser().getUid())
+                .child("friendsRequest");
+        ref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d("log", "onChildAdded: "+dataSnapshot.getKey());
+                getUserModel(dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    //get user from database by userId
+    private void getUserModel(String userId){
+        //get user name
+        DatabaseReference ref = mDbReference.child("users").child(userId).child("name");
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("log", "getUserModel: name is - "+dataSnapshot.getValue().toString());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
 }

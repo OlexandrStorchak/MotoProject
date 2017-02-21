@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersModel;
 import com.squareup.picasso.Picasso;
 
@@ -75,6 +76,7 @@ public class ScreenUserProfileFragment extends Fragment {
                 Toast.makeText(getContext(),
                         "add to friend " + onlineUsersModel.getName(),
                         Toast.LENGTH_SHORT).show();
+                new FirebaseDatabaseHelper().sendFriendRequest(onlineUsersModel.getUid());
             }
         });
         sendMessage.setOnClickListener(new View.OnClickListener() {
