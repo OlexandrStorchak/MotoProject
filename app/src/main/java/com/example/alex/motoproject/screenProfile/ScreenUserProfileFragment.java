@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,7 +22,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 public class ScreenUserProfileFragment extends Fragment {
 
     OnlineUsersModel onlineUsersModel;
-
+        LinearLayout butons;
 
     public ScreenUserProfileFragment() {
         // Required empty public constructor
@@ -46,12 +47,15 @@ public class ScreenUserProfileFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ImageView addToFriend = (ImageView) view.findViewById(R.id.profile_add_friend);
-        ImageView sendMessage = (ImageView) view.findViewById(R.id.profile_send_message);
+        final ImageView addToFriend = (ImageView) view.findViewById(R.id.profile_add_friend);
+        final ImageView sendMessage = (ImageView) view.findViewById(R.id.profile_send_message);
+
         TextView name = (TextView) view.findViewById(R.id.profile_user_name);
+        TextView motorcycle = (TextView) view.findViewById(R.id.profile_user_motorcycle);
+        TextView status = (TextView) view.findViewById(R.id.profile_user_status);
         ImageView avatar = (ImageView) view.findViewById(R.id.profile_user_avatar);
         name.setText(onlineUsersModel.getName());
-
+        butons = (LinearLayout)view.findViewById(R.id.profile_user_buttons);
 
 
         if (onlineUsersModel.getAvatar() != null) {
