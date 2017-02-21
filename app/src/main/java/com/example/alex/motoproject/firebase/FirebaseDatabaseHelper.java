@@ -30,18 +30,16 @@ import java.util.Map;
 public class FirebaseDatabaseHelper {
     private static final int CHAT_MESSAGES_COUNT_LIMIT = 31;
     private final HashMap<String, OnlineUsersModel> mOnlineUserHashMap = new HashMap<>();
+    private ChatUpdateReceiver mChatModel;
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference mDbReference = mDatabase.getReference();
     private ChildEventListener mOnlineUsersLocationListener;
     private ChildEventListener mOnlineUsersDataListener;
     private ChildEventListener mChatMessagesListener;
     private DatabaseReference mOnlineUsersRef;
-
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
     private HashMap<DatabaseReference, ValueEventListener> mUsersDataListeners = new HashMap<>();
-
     private String mFirstChatMsgKeyAfterFetch;
-    //    private int mChatMessagesToBeLoaded = 10;
     private boolean isFirstChatMessageAfterFetch;
     private boolean isFirstNewChatMessageAfterFetch = true;
 
@@ -331,7 +329,7 @@ public class FirebaseDatabaseHelper {
     }
 
     public void registerChatMessagesListener(ChatModel receiver) {
-        final ChatUpdateReceiver chatModel = receiver;
+        mChatModel = receiver;
         mChatMessagesListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -343,7 +341,7 @@ public class FirebaseDatabaseHelper {
                 String uid = (String) dataSnapshot.child("uid").getValue();
                 String text = (String) dataSnapshot.child("text").getValue();
                 final ChatMessage message = new ChatMessage(uid, text);
-                chatModel.onNewChatMessage(message);
+                mChatModel.onNewChatMessage(message);
                 if (message.getUid().equals(getCurrentUser().getUid())) {
                     message.setCurrentUserMsg(true);
                     return;
@@ -357,7 +355,7 @@ public class FirebaseDatabaseHelper {
                                 String avatarRef = (String) dataSnapshot.child("avatar").getValue();
                                 message.setName(name);
                                 message.setAvatarRef(avatarRef);
-                                chatModel.onChatMessageNewData(message);
+                                mChatModel.onChatMessageNewData(message);
                             }
 
                             @Override
@@ -424,6 +422,7 @@ public class FirebaseDatabaseHelper {
                                                 String avatarRef = (String) dataSnapshot.child("avatar").getValue();
                                                 message.setName(name);
                                                 message.setAvatarRef(avatarRef);
+                                                mChatModel.onChatMessageNewData(message);
                                             }
 
                                             @Override

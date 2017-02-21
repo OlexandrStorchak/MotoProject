@@ -187,8 +187,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
 
     @Override
     public void updateMessage(int position) {
-        // TODO: 18.02.2017 use notify item changed instead!
-        mAdapter.notifyDataSetChanged();
+        mAdapter.notifyItemChanged(position);
     }
 
     @Override

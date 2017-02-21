@@ -71,6 +71,6 @@ interface ChatMVP {
 
         void disableSwipeLayout();
 
-        void updateMessage();
+        void updateMessage(int position);
     }
 }

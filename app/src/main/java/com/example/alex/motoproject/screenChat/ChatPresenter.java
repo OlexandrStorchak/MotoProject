@@ -89,7 +89,7 @@ class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPresenter
     }
 
     @Override
-    public void updateMessage() {
-        getView().updateMessage(mModel.getMessagesSize());
+    public void updateMessage(int position) {
+        getView().updateMessage(position);
     }
 }

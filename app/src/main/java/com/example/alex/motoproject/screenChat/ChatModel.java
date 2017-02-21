@@ -65,7 +65,7 @@ public class ChatModel implements ChatMVP.PresenterToModel,
 
     @Override
     public void onChatMessageNewData(ChatMessage message) {
-        mPresenter.updateMessage();
+        mPresenter.updateMessage(mMessages.indexOf(message));
     }
 
     @Override
