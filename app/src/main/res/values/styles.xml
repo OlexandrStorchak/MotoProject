@@ -37,6 +37,9 @@
         <item name="android:textColor">@color/Blue900</item>
         <item name="android:textColorHint">@color/greenA400</item>
     </style>
+    <style name="MyButtonCustomProfile">
+
+    </style>
     <style name="AvatarUserProfile">
         <item name="android:background">@drawable/avatar_user_profile_background</item>
 
