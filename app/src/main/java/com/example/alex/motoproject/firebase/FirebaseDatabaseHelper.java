@@ -1,7 +1,6 @@
 package com.example.alex.motoproject.firebase;
 
 import android.location.Location;
-import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
@@ -24,15 +23,13 @@ import org.greenrobot.eventbus.EventBus;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 
 public class FirebaseDatabaseHelper {
-    private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
-    private static final int OLDER_CHAT_MESSAGES_COUNT_LIMIT = 10;
-    private final HashMap<String, OnlineUsersModel> onlineUserHashMap = new HashMap<>();
+    private static final int CHAT_MESSAGES_COUNT_LIMIT = 21;
+    private final HashMap<String, OnlineUsersModel> mOnlineUserHashMap = new HashMap<>();
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference mDbReference = mDatabase.getReference();
     private ChildEventListener mOnlineUsersLocationListener;
@@ -43,18 +40,16 @@ public class FirebaseDatabaseHelper {
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
     private HashMap<DatabaseReference, ValueEventListener> mUsersDataListeners = new HashMap<>();
 
-    private String mLastKey;
-    private int mLimit = 10;
-
-    private boolean firstNewMessage = true;
-    private boolean firstOlderMessage = true;
+    private String mFirstChatMsgKeyAfterFetch;
+    //    private int mChatMessagesToBeLoaded = 10;
+    private boolean isFirstChatMessageAfterFetch = true;
 
     public FirebaseDatabaseHelper() {
 
     }
 
     public HashMap<String, OnlineUsersModel> getOnlineUserHashMap() {
-        return onlineUserHashMap;
+        return mOnlineUserHashMap;
     }
 
     public FirebaseUser getCurrentUser() {
@@ -78,7 +73,6 @@ public class FirebaseDatabaseHelper {
         String uid = getCurrentUser().getUid();
         double lat = location.getLatitude();
         double lng = location.getLongitude();
-        Log.d(LOG_TAG, "updateUserLocation: " + uid);
         DatabaseReference myRef = mDbReference.child("location").child(uid);
         myRef.child("lat").setValue(lat);
         myRef.child("lng").setValue(lng);
@@ -157,11 +151,12 @@ public class FirebaseDatabaseHelper {
     }
 
     private void postChangeMarkerEvent(DataSnapshot dataSnapshot) {
-        if (dataSnapshot.getValue() instanceof String) {
-            String status = (String) dataSnapshot.getValue();
-            if (!status.equals("public")) {
-                return;
-            }
+        if (!(dataSnapshot.getValue() instanceof String)) {
+            return;
+        }
+        String status = (String) dataSnapshot.getValue();
+        if (!status.equals("public")) {
+            return;
         }
         DatabaseReference location =
                 mDbReference.child("location").child(dataSnapshot.getKey());
@@ -298,11 +293,11 @@ public class FirebaseDatabaseHelper {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
                 if (name != null) {
-                    if (!onlineUserHashMap.containsKey(uid)) {
-                        onlineUserHashMap.put(uid, new OnlineUsersModel(uid, name, avatar, userStatus));
+                    if (!mOnlineUserHashMap.containsKey(uid)) {
+                        mOnlineUserHashMap.put(uid, new OnlineUsersModel(uid, name, avatar, userStatus));
                     } else {
-                        onlineUserHashMap.remove(uid);
-                        onlineUserHashMap.put(uid, new OnlineUsersModel(uid, name, avatar, userStatus));
+                        mOnlineUserHashMap.remove(uid);
+                        mOnlineUserHashMap.put(uid, new OnlineUsersModel(uid, name, avatar, userStatus));
                     }
                     EventBus.getDefault().post(new FriendDataReadyEvent());
                 }
@@ -323,7 +318,7 @@ public class FirebaseDatabaseHelper {
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                onlineUserHashMap.remove(uid);
+                mOnlineUserHashMap.remove(uid);
                 EventBus.getDefault().post(new FriendDataReadyEvent());
             }
 
@@ -339,9 +334,9 @@ public class FirebaseDatabaseHelper {
         mChatMessagesListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if (firstNewMessage) {
-                    mLastKey = dataSnapshot.getKey();
-                    firstNewMessage = false;
+                if (isFirstChatMessageAfterFetch) {
+                    mFirstChatMsgKeyAfterFetch = dataSnapshot.getKey();
+                    isFirstChatMessageAfterFetch = false;
                     return;
                 }
                 String uid = (String) dataSnapshot.child("uid").getValue();
@@ -391,31 +386,32 @@ public class FirebaseDatabaseHelper {
 
             }
         };
-        mDbReference.child("chat").limitToLast(mLimit + OLDER_CHAT_MESSAGES_COUNT_LIMIT + 1)
+        mDbReference.child("chat").limitToLast(CHAT_MESSAGES_COUNT_LIMIT)
                 .addChildEventListener(mChatMessagesListener);
 
     }
 
+    //Called every time users scrolls to the end of the list and swipes up if there are more messages
     public void fetchOlderChatMessages(ChatModel receiver) {
-        firstOlderMessage = true;
+        isFirstChatMessageAfterFetch = true;
         final ChatUpdateReceiver chatModel = receiver;
-        mDbReference.child("chat").orderByKey().endAt(mLastKey)
-                .limitToLast(mLimit + OLDER_CHAT_MESSAGES_COUNT_LIMIT + 1)
+        mDbReference.child("chat").orderByKey().endAt(mFirstChatMsgKeyAfterFetch)
+                .limitToLast(CHAT_MESSAGES_COUNT_LIMIT)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot parentSnapshot) {
-                        LinkedHashMap<String, ChatMessage> olderMsgsHashmap = new LinkedHashMap<>();
+                        List<ChatMessage> olderMessages = new ArrayList<>();
                         for (DataSnapshot dataSnapshot : parentSnapshot.getChildren()) {
                             String id = dataSnapshot.getKey();
-                            if (firstOlderMessage && parentSnapshot.getChildrenCount()
-                                    >= mLimit + OLDER_CHAT_MESSAGES_COUNT_LIMIT + 1) {
-                                mLastKey = id;
-                                firstOlderMessage = false;
+                            if (isFirstChatMessageAfterFetch && parentSnapshot.getChildrenCount()
+                                    >= CHAT_MESSAGES_COUNT_LIMIT) {
+                                mFirstChatMsgKeyAfterFetch = id;
+                                isFirstChatMessageAfterFetch = false;
                             } else {
                                 String uid = (String) dataSnapshot.child("uid").getValue();
                                 String text = (String) dataSnapshot.child("text").getValue();
                                 final ChatMessage message = new ChatMessage(uid, text);
-                                olderMsgsHashmap.put(id, message);
+                                olderMessages.add(message);
                                 if (message.getUid().equals(getCurrentUser().getUid())) {
                                     message.setCurrentUserMsg(true);
                                 }
@@ -438,10 +434,10 @@ public class FirebaseDatabaseHelper {
 
                         }
                         if (parentSnapshot.getChildrenCount()
-                                < mLimit + OLDER_CHAT_MESSAGES_COUNT_LIMIT + 1) {
+                                < CHAT_MESSAGES_COUNT_LIMIT) {
                             chatModel.onLastMessages();
                         }
-                        onOlderChatMessagesReady(olderMsgsHashmap, chatModel);
+                        onOlderChatMessagesReady(olderMessages, chatModel);
                     }
 
                     @Override
@@ -451,18 +447,11 @@ public class FirebaseDatabaseHelper {
                 });
     }
 
-    private void onOlderChatMessagesReady(HashMap<String, ChatMessage> olderMsgsHashmap,
+    private void onOlderChatMessagesReady(List<ChatMessage> olderMessages,
                                           ChatUpdateReceiver chatModel) {
-        List<ChatMessage> olderMessages = new ArrayList<>();
-        for (Map.Entry<String, ChatMessage> entry : olderMsgsHashmap.entrySet()) {
-            olderMessages.add(entry.getValue());
-        }
         Collections.reverse(olderMessages);
-        List<ChatMessage> newOldMessages = new ArrayList<>();
-
-        newOldMessages.addAll(olderMessages);
-        chatModel.onOlderChatMessages(newOldMessages, newOldMessages.size());
-        olderMsgsHashmap.clear();
+        chatModel.onOlderChatMessages(olderMessages, olderMessages.size());
+        olderMessages.clear();
     }
 
     public void unregisterChatMessagesListener() {

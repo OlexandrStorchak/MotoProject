@@ -126,7 +126,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
 
     @Override
     public void scrollToPosition(int position) {
-//        mRecyclerView.smoothScrollToPosition(position);
+        mRecyclerView.smoothScrollToPosition(position);
 
     }
 
