@@ -7,14 +7,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -41,10 +37,9 @@ public class MainActivity extends AppCompatActivity implements
         MainViewInterface, FragmentManager.OnBackStackChangedListener {
 
 
-    private static final String STANDART_AVATAR = "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
-    private static final String FRAGMENT_LOGIN_TAG = "loginFragment";
-    private static final String FRAGMENT_MAP_TAG = "mapFragment";
-    public static final String FRAGMENT_ONLINE_USERS = "fragmentOnlineUsers";
+    private static final String STANDART_AVATAR =
+            "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
+                    "o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
 
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     private ScreenOnlineUsersFragment screenOnlineUsersFragment
@@ -61,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements
     private Button mNavigationBtnSignOut;
     private DrawerLayout mDrawerLayout;
 
+    private FragmentManager fm = getSupportFragmentManager();
 
     private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
 
@@ -69,12 +65,23 @@ public class MainActivity extends AppCompatActivity implements
     private Toolbar toolbar;
 
 
+    private View.OnClickListener backButtonBack = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            onBackPressed();
+        }
+    };
+    private View.OnClickListener drawerMenu = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mDrawerLayout.openDrawer(GravityCompat.START);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
-
-        getSupportFragmentManager().addOnBackStackChangedListener(this);
 
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
@@ -94,9 +101,8 @@ public class MainActivity extends AppCompatActivity implements
         toggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawerLayout.addDrawerListener(toggle);
-
         toggle.syncState();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
 
         //Define view of Navigation Drawer
         NavigationView mNavigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -112,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements
         mAvatarHeader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getSupportFragmentManager().beginTransaction()
+                fm.beginTransaction()
                         .addToBackStack("profile")
                         .replace(R.id.main_activity_frame, screenProfileFragment)
                         .commit();
@@ -160,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
+
     }
 
 
@@ -172,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements
             super.onBackPressed();
 
         }
-
+        fm.popBackStack();
     }
 
 
@@ -183,6 +190,11 @@ public class MainActivity extends AppCompatActivity implements
         alertControll.registerEventBus();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
 
     @Override
     protected void onStop() {
@@ -223,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements
         ScreenUserProfileFragment userProfile = new ScreenUserProfileFragment();
         userProfile.setOnlineUsersModel(model.getModel());
 
-        getSupportFragmentManager().beginTransaction().addToBackStack(null)
+        fm.beginTransaction().addToBackStack("online")
                 .replace(R.id.main_activity_frame, userProfile)
                 .commit();
 
@@ -267,6 +279,7 @@ public class MainActivity extends AppCompatActivity implements
                 user.getDisplayName(),
                 avatarUri);
         mDatabaseHelper.setUserOnline("noGps");
+        fm.addOnBackStackChangedListener(this);
 
 
     }
@@ -274,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void logout() {
-
+        fm.removeOnBackStackChangedListener(this);
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
@@ -292,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements
     public void replaceFragment(Fragment fragment) {
 
 
-        getSupportFragmentManager()
+        fm
                 .beginTransaction()
                 .replace(R.id.main_activity_frame, fragment)
                 .commit();
@@ -302,31 +315,17 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBackStackChanged() {
-        if (getSupportFragmentManager().getBackStackEntryCount() >= 1) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            toggle.setDrawerIndicatorEnabled(true);
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onBackPressed();
-
-                }
-            });
+        Log.d("log", "onBackStackChanged: " + fm.getBackStackEntryCount());
+        if (fm.getBackStackEntryCount() > 0) {
+            toolbar.setNavigationIcon(R.mipmap.ic_back_button);
+            toolbar.setNavigationOnClickListener(backButtonBack);
             mDrawerLayout.closeDrawers();
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            Log.d("log", "onBackStackChanged: ");
         } else {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            // Show hamburger
-            toggle.setDrawerIndicatorEnabled(true);
-
-            getSupportActionBar().show();
-
-            toolbar.setNavigationOnClickListener(null);
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            Log.d("log", "onBackStackChanged: 1");
+            toolbar.setNavigationOnClickListener(drawerMenu);
+            toggle.syncState();
+
         }
-
     }
-
 }

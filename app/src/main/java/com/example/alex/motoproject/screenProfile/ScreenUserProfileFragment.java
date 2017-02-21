@@ -4,8 +4,6 @@ package com.example.alex.motoproject.screenProfile;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +21,6 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 public class ScreenUserProfileFragment extends Fragment {
 
     OnlineUsersModel onlineUsersModel;
-    private Toolbar toolbar;
 
 
     public ScreenUserProfileFragment() {
@@ -39,8 +36,10 @@ public class ScreenUserProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_screen_user_profile, container, false);
+
     }
 
 
@@ -52,7 +51,6 @@ public class ScreenUserProfileFragment extends Fragment {
         TextView name = (TextView) view.findViewById(R.id.profile_user_name);
         ImageView avatar = (ImageView) view.findViewById(R.id.profile_user_avatar);
         name.setText(onlineUsersModel.getName());
-
 
 
 
@@ -90,7 +88,6 @@ public class ScreenUserProfileFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        toolbar=null;
         getActivity().setTitle("MotoProject");
 
     }

@@ -1,6 +1,5 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,7 +10,6 @@ import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.events.ShowUserProfile;
-import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
 import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -21,7 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.alex.motoproject.mainActivity.MainActivity.FRAGMENT_ONLINE_USERS;
+
 
 
 class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
