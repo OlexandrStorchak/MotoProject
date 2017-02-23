@@ -1,13 +1,24 @@
 package com.example.alex.motoproject.screenChat;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class ChatMessage {
     private String uid, text, name, avatarRef, sendTime;
     private boolean currentUserMsg;
+    private LatLng location;
 
-    public ChatMessage(String uid, String text, String sendTime) {
+    public ChatMessage(String uid, String sendTime) {
         this.uid = uid;
-        this.text = text;
         this.sendTime = sendTime;
+
+    }
+
+    public LatLng getLocation() {
+        return location;
+    }
+
+    public void setLocation(LatLng location) {
+        this.location = location;
     }
 
     public String getUid() {
@@ -16,6 +27,10 @@ public class ChatMessage {
 
     public String getText() {
         return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 
     public String getName() {

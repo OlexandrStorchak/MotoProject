@@ -22,6 +22,8 @@ import android.widget.ImageButton;
 
 import com.example.alex.motoproject.R;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
 
 public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
@@ -29,6 +31,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     private RecyclerView mRecyclerView;
     private EditText mEditText;
     private ImageButton mSendButton;
+    private ImageButton mShareLocationButton;
     private ChatAdapter mAdapter;
     private Parcelable savedInstanceStateRecycler;
     private LinearLayoutManager mLayoutManager;
@@ -69,6 +72,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     @Override
     public void onDestroyView() {
         mPresenter.unregisterChatMessagesListener();
+        EventBus.getDefault().unregister(mPresenter);
         super.onDestroyView();
     }
 
@@ -77,12 +81,15 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
         super.onViewCreated(view, savedInstanceState);
         mEditText = (EditText) view.findViewById(R.id.edittext_message_chat);
         mSendButton = (ImageButton) view.findViewById(R.id.button_send_chat);
+        mShareLocationButton = (ImageButton) view.findViewById(R.id.button_sharelocation_chat);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_chat);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.container_chat_swipe);
         setupMessageSending();
+        setupLocationSharing();
         setupTextFilter();
         setupRecyclerView();
         setupSwipeRefreshLayout();
+        EventBus.getDefault().register(mPresenter);
     }
 
     private void setupSwipeRefreshLayout() {
@@ -98,8 +105,19 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
         });
     }
 
+    private void setupLocationSharing() {
+        mShareLocationButton.setVisibility(View.INVISIBLE);
+        mShareLocationButton.setEnabled(true);
+        mShareLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mPresenter.onClickShareLocationButton();
+            }
+        });
+    }
+
     private void setupMessageSending() {
-        mSendButton.setVisibility(View.GONE);
+        mSendButton.setVisibility(View.INVISIBLE);
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -192,7 +210,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
 
     @Override
     public void hideSendButton() {
-        mSendButton.setVisibility(View.GONE);
+        mSendButton.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -200,7 +218,18 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
         mSendButton.setVisibility(View.VISIBLE);
     }
 
+    @Override
     public void disableSwipeLayout() {
         mSwipeRefreshLayout.setEnabled(false);
+    }
+
+    @Override
+    public void hideShareLocationButton() {
+        mShareLocationButton.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void showShareLocationButton() {
+        mShareLocationButton.setVisibility(View.VISIBLE);
     }
 }

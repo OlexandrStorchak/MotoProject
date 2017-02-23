@@ -2,6 +2,10 @@ package com.example.alex.motoproject.screenChat;
 
 import android.view.View;
 
+import com.example.alex.motoproject.events.GpsStatusChangedEvent;
+
+import org.greenrobot.eventbus.Subscribe;
+
 import java.lang.ref.WeakReference;
 
 class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPresenter {
@@ -37,6 +41,11 @@ class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPresenter
         mModel.sendChatMessage(msg);
         getView().scrollToPosition(mModel.getMessagesSize());
         getView().cleanupEditText();
+    }
+
+    @Override
+    public void onClickShareLocationButton() {
+        mModel.fetchDataForLocationShare();
     }
 
     @Override
@@ -93,5 +102,14 @@ class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPresenter
     @Override
     public void updateMessage(int position) {
         getView().updateMessage(position);
+    }
+
+    @Subscribe(sticky = true)
+    public void onGpsStateChanged(GpsStatusChangedEvent event) {
+        if (event.isGpsOn()) {
+            getView().showShareLocationButton();
+        } else {
+            getView().hideShareLocationButton();
+        }
     }
 }

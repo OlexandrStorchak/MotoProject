@@ -11,6 +11,8 @@ interface ChatMVP {
 
         void onClickSendButton(String msg);
 
+        void onClickShareLocationButton();
+
         void onTouchRecyclerView(View view);
 
         void registerChatMessagesListener();
@@ -45,6 +47,10 @@ interface ChatMVP {
 
         void disableSwipeLayout();
 
+        void hideShareLocationButton();
+
+        void showShareLocationButton();
+
         int getLastCompletelyVisibleItemPosition();
     }
 
@@ -60,6 +66,8 @@ interface ChatMVP {
         List<ChatMessage> getMessages();
 
         void fetchOlderChatMessages();
+
+        void fetchDataForLocationShare();
     }
 
     interface ModelToPresenter {

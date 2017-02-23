@@ -17,6 +17,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/me"
             android:textColor="#cfd8dc"
             android:textSize="18sp" />
 
@@ -25,6 +26,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#cfd8dc" />
+
+        <ImageView
+            android:id="@+id/chat_messageown_map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ProgressBar
+            android:id="@+id/chat_messageown_progressbar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone" />
 
     </LinearLayout>
 

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.alex.motoproject.R;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
@@ -63,9 +64,15 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         String name = message.getName();
         String avatarRef = message.getAvatarRef();
         String sendTime = message.getSendTime();
+        LatLng location = message.getLocation();
 
         ChatMsgHolder msgHolder = (ChatMsgHolder) holder;
-        msgHolder.setMessageText(text);
+        if (text != null) {
+            msgHolder.setMessageText(text);
+        } else {
+            msgHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location), mContext);
+            msgHolder.setStaticMapOnClickListener(location);
+        }
         msgHolder.setName(name);
         msgHolder.setAvatar(avatarRef, mContext);
         msgHolder.setSendTime(sendTime);
@@ -75,8 +82,15 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ChatMessage message = mMessages.get(position);
         String text = message.getText();
         String sendTime = message.getSendTime();
+        LatLng location = message.getLocation();
 
         ChatMsgOwnHolder msgOwnHolder = (ChatMsgOwnHolder) holder;
+        if (text != null) {
+            msgOwnHolder.setMessageText(text);
+        } else {
+            msgOwnHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location), mContext);
+            msgOwnHolder.setStaticMapOnClickListener(location);
+        }
         msgOwnHolder.setMessageText(text);
         msgOwnHolder.setSendTime(sendTime);
     }

@@ -345,8 +345,20 @@ public class FirebaseDatabaseHelper {
                 String uid = (String) dataSnapshot.child("uid").getValue();
                 String text = (String) dataSnapshot.child("text").getValue();
                 Long sendTime = (Long) dataSnapshot.child("sendTime").getValue();
-                convertUnixTimeToDate(sendTime);
-                final ChatMessage message = new ChatMessage(uid, text, convertUnixTimeToDate(sendTime));
+                Number lat = (Number) dataSnapshot.child("location").child("latitude").getValue();
+                Number lng = (Number) dataSnapshot.child("location").child("longitude").getValue();
+
+                final ChatMessage message = new ChatMessage(uid, convertUnixTimeToDate(sendTime));
+                if (text != null) {
+                    message.setText(text);
+                } else if (lat != null && lng != null) {
+                    LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
+                    message.setLocation(latLng);
+                    System.out.println(latLng);
+                } else {
+                    return;
+                }
+
                 mChatModel.onNewChatMessage(message);
                 if (message.getUid().equals(getCurrentUser().getUid())) {
                     message.setCurrentUserMsg(true);
@@ -416,8 +428,20 @@ public class FirebaseDatabaseHelper {
                                 String uid = (String) dataSnapshot.child("uid").getValue();
                                 String text = (String) dataSnapshot.child("text").getValue();
                                 long sendTime = (long) dataSnapshot.child("sendTime").getValue();
-                                final ChatMessage message = new ChatMessage(uid,
-                                        text, convertUnixTimeToDate(sendTime));
+                                Number lat = (Number) dataSnapshot.child("location").child("latitude").getValue();
+                                Number lng = (Number) dataSnapshot.child("location").child("longitude").getValue();
+
+                                final ChatMessage message = new ChatMessage(uid, convertUnixTimeToDate(sendTime));
+                                if (text != null) {
+                                    message.setText(text);
+                                } else if (lat != null && lng != null) {
+                                    LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
+                                    message.setLocation(latLng);
+                                    System.out.println(latLng);
+                                } else {
+                                    return;
+                                }
+
                                 olderMessages.add(message);
                                 if (message.getUid().equals(getCurrentUser().getUid())) {
                                     message.setCurrentUserMsg(true);
@@ -475,10 +499,36 @@ public class FirebaseDatabaseHelper {
         }
     }
 
+    public void getCurrentUserLocation(ChatModel receiver) {
+        final ChatUpdateReceiver chatModel = receiver;
+        mDbReference.child("location").child(getCurrentUser().getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Number lat = (Number) dataSnapshot.child("lat").getValue();
+                        Number lng = (Number) dataSnapshot.child("lng").getValue();
+                        chatModel.onCurrentUserLocationReady(
+                                new LatLng(lat.doubleValue(), lng.doubleValue()));
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
     public void sendChatMessage(String message) {
         mDbReference.child("chat").push()
                 .setValue(new ChatMessageSendable(getCurrentUser().getUid(),
                         message,
+                        ServerValue.TIMESTAMP));
+    }
+
+    public void sendChatMessage(LatLng latLng) {
+        mDbReference.child("chat").push()
+                .setValue(new ChatMessageSendable(getCurrentUser().getUid(),
+                        latLng,
                         ServerValue.TIMESTAMP));
     }
 
@@ -488,6 +538,8 @@ public class FirebaseDatabaseHelper {
         void onOlderChatMessages(List<ChatMessage> olderMessages, int lastPos);
 
         void onChatMessageNewData(ChatMessage message);
+
+        void onCurrentUserLocationReady(LatLng latLng);
 
         void onLastMessages();
     }

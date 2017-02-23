@@ -7,4 +7,6 @@ public class ManageFragmentContract {
     public static final String FRAGMENT_ONLINE_USERS = "fragmentOnlineUsers";
     public static final String FRAGMENT_MAP = "fragmentMap";
     public static final String FRAGMENT_CHAT = "fragmentChat";
+
+    public static final String COORDINATES_MAP = "LatLng";
 }

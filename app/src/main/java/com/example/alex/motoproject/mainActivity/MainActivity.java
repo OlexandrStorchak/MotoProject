@@ -31,6 +31,7 @@ import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.events.CancelAlertEvent;
+import com.example.alex.motoproject.events.OpenMapWithLatLngEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.screenLogin.ScreenLoginController;
@@ -463,5 +464,10 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
         mAvatarHeader.setVisibility(View.INVISIBLE);
         mDrawerLayout.closeDrawers();
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    @Subscribe
+    public void onOpenMapWithLatLngEvent(OpenMapWithLatLngEvent event) {
+        mFragmentReplace.replaceFragment(FRAGMENT_MAP, event.getLatLng());
     }
 }

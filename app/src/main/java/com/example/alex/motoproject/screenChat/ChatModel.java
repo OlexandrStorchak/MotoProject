@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.screenChat;
 
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -71,5 +72,15 @@ public class ChatModel implements ChatMVP.PresenterToModel,
     @Override
     public void onLastMessages() {
         mPresenter.disableSwipeLayout();
+    }
+
+    @Override
+    public void fetchDataForLocationShare() {
+        mFirebaseHelper.getCurrentUserLocation(this);
+    }
+
+    @Override
+    public void onCurrentUserLocationReady(LatLng latLng) {
+        mFirebaseHelper.sendChatMessage(latLng);
     }
 }
