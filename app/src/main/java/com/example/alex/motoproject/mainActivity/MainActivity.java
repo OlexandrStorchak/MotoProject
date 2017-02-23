@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-    mDatabaseHelper.getFriendRequest();
+
     }
 
 
