@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
@@ -18,13 +19,16 @@ import com.example.alex.motoproject.mainActivity.ManageFragment;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import javax.inject.Inject;
+
 import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_MAP;
 
 public class OnlineUsersFragment extends Fragment {
 
     public static OnlineUsersFragment usersOnlineFragmentInstance;
+    @Inject
+    FirebaseDatabaseHelper databaseHelper;
     OnlineUsersAdapter adapter = new OnlineUsersAdapter(null);
-    private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
     public OnlineUsersFragment() {
         // Required empty public constructor
     }
@@ -61,6 +65,7 @@ public class OnlineUsersFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        App.getFirebaseDatabaseComponent().inject(this);
     }
 
     @Subscribe

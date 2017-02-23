@@ -1,20 +1,22 @@
 package com.example.alex.motoproject.screenChat;
 
+import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class ChatModel implements ChatMVP.PresenterToModel,
         FirebaseDatabaseHelper.ChatUpdateReceiver {
+    @Inject
+    FirebaseDatabaseHelper mFirebaseHelper;
     private ChatMVP.ModelToPresenter mPresenter;
-
     private LinkedList<ChatMessage> mMessages = new LinkedList<>();
-
-    private FirebaseDatabaseHelper mFirebaseHelper = new FirebaseDatabaseHelper();
-
     ChatModel(ChatMVP.ModelToPresenter presenter) {
+        App.getFirebaseDatabaseComponent().inject(this);
         mPresenter = presenter;
     }
 

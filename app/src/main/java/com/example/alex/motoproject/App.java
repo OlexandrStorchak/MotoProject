@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.example.alex.motoproject.firebase.FirebaseDatabaseComponent;
+import com.example.alex.motoproject.firebase.FirebaseUtilsModule;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -17,9 +19,14 @@ import io.realm.RealmConfiguration;
 public class App extends Application
         implements Application.ActivityLifecycleCallbacks {
     private static final String TAG = "log";
+    private static FirebaseDatabaseComponent firebaseDatabaseComponent;
     private boolean isMainActivityVisible = false;
     private boolean isLocationListenerServiceOn = false;
     private boolean isMainActivityDestroyed;
+
+    public static FirebaseDatabaseComponent getFirebaseDatabaseComponent() {
+        return firebaseDatabaseComponent;
+    }
 
     @Override
     public void onCreate() {
@@ -38,6 +45,8 @@ public class App extends Application
 
         //Cache some data in gadget storage for offline usage
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
+        firebaseDatabaseComponent = buildFirebaseDatabaseComponent();
     }
 
 
@@ -99,5 +108,11 @@ public class App extends Application
         if (activity instanceof MainActivity) {
             isMainActivityDestroyed = true;
         }
+    }
+
+    public FirebaseDatabaseComponent buildFirebaseDatabaseComponent() {
+        return DaggerFirebaseDatabaseComponent.builder()
+                .firebaseUtilsModule(new FirebaseUtilsModule())
+                .build();
     }
 }

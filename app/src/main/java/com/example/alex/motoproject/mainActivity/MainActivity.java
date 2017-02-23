@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
         mFragmentReplace = new ManageFragment(getSupportFragmentManager());

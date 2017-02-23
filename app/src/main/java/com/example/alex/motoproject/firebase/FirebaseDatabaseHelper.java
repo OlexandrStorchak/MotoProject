@@ -30,7 +30,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import dagger.Module;
 
+@Module
 public class FirebaseDatabaseHelper {
     private static final int CHAT_MESSAGES_COUNT_LIMIT = 31;
     private final HashMap<String, OnlineUsersModel> mOnlineUserHashMap = new HashMap<>();
