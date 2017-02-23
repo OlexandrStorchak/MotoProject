@@ -16,6 +16,7 @@
     <string name="turn_on_wifi">Увімкнути WIFI</string>
     <string name="to_settings">В налаштування</string>
     <string name="how_to_change_location_setting">Ви можете змінити свій вибір у налаштуваннях. Дозволи —> Ваше місцезнаходження</string>
+    <string name="confirm_sharing_location_in_chat">Поділитися з усіма своїм теперішнім місцезнаходженням?</string>
     <string name="ok">Гаразд</string>
     <string name="close">Закрити</string>
 

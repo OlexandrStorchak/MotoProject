@@ -31,7 +31,9 @@ import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.events.CancelAlertEvent;
+import com.example.alex.motoproject.events.ConfirmShareLocationInChatEvent;
 import com.example.alex.motoproject.events.OpenMapWithLatLngEvent;
+import com.example.alex.motoproject.events.ShareLocationInChatAllowedEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.screenLogin.ScreenLoginController;
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
     public static final int ALERT_INTERNET_OFF = 21;
     public static final int ALERT_PERMISSION_RATIONALE = 22;
     public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
+    public static final int ALERT_SHARE_LOCATION_CONFIRMATION = 24;
     public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
     public static boolean loginWithEmail = false; // Flag for validate with email login method
@@ -299,6 +302,24 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
                             }
                         });
                 break;
+            case ALERT_SHARE_LOCATION_CONFIRMATION:
+                //ask user if he really wants to share his location in chat
+                alertDialogBuilder.setMessage(R.string.confirm_sharing_location_in_chat)
+                        .setPositiveButton(R.string.ok,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        EventBus.getDefault().post(new ShareLocationInChatAllowedEvent());
+                                    }
+                                });
+                alertDialogBuilder.setNegativeButton(R.string.close,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                break;
         }
 
         mAlert = alertDialogBuilder.create();
@@ -469,5 +490,10 @@ public class MainActivity extends AppCompatActivity implements ScreenMapFragment
     @Subscribe
     public void onOpenMapWithLatLngEvent(OpenMapWithLatLngEvent event) {
         mFragmentReplace.replaceFragment(FRAGMENT_MAP, event.getLatLng());
+    }
+
+    @Subscribe
+    public void onConfirmShareLocationInChatEvent(ConfirmShareLocationInChatEvent event) {
+        showAlert(ALERT_SHARE_LOCATION_CONFIRMATION);
     }
 }
