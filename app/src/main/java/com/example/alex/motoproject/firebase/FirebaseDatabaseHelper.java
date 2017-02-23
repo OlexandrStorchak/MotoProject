@@ -74,8 +74,10 @@ public class FirebaseDatabaseHelper {
     //Called when user auth state changes. Adds required user data to Firebase
     public void addUserToFirebase(
             final String uid, final String email, final String name, final String avatar) {
+
         final DatabaseReference currentUserRef = mDbReference.child("users").child(uid);
-        currentUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+        ValueEventListener userProfilelistener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) { //Required data already exists
@@ -85,17 +87,17 @@ public class FirebaseDatabaseHelper {
                 currentUserRef.child("email").setValue(email);
                 currentUserRef.child("name").setValue(name);
                 currentUserRef.child("avatar").setValue(avatar);
-                currentUserRef.child("friendsRequest").child("userId").setValue("1");
-                currentUserRef.child("friendsRequest").child("time").setValue("1");
+                currentUserRef.child("id").setValue(uid);
+                currentUserRef.removeEventListener(this);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
+        currentUserRef.addValueEventListener(userProfilelistener);
     }
-
 
 
     public void registerOnlineUsersLocationListener() {
@@ -346,14 +348,15 @@ public class FirebaseDatabaseHelper {
             }
         });
     }
-//Friend request table listener
-    public void getFriendRequest(){
-        DatabaseReference ref =  mDbReference.child("users").child(getCurrentUser().getUid())
+
+    //Friend request table listener
+    public void getFriendRequest() {
+        DatabaseReference ref = mDbReference.child("users").child(getCurrentUser().getUid())
                 .child("friendsRequest");
         ref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d("log", "onChildAdded: "+dataSnapshot.getKey());
+                Log.d("log", "onChildAdded: " + dataSnapshot.getKey());
                 getUserModel(dataSnapshot.getKey());
             }
 
@@ -380,13 +383,13 @@ public class FirebaseDatabaseHelper {
     }
 
     //get user from database by userId
-    private void getUserModel(String userId){
+    private void getUserModel(String userId) {
         //get user name
         DatabaseReference ref = mDbReference.child("users").child(userId).child("name");
         ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("log", "getUserModel: name is - "+dataSnapshot.getValue().toString());
+                Log.d("log", "getUserModel: name is - " + dataSnapshot.getValue().toString());
             }
 
             @Override
