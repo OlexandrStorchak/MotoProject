@@ -65,7 +65,7 @@ public class OnlineUsersFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        App.getFirebaseDatabaseComponent().inject(this);
+        App.getFirebaseDatabaseHelperComponent().inject(this);
     }
 
     @Subscribe

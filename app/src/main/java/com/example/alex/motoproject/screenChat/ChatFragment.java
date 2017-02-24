@@ -20,14 +20,20 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import com.example.alex.motoproject.DaggerChatPresenterComponent;
+import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     private static final int MESSAGE_MAX_CHARS = 200;
+    @Inject
+    ChatPresenter mPresenter;
     private RecyclerView mRecyclerView;
     private EditText mEditText;
     private ImageButton mSendButton;
@@ -37,9 +43,6 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     private LinearLayoutManager mLayoutManager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    // TODO: 19.02.2017 dependency injection
-    private ChatMVP.ViewToPresenter mPresenter = new ChatPresenter(this);
-
     public ChatFragment() {
         // Required empty public constructor
     }
@@ -47,7 +50,10 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        DaggerChatPresenterComponent.builder()
+                .presenterModule(new PresenterModule(this))
+                .build()
+                .inject(this);
         mPresenter.registerChatMessagesListener();
         mPresenter.registerAdapter();
 
@@ -73,6 +79,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     public void onDestroyView() {
         mPresenter.unregisterChatMessagesListener();
         EventBus.getDefault().unregister(mPresenter);
+        mPresenter = null;
         super.onDestroyView();
     }
 

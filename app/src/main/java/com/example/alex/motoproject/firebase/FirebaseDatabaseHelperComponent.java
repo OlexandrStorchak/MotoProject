@@ -10,7 +10,7 @@ import dagger.Component;
 
 @Component(modules = FirebaseUtilsModule.class)
 @Singleton
-public interface FirebaseDatabaseComponent {
+public interface FirebaseDatabaseHelperComponent {
     void inject(ScreenMapFragment screenMapFragment);
 
     void inject(ChatModel chatModel);

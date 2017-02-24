@@ -12,7 +12,7 @@ public class FirebaseUtilsModule {
     @Provides
     @NonNull
     @Singleton
-    public FirebaseDatabaseHelper provideFirebaseDatabaseHelper() {
+    FirebaseDatabaseHelper provideFirebaseDatabaseHelper() {
         return new FirebaseDatabaseHelper();
     }
 }

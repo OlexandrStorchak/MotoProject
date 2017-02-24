@@ -16,7 +16,7 @@ public class ChatModel implements ChatMVP.PresenterToModel,
     private ChatMVP.ModelToPresenter mPresenter;
     private LinkedList<ChatMessage> mMessages = new LinkedList<>();
     ChatModel(ChatMVP.ModelToPresenter presenter) {
-        App.getFirebaseDatabaseComponent().inject(this);
+        App.getFirebaseDatabaseHelperComponent().inject(this);
         mPresenter = presenter;
     }
 

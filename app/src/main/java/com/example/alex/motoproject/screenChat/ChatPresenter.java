@@ -11,12 +11,15 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.lang.ref.WeakReference;
 
-class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPresenter {
+import javax.inject.Inject;
+
+public class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPresenter {
 
     private WeakReference<ChatMVP.PresenterToView> mView;
     private ChatMVP.PresenterToModel mModel = new ChatModel(this);
 
-    ChatPresenter(ChatMVP.PresenterToView view) {
+    @Inject
+    public ChatPresenter(ChatMVP.PresenterToView view) {
         mView = new WeakReference<>(view);
     }
 

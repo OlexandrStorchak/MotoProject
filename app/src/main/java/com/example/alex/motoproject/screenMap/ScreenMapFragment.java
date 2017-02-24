@@ -103,7 +103,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         mApp = (App) getContext().getApplicationContext();
-        App.getFirebaseDatabaseComponent().inject(this);
+        App.getFirebaseDatabaseHelperComponent().inject(this);
         //add Google map
         mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);

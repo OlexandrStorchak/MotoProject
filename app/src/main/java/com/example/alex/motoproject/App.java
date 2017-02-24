@@ -6,7 +6,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
-import com.example.alex.motoproject.firebase.FirebaseDatabaseComponent;
+import com.example.alex.motoproject.firebase.DaggerFirebaseDatabaseHelperComponent;
+import com.example.alex.motoproject.firebase.FirebaseDatabaseHelperComponent;
 import com.example.alex.motoproject.firebase.FirebaseUtilsModule;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.google.firebase.database.FirebaseDatabase;
@@ -19,14 +20,23 @@ import io.realm.RealmConfiguration;
 public class App extends Application
         implements Application.ActivityLifecycleCallbacks {
     private static final String TAG = "log";
-    private static FirebaseDatabaseComponent firebaseDatabaseComponent;
+    private static FirebaseDatabaseHelperComponent firebaseDatabaseHelperComponent;
+    //    private static ChatPresenterComponent chatPresenterComponent;
     private boolean isMainActivityVisible = false;
     private boolean isLocationListenerServiceOn = false;
     private boolean isMainActivityDestroyed;
 
-    public static FirebaseDatabaseComponent getFirebaseDatabaseComponent() {
-        return firebaseDatabaseComponent;
+    public static FirebaseDatabaseHelperComponent getFirebaseDatabaseHelperComponent() {
+        return firebaseDatabaseHelperComponent;
     }
+
+//    public static ChatPresenterComponent getChatPresenterComponent(Context context,
+//                                                                   ChatMVP.PresenterToView view) {
+//        if (App.chatPresenterComponent == null) {
+//            App app = (App) context.getApplicationContext();
+//        }
+//        return chatPresenterComponent;
+//    }
 
     @Override
     public void onCreate() {
@@ -46,7 +56,7 @@ public class App extends Application
         //Cache some data in gadget storage for offline usage
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
-        firebaseDatabaseComponent = buildFirebaseDatabaseComponent();
+        firebaseDatabaseHelperComponent = buildCoreComponent();
     }
 
 
@@ -110,9 +120,15 @@ public class App extends Application
         }
     }
 
-    public FirebaseDatabaseComponent buildFirebaseDatabaseComponent() {
-        return DaggerFirebaseDatabaseComponent.builder()
+    public FirebaseDatabaseHelperComponent buildCoreComponent() {
+        return DaggerFirebaseDatabaseHelperComponent.builder()
                 .firebaseUtilsModule(new FirebaseUtilsModule())
                 .build();
     }
+
+//    public ChatPresenterComponent buildChatPresenterComponent(ChatMVP.PresenterToView view) {
+//        return DaggerChatPresenterComponent.builder()
+//                .presenterModule(new PresenterModule(view))
+//                .build();
+//    }
 }
