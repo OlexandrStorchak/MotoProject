@@ -19,6 +19,12 @@ import android.widget.TextView;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.events.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.events.ShowUserProfile;
+import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
+import com.example.alex.motoproject.events.CancelAlertEvent;
+import com.example.alex.motoproject.events.ConfirmShareLocationInChatEvent;
+import com.example.alex.motoproject.events.OpenMapWithLatLngEvent;
+import com.example.alex.motoproject.events.ShareLocationInChatAllowedEvent;
+import com.example.alex.motoproject.events.ShowAlertEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.FirebaseLoginController;
 import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
@@ -37,6 +43,10 @@ import org.greenrobot.eventbus.Subscribe;
 public class MainActivity extends AppCompatActivity implements
         MainViewInterface, FragmentManager.OnBackStackChangedListener {
 
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_AUTH;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_CHAT;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_MAP;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_ONLINE_USERS;
 
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     private ScreenOnlineUsersFragment screenOnlineUsersFragment
@@ -46,6 +56,17 @@ public class MainActivity extends AppCompatActivity implements
 
     AlertControll alertControll = new AlertControll(this);
 
+    public static final int ALERT_GPS_OFF = 20;
+    public static final int ALERT_INTERNET_OFF = 21;
+    public static final int ALERT_PERMISSION_RATIONALE = 22;
+    public static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
+    public static final int ALERT_SHARE_LOCATION_CONFIRMATION = 24;
+    public static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
+    public static final String LOG_TAG = MainActivity.class.getSimpleName();
+    public static boolean loginWithEmail = false; // Flag for validate with email login method
+    ArrayList<Integer> mActiveAlerts = new ArrayList<>();
+    private NetworkStateReceiver mNetworkStateReceiver;
+    private AlertDialog mAlert;
     private TextView mNameHeader;
     private TextView mEmailHeader;
     private ImageView mAvatarHeader;
@@ -79,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
-
 
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
@@ -165,6 +185,16 @@ public class MainActivity extends AppCompatActivity implements
         });
 
 
+        //Button in Navigation Drawer for displaying chat
+        Button navigationBtnChat = (Button) mNavigationView.findViewById(R.id.navigation_btn_chat);
+        navigationBtnChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mFragmentReplace.replaceFragment(FRAGMENT_CHAT);
+                mDrawerLayout.closeDrawers();
+            }
+        });
+
     }
 
 
@@ -226,6 +256,178 @@ public class MainActivity extends AppCompatActivity implements
         }
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+
+
+    }
+
+    public void showAlert(final int alertType) {
+        if (mActiveAlerts.contains(alertType)) {
+            return; //do nothing if this mAlert has already been created
+        }
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        switch (alertType) {
+            case ALERT_GPS_OFF:
+                //show when there is no GPS connection
+                alertDialogBuilder.setMessage(R.string.gps_turned_off_alert)
+                        .setPositiveButton(R.string.to_settings,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        Intent callGPSSettingIntent = new Intent(
+                                                android.provider.Settings
+                                                        .ACTION_LOCATION_SOURCE_SETTINGS)
+                                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                                                .addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                                        startActivity(callGPSSettingIntent);
+
+                                        handleLocation();
+                                    }
+
+                                });
+                break;
+            case ALERT_INTERNET_OFF:
+                //show when there is no Internet connection
+                alertDialogBuilder.setMessage(R.string.internet_turned_off_alert)
+                        .setPositiveButton(R.string.turn_on_mobile_internet,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        Intent callWirelessSettingIntent = new Intent(
+// TODO: 05.02.2017 make this button start mobile internet settings
+                                                Settings.ACTION_WIRELESS_SETTINGS);
+                                        startActivity(callWirelessSettingIntent);
+                                    }
+                                });
+                alertDialogBuilder.setNeutralButton(R.string.turn_on_wifi,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent callWifiSettingIntent = new Intent(
+                                        Settings
+                                                .ACTION_WIFI_SETTINGS);
+                                startActivity(callWifiSettingIntent);
+                            }
+                        });
+                break;
+            case ALERT_PERMISSION_RATIONALE:
+                //show when user declines gps permission
+                alertDialogBuilder.setMessage(R.string.location_rationale)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.ok,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        requestLocationPermission();
+                                    }
+                                });
+                alertDialogBuilder.setNegativeButton(R.string.close,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                break;
+            case ALERT_PERMISSION_NEVER_ASK_AGAIN:
+                //show when user declines gps permission and checks never ask again
+                alertDialogBuilder.setMessage(R.string.how_to_change_location_setting)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.to_settings,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        Intent intent = new Intent();
+                                        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                                        Uri uri = Uri.fromParts(
+                                                "package", getPackageName(), null);
+                                        intent.setData(uri);
+                                        startActivity(intent);
+                                    }
+                                });
+                alertDialogBuilder.setNegativeButton(R.string.close,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                break;
+            case ALERT_SHARE_LOCATION_CONFIRMATION:
+                //ask user if he really wants to share his location in chat
+                alertDialogBuilder.setMessage(R.string.confirm_sharing_location_in_chat)
+                        .setPositiveButton(R.string.ok,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        EventBus.getDefault().post(new ShareLocationInChatAllowedEvent());
+                                    }
+                                });
+                alertDialogBuilder.setNegativeButton(R.string.close,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                break;
+        }
+
+        mAlert = alertDialogBuilder.create();
+        mAlert.setOnDismissListener(new DialogInterface.OnDismissListener()
+
+                                    {
+                                        @Override
+                                        public void onDismiss(DialogInterface dialogInterface) {
+                                            if (mActiveAlerts.contains(alertType))
+                                                mActiveAlerts.remove((Integer) alertType);
+                                        }
+                                    }
+
+        );
+        mAlert.show();
+        if (!mActiveAlerts.contains(alertType))
+            mActiveAlerts.add(alertType);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_LOCATION_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // permission was granted
+                handleLocation();
+            } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    //user did not check never ask again, show rationale
+                    showAlert(ALERT_PERMISSION_RATIONALE);
+                } else {
+                    //user checked never ask again
+                    showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
+                }
+            }
+        }
+    }
+
+
+    private boolean checkLocationPermission() {
+        return ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                PERMISSION_LOCATION_REQUEST_CODE);
+    }
+
+    public void handleLocation() {
+        if (checkLocationPermission()) { //permission granted
+            ScreenMapFragment fragment = (ScreenMapFragment)
+                    fragmentManager.findFragmentByTag(FRAGMENT_MAP);
+            fragment.onLocationAllowed();
+        } else { //permission was not granted, show the permission prompt
+            requestLocationPermission();
+        }
     }
 
     @Subscribe
@@ -323,5 +525,15 @@ mDatabaseHelper.getCurrentUserModel();
             toggle.syncState();
 
         }
+    }
+
+    @Subscribe
+    public void onOpenMapWithLatLngEvent(OpenMapWithLatLngEvent event) {
+        mFragmentReplace.replaceFragment(FRAGMENT_MAP, event.getLatLng());
+    }
+
+    @Subscribe
+    public void onConfirmShareLocationInChatEvent(ConfirmShareLocationInChatEvent event) {
+        showAlert(ALERT_SHARE_LOCATION_CONFIRMATION);
     }
 }

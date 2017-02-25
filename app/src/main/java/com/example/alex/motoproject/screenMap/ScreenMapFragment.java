@@ -45,7 +45,10 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.HashMap;
 
+import javax.inject.Inject;
+
 import static com.example.alex.motoproject.R.id.map;
+import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.COORDINATES_MAP;
 
 
 /**
@@ -54,7 +57,13 @@ import static com.example.alex.motoproject.R.id.map;
 
 public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
+
+    public static final LatLng CHERKASY = new LatLng(49.443, 32.0727);
+    private static final String LOG_TAG = ScreenMapFragment.class.getSimpleName();
+    public static ScreenMapFragment mapFragmentInstance;
     private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
+    @Inject
+    FirebaseDatabaseHelper databaseHelper;
     private MapFragmentListener mMapFragmentListener;
     private App mApp;
 
@@ -66,9 +75,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     private MapView mMapView;
     //stores created markers
     private HashMap<String, Marker> mMarkerHashMap;
-
     private CameraUpdate mCameraUpdate;
-    public static final LatLng CHERKASY = new LatLng(49.443, 32.0727);
 
     public ScreenMapFragment() {
         // Required empty public constructor
@@ -93,6 +100,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         mApp = (App) getContext().getApplicationContext();
+        App.getFirebaseDatabaseHelperComponent().inject(this);
         //add Google map
         mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);
@@ -100,6 +108,12 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
 
 
+
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            LatLng coordsFromChat = arguments.getParcelable(COORDINATES_MAP);
+            mCameraUpdate = CameraUpdateFactory.newLatLngZoom(coordsFromChat, 15);
+        }
 
         //setup fab that starts or stops LocationListenerService
         FloatingActionButton drivingToggleButton =
@@ -138,7 +152,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         map.moveCamera(mCameraUpdate);
     }
 
-    public void onMapCk(){
+    public void onMapCk() {
         int zoom = 11;
         mCameraUpdate = CameraUpdateFactory.newLatLngZoom(CHERKASY, zoom);
         mMap.moveCamera(mCameraUpdate);
@@ -253,6 +267,10 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             mCameraUpdate = CameraUpdateFactory.newLatLngZoom(position, 15);
         }
     }
+
+//    public void moveToPosition(@NonNull LatLng latLng) {
+//        mCameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+//    }
 
     //TODO a better interface name
     public interface MapFragmentListener {
