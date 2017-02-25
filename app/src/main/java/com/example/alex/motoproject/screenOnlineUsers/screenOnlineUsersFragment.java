@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import javax.inject.Inject;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
@@ -19,26 +20,19 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 public class ScreenOnlineUsersFragment extends Fragment {
-import javax.inject.Inject;
 
-import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_MAP;
+
+
 
 
     private RecyclerView rv;
-
-    public static OnlineUsersFragment usersOnlineFragmentInstance;
     @Inject
     FirebaseDatabaseHelper databaseHelper;
     OnlineUsersAdapter adapter = new OnlineUsersAdapter(null);
 
 
-
-
-    private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
-
-
     public ScreenOnlineUsersFragment() {
-    public OnlineUsersFragment() {
+
         // Required empty public constructor
 
     }
