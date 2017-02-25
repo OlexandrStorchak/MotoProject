@@ -73,8 +73,10 @@ public class LocationListenerService extends Service implements
 
         mFirebaseHelper.setUserOnline("public");
 
-        super.onCreate();
+//        EventBus.getDefault().register(this);
         ((App) getApplication()).setLocationListenerServiceOn(true);
+
+        super.onCreate();
     }
 
     @Override
@@ -93,6 +95,7 @@ public class LocationListenerService extends Service implements
             }
         }
 
+//        EventBus.getDefault().unregister(this);
 
         super.onDestroy();
     }
@@ -188,8 +191,6 @@ public class LocationListenerService extends Service implements
         //create pending intent used when tapping on the app notification
         //open up ScreenMapFragment
         Intent mapIntent = new Intent(this, MainActivity.class);
-//        //TODO is this line still needed?
-//        resultIntent.putExtra("isShouldLaunchMapFragment", true);
         PendingIntent mapPendingIntent =
                 PendingIntent.getActivity(
                         this,
@@ -224,7 +225,7 @@ public class LocationListenerService extends Service implements
     }
 
     private void cleanupNotifications() {
-        //cleanup unneeded notifications
+        //cleanup notifications, no need of them if the app is off
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNotifyMgr.cancelAll();
@@ -236,7 +237,10 @@ public class LocationListenerService extends Service implements
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-//    private boolean isMainActivityVisible() {
-//        return ((App) getApplication()).isMainActivityVisible();
+//    @Subscribe
+//    public void onGpsStatusChanged(GpsStatusChangedEvent event) {
+//        if (!event.isGpsOn()) {
+//            stopSelf();
+//        }
 //    }
 }

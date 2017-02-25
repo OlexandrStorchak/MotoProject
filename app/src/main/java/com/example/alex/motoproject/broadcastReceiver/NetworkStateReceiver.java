@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.events.CancelAlertEvent;
+import com.example.alex.motoproject.events.GpsStatusChangedEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
 import com.example.alex.motoproject.mainActivity.AlertControll;
 import com.example.alex.motoproject.utils.NotificationBuilderUtil;
@@ -55,12 +56,14 @@ public class NetworkStateReceiver extends BroadcastReceiver {
             if (isGpsEnabled()) {
                 if (isMainActivityVisible()) {
                     postCancelAlertEvent(GPS_NOTIFICATION_ID);
+                    postGpsStatusChangedEvent(true);
                 } else {
                     cancelNotificationIfExists(GPS_NOTIFICATION_ID);
                 }
             } else {
                 if (isMainActivityVisible()) {
                     postShowAlertEvent(GPS_NOTIFICATION_ID);
+                    postGpsStatusChangedEvent(false);
                 } else {
                     showNotification(GPS_NOTIFICATION_ID);
                 }
@@ -126,5 +129,15 @@ public class NetworkStateReceiver extends BroadcastReceiver {
             case GPS_NOTIFICATION_ID:
                 EventBus.getDefault().post(new CancelAlertEvent(AlertControll.ALERT_GPS_OFF));
         }
+    }
+
+    private void postGpsStatusChangedEvent(boolean isGpsOn) {
+        if (isServiceOn()) {
+            EventBus.getDefault().postSticky(new GpsStatusChangedEvent(isGpsOn));
+        }
+    }
+
+    private boolean isServiceOn() {
+        return ((App) context.getApplicationContext()).isLocationListenerServiceOn();
     }
 }

@@ -27,6 +27,14 @@
             android:text="@string/who_is_online" />
 
         <Button
+            android:id="@+id/navigation_btn_chat"
+            style="@style/MyButtonCustomMenu"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/navigation_drawer_btn_chat" />
+
+        <Button
             android:id="@+id/navigation_btn_signout"
             style="@style/MyButtonCustomMenu"
             android:layout_width="match_parent"

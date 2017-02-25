@@ -9,7 +9,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import javax.inject.Inject;
 
+import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
@@ -20,17 +22,17 @@ import org.greenrobot.eventbus.Subscribe;
 public class ScreenOnlineUsersFragment extends Fragment {
 
 
-    private RecyclerView rv;
 
+
+
+    private RecyclerView rv;
+    @Inject
+    FirebaseDatabaseHelper databaseHelper;
     OnlineUsersAdapter adapter = new OnlineUsersAdapter(null);
 
 
-
-
-    private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
-
-
     public ScreenOnlineUsersFragment() {
+
         // Required empty public constructor
 
     }
@@ -66,6 +68,7 @@ public class ScreenOnlineUsersFragment extends Fragment {
         rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        App.getFirebaseDatabaseHelperComponent().inject(this);
     }
 
     @Subscribe

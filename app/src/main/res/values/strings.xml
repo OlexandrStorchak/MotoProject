@@ -16,6 +16,7 @@
     <string name="turn_on_wifi">Увімкнути WIFI</string>
     <string name="to_settings">В налаштування</string>
     <string name="how_to_change_location_setting">Ви можете змінити свій вибір у налаштуваннях. Дозволи —> Ваше місцезнаходження</string>
+    <string name="confirm_sharing_location_in_chat">Поділитися з усіма своїм теперішнім місцезнаходженням?</string>
     <string name="ok">Гаразд</string>
     <string name="close">Закрити</string>
 
@@ -32,15 +33,20 @@
     <string name="email_is_empty">Введіть імейл адресу</string>
     <string name="enter_password">Введіть пароль</string>
     <string name="less_6_chars">Пароль коротший за 6 символів</string>
-    <string name="avatar">avatar</string>
+    <string name="avatar">Аватар</string>
     <string name="pass_not_mutch">mPassword not mutch</string>
     <string name="who_is_online">Хто онлайн</string>
+    <string name="hint_chat">Введіть повідомлення…</string>
 
     <string name="facebook">Facebook</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="button_send_description">Send message</string>
+    <string name="navigation_drawer_btn_chat">Чат</string>
+    <string name="me">Я</string>
     <string name="add_friend">add friend</string>
     <string name="send_message">send message</string>
+
 
 </resources>

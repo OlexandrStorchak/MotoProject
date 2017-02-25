@@ -21,6 +21,7 @@ import com.example.alex.motoproject.events.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.events.ShowUserProfile;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.FirebaseLoginController;
+import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 import com.example.alex.motoproject.screenOnlineUsers.ScreenOnlineUsersFragment;
@@ -37,7 +38,6 @@ import org.greenrobot.eventbus.Subscribe;
 public class MainActivity extends AppCompatActivity implements
         MainViewInterface, FragmentManager.OnBackStackChangedListener {
 
-
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     private ScreenOnlineUsersFragment screenOnlineUsersFragment
             = new ScreenOnlineUsersFragment();
@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements
     private ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
 
     AlertControll alertControll = new AlertControll(this);
+
 
     private TextView mNameHeader;
     private TextView mEmailHeader;
@@ -79,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
-
 
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
@@ -165,6 +165,19 @@ public class MainActivity extends AppCompatActivity implements
         });
 
 
+        //Button in Navigation Drawer for displaying chat
+        Button navigationBtnChat = (Button) mNavigationView.findViewById(R.id.navigation_btn_chat);
+        navigationBtnChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.main_activity_frame, new ChatFragment())
+                        .commit();
+                mDrawerLayout.closeDrawers();
+            }
+        });
+
     }
 
 
@@ -226,13 +239,15 @@ public class MainActivity extends AppCompatActivity implements
         }
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+
+
     }
+
 
     @Subscribe
     public void onShowOnlineUserProfile(ShowUserProfile model) {
 
         ScreenUserProfileFragment userProfile = new ScreenUserProfileFragment();
-        //userProfile.setOnlineUsersModel(model.getUserId());
 
         fm.beginTransaction().addToBackStack("online")
                 .replace(R.id.main_activity_frame, userProfile)
@@ -263,7 +278,8 @@ public class MainActivity extends AppCompatActivity implements
                 user.getEmail(),
                 user.getDisplayName(),
                 String.valueOf(user.getPhotoUrl()));
-mDatabaseHelper.getCurrentUserModel();
+        mDatabaseHelper.getCurrentUserModel();
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().show();
         }
@@ -301,8 +317,7 @@ mDatabaseHelper.getCurrentUserModel();
     public void replaceFragment(Fragment fragment) {
 
 
-        fm
-                .beginTransaction()
+        fm.beginTransaction()
                 .replace(R.id.main_activity_frame, fragment)
                 .commit();
 
