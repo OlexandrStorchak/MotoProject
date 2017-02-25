@@ -2,7 +2,7 @@ package com.example.alex.motoproject.firebase;
 
 import com.example.alex.motoproject.screenChat.ChatModel;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
-import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersFragment;
+import com.example.alex.motoproject.screenOnlineUsers.ScreenOnlineUsersFragment;
 
 import javax.inject.Singleton;
 
@@ -15,5 +15,5 @@ public interface FirebaseDatabaseHelperComponent {
 
     void inject(ChatModel chatModel);
 
-    void inject(OnlineUsersFragment onlineUsersFragment);
+    void inject(ScreenOnlineUsersFragment onlineUsersFragment);
 }

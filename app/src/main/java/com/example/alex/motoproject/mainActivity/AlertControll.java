@@ -20,6 +20,9 @@ import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.events.CancelAlertEvent;
+import com.example.alex.motoproject.events.ConfirmShareLocationInChatEvent;
+import com.example.alex.motoproject.events.OpenMapWithLatLngEvent;
+import com.example.alex.motoproject.events.ShareLocationInChatAllowedEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 
@@ -35,6 +38,7 @@ public class AlertControll implements ScreenMapFragment.MapFragmentListener,
     public static final int ALERT_INTERNET_OFF = 21;
     private static final int ALERT_PERMISSION_RATIONALE = 22;
     private static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
+    public static final int ALERT_SHARE_LOCATION_CONFIRMATION = 24;
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
 
     private NetworkStateReceiver mNetworkStateReceiver;
@@ -121,6 +125,25 @@ public class AlertControll implements ScreenMapFragment.MapFragmentListener,
                             }
                         });
                 break;
+            case ALERT_SHARE_LOCATION_CONFIRMATION:
+                //ask user if he really wants to share his location in chat
+                alertDialogBuilder.setMessage(R.string.confirm_sharing_location_in_chat)
+                        .setPositiveButton(R.string.ok,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        EventBus.getDefault().post(new ShareLocationInChatAllowedEvent());
+                                    }
+                                });
+                alertDialogBuilder.setNegativeButton(R.string.close,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                break;
+
             case ALERT_PERMISSION_NEVER_ASK_AGAIN:
                 //show when user declines gps permission and checks never ask again
                 alertDialogBuilder.setMessage(R.string.how_to_change_location_setting)
@@ -147,6 +170,7 @@ public class AlertControll implements ScreenMapFragment.MapFragmentListener,
                         });
                 break;
         }
+
 
         mAlert = alertDialogBuilder.create();
         mAlert.setOnDismissListener(new DialogInterface.OnDismissListener()
@@ -260,4 +284,15 @@ public class AlertControll implements ScreenMapFragment.MapFragmentListener,
         return ((App) mainActivity.getApplication()).isLocationListenerServiceOn();
     }
 
+    @Subscribe
+    public void onOpenMapWithLatLngEvent(OpenMapWithLatLngEvent event) {
+        // TODO: 25.02.2017 handle this event
+    }
+
+    @Subscribe
+    public void onConfirmShareLocationInChatEvent(ConfirmShareLocationInChatEvent event) {
+        showAlert(ALERT_SHARE_LOCATION_CONFIRMATION);
+    }
 }
+
+

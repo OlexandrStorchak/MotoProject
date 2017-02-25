@@ -45,6 +45,8 @@
     <string name="button_send_description">Send message</string>
     <string name="navigation_drawer_btn_chat">Чат</string>
     <string name="me">Я</string>
+    <string name="add_friend">add friend</string>
+    <string name="send_message">send message</string>
 
-   
+
 </resources>

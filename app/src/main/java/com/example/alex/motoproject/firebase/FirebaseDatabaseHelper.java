@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.firebase;
 
 import android.location.Location;
+import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
@@ -335,6 +336,7 @@ public class FirebaseDatabaseHelper {
                         mOnlineUserHashMap.put(uid, new OnlineUsersModel(uid, name, avatar, userStatus));
                     }
                     EventBus.getDefault().post(new FriendDataReadyEvent());
+
                 }
             }
 

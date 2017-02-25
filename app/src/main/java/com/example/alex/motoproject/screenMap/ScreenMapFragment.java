@@ -48,7 +48,7 @@ import java.util.HashMap;
 import javax.inject.Inject;
 
 import static com.example.alex.motoproject.R.id.map;
-import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.COORDINATES_MAP;
+
 
 
 /**
@@ -59,15 +59,13 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
 
     public static final LatLng CHERKASY = new LatLng(49.443, 32.0727);
-    private static final String LOG_TAG = ScreenMapFragment.class.getSimpleName();
-    public static ScreenMapFragment mapFragmentInstance;
+
+
     private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
     @Inject
     FirebaseDatabaseHelper databaseHelper;
-    private MapFragmentListener mMapFragmentListener;
-    private App mApp;
 
-    private FirebaseDatabaseHelper databaseHelper = new FirebaseDatabaseHelper();
+    private App mApp;
 
     //for methods calling, like creating pins
     private GoogleMap mMap;
@@ -111,7 +109,8 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            LatLng coordsFromChat = arguments.getParcelable(COORDINATES_MAP);
+            // TODO: 25.02.2017 handle this like that
+            LatLng coordsFromChat = arguments.getParcelable(null);
             mCameraUpdate = CameraUpdateFactory.newLatLngZoom(coordsFromChat, 15);
         }
 
