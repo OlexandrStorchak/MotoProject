@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements
             = new ScreenOnlineUsersFragment();
     private ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
     private ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
+    private ChatFragment chatFragment = new ChatFragment();
 
     AlertControll alertControll = new AlertControll(this);
 
@@ -170,9 +171,8 @@ public class MainActivity extends AppCompatActivity implements
         navigationBtnChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.main_activity_frame, new ChatFragment())
+                fm.beginTransaction()
+                        .replace(R.id.main_activity_frame, chatFragment)
                         .commit();
                 mDrawerLayout.closeDrawers();
             }
