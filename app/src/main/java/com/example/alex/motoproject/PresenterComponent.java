@@ -8,6 +8,6 @@ import dagger.Component;
 
 @Component(modules = PresenterModule.class)
 @Singleton
-public interface ChatPresenterComponent {
+public interface PresenterComponent {
     void inject(ChatFragment view);
 }

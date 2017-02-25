@@ -41,11 +41,11 @@ public class ChatMessage {
         this.name = name;
     }
 
-    public String getSendTime() {
+    String getSendTime() {
         return sendTime;
     }
 
-    public String getAvatarRef() {
+    String getAvatarRef() {
         return avatarRef;
     }
 
@@ -53,7 +53,7 @@ public class ChatMessage {
         this.avatarRef = avatarRef;
     }
 
-    public boolean isCurrentUserMsg() {
+    boolean isCurrentUserMsg() {
         return currentUserMsg;
     }
 

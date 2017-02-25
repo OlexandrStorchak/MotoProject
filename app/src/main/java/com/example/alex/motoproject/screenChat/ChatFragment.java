@@ -20,7 +20,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import com.example.alex.motoproject.DaggerChatPresenterComponent;
+import com.example.alex.motoproject.DaggerPresenterComponent;
 import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
 
@@ -50,7 +50,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        DaggerChatPresenterComponent.builder()
+        DaggerPresenterComponent.builder()
                 .presenterModule(new PresenterModule(this))
                 .build()
                 .inject(this);
