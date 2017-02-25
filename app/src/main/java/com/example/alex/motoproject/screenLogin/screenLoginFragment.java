@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.mainActivity.ManageFragment;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -47,42 +46,42 @@ import java.util.Collection;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
-import static com.example.alex.motoproject.mainActivity.ManageFragmentContract.FRAGMENT_SIGN_UP;
-import static com.example.alex.motoproject.mainActivity.MainActivity.loginWithEmail;
+import static com.example.alex.motoproject.firebase.FirebaseLoginController.loginWithEmail;
 
 
 public class ScreenLoginFragment extends Fragment {
-    private static final int GOOGLE_SIGN_IN = 13;
+    private final int GOOGLE_SIGN_IN = 13;
 
 
-    private static final String TAG = "log";
-    static CallbackManager callbackManager;
+    private String TAG = "log";
     private EditText mEmail, mPassword;
     private ProgressBar mProgressBar;
     private FirebaseAuth mFireBaseAuth;
     private GoogleApiClient mGoogleApiClient = null;
     private boolean firstStart = true;
     private Button mButtonSignInGoogle;
-    private Button mButtonSignIn;
+    private Button mButtonSignUp;
     private Button mButtonSubmit;
     private LoginManager loginManager = LoginManager.getInstance();
     private Button mButtonSignInFacebook;
+
 
 
     public ScreenLoginFragment() {
         // Required empty public constructor
     }
 
+
     public static CallbackManager getCallbackManager() {
-        return callbackManager;
+        return CallbackManager.Factory.create();
     }
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        callbackManager = CallbackManager.Factory.create();
-        loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+
+        loginManager.registerCallback(CallbackManager.Factory.create(), new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 // App code
@@ -107,7 +106,7 @@ public class ScreenLoginFragment extends Fragment {
             @Override
             public void onCancel() {
                 // App code
-                mButtonSignIn.setVisibility(View.VISIBLE);
+                mButtonSignUp.setVisibility(View.VISIBLE);
                 mButtonSignInGoogle.setVisibility(View.VISIBLE);
                 mButtonSubmit.setVisibility(View.VISIBLE);
                 mButtonSignInFacebook.setVisibility(View.VISIBLE);
@@ -117,7 +116,7 @@ public class ScreenLoginFragment extends Fragment {
             @Override
             public void onError(FacebookException exception) {
                 // App code
-                mButtonSignIn.setVisibility(View.VISIBLE);
+                mButtonSignUp.setVisibility(View.VISIBLE);
                 mButtonSignInGoogle.setVisibility(View.VISIBLE);
                 mButtonSubmit.setVisibility(View.VISIBLE);
                 mButtonSignInFacebook.setVisibility(View.VISIBLE);
@@ -186,11 +185,13 @@ public class ScreenLoginFragment extends Fragment {
             }
         });
 
-        mButtonSignIn = (Button) view.findViewById(R.id.auth_btn_sign_in);
-        mButtonSignIn.setOnClickListener(new View.OnClickListener() {
+        mButtonSignUp = (Button) view.findViewById(R.id.auth_btn_sign_in);
+        mButtonSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new ManageFragment(getFragmentManager()).replaceFragment(FRAGMENT_SIGN_UP);
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.main_activity_frame,new ScreenSignUpFragment())
+                        .addToBackStack("signUp").commit();
             }
         });
 
@@ -203,7 +204,7 @@ public class ScreenLoginFragment extends Fragment {
                 signInGoogle();
                 mEmail.setVisibility(View.GONE);
                 mPassword.setVisibility(View.GONE);
-                mButtonSignIn.setVisibility(View.GONE);
+                mButtonSignUp.setVisibility(View.GONE);
                 mButtonSubmit.setVisibility(View.GONE);
                 mButtonSignInGoogle.setVisibility(View.GONE);
                 mButtonSignInFacebook.setVisibility(View.GONE);
@@ -218,7 +219,7 @@ public class ScreenLoginFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 loginWithEmail = false;
-                mButtonSignIn.setVisibility(View.INVISIBLE);
+                mButtonSignUp.setVisibility(View.INVISIBLE);
                 mButtonSignInGoogle.setVisibility(View.INVISIBLE);
                 mButtonSubmit.setVisibility(View.INVISIBLE);
                 mButtonSignInFacebook.setVisibility(View.INVISIBLE);
@@ -382,7 +383,7 @@ public class ScreenLoginFragment extends Fragment {
                 if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
                     mGoogleApiClient.stopAutoManage(getActivity());
                     mGoogleApiClient.disconnect();
-                    mButtonSignIn.setVisibility(View.VISIBLE);
+                    mButtonSignUp.setVisibility(View.VISIBLE);
                     mButtonSubmit.setVisibility(View.VISIBLE);
                     mButtonSignInFacebook.setVisibility(View.VISIBLE);
                     mButtonSignInGoogle.setVisibility(View.VISIBLE);
@@ -395,7 +396,7 @@ public class ScreenLoginFragment extends Fragment {
                 if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
                     mGoogleApiClient.stopAutoManage(getActivity());
                     mGoogleApiClient.disconnect();
-                    mButtonSignIn.setVisibility(View.VISIBLE);
+                    mButtonSignUp.setVisibility(View.VISIBLE);
                     mButtonSubmit.setVisibility(View.VISIBLE);
                     mButtonSignInFacebook.setVisibility(View.VISIBLE);
                     mButtonSignInGoogle.setVisibility(View.VISIBLE);
@@ -404,7 +405,7 @@ public class ScreenLoginFragment extends Fragment {
             }
         } else {
             Log.d(TAG, "onActivityResult: facebook");
-            callbackManager.onActivityResult(requestCode, resultCode, data);
+            CallbackManager.Factory.create().onActivityResult(requestCode, resultCode, data);
 
         }
     }

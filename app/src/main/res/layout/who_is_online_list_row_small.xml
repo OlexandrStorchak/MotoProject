@@ -32,11 +32,12 @@
         android:id="@+id/friends_list_map_icon"
         android:maxWidth="45dp"
         android:maxHeight="45dp"
-        android:layout_marginRight="@dimen/activity_vertical_margin"
         android:layout_gravity="center_vertical"
         android:src="@mipmap/ic_map_cur"
         android:visibility="gone"
         />
+
+
 
 
 </LinearLayout>

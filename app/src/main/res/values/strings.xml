@@ -38,4 +38,9 @@
 
     <string name="facebook">Facebook</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_friend">add friend</string>
+    <string name="send_message">send message</string>
+
 </resources>

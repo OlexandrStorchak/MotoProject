@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
+import com.example.alex.motoproject.events.CurrentUserProfileReadyEvent;
+import com.example.alex.motoproject.events.OnlineUserProfileReady;
 import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,6 +25,11 @@ import java.util.Map;
 
 
 public class FirebaseDatabaseHelper {
+
+    private static final String STANDART_AVATAR =
+            "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
+                    "o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
+
     private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
     private final HashMap<String, OnlineUsersModel> onlineUserHashMap = new HashMap<>();
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
@@ -30,6 +37,7 @@ public class FirebaseDatabaseHelper {
     private ChildEventListener mOnlineUsersLocationListener;
     private ChildEventListener mOnlineUsersDataListener;
     private DatabaseReference mOnlineUsersRef;
+
 
     //    private ArrayList<ValueEventListener> mLocationListeners = new ArrayList<>();
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
@@ -73,8 +81,23 @@ public class FirebaseDatabaseHelper {
     //Called when user auth state changes. Adds required user data to Firebase
     public void addUserToFirebase(
             final String uid, final String email, final String name, final String avatar) {
+
+        final String ava;
+        final String nameDef;
+        if (avatar.equals("null")) {
+            ava = STANDART_AVATAR;
+        } else {
+            ava = avatar;
+        }
+        if (name==null) {
+            nameDef = getCurrentUser().getEmail();
+        } else {
+            nameDef = name;
+        }
         final DatabaseReference currentUserRef = mDbReference.child("users").child(uid);
-        currentUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+
+        ValueEventListener userProfilelistener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) { //Required data already exists
@@ -82,18 +105,21 @@ public class FirebaseDatabaseHelper {
                 }
                 //No data found by the reference, add new data
                 currentUserRef.child("email").setValue(email);
-                currentUserRef.child("name").setValue(name);
-                currentUserRef.child("avatar").setValue(avatar);
-                currentUserRef.child("friendsRequest").child("userId").setValue("1");
-                currentUserRef.child("friendsRequest").child("time").setValue("1");
+                currentUserRef.child("name").setValue(nameDef);
+                currentUserRef.child("avatar").setValue(ava);
+                currentUserRef.child("id").setValue(uid);
+                currentUserRef.removeEventListener(this);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
+        currentUserRef.addValueEventListener(userProfilelistener);
+
     }
+
 
     public void registerOnlineUsersLocationListener() {
         mOnlineUsersRef = mDbReference.child("onlineUsers");
@@ -319,4 +345,111 @@ public class FirebaseDatabaseHelper {
             }
         });
     }
+
+    //Send friend request
+    public void sendFriendRequest(String userId) {
+        final DatabaseReference ref = mDbReference.child("users").child(userId)
+                .child("friendsRequest").child(getCurrentUser().getUid());
+        Log.d("log", "sendFriendRequest: " + userId);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    //Request already exists
+                    Log.d("log", "onDataChange: NO ADD");
+                    return;
+                }
+                ref.setValue("timeStamp");
+                Log.d("log", "onDataChange: ADD USER REQUEST");
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("log", "onCancelled: ");
+            }
+        });
+    }
+
+    //Friend request table listener
+    public void getFriendRequest() {
+        DatabaseReference ref = mDbReference.child("users").child(getCurrentUser().getUid())
+                .child("friendsRequest");
+        ref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d("log", "onChildAdded: " + dataSnapshot.getKey());
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    //get current user from database
+    public void getCurrentUserModel() {
+        //get user name
+
+        DatabaseReference ref = mDbReference.child("users").child(getCurrentUser().getUid());
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                MyProfileFirebase profileFirebase = dataSnapshot.getValue(MyProfileFirebase.class);
+                  EventBus.getDefault().post(new CurrentUserProfileReadyEvent(profileFirebase));
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+    }
+    //get user from database by userId
+    public void getUserModel(String userId) {
+        //get user name
+
+        DatabaseReference ref = mDbReference.child("users").child(userId);
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                UsersProfileFirebase usersProfileFirebase = dataSnapshot.getValue(UsersProfileFirebase.class);
+                EventBus.getDefault().post(new OnlineUserProfileReady(usersProfileFirebase));
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+    }
+
+
 }
