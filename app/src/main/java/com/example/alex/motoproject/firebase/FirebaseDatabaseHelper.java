@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.example.alex.motoproject.events.FriendDataReadyEvent;
 import com.example.alex.motoproject.events.MapMarkerEvent;
+import com.example.alex.motoproject.events.CurrentUserProfileReadyEvent;
+import com.example.alex.motoproject.events.OnlineUserProfileReady;
 import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,6 +25,11 @@ import java.util.Map;
 
 
 public class FirebaseDatabaseHelper {
+
+    private static final String STANDART_AVATAR =
+            "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
+                    "o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
+
     private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
     private final HashMap<String, OnlineUsersModel> onlineUserHashMap = new HashMap<>();
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
@@ -75,7 +82,20 @@ public class FirebaseDatabaseHelper {
     public void addUserToFirebase(
             final String uid, final String email, final String name, final String avatar) {
 
+        final String ava;
+        final String nameDef;
+        if (avatar.equals("null")) {
+            ava = STANDART_AVATAR;
+        } else {
+            ava = avatar;
+        }
+        if (name==null) {
+            nameDef = getCurrentUser().getEmail();
+        } else {
+            nameDef = name;
+        }
         final DatabaseReference currentUserRef = mDbReference.child("users").child(uid);
+
 
         ValueEventListener userProfilelistener = new ValueEventListener() {
             @Override
@@ -85,8 +105,8 @@ public class FirebaseDatabaseHelper {
                 }
                 //No data found by the reference, add new data
                 currentUserRef.child("email").setValue(email);
-                currentUserRef.child("name").setValue(name);
-                currentUserRef.child("avatar").setValue(avatar);
+                currentUserRef.child("name").setValue(nameDef);
+                currentUserRef.child("avatar").setValue(ava);
                 currentUserRef.child("id").setValue(uid);
                 currentUserRef.removeEventListener(this);
             }
@@ -97,6 +117,7 @@ public class FirebaseDatabaseHelper {
             }
         };
         currentUserRef.addValueEventListener(userProfilelistener);
+
     }
 
 
@@ -357,7 +378,7 @@ public class FirebaseDatabaseHelper {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("log", "onChildAdded: " + dataSnapshot.getKey());
-                getUserModel(dataSnapshot.getKey());
+
             }
 
             @Override
@@ -382,21 +403,53 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-    //get user from database by userId
-    private void getUserModel(String userId) {
+    //get current user from database
+    public void getCurrentUserModel() {
         //get user name
-        DatabaseReference ref = mDbReference.child("users").child(userId).child("name");
-        ref.addValueEventListener(new ValueEventListener() {
+
+        DatabaseReference ref = mDbReference.child("users").child(getCurrentUser().getUid());
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("log", "getUserModel: name is - " + dataSnapshot.getValue().toString());
+
+                MyProfileFirebase profileFirebase = dataSnapshot.getValue(MyProfileFirebase.class);
+                  EventBus.getDefault().post(new CurrentUserProfileReadyEvent(profileFirebase));
+
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
 
+        });
     }
+    //get user from database by userId
+    public void getUserModel(String userId) {
+        //get user name
+
+        DatabaseReference ref = mDbReference.child("users").child(userId);
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                UsersProfileFirebase usersProfileFirebase = dataSnapshot.getValue(UsersProfileFirebase.class);
+                EventBus.getDefault().post(new OnlineUserProfileReady(usersProfileFirebase));
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+    }
+
+
 }

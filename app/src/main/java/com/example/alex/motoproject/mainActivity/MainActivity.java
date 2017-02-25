@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.events.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.events.ShowUserProfile;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.FirebaseLoginController;
@@ -36,10 +37,6 @@ import org.greenrobot.eventbus.Subscribe;
 public class MainActivity extends AppCompatActivity implements
         MainViewInterface, FragmentManager.OnBackStackChangedListener {
 
-
-    private static final String STANDART_AVATAR =
-            "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
-                    "o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
 
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     private ScreenOnlineUsersFragment screenOnlineUsersFragment
@@ -82,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
+
 
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
@@ -232,13 +230,27 @@ public class MainActivity extends AppCompatActivity implements
 
     @Subscribe
     public void onShowOnlineUserProfile(ShowUserProfile model) {
+
         ScreenUserProfileFragment userProfile = new ScreenUserProfileFragment();
-        userProfile.setOnlineUsersModel(model.getModel());
+        //userProfile.setOnlineUsersModel(model.getUserId());
 
         fm.beginTransaction().addToBackStack("online")
                 .replace(R.id.main_activity_frame, userProfile)
                 .commit();
+        mDatabaseHelper.getUserModel(model.getUserId());
+    }
 
+    @Subscribe
+    public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
+        mNameHeader.setText(user.getMyProfileFirebase().getName());
+        mEmailHeader.setText(user.getMyProfileFirebase().getEmail());
+
+        Picasso.with(getApplicationContext())
+                .load(user.getMyProfileFirebase().getAvatar())
+                .resize(mAvatarHeader.getMaxWidth(), mAvatarHeader.getMaxHeight())
+                .centerCrop()
+                .transform(new CircleTransform())
+                .into(mAvatarHeader);
 
     }
 
@@ -246,38 +258,22 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void login(FirebaseUser user) {
         // TODO: 11.02.2017 let users choose avatars
-        String avatarUri = STANDART_AVATAR;
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().show();
-        }
-
-
-        mNavigationBtnSignOut.setVisibility(View.VISIBLE);
-        mNavigationBtnMap.setVisibility(View.VISIBLE);
-        mAvatarHeader.setVisibility(View.GONE);
-
-        mNameHeader.setText(user.getDisplayName());
-        mEmailHeader.setText(user.getEmail());
-        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-
-        if (user.getPhotoUrl() != null) {
-            mAvatarHeader.setVisibility(View.VISIBLE);
-            avatarUri = user.getPhotoUrl().toString();
-            Picasso.with(getApplicationContext())
-                    .load(avatarUri)
-                    .resize(mAvatarHeader.getMaxWidth(), mAvatarHeader.getMaxHeight())
-                    .centerCrop()
-                    .transform(new CircleTransform())
-                    .into(mAvatarHeader);
-        }
-
-        replaceFragment(screenMapFragment);
         mDatabaseHelper.addUserToFirebase(
                 user.getUid(),
                 user.getEmail(),
                 user.getDisplayName(),
-                avatarUri);
+                String.valueOf(user.getPhotoUrl()));
+mDatabaseHelper.getCurrentUserModel();
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().show();
+        }
+
+        mNavigationBtnSignOut.setVisibility(View.VISIBLE);
+        mNavigationBtnMap.setVisibility(View.VISIBLE);
+        mAvatarHeader.setVisibility(View.VISIBLE);
+
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        replaceFragment(screenMapFragment);
         mDatabaseHelper.setUserOnline("noGps");
         fm.addOnBackStackChangedListener(this);
 

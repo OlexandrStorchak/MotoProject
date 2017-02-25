@@ -26,7 +26,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
 
 
     private List<OnlineUsersModel> onlineUsers;
-    private HashMap<String, OnlineUsersModel> hashMapA;
+
 
 
     OnlineUsersAdapter(List<OnlineUsersModel> friendsList) {
@@ -42,7 +42,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
     }
 
     void setList(HashMap<String, OnlineUsersModel> hashMap) {
-        hashMapA = hashMap;
+
         if (onlineUsers == null) {
             onlineUsers = new ArrayList<>(hashMap.values());
         } else {
@@ -91,7 +91,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
                 @Override
                 public void onClick(View view) {
                     //This click to show user profie
-                    EventBus.getDefault().post(new ShowUserProfile(onlineUsers.get(getAdapterPosition())));
+                    EventBus.getDefault().post(new ShowUserProfile(onlineUsers.get(getAdapterPosition()).getUid()));
 
                 }
             });

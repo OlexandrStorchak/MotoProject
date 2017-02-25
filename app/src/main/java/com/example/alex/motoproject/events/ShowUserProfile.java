@@ -1,21 +1,19 @@
 package com.example.alex.motoproject.events;
 
 
-import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersModel;
-
 public class ShowUserProfile {
-    OnlineUsersModel model;
+   String UserId;
 
-    public OnlineUsersModel getModel() {
-        return model;
+    public String getUserId() {
+        return UserId;
     }
 
-    public void setModel(OnlineUsersModel model) {
-        this.model = model;
+    public void setUserId(String userId) {
+        UserId = userId;
     }
 
-    public ShowUserProfile(OnlineUsersModel model) {
+    public ShowUserProfile(String userId) {
 
-        this.model = model;
+        UserId = userId;
     }
 }
