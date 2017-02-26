@@ -24,7 +24,7 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.events.MapMarkerEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.mainActivity.AlertControll;
+import com.example.alex.motoproject.mainActivity.AlertControl;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.services.LocationListenerService;
 import com.example.alex.motoproject.utils.CircleTransform;
@@ -44,6 +44,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -63,7 +65,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
     private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
     @Inject
-    FirebaseDatabaseHelper databaseHelper;
+    FirebaseDatabaseHelper mFirebaseDatabaseHelper;
 
     private App mApp;
 
@@ -89,8 +91,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-
+        App.getFirebaseDatabaseHelperComponent().inject(this);
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
@@ -98,14 +99,10 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         mApp = (App) getContext().getApplicationContext();
-        App.getFirebaseDatabaseHelperComponent().inject(this);
         //add Google map
         mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
-
-
-
 
         Bundle arguments = getArguments();
         if (arguments != null) {
@@ -122,7 +119,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View view) {
                 if (!mApp.isLocationListenerServiceOn()) {
                     //mMapFragmentListener.handleLocation();
-                    new AlertControll((MainActivity) getActivity()).handleLocation();
+                    new AlertControl((MainActivity) getActivity()).handleLocation();
                 } else if (checkLocationPermission()) {
                     mMap.setMyLocationEnabled(false);
                     getContext().stopService(
@@ -173,7 +170,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     public void onStop() {
         mMapView.onStop();
         EventBus.getDefault().unregister(this);
-        databaseHelper.unregisterOnlineUsersLocationListener();
+        mFirebaseDatabaseHelper.unregisterOnlineUsersLocationListener();
         super.onStop();
     }
 
@@ -187,7 +184,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     public void onStart() {
         mMapView.onStart();
         EventBus.getDefault().register(this);
-        databaseHelper.registerOnlineUsersLocationListener();
+        mFirebaseDatabaseHelper.registerOnlineUsersLocationListener();
         super.onStart();
     }
 
@@ -215,20 +212,22 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
                 .anchor(0.5f, 0.5f));
 
         mMarkerHashMap.put(event.uid, marker);
-        fetchMarkerIcon(event.uid, event.avatarRef);
+        fetchAndSetMarkerIcon(event.uid, event.avatarRef);
 
     }
 
-    private void fetchMarkerIcon(final String uid, String avatarRef) {
-        Target target = new Target() {
+    private void fetchAndSetMarkerIcon(final String uid, String avatarRef) {
+        final Set<Target> targetStrongReference = new HashSet<>();
+        Target iconTarget = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 mMarkerHashMap.get(uid).setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
+                targetStrongReference.remove(this);
             }
 
             @Override
             public void onBitmapFailed(Drawable errorDrawable) {
-
+                targetStrongReference.remove(this);
             }
 
             @Override
@@ -236,8 +235,9 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
             }
         };
-        Picasso.with(getContext()).load(avatarRef).resize(100, 100)
-                .centerCrop().transform(new CircleTransform()).into(target);
+        targetStrongReference.add(iconTarget);
+        Picasso.with(getContext()).load(avatarRef).resize(80, 80)
+                .centerCrop().transform(new CircleTransform()).into(iconTarget);
     }
 
     private boolean checkLocationPermission() {

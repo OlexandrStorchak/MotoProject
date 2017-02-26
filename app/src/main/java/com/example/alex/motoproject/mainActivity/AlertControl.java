@@ -31,7 +31,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
-public class AlertControll implements ScreenMapFragment.MapFragmentListener,
+public class AlertControl implements ScreenMapFragment.MapFragmentListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final int ALERT_GPS_OFF = 20;
@@ -47,7 +47,7 @@ public class AlertControll implements ScreenMapFragment.MapFragmentListener,
     private MainActivity mainActivity;
 
 
-    public AlertControll(MainActivity mainActivity) {
+    public AlertControl(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
 
     }

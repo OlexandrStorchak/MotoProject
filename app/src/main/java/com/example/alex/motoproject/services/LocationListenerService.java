@@ -29,6 +29,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 
+import javax.inject.Inject;
+
 /**
  * The Service that listens for location changes and sends them to Firebase
  */
@@ -43,8 +45,8 @@ public class LocationListenerService extends Service implements
     int mNotificationId = 3;
     GoogleApiClient mGoogleApiClient;
     String mRequestFrequency = "default";
-
-    FirebaseDatabaseHelper mFirebaseHelper = new FirebaseDatabaseHelper();
+    @Inject
+    FirebaseDatabaseHelper mFirebaseHelper;
     FirebaseAuth mFirebaseAuth;
 
     private NetworkStateReceiver mNetworkStateReceiver;
@@ -73,8 +75,8 @@ public class LocationListenerService extends Service implements
 
         mFirebaseHelper.setUserOnline("public");
 
-//        EventBus.getDefault().register(this);
         ((App) getApplication()).setLocationListenerServiceOn(true);
+        App.getFirebaseDatabaseHelperComponent().inject(this);
 
         super.onCreate();
     }

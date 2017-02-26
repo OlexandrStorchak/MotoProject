@@ -28,7 +28,7 @@ public class ScreenOnlineUsersFragment extends Fragment {
 
     private RecyclerView rv;
     @Inject
-    FirebaseDatabaseHelper databaseHelper;
+    FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     OnlineUsersAdapter adapter = new OnlineUsersAdapter(null);
 
 
@@ -42,24 +42,23 @@ public class ScreenOnlineUsersFragment extends Fragment {
     @Override
     public void onStop() {
         EventBus.getDefault().unregister(this);
-        databaseHelper.unregisterOnlineUsersDataListener();
-        databaseHelper.getOnlineUserHashMap().clear();
+        mFirebaseDatabaseHelper.unregisterOnlineUsersDataListener();
+        mFirebaseDatabaseHelper.getOnlineUserHashMap().clear();
         super.onStop();
     }
 
     @Override
     public void onStart() {
         EventBus.getDefault().register(this);
-        databaseHelper.registerOnlineUsersListener();
+        mFirebaseDatabaseHelper.registerOnlineUsersListener();
         super.onStart();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        App.getFirebaseDatabaseHelperComponent().inject(this);
         // Inflate the layout for this fragment
-
-
         return inflater.inflate(R.layout.fragment_users_online, container, false);
     }
 
@@ -68,13 +67,11 @@ public class ScreenOnlineUsersFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        App.getFirebaseDatabaseHelperComponent().inject(this);
     }
 
     @Subscribe
     public void onFriendDataReady(FriendDataReadyEvent event) {
-        adapter.setList(databaseHelper.getOnlineUserHashMap());
+        adapter.setList(mFirebaseDatabaseHelper.getOnlineUserHashMap());
         rv.setAdapter(adapter);
 
 

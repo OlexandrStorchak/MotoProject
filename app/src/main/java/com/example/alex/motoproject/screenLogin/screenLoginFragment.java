@@ -51,8 +51,6 @@ import static com.example.alex.motoproject.firebase.FirebaseLoginController.logi
 
 public class ScreenLoginFragment extends Fragment {
     private final int GOOGLE_SIGN_IN = 13;
-
-
     private String TAG = "log";
     private EditText mEmail, mPassword;
     private ProgressBar mProgressBar;

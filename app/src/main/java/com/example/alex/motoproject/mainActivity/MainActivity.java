@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.events.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.events.ShowUserProfile;
@@ -35,8 +36,13 @@ import com.squareup.picasso.Picasso;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import javax.inject.Inject;
+
 public class MainActivity extends AppCompatActivity implements
         MainViewInterface, FragmentManager.OnBackStackChangedListener {
+
+    @Inject
+    FirebaseDatabaseHelper mFirebaseDatabaseHelper;
 
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     private ScreenOnlineUsersFragment screenOnlineUsersFragment
@@ -45,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements
     private ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
     private ChatFragment chatFragment = new ChatFragment();
 
-    AlertControll alertControll = new AlertControll(this);
+    AlertControl alertControl = new AlertControl(this);
 
 
     private TextView mNameHeader;
@@ -56,8 +62,6 @@ public class MainActivity extends AppCompatActivity implements
     private DrawerLayout mDrawerLayout;
 
     private FragmentManager fm = getSupportFragmentManager();
-
-    private FirebaseDatabaseHelper mDatabaseHelper = new FirebaseDatabaseHelper();
 
     private FirebaseLoginController loginController;
     private ActionBarDrawerToggle toggle;
@@ -81,14 +85,13 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
+        App.getFirebaseDatabaseHelperComponent().inject(this);
 
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
         loginController = new FirebaseLoginController(presenterImp);
 
         loginController.start();
-
-        screenProfileFragment.setHelper(mDatabaseHelper);
 
         setContentView(R.layout.activity_main);
 
@@ -143,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements
         mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDatabaseHelper.setUserOffline();
+                mFirebaseDatabaseHelper.setUserOffline();
                 loginController.signOut();
                 stopService(new Intent(MainActivity.this, LocationListenerService.class));
 
@@ -197,8 +200,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        alertControll.registerNetworkStateReceiver();
-        alertControll.registerEventBus();
+        alertControl.registerNetworkStateReceiver();
+        alertControl.registerEventBus();
     }
 
     @Override
@@ -210,8 +213,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStop() {
         super.onStop();
-        alertControll.unregisterNetworkStateReceiver();
-        alertControll.unRegisterEventBus();
+        alertControl.unregisterNetworkStateReceiver();
+        alertControl.unRegisterEventBus();
         loginController.stop();
     }
 
@@ -229,11 +232,11 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onDestroy() {
-        if (alertControll.mAlert != null) {
-            alertControll.mAlert.dismiss();
+        if (alertControl.mAlert != null) {
+            alertControl.mAlert.dismiss();
         }
 
-        if (!alertControll.isServiceOn()) {
+        if (!alertControl.isServiceOn()) {
 
             Log.d("log", "onDestroy: service is Off");
         }
@@ -252,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements
         fm.beginTransaction().addToBackStack("online")
                 .replace(R.id.main_activity_frame, userProfile)
                 .commit();
-        mDatabaseHelper.getUserModel(model.getUserId());
+        mFirebaseDatabaseHelper.getUserModel(model.getUserId());
     }
 
     @Subscribe
@@ -273,12 +276,12 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void login(FirebaseUser user) {
         // TODO: 11.02.2017 let users choose avatars
-        mDatabaseHelper.addUserToFirebase(
+        mFirebaseDatabaseHelper.addUserToFirebase(
                 user.getUid(),
                 user.getEmail(),
                 user.getDisplayName(),
                 String.valueOf(user.getPhotoUrl()));
-        mDatabaseHelper.getCurrentUserModel();
+        mFirebaseDatabaseHelper.getCurrentUserModel();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().show();
@@ -290,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements
 
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         replaceFragment(screenMapFragment);
-        mDatabaseHelper.setUserOnline("noGps");
+        mFirebaseDatabaseHelper.setUserOnline("noGps");
         fm.addOnBackStackChangedListener(this);
 
 

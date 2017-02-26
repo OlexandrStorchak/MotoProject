@@ -16,7 +16,6 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.events.OnlineUserProfileReady;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UsersProfileFirebase;
-import com.example.alex.motoproject.utils.CircleTransform;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
@@ -26,7 +25,7 @@ import org.greenrobot.eventbus.Subscribe;
 public class ScreenUserProfileFragment extends Fragment {
 
 
-    LinearLayout butons;
+    LinearLayout buttons;
     private TextView name;
     private TextView motorcycle;
     private TextView nickName;
@@ -63,7 +62,7 @@ public class ScreenUserProfileFragment extends Fragment {
         nickName = (TextView) view.findViewById(R.id.profile_user_status);
         email = (TextView) view.findViewById(R.id.profile_user_email);
         avatar = (ImageView) view.findViewById(R.id.profile_user_avatar);
-        butons = (LinearLayout) view.findViewById(R.id.profile_user_buttons);
+        buttons = (LinearLayout) view.findViewById(R.id.profile_user_buttons);
 
 
     }

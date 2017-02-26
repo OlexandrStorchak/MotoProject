@@ -13,7 +13,7 @@ import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.events.CancelAlertEvent;
 import com.example.alex.motoproject.events.GpsStatusChangedEvent;
 import com.example.alex.motoproject.events.ShowAlertEvent;
-import com.example.alex.motoproject.mainActivity.AlertControll;
+import com.example.alex.motoproject.mainActivity.AlertControl;
 import com.example.alex.motoproject.utils.NotificationBuilderUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -113,10 +113,10 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     private void postShowAlertEvent(int notificationId) {
         switch (notificationId) {
             case INTERNET_NOTIFICATION_ID:
-                EventBus.getDefault().post(new ShowAlertEvent(AlertControll.ALERT_INTERNET_OFF));
+                EventBus.getDefault().post(new ShowAlertEvent(AlertControl.ALERT_INTERNET_OFF));
                 break;
             case GPS_NOTIFICATION_ID:
-                EventBus.getDefault().post(new ShowAlertEvent(AlertControll.ALERT_GPS_OFF));
+                EventBus.getDefault().post(new ShowAlertEvent(AlertControl.ALERT_GPS_OFF));
                 break;
         }
     }
@@ -124,10 +124,10 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     private void postCancelAlertEvent(int notificationId) {
         switch (notificationId) {
             case INTERNET_NOTIFICATION_ID:
-                EventBus.getDefault().post(new CancelAlertEvent(AlertControll.ALERT_INTERNET_OFF));
+                EventBus.getDefault().post(new CancelAlertEvent(AlertControl.ALERT_INTERNET_OFF));
                 break;
             case GPS_NOTIFICATION_ID:
-                EventBus.getDefault().post(new CancelAlertEvent(AlertControll.ALERT_GPS_OFF));
+                EventBus.getDefault().post(new CancelAlertEvent(AlertControl.ALERT_GPS_OFF));
         }
     }
 
