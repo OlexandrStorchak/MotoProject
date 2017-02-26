@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.events;
+package com.example.alex.motoproject.event;
 
 public class ShowAlertEvent {
     public final int alertType;

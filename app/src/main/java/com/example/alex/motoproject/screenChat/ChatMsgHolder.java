@@ -9,8 +9,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.events.OpenMapWithLatLngEvent;
-import com.example.alex.motoproject.utils.CircleTransform;
+import com.example.alex.motoproject.event.OpenMapWithLatLngEvent;
+import com.example.alex.motoproject.util.CircleTransform;
 import com.google.android.gms.maps.model.LatLng;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;

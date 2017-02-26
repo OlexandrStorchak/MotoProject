@@ -2,7 +2,6 @@ package com.example.alex.motoproject.screenMap;
 
 
 import android.Manifest;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,12 +21,12 @@ import android.view.ViewGroup;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
-import com.example.alex.motoproject.events.MapMarkerEvent;
+import com.example.alex.motoproject.event.MapMarkerEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.AlertControl;
 import com.example.alex.motoproject.mainActivity.MainActivity;
-import com.example.alex.motoproject.services.LocationListenerService;
-import com.example.alex.motoproject.utils.CircleTransform;
+import com.example.alex.motoproject.service.LocationListenerService;
+import com.example.alex.motoproject.util.CircleTransform;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -62,8 +61,8 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
     public static final LatLng CHERKASY = new LatLng(49.443, 32.0727);
 
-
-    private final BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
+    @Inject
+    NetworkStateReceiver mNetworkStateReceiver;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
 
@@ -91,7 +90,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        App.getFirebaseDatabaseHelperComponent().inject(this);
+        App.getCoreComponent().inject(this);
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
@@ -260,11 +259,15 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     //changes CameraUpdate so the map will be showing a chosen user location after gets ready
-    public void moveToMarker(@NonNull String uid) {
+    public void moveToPosition(@NonNull String uid) {
         if (mMarkerHashMap.containsKey(uid)) {
             LatLng position = mMarkerHashMap.get(uid).getPosition();
             mCameraUpdate = CameraUpdateFactory.newLatLngZoom(position, 15);
         }
+    }
+
+    public void moveToPosition(@NonNull LatLng latLng) {
+        mCameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
     }
 
 //    public void moveToPosition(@NonNull LatLng latLng) {

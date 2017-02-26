@@ -2,9 +2,9 @@ package com.example.alex.motoproject.screenChat;
 
 import android.view.View;
 
-import com.example.alex.motoproject.events.ConfirmShareLocationInChatEvent;
-import com.example.alex.motoproject.events.GpsStatusChangedEvent;
-import com.example.alex.motoproject.events.ShareLocationInChatAllowedEvent;
+import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
+import com.example.alex.motoproject.event.GpsStatusChangedEvent;
+import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

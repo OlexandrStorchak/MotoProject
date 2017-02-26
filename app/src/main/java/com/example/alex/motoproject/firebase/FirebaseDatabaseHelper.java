@@ -3,10 +3,10 @@ package com.example.alex.motoproject.firebase;
 import android.location.Location;
 import android.util.Log;
 
-import com.example.alex.motoproject.events.CurrentUserProfileReadyEvent;
-import com.example.alex.motoproject.events.FriendDataReadyEvent;
-import com.example.alex.motoproject.events.MapMarkerEvent;
-import com.example.alex.motoproject.events.OnlineUserProfileReady;
+import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
+import com.example.alex.motoproject.event.FriendDataReadyEvent;
+import com.example.alex.motoproject.event.MapMarkerEvent;
+import com.example.alex.motoproject.event.OnlineUserProfileReady;
 import com.example.alex.motoproject.screenChat.ChatMessage;
 import com.example.alex.motoproject.screenChat.ChatMessageSendable;
 import com.example.alex.motoproject.screenChat.ChatModel;

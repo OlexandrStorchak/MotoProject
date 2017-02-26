@@ -9,8 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.events.ShowUserProfile;
-import com.example.alex.motoproject.utils.CircleTransform;
+import com.example.alex.motoproject.event.ShowUserProfile;
+import com.example.alex.motoproject.util.CircleTransform;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;

@@ -10,19 +10,19 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import com.example.alex.motoproject.App;
-import com.example.alex.motoproject.events.CancelAlertEvent;
-import com.example.alex.motoproject.events.GpsStatusChangedEvent;
-import com.example.alex.motoproject.events.ShowAlertEvent;
+import com.example.alex.motoproject.event.CancelAlertEvent;
+import com.example.alex.motoproject.event.GpsStatusChangedEvent;
+import com.example.alex.motoproject.event.ShowAlertEvent;
 import com.example.alex.motoproject.mainActivity.AlertControl;
-import com.example.alex.motoproject.utils.NotificationBuilderUtil;
+import com.example.alex.motoproject.util.NotificationBuilderUtil;
 
 import org.greenrobot.eventbus.EventBus;
+
+import javax.inject.Inject;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class NetworkStateReceiver extends BroadcastReceiver {
-
-    // TODO: 11.02.2017 make only one instance of this class
 
     public static final int INTERNET_NOTIFICATION_ID = 1;
     public static final int GPS_NOTIFICATION_ID = 2;
@@ -30,6 +30,7 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     NotificationManager mNotifyMgr;
     App app;
 
+    @Inject
     public NetworkStateReceiver() {
     }
 

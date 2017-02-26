@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.services;
+package com.example.alex.motoproject.service;
 
 import android.Manifest;
 import android.app.NotificationManager;
@@ -46,17 +46,18 @@ public class LocationListenerService extends Service implements
     GoogleApiClient mGoogleApiClient;
     String mRequestFrequency = "default";
     @Inject
-    FirebaseDatabaseHelper mFirebaseHelper;
+    FirebaseDatabaseHelper mFirebaseDatabaseHelper;
+    @Inject
+    NetworkStateReceiver mNetworkStateReceiver;
     FirebaseAuth mFirebaseAuth;
-
-    private NetworkStateReceiver mNetworkStateReceiver;
-
     public LocationListenerService() {
         // Required empty public constructor
     }
 
     @Override
     public void onCreate() {
+        App.getCoreComponent().inject(this);
+        ((App) getApplication()).plusNetworkStateReceiverComponent();
         Log.d(LOG_TAG, "onCreate");
         // create an instance of GoogleAPIClient
         if (mGoogleApiClient == null) {
@@ -73,10 +74,10 @@ public class LocationListenerService extends Service implements
         showNotification();
         registerReceiver();
 
-        mFirebaseHelper.setUserOnline("public");
+        mFirebaseDatabaseHelper.setUserOnline("public");
 
         ((App) getApplication()).setLocationListenerServiceOn(true);
-        App.getFirebaseDatabaseHelperComponent().inject(this);
+
 
         super.onCreate();
     }
@@ -90,10 +91,10 @@ public class LocationListenerService extends Service implements
 
         ((App) getApplication()).setLocationListenerServiceOn(false);
         if (((App) getApplication()).isMainActivityDestroyed()) {
-            mFirebaseHelper.setUserOffline();
+            mFirebaseDatabaseHelper.setUserOffline();
         } else {
-            if (mFirebaseHelper.getCurrentUser() != null) {
-                mFirebaseHelper.setUserOnline("noGps");
+            if (mFirebaseDatabaseHelper.getCurrentUser() != null) {
+                mFirebaseDatabaseHelper.setUserOnline("noGps");
             }
         }
 
@@ -124,7 +125,7 @@ public class LocationListenerService extends Service implements
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
             if (lastLocation != null) {
-                mFirebaseHelper.updateUserLocation(lastLocation);
+                mFirebaseDatabaseHelper.updateUserLocation(lastLocation);
             }
         }
         startLocationUpdates();
@@ -133,7 +134,7 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void onLocationChanged(Location location) {
-        mFirebaseHelper.updateUserLocation(location);
+        mFirebaseDatabaseHelper.updateUserLocation(location);
     }
 
     @Override
@@ -221,7 +222,6 @@ public class LocationListenerService extends Service implements
     private void registerReceiver() {
         IntentFilter intentFilterNetwork = new IntentFilter(
                 ConnectivityManager.CONNECTIVITY_ACTION);
-        mNetworkStateReceiver = new NetworkStateReceiver();
         registerReceiver(
                 mNetworkStateReceiver, intentFilterNetwork);
     }

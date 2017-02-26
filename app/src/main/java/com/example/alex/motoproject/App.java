@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
-import com.example.alex.motoproject.firebase.DaggerFirebaseDatabaseHelperComponent;
-import com.example.alex.motoproject.firebase.FirebaseDatabaseHelperComponent;
+import com.example.alex.motoproject.firebase.CoreComponent;
+import com.example.alex.motoproject.firebase.DaggerCoreComponent;
 import com.example.alex.motoproject.firebase.FirebaseUtilsModule;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.google.firebase.database.FirebaseDatabase;
@@ -20,14 +20,15 @@ import io.realm.RealmConfiguration;
 public class App extends Application
         implements Application.ActivityLifecycleCallbacks {
     private static final String TAG = "log";
-    private static FirebaseDatabaseHelperComponent firebaseDatabaseHelperComponent;
+    private static CoreComponent coreComponent;
+    private static NetworkStateReceiverComponent networkStateReceiverComponent;
     //    private static ChatPresenterComponent chatPresenterComponent;
     private boolean isMainActivityVisible = false;
     private boolean isLocationListenerServiceOn = false;
     private boolean isMainActivityDestroyed;
 
-    public static FirebaseDatabaseHelperComponent getFirebaseDatabaseHelperComponent() {
-        return firebaseDatabaseHelperComponent;
+    public static CoreComponent getCoreComponent() {
+        return coreComponent;
     }
 
 //    public static ChatPresenterComponent getChatPresenterComponent(Context context,
@@ -56,9 +57,16 @@ public class App extends Application
         //Cache some data in gadget storage for offline usage
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
-        firebaseDatabaseHelperComponent = buildCoreComponent();
+        coreComponent = buildCoreComponent();
     }
 
+    public NetworkStateReceiverComponent plusNetworkStateReceiverComponent() {
+        if (networkStateReceiverComponent == null) {
+            networkStateReceiverComponent = coreComponent
+                    .plusNetworkStateReceiverComponent(new NetworkStateReceiverModule());
+        }
+        return networkStateReceiverComponent;
+    }
 
     public boolean isLocationListenerServiceOn() {
         return isLocationListenerServiceOn;
@@ -120,8 +128,8 @@ public class App extends Application
         }
     }
 
-    public FirebaseDatabaseHelperComponent buildCoreComponent() {
-        return DaggerFirebaseDatabaseHelperComponent.builder()
+    public CoreComponent buildCoreComponent() {
+        return DaggerCoreComponent.builder()
                 .firebaseUtilsModule(new FirebaseUtilsModule())
                 .build();
     }

@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.utils;
+package com.example.alex.motoproject.util;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;

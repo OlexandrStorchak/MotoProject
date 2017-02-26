@@ -38,7 +38,7 @@
             android:value="AIzaSyB0f8qAQ8OBaEF1Gg9Q_M4Lf2ZUA9xK7ko" />
 
         <service
-            android:name=".services.LocationListenerService"
+            android:name=".service.LocationListenerService"
             android:enabled="true"
             android:exported="false" />
 

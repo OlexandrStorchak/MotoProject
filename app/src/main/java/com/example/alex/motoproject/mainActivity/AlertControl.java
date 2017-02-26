@@ -2,6 +2,7 @@ package com.example.alex.motoproject.mainActivity;
 
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -19,17 +20,19 @@ import android.util.Log;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
-import com.example.alex.motoproject.events.CancelAlertEvent;
-import com.example.alex.motoproject.events.ConfirmShareLocationInChatEvent;
-import com.example.alex.motoproject.events.OpenMapWithLatLngEvent;
-import com.example.alex.motoproject.events.ShareLocationInChatAllowedEvent;
-import com.example.alex.motoproject.events.ShowAlertEvent;
+import com.example.alex.motoproject.event.CancelAlertEvent;
+import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
+import com.example.alex.motoproject.event.OpenMapWithLatLngEvent;
+import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
+import com.example.alex.motoproject.event.ShowAlertEvent;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
+
+import javax.inject.Inject;
 
 public class AlertControl implements ScreenMapFragment.MapFragmentListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
@@ -41,7 +44,8 @@ public class AlertControl implements ScreenMapFragment.MapFragmentListener,
     public static final int ALERT_SHARE_LOCATION_CONFIRMATION = 24;
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
 
-    private NetworkStateReceiver mNetworkStateReceiver;
+    @Inject
+    NetworkStateReceiver mNetworkStateReceiver;
     AlertDialog mAlert;
     private ArrayList<Integer> mActiveAlerts = new ArrayList<>();
     private MainActivity mainActivity;
@@ -257,14 +261,14 @@ public class AlertControl implements ScreenMapFragment.MapFragmentListener,
 
     }
 
-    void registerNetworkStateReceiver() {
+    void registerNetworkStateReceiver(Context appContext) {
         //if LocationListenerService is on, this receiver has already been registered
         if (!isServiceOn()) {
             IntentFilter intentFilter = new IntentFilter(
                     ConnectivityManager.CONNECTIVITY_ACTION);
             intentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
 
-            mNetworkStateReceiver = new NetworkStateReceiver();
+            ((App) appContext).plusNetworkStateReceiverComponent();
             mainActivity.registerReceiver(
                     mNetworkStateReceiver, intentFilter);
         }

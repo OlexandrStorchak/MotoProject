@@ -18,8 +18,8 @@ import android.widget.TextView;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.events.CurrentUserProfileReadyEvent;
-import com.example.alex.motoproject.events.ShowUserProfile;
+import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
+import com.example.alex.motoproject.event.ShowUserProfile;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.FirebaseLoginController;
 import com.example.alex.motoproject.screenChat.ChatFragment;
@@ -28,8 +28,8 @@ import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 import com.example.alex.motoproject.screenOnlineUsers.ScreenOnlineUsersFragment;
 import com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment;
 import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
-import com.example.alex.motoproject.services.LocationListenerService;
-import com.example.alex.motoproject.utils.CircleTransform;
+import com.example.alex.motoproject.service.LocationListenerService;
+import com.example.alex.motoproject.util.CircleTransform;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
-        App.getFirebaseDatabaseHelperComponent().inject(this);
+        App.getCoreComponent().inject(this);
 
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        alertControl.registerNetworkStateReceiver();
+        alertControl.registerNetworkStateReceiver(getApplicationContext());
         alertControl.registerEventBus();
     }
 

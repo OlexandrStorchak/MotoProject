@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.events;
+package com.example.alex.motoproject.event;
 
 
 import com.example.alex.motoproject.firebase.UsersProfileFirebase;
