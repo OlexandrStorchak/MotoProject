@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.events.FriendDataReadyEvent;
+import com.example.alex.motoproject.event.FriendDataReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
 import org.greenrobot.eventbus.EventBus;
@@ -57,7 +57,7 @@ public class ScreenOnlineUsersFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        App.getFirebaseDatabaseHelperComponent().inject(this);
+        App.getCoreComponent().inject(this);
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_users_online, container, false);
     }
