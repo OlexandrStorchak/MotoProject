@@ -1,4 +1,4 @@
-package com.example.alex.motoproject;
+package com.example.alex.motoproject.broadcastReceiver;
 
 import com.example.alex.motoproject.service.LocationListenerService;
 

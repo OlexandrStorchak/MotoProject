@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiverComponent;
+import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiverModule;
 import com.example.alex.motoproject.firebase.CoreComponent;
 import com.example.alex.motoproject.firebase.DaggerCoreComponent;
 import com.example.alex.motoproject.firebase.FirebaseUtilsModule;

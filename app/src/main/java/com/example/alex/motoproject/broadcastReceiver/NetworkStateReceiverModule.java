@@ -1,8 +1,6 @@
-package com.example.alex.motoproject;
+package com.example.alex.motoproject.broadcastReceiver;
 
 import android.support.annotation.NonNull;
-
-import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 
 import dagger.Module;
 import dagger.Provides;

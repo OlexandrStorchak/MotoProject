@@ -217,6 +217,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
     private void fetchAndSetMarkerIcon(final String uid, String avatarRef) {
         final Set<Target> targetStrongReference = new HashSet<>();
+        // TODO: 26.02.2017 handle garbage collecting
         Target iconTarget = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {

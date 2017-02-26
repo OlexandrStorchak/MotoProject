@@ -3,10 +3,10 @@ package com.example.alex.motoproject.event;
 
 import com.example.alex.motoproject.firebase.UsersProfileFirebase;
 
-public class OnlineUserProfileReady {
-    UsersProfileFirebase usersProfileFirebase;
+public class OnlineUserProfileReadyEvent {
+    private UsersProfileFirebase usersProfileFirebase;
 
-    public OnlineUserProfileReady(UsersProfileFirebase usersProfileFirebase) {
+    public OnlineUserProfileReadyEvent(UsersProfileFirebase usersProfileFirebase) {
         this.usersProfileFirebase = usersProfileFirebase;
     }
 

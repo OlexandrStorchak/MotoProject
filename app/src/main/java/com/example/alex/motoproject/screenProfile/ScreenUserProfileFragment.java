@@ -13,7 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.event.OnlineUserProfileReady;
+import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UsersProfileFirebase;
 import com.squareup.picasso.Picasso;
@@ -81,7 +81,7 @@ public class ScreenUserProfileFragment extends Fragment {
     }
 
     @Subscribe
-    public void onOnlineUserProfileReady(OnlineUserProfileReady event) {
+    public void onOnlineUserProfileReady(OnlineUserProfileReadyEvent event) {
 
         final UsersProfileFirebase user = event.getUsersProfileFirebase();
 

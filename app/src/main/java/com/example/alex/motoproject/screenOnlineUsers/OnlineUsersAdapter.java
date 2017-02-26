@@ -23,15 +23,10 @@ import java.util.List;
 
 
 class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
-
-
     private List<OnlineUsersModel> onlineUsers;
-
-
 
     OnlineUsersAdapter(List<OnlineUsersModel> friendsList) {
         this.onlineUsers = friendsList;
-
     }
 
     @Override
@@ -80,17 +75,14 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
     class VH extends RecyclerView.ViewHolder {
         ImageView avatar;
         ImageView mapCur;
-
         TextView name;
 
         VH(final View itemView) {
             super(itemView);
-
-
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //This click to show user profie
+                    //This click to show user profile
                     EventBus.getDefault().post(new ShowUserProfile(onlineUsers.get(getAdapterPosition()).getUid()));
 
                 }
@@ -109,8 +101,6 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
                 }
 
             });
-
-
         }
     }
 }

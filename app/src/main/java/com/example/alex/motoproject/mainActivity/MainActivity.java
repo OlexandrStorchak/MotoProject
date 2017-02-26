@@ -318,12 +318,9 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void replaceFragment(Fragment fragment) {
-
-
         fm.beginTransaction()
                 .replace(R.id.main_activity_frame, fragment)
                 .commit();
-
     }
 
 
