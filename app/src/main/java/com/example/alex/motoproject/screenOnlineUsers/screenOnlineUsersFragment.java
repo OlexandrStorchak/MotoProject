@@ -9,7 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import javax.inject.Inject;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
@@ -18,6 +17,8 @@ import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
+import javax.inject.Inject;
 
 public class ScreenOnlineUsersFragment extends Fragment {
 

@@ -43,7 +43,6 @@ public class FirebaseDatabaseHelper {
                     "o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
 
     private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
-    private final HashMap<String, OnlineUsersModel> onlineUserHashMap = new HashMap<>();
     private static final int CHAT_MESSAGES_COUNT_LIMIT = 31;
     private final HashMap<String, OnlineUsersModel> mOnlineUserHashMap = new HashMap<>();
     private ChatUpdateReceiver mChatModel;
@@ -115,7 +114,7 @@ public class FirebaseDatabaseHelper {
         final DatabaseReference currentUserRef = mDbReference.child("users").child(uid);
 
 
-        ValueEventListener userProfilelistener = new ValueEventListener() {
+        ValueEventListener userProfileListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) { //Required data already exists
@@ -134,7 +133,7 @@ public class FirebaseDatabaseHelper {
 
             }
         };
-        currentUserRef.addValueEventListener(userProfilelistener);
+        currentUserRef.addValueEventListener(userProfileListener);
 
     }
 
