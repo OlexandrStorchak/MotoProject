@@ -12,25 +12,20 @@ import android.view.ViewGroup;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.event.FriendDataReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
-public class ScreenOnlineUsersFragment extends Fragment {
+public class ScreenOnlineUsersFragment extends Fragment
+        implements FirebaseDatabaseHelper.OnlineUsersUpdateReceiver {
+    List<OnlineUser> mOnlineUsers = new ArrayList<>();
+    OnlineUsersAdapter mAdapter = new OnlineUsersAdapter(mOnlineUsers);
 
-
-
-
-
-    private RecyclerView rv;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-    OnlineUsersAdapter adapter = new OnlineUsersAdapter(null);
-
 
     public ScreenOnlineUsersFragment() {
 
@@ -41,16 +36,15 @@ public class ScreenOnlineUsersFragment extends Fragment {
 
     @Override
     public void onStop() {
-        EventBus.getDefault().unregister(this);
         mFirebaseDatabaseHelper.unregisterOnlineUsersDataListener();
-        mFirebaseDatabaseHelper.getOnlineUserHashMap().clear();
+        mOnlineUsers.clear();
+        mAdapter.notifyDataSetChanged();
         super.onStop();
     }
 
     @Override
     public void onStart() {
-        EventBus.getDefault().register(this);
-        mFirebaseDatabaseHelper.registerOnlineUsersListener();
+        mFirebaseDatabaseHelper.registerOnlineUsersListener(this);
         super.onStart();
     }
 
@@ -65,17 +59,32 @@ public class ScreenOnlineUsersFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
+        RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
+        rv.setAdapter(mAdapter);
     }
 
-    @Subscribe
-    public void onFriendDataReady(FriendDataReadyEvent event) {
-        adapter.setList(mFirebaseDatabaseHelper.getOnlineUserHashMap());
-        rv.setAdapter(adapter);
-
-
+    @Override
+    public void onUserAdded(OnlineUser onlineUser) {
+        mOnlineUsers.add(onlineUser);
+        mAdapter.notifyItemInserted(mOnlineUsers.indexOf(onlineUser));
     }
 
+    @Override
+    public void onUserChanged(OnlineUser onlineUser) {
+        String thisUserId = onlineUser.getUid();
+        for (OnlineUser iteratedUser : mOnlineUsers) {
+            if (iteratedUser.getUid().equals(thisUserId)) {
+                mOnlineUsers.set(mOnlineUsers.indexOf(iteratedUser), onlineUser);
+                mAdapter.notifyItemChanged(mOnlineUsers.indexOf(onlineUser));
+                return;
+            }
+        }
+    }
 
+    @Override
+    public void onUserDeleted(OnlineUser onlineUser) {
+        mAdapter.notifyItemRemoved(mOnlineUsers.indexOf(onlineUser));
+        mOnlineUsers.remove(onlineUser);
+    }
 }
