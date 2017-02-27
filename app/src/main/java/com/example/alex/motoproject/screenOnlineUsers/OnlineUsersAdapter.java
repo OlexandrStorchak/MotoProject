@@ -9,7 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.event.ShowUserProfile;
+import com.example.alex.motoproject.event.OpenMapEvent;
+import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.util.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -20,12 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 
 
-
-
 class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
-    private List<OnlineUsersModel> onlineUsers;
+    private List<OnlineUser> onlineUsers;
 
-    OnlineUsersAdapter(List<OnlineUsersModel> friendsList) {
+    OnlineUsersAdapter(List<OnlineUser> friendsList) {
         this.onlineUsers = friendsList;
     }
 
@@ -36,7 +35,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
         return new VH(view);
     }
 
-    void setList(HashMap<String, OnlineUsersModel> hashMap) {
+    void setList(HashMap<String, OnlineUser> hashMap) {
 
         if (onlineUsers == null) {
             onlineUsers = new ArrayList<>(hashMap.values());
@@ -83,7 +82,8 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
                 @Override
                 public void onClick(View view) {
                     //This click to show user profile
-                    EventBus.getDefault().post(new ShowUserProfile(onlineUsers.get(getAdapterPosition()).getUid()));
+                    EventBus.getDefault().post(new ShowUserProfileEvent(
+                            onlineUsers.get(getAdapterPosition()).getUid()));
 
                 }
             });
@@ -96,8 +96,8 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
                 public void onClick(View view) {
                     Log.d("log", "onClick: " + getAdapterPosition() + " User Id is :  "
                             + onlineUsers.get(getAdapterPosition()).getUid());
-
-                    //This click to show user on map
+                    EventBus.getDefault().post(new OpenMapEvent(
+                            onlineUsers.get(getAdapterPosition()).getUid()));
                 }
 
             });

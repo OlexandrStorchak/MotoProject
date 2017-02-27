@@ -8,7 +8,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.event.OpenMapWithLatLngEvent;
+import com.example.alex.motoproject.event.OpenMapEvent;
 import com.google.android.gms.maps.model.LatLng;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -57,7 +57,7 @@ class ChatMsgOwnHolder extends RecyclerView.ViewHolder {
         mStaticMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EventBus.getDefault().post(new OpenMapWithLatLngEvent(latLng));
+                EventBus.getDefault().post(new OpenMapEvent(latLng));
             }
         });
     }

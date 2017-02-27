@@ -43,8 +43,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -105,9 +103,13 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            // TODO: 25.02.2017 handle this like that
-            LatLng coordsFromChat = arguments.getParcelable(null);
-            mCameraUpdate = CameraUpdateFactory.newLatLngZoom(coordsFromChat, 15);
+            String uid = arguments.getString("uid");
+            LatLng userCoords = arguments.getParcelable("userCoords");
+            if (uid != null) {
+                setPosition(uid);
+            } else if (userCoords != null) {
+                setPosition(userCoords);
+            }
         }
 
         //setup fab that starts or stops LocationListenerService
@@ -216,18 +218,15 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void fetchAndSetMarkerIcon(final String uid, String avatarRef) {
-        final Set<Target> targetStrongReference = new HashSet<>();
         // TODO: 26.02.2017 handle garbage collecting
         Target iconTarget = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 mMarkerHashMap.get(uid).setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
-                targetStrongReference.remove(this);
             }
 
             @Override
             public void onBitmapFailed(Drawable errorDrawable) {
-                targetStrongReference.remove(this);
             }
 
             @Override
@@ -235,7 +234,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
             }
         };
-        targetStrongReference.add(iconTarget);
         Picasso.with(getContext()).load(avatarRef).resize(80, 80)
                 .centerCrop().transform(new CircleTransform()).into(iconTarget);
     }
@@ -260,20 +258,16 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     //changes CameraUpdate so the map will be showing a chosen user location after gets ready
-    public void moveToPosition(@NonNull String uid) {
+    public void setPosition(@NonNull String uid) {
         if (mMarkerHashMap.containsKey(uid)) {
             LatLng position = mMarkerHashMap.get(uid).getPosition();
             mCameraUpdate = CameraUpdateFactory.newLatLngZoom(position, 15);
         }
     }
 
-    public void moveToPosition(@NonNull LatLng latLng) {
+    public void setPosition(@NonNull LatLng latLng) {
         mCameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
     }
-
-//    public void moveToPosition(@NonNull LatLng latLng) {
-//        mCameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
-//    }
 
     //TODO a better interface name
     public interface MapFragmentListener {

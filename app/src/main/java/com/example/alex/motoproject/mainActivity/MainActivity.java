@@ -19,7 +19,8 @@ import android.widget.TextView;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
-import com.example.alex.motoproject.event.ShowUserProfile;
+import com.example.alex.motoproject.event.OpenMapEvent;
+import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.FirebaseLoginController;
 import com.example.alex.motoproject.screenChat.ChatFragment;
@@ -30,6 +31,7 @@ import com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment;
 import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
 import com.example.alex.motoproject.service.LocationListenerService;
 import com.example.alex.motoproject.util.CircleTransform;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
@@ -214,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStop() {
         super.onStop();
         alertControl.unregisterNetworkStateReceiver();
-        alertControl.unRegisterEventBus();
+        alertControl.unregisterEventBus();
         loginController.stop();
     }
 
@@ -248,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
     @Subscribe
-    public void onShowOnlineUserProfile(ShowUserProfile model) {
+    public void onShowOnlineUserProfile(ShowUserProfileEvent model) {
 
         ScreenUserProfileFragment userProfile = new ScreenUserProfileFragment();
 
@@ -269,6 +271,17 @@ public class MainActivity extends AppCompatActivity implements
                 .centerCrop()
                 .transform(new CircleTransform())
                 .into(mAvatarHeader);
+    }
+
+    @Subscribe
+    public void onOpenMapEvent(OpenMapEvent event) {
+        String uid = event.getUid();
+        LatLng userCoords = event.getLatLng();
+        if (event.getUid() != null) {
+            replaceFragment(screenMapFragment, uid);
+        } else if (userCoords != null) {
+            replaceFragment(screenMapFragment, userCoords);
+        }
 
     }
 
@@ -299,7 +312,6 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-
     @Override
     public void logout() {
         fm.removeOnBackStackChangedListener(this);
@@ -323,6 +335,19 @@ public class MainActivity extends AppCompatActivity implements
                 .commit();
     }
 
+    public void replaceFragment(Fragment fragment, String uid) {
+        Bundle bundle = new Bundle();
+        bundle.putString("uid", uid);
+        fragment.setArguments(bundle);
+        replaceFragment(fragment);
+    }
+
+    public void replaceFragment(Fragment fragment, LatLng userCoords) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("userCoords", userCoords);
+        fragment.setArguments(bundle);
+        replaceFragment(fragment);
+    }
 
     @Override
     public void onBackStackChanged() {

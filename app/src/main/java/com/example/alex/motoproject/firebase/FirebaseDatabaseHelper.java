@@ -9,7 +9,7 @@ import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.screenChat.ChatMessage;
 import com.example.alex.motoproject.screenChat.ChatMessageSendable;
 import com.example.alex.motoproject.screenChat.ChatModel;
-import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersModel;
+import com.example.alex.motoproject.screenOnlineUsers.OnlineUser;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -43,7 +43,7 @@ public class FirebaseDatabaseHelper {
 
     private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
     private static final int CHAT_MESSAGES_COUNT_LIMIT = 31;
-    private final HashMap<String, OnlineUsersModel> mOnlineUserHashMap = new HashMap<>();
+    private final HashMap<String, OnlineUser> mOnlineUserHashMap = new HashMap<>();
     private ChatUpdateReceiver mChatModel;
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference mDbReference = mDatabase.getReference();
@@ -64,7 +64,7 @@ public class FirebaseDatabaseHelper {
 
     }
 
-    public HashMap<String, OnlineUsersModel> getOnlineUserHashMap() {
+    public HashMap<String, OnlineUser> getOnlineUserHashMap() {
         return mOnlineUserHashMap;
     }
 
@@ -302,6 +302,7 @@ public class FirebaseDatabaseHelper {
         if (mOnlineUsersDataListener != null && getCurrentUser() != null) {
             DatabaseReference myRef = mDbReference.child("onlineUsers");
             myRef.removeEventListener(mOnlineUsersDataListener);
+            getOnlineUserHashMap().clear();
         }
 
         if (!mUsersDataListeners.isEmpty()) {
@@ -328,7 +329,7 @@ public class FirebaseDatabaseHelper {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
                 if (name != null) {
-                    OnlineUsersModel onlineUser = new OnlineUsersModel(uid, name, avatar, userStatus);
+                    OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus);
                     if (!mOnlineUserHashMap.containsKey(uid)) {
                         mOnlineUserHashMap.put(uid, onlineUser);
                         receiver.onUserAdded(onlineUser);
@@ -368,11 +369,11 @@ public class FirebaseDatabaseHelper {
     }
 
     public interface OnlineUsersUpdateReceiver {
-        void onUserAdded(OnlineUsersModel onlineUser);
+        void onUserAdded(OnlineUser onlineUser);
 
-        void onUserChanged(OnlineUsersModel onlineUser);
+        void onUserChanged(OnlineUser onlineUser);
 
-        void onUserDeleted(OnlineUsersModel onlineUser);
+        void onUserDeleted(OnlineUser onlineUser);
     }
 
     public void registerChatMessagesListener(ChatUpdateReceiver receiver) {

@@ -1,7 +1,7 @@
 package com.example.alex.motoproject.event;
 
 
-public class ShowUserProfile {
+public class ShowUserProfileEvent {
    String UserId;
 
     public String getUserId() {
@@ -12,7 +12,7 @@ public class ShowUserProfile {
         UserId = userId;
     }
 
-    public ShowUserProfile(String userId) {
+    public ShowUserProfileEvent(String userId) {
 
         UserId = userId;
     }

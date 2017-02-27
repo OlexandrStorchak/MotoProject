@@ -14,25 +14,18 @@ public class MainActivityPresenter implements MainPresenterInterface {
         this.mainView = mainView;
     }
 
-
-
     @Override
     public void onLogout() {
         mainView.logout();
 
     }
 
-
-
     @Override
     public void onLogin(FirebaseUser user) {
         mainView.login(user);
     }
 
-
     public void replaceFragment(Fragment fragment){
         mainView.replaceFragment(fragment);
     }
-
-
 }

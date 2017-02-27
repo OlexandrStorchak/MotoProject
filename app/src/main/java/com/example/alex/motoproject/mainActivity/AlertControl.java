@@ -22,7 +22,7 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.event.CancelAlertEvent;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
-import com.example.alex.motoproject.event.OpenMapWithLatLngEvent;
+import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
 import com.example.alex.motoproject.event.ShowAlertEvent;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
@@ -41,11 +41,12 @@ public class AlertControl implements ScreenMapFragment.MapFragmentListener,
     public static final int ALERT_INTERNET_OFF = 21;
     private static final int ALERT_PERMISSION_RATIONALE = 22;
     private static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
-    public static final int ALERT_SHARE_LOCATION_CONFIRMATION = 24;
+    private static final int ALERT_SHARE_LOCATION_CONFIRMATION = 24;
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
 
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
+
     AlertDialog mAlert;
     private ArrayList<Integer> mActiveAlerts = new ArrayList<>();
     private MainActivity mainActivity;
@@ -60,7 +61,7 @@ public class AlertControl implements ScreenMapFragment.MapFragmentListener,
         EventBus.getDefault().register(this);
     }
 
-    void unRegisterEventBus() {
+    void unregisterEventBus() {
         EventBus.getDefault().unregister(this);
     }
 
@@ -289,7 +290,7 @@ public class AlertControl implements ScreenMapFragment.MapFragmentListener,
     }
 
     @Subscribe
-    public void onOpenMapWithLatLngEvent(OpenMapWithLatLngEvent event) {
+    public void onOpenMapWithLatLngEvent(OpenMapEvent event) {
         // TODO: 25.02.2017 handle this event
     }
 
