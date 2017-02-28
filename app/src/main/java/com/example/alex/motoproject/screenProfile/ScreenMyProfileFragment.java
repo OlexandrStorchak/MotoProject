@@ -68,6 +68,7 @@ public class ScreenMyProfileFragment extends Fragment {
                 .resize(avatar.getMaxWidth(), avatar.getMaxHeight())
                 .centerCrop()
                 .into(avatar);
+        //new
 
     }
 public void setUserId(String currentUserId){
