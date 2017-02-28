@@ -113,8 +113,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     }
 
     private void setupLocationSharing() {
-        mShareLocationButton.setVisibility(View.INVISIBLE);
-        mShareLocationButton.setEnabled(true);
+        mShareLocationButton.setEnabled(false);
         mShareLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -124,7 +123,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     }
 
     private void setupMessageSending() {
-        mSendButton.setVisibility(View.INVISIBLE);
+        mSendButton.setEnabled(false);
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -216,13 +215,13 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     }
 
     @Override
-    public void hideSendButton() {
-        mSendButton.setVisibility(View.INVISIBLE);
+    public void disableSendButton() {
+        mSendButton.setEnabled(false);
     }
 
     @Override
-    public void showSendButton() {
-        mSendButton.setVisibility(View.VISIBLE);
+    public void enableSendButton() {
+        mSendButton.setEnabled(true);
     }
 
     @Override
@@ -231,12 +230,12 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     }
 
     @Override
-    public void hideShareLocationButton() {
-        mShareLocationButton.setVisibility(View.INVISIBLE);
+    public void disableShareLocationButton() {
+        mShareLocationButton.setEnabled(false);
     }
 
     @Override
-    public void showShareLocationButton() {
-        mShareLocationButton.setVisibility(View.VISIBLE);
+    public void enableShareLocationButton() {
+        mShareLocationButton.setEnabled(true);
     }
 }

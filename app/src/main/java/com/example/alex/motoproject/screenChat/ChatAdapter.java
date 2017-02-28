@@ -14,7 +14,9 @@ import java.util.List;
 class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int TYPE_MESSAGE = 0;
-    private static final int TYPE_MESSAGE_OWN = 1;
+    private static final int TYPE_MAP = 1;
+    private static final int TYPE_MESSAGE_OWN = 20;
+    private static final int TYPE_MAP_OWN = 21;
     private List<ChatMessage> mMessages;
     private Context mContext;
 
@@ -33,12 +35,19 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         switch (viewType) {
             case TYPE_MESSAGE:
                 itemView = inflater.inflate(R.layout.item_chat_message, parent, false);
-                viewHolder = new ChatMsgHolder(itemView);
+                viewHolder = new ChatMessageHolder(itemView);
+                break;
+            case TYPE_MAP:
+                itemView = inflater.inflate(R.layout.item_chat_mapmessage, parent, false);
+                viewHolder = new ChatMapHolder(itemView);
                 break;
             case TYPE_MESSAGE_OWN:
                 itemView = inflater.inflate(R.layout.item_chat_ownmessage, parent, false);
-                viewHolder = new ChatMsgOwnHolder(itemView);
+                viewHolder = new ChatMessageHolder(itemView);
                 break;
+            case TYPE_MAP_OWN:
+                itemView = inflater.inflate(R.layout.item_chat_mapownmessage, parent, false);
+                viewHolder = new ChatMapHolder(itemView);
         }
 
         return viewHolder;
@@ -48,12 +57,20 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (holder.getItemViewType()) {
             case TYPE_MESSAGE:
-                bindMessage(holder, position);
+                ChatMessageHolder chatMessageHolder = (ChatMessageHolder) holder;
+                bindMessage(chatMessageHolder, position);
+                break;
+            case TYPE_MAP:
+                ChatMapHolder chatMapHolder = (ChatMapHolder) holder;
+                bindMessage(chatMapHolder, position);
                 break;
             case TYPE_MESSAGE_OWN:
-                ChatMsgOwnHolder vh = (ChatMsgOwnHolder) holder;
-                bindMessageOwn(vh, position);
+                ChatMessageHolder chatMsgOwnHolder = (ChatMessageHolder) holder;
+                bindMessageOwn(chatMsgOwnHolder, position);
                 break;
+            case TYPE_MAP_OWN:
+                ChatMapHolder chatMapOwnHolder = (ChatMapHolder) holder;
+                bindMessageOwn(chatMapOwnHolder, position);
         }
     }
 
@@ -66,16 +83,23 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         String sendTime = message.getSendTime();
         LatLng location = message.getLocation();
 
-        ChatMsgHolder msgHolder = (ChatMsgHolder) holder;
-        if (text != null) {
-            msgHolder.setMessageText(text);
-        } else {
-            msgHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location), mContext);
-            msgHolder.setStaticMapOnClickListener(location);
+        BaseChatItemHolder baseHolder = (BaseChatItemHolder) holder;
+        baseHolder.setUserAvatarViewOnClickListener(uid);
+        baseHolder.setName(name);
+        baseHolder.setAvatar(avatarRef, mContext);
+        baseHolder.setSendTime(sendTime);
+
+        switch (holder.getItemViewType()) {
+            case TYPE_MESSAGE:
+                ChatMessageHolder msgHolder = (ChatMessageHolder) holder;
+                msgHolder.setMessageText(text);
+                break;
+            case TYPE_MAP:
+                ChatMapHolder mapHolder = (ChatMapHolder) holder;
+                mapHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location), mContext);
+                mapHolder.setStaticMapOnClickListener(location);
+                break;
         }
-        msgHolder.setName(name);
-        msgHolder.setAvatar(avatarRef, mContext);
-        msgHolder.setSendTime(sendTime);
     }
 
     private void bindMessageOwn(RecyclerView.ViewHolder holder, int position) {
@@ -84,24 +108,39 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         String sendTime = message.getSendTime();
         LatLng location = message.getLocation();
 
-        ChatMsgOwnHolder msgOwnHolder = (ChatMsgOwnHolder) holder;
-        if (text != null) {
-            msgOwnHolder.setMessageText(text);
-        } else {
-            msgOwnHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location), mContext);
-            msgOwnHolder.setStaticMapOnClickListener(location);
+        BaseChatItemHolder baseHolder = (BaseChatItemHolder) holder;
+        baseHolder.setSendTime(sendTime);
+
+        switch (holder.getItemViewType()) {
+            case TYPE_MESSAGE_OWN:
+                ChatMessageHolder msgHolder = (ChatMessageHolder) holder;
+                msgHolder.setMessageText(text);
+                break;
+            case TYPE_MAP_OWN:
+                ChatMapHolder mapHolder = (ChatMapHolder) holder;
+                mapHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location), mContext);
+                mapHolder.setStaticMapOnClickListener(location);
+                break;
         }
-        msgOwnHolder.setMessageText(text);
-        msgOwnHolder.setSendTime(sendTime);
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (mMessages.get(position).isCurrentUserMsg()) {
-            return TYPE_MESSAGE_OWN;
+        ChatMessage message = mMessages.get(position);
+        if (message.isCurrentUserMsg()) {
+            if (message.getText() != null) {
+                return TYPE_MESSAGE_OWN;
+            } else if (message.getLocation() != null) {
+                return TYPE_MAP_OWN;
+            }
         } else {
-            return TYPE_MESSAGE;
+            if (message.getText() != null) {
+                return TYPE_MESSAGE;
+            } else if (message.getLocation() != null) {
+                return TYPE_MAP;
+            }
         }
+        return -1;
     }
 
     @Override

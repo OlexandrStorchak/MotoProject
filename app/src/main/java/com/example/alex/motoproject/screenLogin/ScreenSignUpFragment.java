@@ -80,7 +80,7 @@ public class ScreenSignUpFragment extends Fragment {
                     mPassword.setText("");
                     mPassword.setError(getString(R.string.hint_repeat_pass));
                     mRepeatPassword.setText("");
-                    mRepeatPassword.setError(getString(R.string.pass_not_mutch));
+                    mRepeatPassword.setError(getString(R.string.pass_not_match));
                 } else if (mPassword.getText().toString().equals(mRepeatPassword.getText().toString())
                         & mEmail.getText().length() > 0
                         & mPassword.getText().length() > 5) {

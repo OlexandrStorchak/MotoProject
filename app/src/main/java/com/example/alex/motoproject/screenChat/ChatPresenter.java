@@ -34,9 +34,9 @@ public class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPr
     @Override
     public void onEditTextTextChanged(CharSequence charSequence) {
         if (charSequence.length() > 0 && !charSequence.toString().matches("\\s+")) {
-            getView().showSendButton();
+            getView().enableSendButton();
         } else {
-            getView().hideSendButton();
+            getView().disableSendButton();
         }
     }
 
@@ -113,9 +113,9 @@ public class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPr
     @Subscribe(sticky = true)
     public void onGpsStateChanged(GpsStatusChangedEvent event) {
         if (event.isGpsOn()) {
-            getView().showShareLocationButton();
+            getView().enableShareLocationButton();
         } else {
-            getView().hideShareLocationButton();
+            getView().disableShareLocationButton();
         }
     }
 

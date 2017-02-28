@@ -25,9 +25,9 @@ public interface ChatMVP {
     }
 
     interface PresenterToView {
-        void hideSendButton();
+        void disableSendButton();
 
-        void showSendButton();
+        void enableSendButton();
 
         void scrollToPosition(int position);
 
@@ -47,9 +47,9 @@ public interface ChatMVP {
 
         void disableSwipeLayout();
 
-        void hideShareLocationButton();
+        void disableShareLocationButton();
 
-        void showShareLocationButton();
+        void enableShareLocationButton();
 
         int getLastCompletelyVisibleItemPosition();
     }

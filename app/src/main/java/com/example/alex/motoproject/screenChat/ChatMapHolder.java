@@ -1,11 +1,9 @@
 package com.example.alex.motoproject.screenChat;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.OpenMapEvent;
@@ -15,31 +13,26 @@ import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 
-class ChatMsgOwnHolder extends RecyclerView.ViewHolder {
-    private TextView mTextView;
+class ChatMapHolder extends BaseChatItemHolder {
+
     private ImageView mStaticMap;
-    private TextView mSendTime;
     private ProgressBar mProgressBar;
 
-    ChatMsgOwnHolder(View itemView) {
+    ChatMapHolder(View itemView) {
         super(itemView);
-        mTextView = (TextView) itemView.findViewById(R.id.chat_messageown_text);
-        mSendTime = (TextView) itemView.findViewById(R.id.chat_messageown_date);
-        mStaticMap = (ImageView) itemView.findViewById(R.id.chat_messageown_map);
-        mProgressBar = (ProgressBar) itemView.findViewById(R.id.chat_messageown_progressbar);
+        mStaticMap = (ImageView) itemView.findViewById(R.id.chat_message_map);
+        mProgressBar = (ProgressBar) itemView.findViewById(R.id.chat_message_progressbar);
     }
-
-    void setMessageText(String text) {
-        mTextView.setText(text);
-    }
-
-    void setSendTime(String dateTime) {
-        mSendTime.setText(dateTime);
-    }
+//
+//    public void setName(String name) {
+//        super.setName(name);
+//    }
+//
+//    void setSendTime(String dateTime) {
+//        super.setSendTime(dateTime);
+//    }
 
     void setStaticMap(String mapLink, Context ctx) {
-        mTextView.setVisibility(View.GONE);
-        mProgressBar.setVisibility(View.VISIBLE);
         Picasso.with(ctx).load(mapLink).into(mStaticMap, new Callback() {
             @Override
             public void onSuccess() {
