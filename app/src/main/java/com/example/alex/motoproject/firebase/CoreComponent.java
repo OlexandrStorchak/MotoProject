@@ -2,6 +2,7 @@ package com.example.alex.motoproject.firebase;
 
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiverComponent;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiverModule;
+import com.example.alex.motoproject.mainActivity.AlertControl;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.screenChat.ChatModel;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
@@ -27,6 +28,8 @@ public interface CoreComponent {
     void inject(ScreenMyProfileFragment screenMyProfileFragment);
 
     void inject(LocationListenerService locationListenerService);
+
+    void inject(AlertControl alertControl);
 
     NetworkStateReceiverComponent plusNetworkStateReceiverComponent(
             NetworkStateReceiverModule networkStateReceiverModule);

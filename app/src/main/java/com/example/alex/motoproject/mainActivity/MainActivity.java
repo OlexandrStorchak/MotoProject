@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
@@ -45,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
+    @Inject
+    NetworkStateReceiver mNetworkStateReceiver;
 
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     private ScreenOnlineUsersFragment screenOnlineUsersFragment
@@ -54,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements
     private ChatFragment chatFragment = new ChatFragment();
 
     AlertControl alertControl = new AlertControl(this);
-
 
     private TextView mNameHeader;
     private TextView mEmailHeader;
@@ -88,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
         App.getCoreComponent().inject(this);
+        App.getCoreComponent().inject(alertControl);
 
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
@@ -182,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements
                 mDrawerLayout.closeDrawers();
             }
         });
-
     }
 
 
@@ -193,7 +195,6 @@ public class MainActivity extends AppCompatActivity implements
             mDrawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
-
         }
         fm.popBackStack();
     }
@@ -202,7 +203,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        alertControl.registerNetworkStateReceiver(getApplicationContext());
+        alertControl.plusNetworkStateReceiver();
+        alertControl.registerNetworkStateReceiver();
         alertControl.registerEventBus();
     }
 
