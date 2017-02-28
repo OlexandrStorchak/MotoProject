@@ -28,14 +28,14 @@
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColor="@color/Blue900" />
+        android:textColor="@color/blue900" />
 
     <TextView
         android:id="@+id/header_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
-        android:textColor="@color/Blue900" />
+        android:textColor="@color/blue900" />
 
 
 </LinearLayout>

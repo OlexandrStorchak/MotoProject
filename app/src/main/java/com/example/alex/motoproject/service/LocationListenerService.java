@@ -15,11 +15,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
+import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
@@ -28,6 +28,9 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
@@ -39,7 +42,6 @@ public class LocationListenerService extends Service implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
-    private static final String LOG_TAG = "LocationListenerService";
     private static final String SHOULD_STOP_SERVICE_EXTRA = "isShouldStopService";
     //TODO: where to store notification ids?
     int mNotificationId = 3;
@@ -58,7 +60,8 @@ public class LocationListenerService extends Service implements
     public void onCreate() {
         App.getCoreComponent().inject(this);
         ((App) getApplication()).plusNetworkStateReceiverComponent();
-        Log.d(LOG_TAG, "onCreate");
+        ((App) getApplication()).setLocationListenerServiceOn(true);
+
         // create an instance of GoogleAPIClient
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -68,7 +71,6 @@ public class LocationListenerService extends Service implements
                     .build();
         }
         mGoogleApiClient.connect();
-
         mFirebaseAuth = FirebaseAuth.getInstance();
 
         showNotification();
@@ -76,8 +78,7 @@ public class LocationListenerService extends Service implements
 
         mFirebaseDatabaseHelper.setUserOnline("public");
 
-        ((App) getApplication()).setLocationListenerServiceOn(true);
-
+        EventBus.getDefault().register(this);
 
         super.onCreate();
     }
@@ -98,7 +99,7 @@ public class LocationListenerService extends Service implements
             }
         }
 
-//        EventBus.getDefault().unregister(this);
+        EventBus.getDefault().unregister(this);
 
         super.onDestroy();
     }
@@ -239,10 +240,10 @@ public class LocationListenerService extends Service implements
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-//    @Subscribe
-//    public void onGpsStatusChanged(GpsStatusChangedEvent event) {
-//        if (!event.isGpsOn()) {
-//            stopSelf();
-//        }
-//    }
+    @Subscribe
+    public void onGpsStatusChanged(GpsStatusChangedEvent event) {
+        if (!event.isGpsOn()) {
+            stopSelf();
+        }
+    }
 }

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -72,6 +73,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     @Override
     public void onStop() {
         savedInstanceStateRecycler = mRecyclerView.getLayoutManager().onSaveInstanceState();
+        hideKeyboard(getView());
         super.onStop();
     }
 
@@ -113,7 +115,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     }
 
     private void setupLocationSharing() {
-        mShareLocationButton.setEnabled(false);
+        disableShareLocationButton();
         mShareLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,7 +125,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     }
 
     private void setupMessageSending() {
-        mSendButton.setEnabled(false);
+        disableSendButton();
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -217,11 +219,15 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     @Override
     public void disableSendButton() {
         mSendButton.setEnabled(false);
+            mSendButton.setColorFilter(ResourcesCompat
+                    .getColor(getResources(), R.color.grey500, null));
     }
 
     @Override
     public void enableSendButton() {
         mSendButton.setEnabled(true);
+            mSendButton.setColorFilter(ResourcesCompat
+                    .getColor(getResources(), R.color.blue900, null));
     }
 
     @Override
@@ -232,10 +238,14 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     @Override
     public void disableShareLocationButton() {
         mShareLocationButton.setEnabled(false);
+            mShareLocationButton.setColorFilter(ResourcesCompat
+                    .getColor(getResources(), R.color.grey500, null));
     }
 
     @Override
     public void enableShareLocationButton() {
         mShareLocationButton.setEnabled(true);
+            mShareLocationButton.setColorFilter(ResourcesCompat
+                    .getColor(getResources(), R.color.blue900, null));
     }
 }

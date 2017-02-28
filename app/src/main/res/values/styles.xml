@@ -6,7 +6,7 @@
 
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/Blue900</item>
+        <item name="colorAccent">@color/blue900</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -20,7 +20,7 @@
 
     <style name="MyColors">
         <item name="android:background">@drawable/edit_text_background</item>
-        <item name="android:textColor">@color/Blue900</item>
+        <item name="android:textColor">@color/blue900</item>
         <item name="android:textColorHint">@color/redA700</item>
         <item name="android:padding">5dp</item>
         <item name="android:layout_width">200dp</item>
@@ -34,7 +34,7 @@
 
     <style name="MyButtonCustom">
         <item name="android:background">@drawable/button_background</item>
-        <item name="android:textColor">@color/Blue900</item>
+        <item name="android:textColor">@color/blue900</item>
         <item name="android:textColorHint">@color/greenA400</item>
     </style>
     <style name="MyButtonCustomProfile">
@@ -51,7 +51,7 @@
         <item name="android:layout_marginLeft">10dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:background">@drawable/button_background</item>
-        <item name="android:textColor">@color/Blue900</item>
+        <item name="android:textColor">@color/blue900</item>
         <item name="android:textColorHint">@color/greenA400</item>
     </style>
 
