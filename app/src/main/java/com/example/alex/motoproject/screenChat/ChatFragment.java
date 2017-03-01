@@ -31,7 +31,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
+public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     private static final int MESSAGE_MAX_CHARS = 200;
     @Inject
     ChatPresenter mPresenter;

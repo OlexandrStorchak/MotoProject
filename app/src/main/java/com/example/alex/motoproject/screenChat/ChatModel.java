@@ -9,13 +9,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class ChatModel implements ChatMVP.PresenterToModel,
+public class ChatModel implements ChatMvp.PresenterToModel,
         FirebaseDatabaseHelper.ChatUpdateReceiver {
     @Inject
     FirebaseDatabaseHelper mFirebaseHelper;
-    private ChatMVP.ModelToPresenter mPresenter;
+    private ChatMvp.ModelToPresenter mPresenter;
     private LinkedList<ChatMessage> mMessages = new LinkedList<>();
-    ChatModel(ChatMVP.ModelToPresenter presenter) {
+    ChatModel(ChatMvp.ModelToPresenter presenter) {
         App.getCoreComponent().inject(this);
         mPresenter = presenter;
     }

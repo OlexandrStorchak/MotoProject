@@ -13,17 +13,17 @@ import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 
-public class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPresenter {
+public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPresenter {
 
-    private WeakReference<ChatMVP.PresenterToView> mView;
-    private ChatMVP.PresenterToModel mModel = new ChatModel(this);
+    private WeakReference<ChatMvp.PresenterToView> mView;
+    private ChatMvp.PresenterToModel mModel = new ChatModel(this);
 
     @Inject
-    public ChatPresenter(ChatMVP.PresenterToView view) {
+    public ChatPresenter(ChatMvp.PresenterToView view) {
         mView = new WeakReference<>(view);
     }
 
-    private ChatMVP.PresenterToView getView() throws NullPointerException {
+    private ChatMvp.PresenterToView getView() throws NullPointerException {
         if (mView != null) {
             return mView.get();
         } else {

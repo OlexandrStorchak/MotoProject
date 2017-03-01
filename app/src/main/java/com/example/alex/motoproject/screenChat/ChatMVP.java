@@ -4,7 +4,7 @@ import android.view.View;
 
 import java.util.List;
 
-public interface ChatMVP {
+public interface ChatMvp {
 
     interface ViewToPresenter {
         void onEditTextTextChanged(CharSequence charSequence);

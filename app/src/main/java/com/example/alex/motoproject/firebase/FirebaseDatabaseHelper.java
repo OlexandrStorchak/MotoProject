@@ -42,7 +42,8 @@ public class FirebaseDatabaseHelper {
                     "o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
 
     private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
-    private static final int CHAT_MESSAGES_COUNT_LIMIT = 31;
+    private static final int CHAT_MESSAGES_MIN_COUNT_LIMIT = 11; //31
+    private int mMessagesCountLimit = 0;
     private final HashMap<String, OnlineUser> mOnlineUserHashMap = new HashMap<>();
     private ChatUpdateReceiver mChatModel;
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
@@ -64,7 +65,7 @@ public class FirebaseDatabaseHelper {
 
     }
 
-    public HashMap<String, OnlineUser> getOnlineUserHashMap() {
+    private HashMap<String, OnlineUser> getOnlineUserHashMap() {
         return mOnlineUserHashMap;
     }
 
@@ -381,6 +382,7 @@ public class FirebaseDatabaseHelper {
         mChatMessagesListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                mMessagesCountLimit++;
                 if (isFirstNewChatMessageAfterFetch) {
                     mFirstChatMsgKeyAfterFetch = dataSnapshot.getKey();
                     isFirstNewChatMessageAfterFetch = false;
@@ -447,7 +449,7 @@ public class FirebaseDatabaseHelper {
 
             }
         };
-        mDbReference.child("chat").limitToLast(CHAT_MESSAGES_COUNT_LIMIT)
+        mDbReference.child("chat").limitToLast(CHAT_MESSAGES_MIN_COUNT_LIMIT)
                 .addChildEventListener(mChatMessagesListener);
 
     }
@@ -457,7 +459,7 @@ public class FirebaseDatabaseHelper {
         isFirstChatMessageAfterFetch = true;
         final ChatUpdateReceiver chatModel = receiver;
         mDbReference.child("chat").orderByKey().endAt(mFirstChatMsgKeyAfterFetch)
-                .limitToLast(CHAT_MESSAGES_COUNT_LIMIT)
+                .limitToLast(mMessagesCountLimit)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot parentSnapshot) {
@@ -465,7 +467,7 @@ public class FirebaseDatabaseHelper {
                         for (DataSnapshot dataSnapshot : parentSnapshot.getChildren()) {
                             String messageId = dataSnapshot.getKey();
                             if (isFirstChatMessageAfterFetch && parentSnapshot.getChildrenCount()
-                                    >= CHAT_MESSAGES_COUNT_LIMIT) {
+                                    >= CHAT_MESSAGES_MIN_COUNT_LIMIT) {
                                 mFirstChatMsgKeyAfterFetch = messageId;
                                 isFirstChatMessageAfterFetch = false;
                             } else {
@@ -481,7 +483,6 @@ public class FirebaseDatabaseHelper {
                                 } else if (lat != null && lng != null) {
                                     LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
                                     message.setLocation(latLng);
-                                    System.out.println(latLng);
                                 } else {
                                     return;
                                 }
@@ -510,7 +511,7 @@ public class FirebaseDatabaseHelper {
 
                         }
                         if (parentSnapshot.getChildrenCount()
-                                < CHAT_MESSAGES_COUNT_LIMIT) {
+                                < CHAT_MESSAGES_MIN_COUNT_LIMIT) {
                             chatModel.onLastMessages();
                         }
                         onOlderChatMessagesReady(olderMessages, chatModel);
@@ -540,6 +541,8 @@ public class FirebaseDatabaseHelper {
         if (mChatMessagesListener != null && getCurrentUser() != null) {
             DatabaseReference myRef = mDbReference.child("chat");
             myRef.removeEventListener(mChatMessagesListener);
+            isFirstNewChatMessageAfterFetch = true;
+            mMessagesCountLimit = 0;
         }
     }
 
