@@ -651,7 +651,7 @@ public class FirebaseDatabaseHelper {
 
         DatabaseReference ref = mDbReference.child("users").child(getCurrentUser().getUid());
 
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        ref.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -688,10 +688,16 @@ public class FirebaseDatabaseHelper {
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
-            }
+                            }
 
         });
     }
+
+    public void saveMyProfile(MyProfileFirebase profile){
+        DatabaseReference ref = mDbReference.child("users").child(getCurrentUser().getUid());
+        ref.setValue(profile);
+    }
+
 
 
 }

@@ -4,8 +4,10 @@ import android.Manifest;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -30,6 +32,9 @@ import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 
 import javax.inject.Inject;
+
+import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
+import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET_GPS_MODE;
 
 /**
  * The Service that listens for location changes and sends them to Firebase
@@ -74,7 +79,10 @@ public class LocationListenerService extends Service implements
         showNotification();
         registerReceiver();
 
-        mFirebaseDatabaseHelper.setUserOnline("public");
+        SharedPreferences preferences = getApplicationContext()
+                .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
+
+        mFirebaseDatabaseHelper.setUserOnline(preferences.getString(PROFSET_GPS_MODE,null));
 
         ((App) getApplication()).setLocationListenerServiceOn(true);
 
@@ -94,7 +102,10 @@ public class LocationListenerService extends Service implements
             mFirebaseDatabaseHelper.setUserOffline();
         } else {
             if (mFirebaseDatabaseHelper.getCurrentUser() != null) {
-                mFirebaseDatabaseHelper.setUserOnline("noGps");
+                SharedPreferences preferences = getApplicationContext()
+                        .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
+
+                mFirebaseDatabaseHelper.setUserOnline(preferences.getString(PROFSET_GPS_MODE,null));
             }
         }
 

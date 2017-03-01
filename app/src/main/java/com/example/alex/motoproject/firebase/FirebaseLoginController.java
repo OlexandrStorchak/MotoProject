@@ -28,6 +28,8 @@ public class FirebaseLoginController extends MainActivity implements FirebaseAut
         mFirebaseAuth = FirebaseAuth.getInstance();
 
         mFirebaseAuth.addAuthStateListener(this);
+
+
     }
 
     public void stop() {

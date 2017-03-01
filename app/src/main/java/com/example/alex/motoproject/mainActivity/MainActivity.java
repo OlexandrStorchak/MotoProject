@@ -1,6 +1,9 @@
 package com.example.alex.motoproject.mainActivity;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -12,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,11 +44,18 @@ import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
+import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
+import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
+import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET_GPS_MODE;
+import static java.security.AccessController.getContext;
+
 public class MainActivity extends AppCompatActivity implements
         MainViewInterface, FragmentManager.OnBackStackChangedListener {
 
+
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
+
 
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     private ScreenOnlineUsersFragment screenOnlineUsersFragment
@@ -83,9 +94,16 @@ public class MainActivity extends AppCompatActivity implements
         }
     };
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = getApplicationContext()
+                .getSharedPreferences(PROFSET, MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(PROFSET_GPS_MODE, PROFILE_GPS_MODE_PUBLIC);
+        editor.apply();
+
         EventBus.getDefault().register(this);
         App.getCoreComponent().inject(this);
 
@@ -95,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements
 
         loginController.start();
 
+
         setContentView(R.layout.activity_main);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -103,7 +122,21 @@ public class MainActivity extends AppCompatActivity implements
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         toggle = new ActionBarDrawerToggle(
-                this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                // Do whatever you want here
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+
+                super.onDrawerOpened(drawerView);
+                hideKeyBoard();
+            }
+        };
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -186,6 +219,16 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
+    private void hideKeyBoard() {
+        Log.d("log", "hideKeyBoard: ");
+        InputMethodManager inputMethodManager =
+                (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+
+        inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
+
+    }
+
+
     @Override
     public void onBackPressed() {
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -262,6 +305,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Subscribe
     public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
+
+
         mNameHeader.setText(user.getMyProfileFirebase().getName());
         mEmailHeader.setText(user.getMyProfileFirebase().getEmail());
 
@@ -306,7 +351,10 @@ public class MainActivity extends AppCompatActivity implements
 
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         replaceFragment(screenMapFragment);
-        mFirebaseDatabaseHelper.setUserOnline("noGps");
+        SharedPreferences preferences = getApplicationContext()
+                .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
+
+        mFirebaseDatabaseHelper.setUserOnline(preferences.getString(PROFSET_GPS_MODE, null));
         fm.addOnBackStackChangedListener(this);
 
 
