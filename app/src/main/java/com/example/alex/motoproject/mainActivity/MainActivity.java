@@ -27,7 +27,8 @@ import com.example.alex.motoproject.firebase.FirebaseLoginController;
 import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
-import com.example.alex.motoproject.screenOnlineUsers.ScreenOnlineUsersFragment;
+import com.example.alex.motoproject.screenOnlineUsers.FriendsFragment;
+import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersFragment;
 import com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment;
 import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
 import com.example.alex.motoproject.service.LocationListenerService;
@@ -50,8 +51,8 @@ public class MainActivity extends AppCompatActivity implements
     NetworkStateReceiver mNetworkStateReceiver;
 
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
-    private ScreenOnlineUsersFragment screenOnlineUsersFragment
-            = new ScreenOnlineUsersFragment();
+    private OnlineUsersFragment onlineUsersFragment = new OnlineUsersFragment();
+    private FriendsFragment friendsFragment = new FriendsFragment();
     private ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
     private ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
     private ChatFragment chatFragment = new ChatFragment();
@@ -134,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-
         //Button in Navigation Drawer for show the Map fragment
         mNavigationBtnMap = (Button) mNavigationView.findViewById(R.id.navigation_btn_map);
         mNavigationBtnMap.setOnClickListener(new View.OnClickListener() {
@@ -146,6 +146,7 @@ public class MainActivity extends AppCompatActivity implements
 
             }
         });
+
         //Button in Navigation Drawer for SignOut
         mNavigationBtnSignOut = (Button) mNavigationView.findViewById(R.id.navigation_btn_signout);
         mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
@@ -158,22 +159,29 @@ public class MainActivity extends AppCompatActivity implements
 
             }
         });
-        //Button in Navigation Drawer for display Friends List
+
+        //Button in Navigation Drawer for displaying online users list
         Button mNavigationBtnUsersOnline =
                 (Button) mNavigationView.findViewById(R.id.navigation_btn_users_online);
         mNavigationBtnUsersOnline.setOnClickListener(new View.OnClickListener() {
-
-
             @Override
             public void onClick(View view) {
-
-                replaceFragment(screenOnlineUsersFragment);
+                replaceFragment(onlineUsersFragment);
                 mDrawerLayout.closeDrawers();
 
             }
         });
 
-
+        //Button in Navigation Drawer for displaying friend list
+        Button navigationBtnFriends =
+                (Button) mNavigationView.findViewById(R.id.navigation_btn_friends);
+        navigationBtnFriends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                replaceFragment(friendsFragment);
+                mDrawerLayout.closeDrawers();
+            }
+        });
         //Button in Navigation Drawer for displaying chat
         Button navigationBtnChat = (Button) mNavigationView.findViewById(R.id.navigation_btn_chat);
         navigationBtnChat.setOnClickListener(new View.OnClickListener() {

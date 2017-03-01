@@ -50,6 +50,7 @@ public class FirebaseDatabaseHelper {
     private DatabaseReference mDbReference = mDatabase.getReference();
     private ChildEventListener mOnlineUsersLocationListener;
     private ChildEventListener mOnlineUsersDataListener;
+    private ChildEventListener mFriendsListener;
     private ChildEventListener mChatMessagesListener;
     private DatabaseReference mOnlineUsersRef;
 
@@ -106,7 +107,7 @@ public class FirebaseDatabaseHelper {
         } else {
             ava = avatar;
         }
-        if (name==null) {
+        if (name == null) {
             nameDef = getCurrentUser().getEmail();
         } else {
             nameDef = name;
@@ -267,23 +268,58 @@ public class FirebaseDatabaseHelper {
         });
     }
 
+    /**
+     * Users listener
+     */
+
+    public void registerFriendsListener(final OnlineUsersUpdateReceiver receiver) {
+        DatabaseReference ref = mDbReference.child(getCurrentUser().getUid()).child("friendList");
+        mFriendsListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                onUserDataReady(dataSnapshot, receiver);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                onUserDataReady(dataSnapshot, receiver);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                onUserRemoved(dataSnapshot, receiver);
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+    ref.addChildEventListener(mFriendsListener);
+    }
+
     public void registerOnlineUsersListener(final OnlineUsersUpdateReceiver receiver) {
         // Read from the mDatabase
         DatabaseReference myRef = mDbReference.child("onlineUsers");
         mOnlineUsersDataListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                postUserDataReadyEvent(dataSnapshot, receiver);
+                onUserDataReady(dataSnapshot, receiver);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                postUserDataReadyEvent(dataSnapshot, receiver);
+                onUserDataReady(dataSnapshot, receiver);
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                postUserDataDeletedEvent(dataSnapshot, receiver);
+                onUserRemoved(dataSnapshot, receiver);
             }
 
             @Override
@@ -316,8 +352,8 @@ public class FirebaseDatabaseHelper {
         }
     }
 
-    private void postUserDataReadyEvent(DataSnapshot dataSnapshot,
-                                        final OnlineUsersUpdateReceiver receiver) {
+    private void onUserDataReady(DataSnapshot dataSnapshot,
+                                 final OnlineUsersUpdateReceiver receiver) {
         if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
             return;
         }
@@ -351,8 +387,8 @@ public class FirebaseDatabaseHelper {
         mUsersDataListeners.put(ref, userDataListener);
     }
 
-    private void postUserDataDeletedEvent(DataSnapshot dataSnapshot,
-                                          final OnlineUsersUpdateReceiver receiver) {
+    private void onUserRemoved(DataSnapshot dataSnapshot,
+                               final OnlineUsersUpdateReceiver receiver) {
         final String uid = dataSnapshot.getKey();
         DatabaseReference ref = mDbReference.child("users").child(uid);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -660,7 +696,7 @@ public class FirebaseDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 MyProfileFirebase profileFirebase = dataSnapshot.getValue(MyProfileFirebase.class);
-                  EventBus.getDefault().post(new CurrentUserProfileReadyEvent(profileFirebase));
+                EventBus.getDefault().post(new CurrentUserProfileReadyEvent(profileFirebase));
 
             }
 
@@ -671,6 +707,7 @@ public class FirebaseDatabaseHelper {
 
         });
     }
+
     //get user from database by userId
     public void getUserModel(String userId) {
         //get user name

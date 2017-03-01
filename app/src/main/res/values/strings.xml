@@ -45,6 +45,7 @@
     <string name="add_friend">add friend</string>
     <string name="send_message">send message</string>
     <string name="chat_message_map">Місцезнаходження</string>
+    <string name="drawer_btn_friends">Друзі</string>
 
 
 </resources>
