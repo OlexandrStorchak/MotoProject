@@ -34,11 +34,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class ScreenMyProfileFragment extends Fragment {
 
-    public static final String PROFSET = "profSett";
-    public static final String PROFSET_GPS_MODE = "profSett_gps_mode";
-    public static final String PROFILE_GPS_MODE_PUBLIC = "public";
-    private static final String PROFILE_GPS_MODE_FRIENDS = "friends";
-    private static final String PROFILE_GPS_MODE_SOS = "sos";
+
 
     private TextView email;
     private TextView name;
@@ -61,6 +57,11 @@ public class ScreenMyProfileFragment extends Fragment {
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     String currentUserId;
 
+    public static final String PROFSET = "profSett";
+
+    public static final String PROFILE_GPS_MODE_PUBLIC = "public";
+    private static final String PROFILE_GPS_MODE_FRIENDS = "friends";
+    private static final String PROFILE_GPS_MODE_SOS = "sos";
     public ScreenMyProfileFragment() {
         // Required empty public constructor
     }
@@ -144,17 +145,17 @@ public class ScreenMyProfileFragment extends Fragment {
                 SharedPreferences.Editor editor = profileSet.edit();
                 switch (i) {
                     case 0:
-                        editor.putString(PROFSET_GPS_MODE, PROFILE_GPS_MODE_PUBLIC);
+                        editor.putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), PROFILE_GPS_MODE_PUBLIC);
                         mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_PUBLIC);
 
                         break;
                     case 1:
-                        editor.putString(PROFSET_GPS_MODE, PROFILE_GPS_MODE_FRIENDS);
+                        editor.putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), PROFILE_GPS_MODE_FRIENDS);
                         mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_FRIENDS);
 
                         break;
                     case 2:
-                        editor.putString(PROFSET_GPS_MODE, PROFILE_GPS_MODE_SOS);
+                        editor.putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), PROFILE_GPS_MODE_SOS);
                         mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_SOS);
 
                         break;
@@ -177,7 +178,7 @@ public class ScreenMyProfileFragment extends Fragment {
         super.onStart();
         SharedPreferences preferences = getContext().getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
 
-        switch (preferences.getString(PROFSET_GPS_MODE, null)) {
+        switch (preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null)) {
             case PROFILE_GPS_MODE_SOS:
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
                 mapVisibility.setSelection(2);

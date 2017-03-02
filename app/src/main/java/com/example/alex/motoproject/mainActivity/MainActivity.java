@@ -46,7 +46,7 @@ import javax.inject.Inject;
 
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
-import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET_GPS_MODE;
+
 
 public class MainActivity extends AppCompatActivity implements
         MainViewInterface, FragmentManager.OnBackStackChangedListener {
@@ -98,14 +98,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences sharedPreferences = getApplicationContext()
-                .getSharedPreferences(PROFSET, MODE_PRIVATE);
 
-        if (sharedPreferences.getString(PROFSET_GPS_MODE, null) == null) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString(PROFSET_GPS_MODE, PROFILE_GPS_MODE_PUBLIC);
-            editor.apply();
-        }
 
         EventBus.getDefault().register(this);
         App.getCoreComponent().inject(this);
@@ -344,6 +337,15 @@ public class MainActivity extends AppCompatActivity implements
                 String.valueOf(user.getPhotoUrl()));
         mFirebaseDatabaseHelper.getCurrentUserModel();
 
+        SharedPreferences sharedPreferences = getApplicationContext()
+                .getSharedPreferences(PROFSET, MODE_PRIVATE);
+
+        if (sharedPreferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null) == null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), PROFILE_GPS_MODE_PUBLIC);
+            editor.apply();
+        }
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().show();
         }
@@ -357,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements
         SharedPreferences preferences = getApplicationContext()
                 .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
 
-        mFirebaseDatabaseHelper.setUserOnline(preferences.getString(PROFSET_GPS_MODE, null));
+        mFirebaseDatabaseHelper.setUserOnline(preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
         fm.addOnBackStackChangedListener(this);
 
 

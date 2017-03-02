@@ -34,7 +34,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import javax.inject.Inject;
 
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
-import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET_GPS_MODE;
+
 
 /**
  * The Service that listens for location changes and sends them to Firebase
@@ -82,7 +82,7 @@ public class LocationListenerService extends Service implements
         SharedPreferences preferences = getApplicationContext()
                 .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
 
-        mFirebaseDatabaseHelper.setUserOnline(preferences.getString(PROFSET_GPS_MODE,null));
+        mFirebaseDatabaseHelper.setUserOnline(preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),null));
 
         ((App) getApplication()).setLocationListenerServiceOn(true);
 
@@ -105,7 +105,7 @@ public class LocationListenerService extends Service implements
                 SharedPreferences preferences = getApplicationContext()
                         .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
 
-                mFirebaseDatabaseHelper.setUserOnline(preferences.getString(PROFSET_GPS_MODE,null));
+                mFirebaseDatabaseHelper.setUserOnline(preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),null));
             }
         }
 
