@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.screenProfile;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,10 +12,12 @@ import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -52,8 +55,10 @@ public class ScreenMyProfileFragment extends Fragment {
     private ImageView avatar;
     private ImageView mapIndicator;
     private Spinner mapVisibility;
-    private ImageButton saveProfileData;
-    private ImageButton editProfileData;
+    private ImageView saveProfileData;
+    private ImageView editProfileData;
+    private LinearLayout gpsPanel;
+
     private SharedPreferences profileSet;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
@@ -97,7 +102,10 @@ public class ScreenMyProfileFragment extends Fragment {
         nickNameEdit = (EditText) view.findViewById(R.id.profile_nick_name_edit);
         motorcycleEdit = (EditText) view.findViewById(R.id.profile_motorcycle_edit);
         aboutMeEdit = (EditText) view.findViewById(R.id.profile_about_me_edit);
-        saveProfileData = (ImageButton) view.findViewById(R.id.profile_btn_save);
+
+        gpsPanel = (LinearLayout) view.findViewById(R.id.profile_gps_panel);
+
+        saveProfileData = (ImageView) view.findViewById(R.id.profile_btn_save);
         saveProfileData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -113,10 +121,16 @@ public class ScreenMyProfileFragment extends Fragment {
 
                 mFirebaseDatabaseHelper.saveMyProfile(profile);
                 mFirebaseDatabaseHelper.getCurrentUserModel();
+                InputMethodManager inputMethodManager =
+                        (InputMethodManager) getActivity()
+                                .getSystemService(Activity.INPUT_METHOD_SERVICE);
+
+                inputMethodManager.hideSoftInputFromWindow(getActivity()
+                        .getCurrentFocus().getWindowToken(), 0);
 
             }
         });
-        editProfileData = (ImageButton) view.findViewById(R.id.profile_btn_edit);
+        editProfileData = (ImageView) view.findViewById(R.id.profile_btn_edit);
         editProfileData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,6 +139,7 @@ public class ScreenMyProfileFragment extends Fragment {
 
             }
         });
+
 
         mapVisibility.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -203,6 +218,8 @@ public class ScreenMyProfileFragment extends Fragment {
 
         saveProfileData.setVisibility(editViews);
         editProfileData.setVisibility(textViews);
+
+        gpsPanel.setVisibility(textViews);
     }
 
     @Subscribe

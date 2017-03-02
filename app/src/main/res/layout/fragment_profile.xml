@@ -101,20 +101,21 @@
                 android:visibility="gone" />
 
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/profile_btn_edit"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:src="@color/cardview_dark_background"
+                android:src="@mipmap/ic_edit_profile"
                 android:text="@string/edit_changes" />
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/profile_btn_save"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:src="@color/Blue900"
+                android:src="@mipmap/ic_save_profile"
+                android:visibility="gone"
                 android:text="@string/save_changes" />
         </LinearLayout>
 
@@ -123,8 +124,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:id="@+id/profile_gps_panel"
         android:layout_gravity="bottom"
-        android:layout_margin="@dimen/activity_horizontal_margin">
+
+        >
 
 
         <TextView
@@ -133,7 +136,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/text_show_me_on_map"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/colorDark"
             android:textSize="15sp"
             />
 
@@ -142,6 +145,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:textColor="@color/blueGrey50"
+
             android:entries="@array/profile_spinner_set_gps_visibility" />
 
 

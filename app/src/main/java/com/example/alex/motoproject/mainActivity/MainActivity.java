@@ -98,11 +98,15 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         SharedPreferences sharedPreferences = getApplicationContext()
                 .getSharedPreferences(PROFSET, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(PROFSET_GPS_MODE, PROFILE_GPS_MODE_PUBLIC);
-        editor.apply();
+
+        if (sharedPreferences.getString(PROFSET_GPS_MODE, null) == null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(PROFSET_GPS_MODE, PROFILE_GPS_MODE_PUBLIC);
+            editor.apply();
+        }
 
         EventBus.getDefault().register(this);
         App.getCoreComponent().inject(this);
