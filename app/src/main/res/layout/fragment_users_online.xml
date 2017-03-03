@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".screenOnlineUsers.BaseUsersFragment">
+    tools:context=".screenOnlineUsers.UsersFragment">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/navigation_friends_list_recycler"

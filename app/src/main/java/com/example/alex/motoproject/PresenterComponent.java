@@ -1,7 +1,7 @@
 package com.example.alex.motoproject;
 
 import com.example.alex.motoproject.screenChat.ChatFragment;
-import com.example.alex.motoproject.screenOnlineUsers.BaseUsersFragment;
+import com.example.alex.motoproject.screenOnlineUsers.UsersFragment;
 
 import javax.inject.Singleton;
 
@@ -12,5 +12,5 @@ import dagger.Component;
 public interface PresenterComponent {
     void inject(ChatFragment view);
 
-    void inject(BaseUsersFragment view);
+    void inject(UsersFragment view);
 }

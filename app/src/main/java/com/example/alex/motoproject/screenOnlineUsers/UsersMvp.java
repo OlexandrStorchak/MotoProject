@@ -5,7 +5,9 @@ import java.util.List;
 public interface UsersMvp {
     interface ViewToPresenter {
         void onStart();
+
         void onStop();
+
         void onViewCreated();
     }
 
@@ -19,12 +21,18 @@ public interface UsersMvp {
         void notifyDataSetChanged();
 
         void setListToAdapter(List<OnlineUser> users);
+
+        int getListType();
     }
 
     interface PresenterToModel {
         void registerUsersListener();
 
         void unregisterUsersListener();
+
+        void registerFriendsListener();
+
+        void unregisterFriendsListener();
 
         void clearUsers();
 

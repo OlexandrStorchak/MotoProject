@@ -18,15 +18,18 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public abstract class BaseUsersFragment extends Fragment
+public class UsersFragment extends Fragment
         implements UsersMvp.PresenterToView {
     // TODO: 02.03.2017 inject interface, not presenter itself
     @Inject
     UsersPresenter mPresenter;
-    public BaseUsersAdapter mAdapter;
+    public UsersAdapter mAdapter = new UsersAdapter();
 
-    public BaseUsersFragment(BaseUsersAdapter adapter) {
-        mAdapter = adapter;
+//    public BaseUsersFragment(UsersAdapter adapter) {
+//        mAdapter = adapter;
+//    }
+    public UsersFragment() {
+
     }
 
     @Override
@@ -69,6 +72,15 @@ public abstract class BaseUsersFragment extends Fragment
     @Override
     public void setListToAdapter(List<OnlineUser> users) {
         mAdapter.setUsersList(users);
+    }
+
+    @Override
+    public int getListType() {
+        if (getArguments() != null) {
+            return getArguments().getInt("listType", 0);
+        } else {
+            return 0;
+        }
     }
 
     @Override

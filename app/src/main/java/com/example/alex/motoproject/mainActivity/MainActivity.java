@@ -27,8 +27,7 @@ import com.example.alex.motoproject.firebase.FirebaseLoginController;
 import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
-import com.example.alex.motoproject.screenOnlineUsers.FriendsFragment;
-import com.example.alex.motoproject.screenOnlineUsers.OnlineUsersFragment;
+import com.example.alex.motoproject.screenOnlineUsers.UsersFragment;
 import com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment;
 import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
 import com.example.alex.motoproject.service.LocationListenerService;
@@ -51,8 +50,10 @@ public class MainActivity extends AppCompatActivity implements
     NetworkStateReceiver mNetworkStateReceiver;
 
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
-    private OnlineUsersFragment onlineUsersFragment = new OnlineUsersFragment();
-    private FriendsFragment friendsFragment = new FriendsFragment();
+//    private OnlineUsersFragment onlineUsersFragment = new OnlineUsersFragment();
+//    private FriendsFragment friendsFragment = new FriendsFragment();
+    private UsersFragment onlineUsersFragment = new UsersFragment();
+    private UsersFragment friendsFragment = new UsersFragment();
     private ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
     private ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
     private ChatFragment chatFragment = new ChatFragment();
@@ -111,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
+        mFirebaseDatabaseHelper.registerOnlineUsersGlobalListener();
 
         //Define view of Navigation Drawer
         NavigationView mNavigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -178,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements
         navigationBtnFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                replaceFragment(friendsFragment);
+                replaceFragment(friendsFragment, 10);
                 mDrawerLayout.closeDrawers();
             }
         });
@@ -359,6 +361,13 @@ public class MainActivity extends AppCompatActivity implements
         replaceFragment(fragment);
     }
 
+    public void replaceFragment(Fragment fragment, int listType) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("listType", listType);
+        fragment.setArguments(bundle);
+        replaceFragment(fragment);
+    }
+
     @Override
     public void onBackStackChanged() {
         Log.d("log", "onBackStackChanged: " + fm.getBackStackEntryCount());
@@ -371,7 +380,6 @@ public class MainActivity extends AppCompatActivity implements
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             toolbar.setNavigationOnClickListener(drawerMenu);
             toggle.syncState();
-
         }
     }
 }

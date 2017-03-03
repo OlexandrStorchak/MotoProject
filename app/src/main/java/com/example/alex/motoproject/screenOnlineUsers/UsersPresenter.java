@@ -4,7 +4,10 @@ import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 
-public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelToPresenter{
+public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelToPresenter {
+    private static final int LIST_TYPE_ONLINE_USERS = 0;
+    private static final int LIST_TYPE_FRIENDS = 10;
+    private int mUserListType = 0;
 
     private WeakReference<UsersMvp.PresenterToView> mView;
     private UsersMvp.PresenterToModel mModel = new UsersModel(this);
@@ -24,7 +27,14 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
     @Override
     public void onStart() {
-        mModel.registerUsersListener();
+        switch (getView().getListType()) {
+            case LIST_TYPE_FRIENDS:
+                mModel.registerFriendsListener();
+                break;
+            default:
+                mModel.registerUsersListener();
+                break;
+        }
     }
 
     @Override

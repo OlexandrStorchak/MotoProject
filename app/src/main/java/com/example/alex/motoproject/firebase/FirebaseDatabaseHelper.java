@@ -41,10 +41,9 @@ public class FirebaseDatabaseHelper {
             "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
                     "o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
 
-    private static final String LOG_TAG = FirebaseDatabaseHelper.class.getSimpleName();
-    private static final int CHAT_MESSAGES_MIN_COUNT_LIMIT = 11; //31
+    private static final int CHAT_MESSAGES_MIN_COUNT_LIMIT = 31; //31
     private int mMessagesCountLimit = 0;
-    private final HashMap<String, OnlineUser> mOnlineUserHashMap = new HashMap<>();
+    //    private final HashMap<String, OnlineUser> mOnlineUserHashMap = new HashMap<>();
     private ChatUpdateReceiver mChatModel;
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference mDbReference = mDatabase.getReference();
@@ -54,6 +53,9 @@ public class FirebaseDatabaseHelper {
     private ChildEventListener mChatMessagesListener;
     private DatabaseReference mOnlineUsersRef;
 
+    private ArrayList<String> mFriendsIds = new ArrayList<>();
+    private ArrayList<String> mOnlineUsersUids = new ArrayList<>();
+    private HashMap<String, String> mOnlineUserStatusHashMap = new HashMap<>();
 
     //    private ArrayList<ValueEventListener> mLocationListeners = new ArrayList<>();
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
@@ -64,10 +66,6 @@ public class FirebaseDatabaseHelper {
 
     public FirebaseDatabaseHelper() {
 
-    }
-
-    private HashMap<String, OnlineUser> getOnlineUserHashMap() {
-        return mOnlineUserHashMap;
     }
 
     public FirebaseUser getCurrentUser() {
@@ -272,22 +270,54 @@ public class FirebaseDatabaseHelper {
      * Users listener
      */
 
-    public void registerFriendsListener(final OnlineUsersUpdateReceiver receiver) {
-        DatabaseReference ref = mDbReference.child(getCurrentUser().getUid()).child("friendList");
-        mFriendsListener = new ChildEventListener() {
+    public void registerOnlineUsersGlobalListener() {
+        DatabaseReference ref = mDbReference.child("onlineUsers");
+        ref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                onUserDataReady(dataSnapshot, receiver);
+                mOnlineUserStatusHashMap.put(dataSnapshot.getKey(), (String) dataSnapshot.getValue());
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                onUserDataReady(dataSnapshot, receiver);
+                mOnlineUserStatusHashMap.put(dataSnapshot.getKey(), (String) dataSnapshot.getValue());
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                onUserRemoved(dataSnapshot, receiver);
+                mOnlineUserStatusHashMap.remove(dataSnapshot.getKey());
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void registerFriendsListener(final OnlineUsersUpdateReceiver receiver) {
+        DatabaseReference ref = mDbReference.child("users")
+                .child(getCurrentUser().getUid()).child("friendList");
+        mFriendsListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                onFriendAdded(dataSnapshot, receiver);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                onFriendRemoved(dataSnapshot, receiver);
+                onFriendAdded(dataSnapshot, receiver);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                onFriendRemoved(dataSnapshot, receiver);
             }
 
             @Override
@@ -300,7 +330,41 @@ public class FirebaseDatabaseHelper {
 
             }
         };
-    ref.addChildEventListener(mFriendsListener);
+        ref.addChildEventListener(mFriendsListener);
+    }
+
+    public void unregisterFriendsListener() {
+        DatabaseReference ref = mDbReference.child("users")
+                .child(getCurrentUser().getUid()).child("friendList");
+        ref.removeEventListener(mFriendsListener);
+    }
+
+    private void onFriendAdded(DataSnapshot dataSnapshot, final OnlineUsersUpdateReceiver receiver) {
+        final String uid = dataSnapshot.getKey();
+        final String relation = (String) dataSnapshot.getValue();
+        final String userStatus = mOnlineUserStatusHashMap.get(uid);
+        DatabaseReference ref = mDbReference.child("users").child(uid);
+        ValueEventListener userDataListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String name = (String) dataSnapshot.child("name").getValue();
+                String avatar = (String) dataSnapshot.child("avatar").getValue();
+                OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus, relation);
+                receiver.onUserAdded(onlineUser);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        ref.addListenerForSingleValueEvent(userDataListener);
+    }
+
+    private void onFriendRemoved(DataSnapshot dataSnapshot,
+                                 final OnlineUsersUpdateReceiver receiver) {
+        final String uid = dataSnapshot.getKey();
+        receiver.onUserDeleted(uid);
     }
 
     public void registerOnlineUsersListener(final OnlineUsersUpdateReceiver receiver) {
@@ -309,17 +373,20 @@ public class FirebaseDatabaseHelper {
         mOnlineUsersDataListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                onUserDataReady(dataSnapshot, receiver);
+                onOnlineUserReady(dataSnapshot, receiver);
+                // TODO: 04.03.2017 чувак, доббранку! Отжже, поправ для початку баги, бо я вже спатки хочу. 
+                // TODO: 04.03.2017 якщо з друзів на юзерів онлайн перейти, порожній список. В інших випадках все норм 
+                // TODO: 04.03.2017 вистави нормальні діменшени в авкохолдері, щоб не було шакалів 
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                onUserDataReady(dataSnapshot, receiver);
+                onOnlineUserReady(dataSnapshot, receiver);
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                onUserRemoved(dataSnapshot, receiver);
+                onOnlineUserRemoved(dataSnapshot, receiver);
             }
 
             @Override
@@ -339,7 +406,7 @@ public class FirebaseDatabaseHelper {
         if (mOnlineUsersDataListener != null && getCurrentUser() != null) {
             DatabaseReference myRef = mDbReference.child("onlineUsers");
             myRef.removeEventListener(mOnlineUsersDataListener);
-            getOnlineUserHashMap().clear();
+//            getOnlineUserHashMap().clear();
         }
 
         if (!mUsersDataListeners.isEmpty()) {
@@ -352,8 +419,8 @@ public class FirebaseDatabaseHelper {
         }
     }
 
-    private void onUserDataReady(DataSnapshot dataSnapshot,
-                                 final OnlineUsersUpdateReceiver receiver) {
+    private void onOnlineUserReady(DataSnapshot dataSnapshot,
+                                   final OnlineUsersUpdateReceiver receiver) {
         if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
             return;
         }
@@ -365,17 +432,15 @@ public class FirebaseDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
-                if (name != null) {
-                    OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus);
-                    if (!mOnlineUserHashMap.containsKey(uid)) {
-                        mOnlineUserHashMap.put(uid, onlineUser);
-                        receiver.onUserAdded(onlineUser);
-                    } else {
-                        mOnlineUserHashMap.remove(uid);
-                        mOnlineUserHashMap.put(uid, onlineUser);
-                        receiver.onUserChanged(onlineUser);
-                    }
-                }
+                OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus, null);
+//                if (!mOnlineUserHashMap.containsKey(uid)) {
+//                    mOnlineUserHashMap.put(uid, onlineUser);
+                receiver.onUserAdded(onlineUser);
+//                } else {
+//                    mOnlineUserHashMap.remove(uid);
+//                    mOnlineUserHashMap.put(uid, onlineUser);
+//                    receiver.onUserChanged(onlineUser);
+//                }
             }
 
             @Override
@@ -387,22 +452,23 @@ public class FirebaseDatabaseHelper {
         mUsersDataListeners.put(ref, userDataListener);
     }
 
-    private void onUserRemoved(DataSnapshot dataSnapshot,
-                               final OnlineUsersUpdateReceiver receiver) {
+    private void onOnlineUserRemoved(DataSnapshot dataSnapshot,
+                                     final OnlineUsersUpdateReceiver receiver) {
         final String uid = dataSnapshot.getKey();
-        DatabaseReference ref = mDbReference.child("users").child(uid);
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                receiver.onUserDeleted(mOnlineUserHashMap.get(uid));
-                mOnlineUserHashMap.remove(uid);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        receiver.onUserDeleted(uid);
+//        DatabaseReference ref = mDbReference.child("users").child(uid);
+//        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+////                receiver.onUserDeleted(mOnlineUserHashMap.get(uid));
+////                mOnlineUserHashMap.remove(uid);
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
     }
 
     public interface OnlineUsersUpdateReceiver {
@@ -410,7 +476,7 @@ public class FirebaseDatabaseHelper {
 
         void onUserChanged(OnlineUser onlineUser);
 
-        void onUserDeleted(OnlineUser onlineUser);
+        void onUserDeleted(String uid);
     }
 
     public void registerChatMessagesListener(ChatUpdateReceiver receiver) {

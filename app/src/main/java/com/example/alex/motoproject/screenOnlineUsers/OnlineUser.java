@@ -1,37 +1,14 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
-public class OnlineUser {
-    private String uid, name, avatar, status;
+public class OnlineUser extends BaseUser {
+    private String status;
 
-    public OnlineUser(String uid, String name, String avatar, String status) {
-        this.uid = uid;
-        this.name = name;
-        this.avatar = avatar;
+    private String relation;
+
+    public OnlineUser(String uid, String name, String avatar, String status, String relation) {
+        super(uid, name, avatar);
         this.status = status;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
+        this.relation = relation;
     }
 
     public String getStatus() {
@@ -40,5 +17,13 @@ public class OnlineUser {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getRelation() {
+        return relation;
+    }
+
+    public void setRelation(String relation) {
+        this.relation = relation;
     }
 }

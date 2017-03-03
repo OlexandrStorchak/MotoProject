@@ -1,6 +1,6 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
-public class OnlineUsersAdapter extends BaseUsersAdapter {
+public class OnlineUsersAdapter extends UsersAdapter {
     OnlineUsersAdapter() {
 
     }

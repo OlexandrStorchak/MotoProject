@@ -135,10 +135,4 @@ public class App extends Application
                 .firebaseUtilsModule(new FirebaseUtilsModule())
                 .build();
     }
-
-//    public ChatPresenterComponent buildChatPresenterComponent(ChatMVP.PresenterToView view) {
-//        return DaggerChatPresenterComponent.builder()
-//                .presenterModule(new PresenterModule(view))
-//                .build();
-//    }
 }

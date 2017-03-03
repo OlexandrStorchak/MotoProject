@@ -31,6 +31,16 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     }
 
     @Override
+    public void registerFriendsListener() {
+        mFirebaseDatabaseHelper.registerFriendsListener(this);
+    }
+
+    @Override
+    public void unregisterFriendsListener() {
+        mFirebaseDatabaseHelper.unregisterFriendsListener();
+    }
+
+    @Override
     public void clearUsers() {
         mUsers.clear();
     }
@@ -58,9 +68,20 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         }
     }
 
+//    @Override
+//    public void onUserDeleted(OnlineUser onlineUser) {
+//        mPresenter.notifyItemRemoved(mUsers.indexOf(onlineUser));
+//        mUsers.remove(onlineUser);
+//    }
     @Override
-    public void onUserDeleted(OnlineUser onlineUser) {
-        mPresenter.notifyItemRemoved(mUsers.indexOf(onlineUser));
-        mUsers.remove(onlineUser);
+    public void onUserDeleted(String thisUserId) {
+        for (OnlineUser iteratedUser : mUsers) {
+            if (iteratedUser.getUid().equals(thisUserId)) {
+                int position = mUsers.indexOf(iteratedUser);
+                mPresenter.notifyItemRemoved(position);
+                mUsers.remove(position);
+                return;
+            }
+        }
     }
 }

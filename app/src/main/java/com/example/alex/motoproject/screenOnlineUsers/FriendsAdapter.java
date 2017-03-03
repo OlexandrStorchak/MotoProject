@@ -1,7 +1,15 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
-public class FriendsAdapter extends BaseUsersAdapter {
+import android.view.View;
+
+public class FriendsAdapter extends UsersAdapter {
     FriendsAdapter() {
 
+    }
+
+    class FriendViewHolder extends VH {
+        FriendViewHolder(View itemView) {
+            super(itemView);
+        }
     }
 }

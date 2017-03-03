@@ -1,8 +1,8 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
-public class OnlineUsersFragment extends BaseUsersFragment {
+public class OnlineUsersFragment extends UsersFragment {
 
-    public OnlineUsersFragment() {
-        super(new OnlineUsersAdapter());
-    }
+//    public OnlineUsersFragment() {
+//        super(new OnlineUsersAdapter());
+//    }
 }
