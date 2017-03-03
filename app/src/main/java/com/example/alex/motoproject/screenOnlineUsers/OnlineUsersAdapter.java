@@ -51,7 +51,7 @@ class OnlineUsersAdapter extends RecyclerView.Adapter<OnlineUsersAdapter.VH> {
 
         Picasso.with(holder.avatar.getContext())
                 .load(onlineUsers.get(position).getAvatar())
-                .resize(45, 45)
+                .resize(holder.avatar.getMaxHeight(),holder.avatar.getMaxWidth())
                 .centerCrop()
                 .transform(new CircleTransform())
                 .into(holder.avatar);
