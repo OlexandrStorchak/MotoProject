@@ -2,9 +2,15 @@ package com.example.alex.motoproject.screenProfile;
 
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -17,25 +23,35 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.MyProfileFirebase;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.IOException;
+
 import javax.inject.Inject;
 
+import static android.app.Activity.RESULT_OK;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class ScreenMyProfileFragment extends Fragment {
 
 
-
+    private static final int PICK_IMAGE_REQUEST = 13;
     private TextView email;
     private TextView name;
     private TextView nickName;
@@ -52,6 +68,9 @@ public class ScreenMyProfileFragment extends Fragment {
     private ImageView editProfileData;
     private LinearLayout gpsPanel;
 
+
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
+
     private SharedPreferences profileSet;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
@@ -62,6 +81,8 @@ public class ScreenMyProfileFragment extends Fragment {
     public static final String PROFILE_GPS_MODE_PUBLIC = "public";
     private static final String PROFILE_GPS_MODE_FRIENDS = "friends";
     private static final String PROFILE_GPS_MODE_SOS = "sos";
+    private String currentUid;
+
     public ScreenMyProfileFragment() {
         // Required empty public constructor
     }
@@ -85,8 +106,6 @@ public class ScreenMyProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         profileSet = getContext().getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
-
-
         avatar = (ImageView) view.findViewById(R.id.profile_avatar);
         email = (TextView) view.findViewById(R.id.profile_email);
         name = (TextView) view.findViewById(R.id.profile_name);
@@ -101,9 +120,17 @@ public class ScreenMyProfileFragment extends Fragment {
         motorcycleEdit = (EditText) view.findViewById(R.id.profile_motorcycle_edit);
         aboutMeEdit = (EditText) view.findViewById(R.id.profile_about_me_edit);
 
+        avatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showFileChooser();
+            }
+        });
+
         gpsPanel = (LinearLayout) view.findViewById(R.id.profile_gps_panel);
 
         saveProfileData = (ImageView) view.findViewById(R.id.profile_btn_save);
+
         saveProfileData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -223,7 +250,7 @@ public class ScreenMyProfileFragment extends Fragment {
     @Subscribe
     public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
         editMode(View.VISIBLE, View.GONE);
-
+        currentUid = user.getMyProfileFirebase().getId();
         email.setText(user.getMyProfileFirebase().getEmail());
 
         Picasso.with(getApplicationContext())
@@ -248,5 +275,78 @@ public class ScreenMyProfileFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+    }
+
+    //method to show file chooser
+    private void showFileChooser() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Get Avatar"), PICK_IMAGE_REQUEST);
+    }
+    //handling the image chooser activity result
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Uri filePath;
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            filePath = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), filePath);
+                avatar.setImageBitmap(bitmap);
+                uploadFile(filePath);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //this method will upload the file
+    private void uploadFile(Uri filePath) {
+        if (filePath != null) {
+            final ProgressDialog progressDialog = new ProgressDialog(getContext());
+            progressDialog.setTitle("Завантаження");
+            progressDialog.show();
+
+            final StorageReference avatarRef =
+                    storage.getReference().child("avatars/" + currentUid + ".jpeg");
+            avatarRef.putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            //if the upload is successfull
+                            progressDialog.dismiss();
+                            mFirebaseDatabaseHelper.
+                                    setCurrentUserAvatar(taskSnapshot.getDownloadUrl().toString());
+                            mFirebaseDatabaseHelper.getCurrentUserModel();
+                            Toast.makeText(getApplicationContext(), "Завантажено ",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            //if the upload is not successfull
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), "Завантаження перервалось",
+                                    Toast.LENGTH_LONG).show();
+
+
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            double progress = (100.0 * taskSnapshot.getBytesTransferred())
+                                    / taskSnapshot.getTotalByteCount();
+
+                            progressDialog.setMessage("Завантажено : " + ((int) progress) + " %");
+                        }
+
+                    });
+        }
+
     }
 }

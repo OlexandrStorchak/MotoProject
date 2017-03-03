@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.firebase;
 
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
@@ -696,6 +697,12 @@ public class FirebaseDatabaseHelper {
     public void saveMyProfile(MyProfileFirebase profile){
         DatabaseReference ref = mDbReference.child("users").child(getCurrentUser().getUid());
         ref.setValue(profile);
+    }
+
+    public void setCurrentUserAvatar(@NonNull String avatarUrl){
+        DatabaseReference ref = mDbReference.child("users")
+                .child(getCurrentUser().getUid()).child("avatar");
+        ref.setValue(avatarUrl);
     }
 
 
