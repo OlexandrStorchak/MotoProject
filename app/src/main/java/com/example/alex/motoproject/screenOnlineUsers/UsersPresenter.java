@@ -39,8 +39,15 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
     @Override
     public void onStop() {
+        switch (getView().getListType()) {
+            case LIST_TYPE_FRIENDS:
+                mModel.unregisterFriendsListener();
+                break;
+            default:
+                mModel.unregisterUsersListener();
+                break;
+        }
         getView().notifyDataSetChanged();
-        mModel.unregisterUsersListener();
         mModel.clearUsers();
     }
 

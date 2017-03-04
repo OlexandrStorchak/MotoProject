@@ -374,9 +374,6 @@ public class FirebaseDatabaseHelper {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 onOnlineUserReady(dataSnapshot, receiver);
-                // TODO: 04.03.2017 чувак, доббранку! Отжже, поправ для початку баги, бо я вже спатки хочу. 
-                // TODO: 04.03.2017 якщо з друзів на юзерів онлайн перейти, порожній список. В інших випадках все норм 
-                // TODO: 04.03.2017 вистави нормальні діменшени в авкохолдері, щоб не було шакалів 
             }
 
             @Override

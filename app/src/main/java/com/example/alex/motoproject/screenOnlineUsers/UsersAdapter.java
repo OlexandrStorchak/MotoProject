@@ -69,7 +69,7 @@ class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.VH> {
 
         Picasso.with(holder.avatar.getContext())
                 .load(mUsers.get(position).getAvatar())
-                .resize(45, 45)
+                .resize(holder.avatar.getMaxWidth(), holder.avatar.getMaxHeight())
                 .centerCrop()
                 .transform(new CircleTransform())
                 .into(holder.avatar);

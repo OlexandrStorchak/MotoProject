@@ -10,6 +10,8 @@
         android:id="@+id/friends_list_ava"
         android:layout_width="45dp"
         android:layout_height="45dp"
+        android:maxWidth="45dp"
+        android:maxHeight="45dp"
         android:layout_gravity="center_vertical"
         android:src="@drawable/ava4" />
 
