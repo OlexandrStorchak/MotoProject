@@ -9,9 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -31,7 +29,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 
 import javax.inject.Inject;
@@ -279,12 +276,4 @@ public class LocationListenerService extends Service implements
     }
 
 
-
-
-//    @Subscribe
-//    public void onGpsStatusChanged(GpsStatusChangedEvent event) {
-//        if (!event.isGpsOn()) {
-//            stopSelf();
-//        }
-//    }
 }
