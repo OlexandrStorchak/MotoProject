@@ -43,9 +43,14 @@ public class LocationListenerService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
+    public static final String LOCATION_REQUEST_FREQUENCY_HIGH = "high";
+    public static final String LOCATION_REQUEST_FREQUENCY_DEFAULT = "default";
+    public static final String LOCATION_REQUEST_FREQUENCY_LOW = "low";
+
 
     private static final String LOG_TAG = "LocationListenerService";
     private static final String SHOULD_STOP_SERVICE_EXTRA = "isShouldStopService";
+    public static final String GPS_RATE = "gpsRate";
     //TODO: where to store notification ids?
     int mNotificationId = 3;
     GoogleApiClient mGoogleApiClient;
@@ -55,6 +60,7 @@ public class LocationListenerService extends Service implements
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
     FirebaseAuth mFirebaseAuth;
+
     public LocationListenerService() {
         // Required empty public constructor
     }
@@ -64,6 +70,7 @@ public class LocationListenerService extends Service implements
         App.getCoreComponent().inject(this);
         ((App) getApplication()).plusNetworkStateReceiverComponent();
         Log.d(LOG_TAG, "onCreate");
+
         // create an instance of GoogleAPIClient
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -82,7 +89,21 @@ public class LocationListenerService extends Service implements
         SharedPreferences preferences = getApplicationContext()
                 .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
 
-        mFirebaseDatabaseHelper.setUserOnline(preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),null));
+        mFirebaseDatabaseHelper.setUserOnline(preferences.getString(
+                mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
+
+        SharedPreferences preferencesRate = getApplicationContext()
+                .getSharedPreferences(GPS_RATE, Context.MODE_PRIVATE);
+
+        mRequestFrequency=preferencesRate.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),null);
+
+        if(mRequestFrequency==null){
+            mRequestFrequency=LOCATION_REQUEST_FREQUENCY_DEFAULT;
+
+            preferencesRate.edit()
+                    .putString(mFirebaseDatabaseHelper.getCurrentUser()
+                            .getUid(),LOCATION_REQUEST_FREQUENCY_DEFAULT).apply();
+        }
 
         ((App) getApplication()).setLocationListenerServiceOn(true);
 
@@ -105,7 +126,7 @@ public class LocationListenerService extends Service implements
                 SharedPreferences preferences = getApplicationContext()
                         .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
 
-                mFirebaseDatabaseHelper.setUserOnline(preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),null));
+                mFirebaseDatabaseHelper.setUserOnline(preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
             }
         }
 

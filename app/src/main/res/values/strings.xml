@@ -52,10 +52,17 @@
     <string name="your_nick_name">Ваш нік-нейм</string>
     <string name="motorcycle_model">Модель мотоцикла</string>
     <string name="about_myself">Розкажіть про себе</string>
+    <string name="time_rate_gps">Час оновлення GPS</string>
 
     <string-array name="profile_spinner_set_gps_visibility">
     <item>Всім</item>
     <item>Тільки друзям</item>
     <item>Тільки SOS</item>
+    </string-array>
+
+    <string-array name="profile_spinner_set_gps_rate">
+        <item>Висока</item>
+        <item>Середня</item>
+        <item>Низька</item>
     </string-array>
 </resources>

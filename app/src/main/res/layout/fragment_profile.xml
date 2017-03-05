@@ -28,6 +28,25 @@
                 android:layout_height="28dp"
                 android:layout_gravity="center" />
             <TextView
+                android:id="@+id/profile_text_gps_rate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/time_rate_gps"
+                android:textColor="@color/colorDark"
+                android:textSize="15sp"
+                />
+
+            <Spinner
+                android:id="@+id/profile_set_gps_rate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/blueGrey50"
+
+                android:entries="@array/profile_spinner_set_gps_rate" />
+
+            <TextView
                 android:id="@+id/profile_email"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -117,6 +136,9 @@
                 android:src="@mipmap/ic_save_profile"
                 android:visibility="gone"
                 android:text="@string/save_changes" />
+
+
+
         </LinearLayout>
 
     </ScrollView>

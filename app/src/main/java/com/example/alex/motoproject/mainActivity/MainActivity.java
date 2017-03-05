@@ -46,6 +46,7 @@ import javax.inject.Inject;
 
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
+import static com.example.alex.motoproject.service.LocationListenerService.GPS_RATE;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -98,8 +99,6 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-
         EventBus.getDefault().register(this);
         App.getCoreComponent().inject(this);
 
@@ -108,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements
         loginController = new FirebaseLoginController(presenterImp);
 
         loginController.start();
-
 
         setContentView(R.layout.activity_main);
 
@@ -330,6 +328,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void login(FirebaseUser user) {
         // TODO: 11.02.2017 let users choose avatars
+
         mFirebaseDatabaseHelper.addUserToFirebase(
                 user.getUid(),
                 user.getEmail(),

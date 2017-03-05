@@ -7,13 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,13 +42,17 @@ import com.squareup.picasso.Picasso;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import javax.inject.Inject;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.MODE_PRIVATE;
+import static com.example.alex.motoproject.service.LocationListenerService.GPS_RATE;
+import static com.example.alex.motoproject.service.LocationListenerService.LOCATION_REQUEST_FREQUENCY_DEFAULT;
+import static com.example.alex.motoproject.service.LocationListenerService.LOCATION_REQUEST_FREQUENCY_HIGH;
+import static com.example.alex.motoproject.service.LocationListenerService.LOCATION_REQUEST_FREQUENCY_LOW;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class ScreenMyProfileFragment extends Fragment {
@@ -67,17 +71,16 @@ public class ScreenMyProfileFragment extends Fragment {
     private ImageView avatar;
     private ImageView mapIndicator;
     private Spinner mapVisibility;
+    private Spinner mapRate;
     private ImageView saveProfileData;
     private ImageView editProfileData;
     private LinearLayout gpsPanel;
-
-
     private FirebaseStorage storage = FirebaseStorage.getInstance();
-
     private SharedPreferences profileSet;
+    private MyProfileFirebase myProfileFirebase;
+
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-    MyProfileFirebase myProfileFirebase;
 
     public static final String PROFSET = "profSett";
 
@@ -85,6 +88,7 @@ public class ScreenMyProfileFragment extends Fragment {
     private static final String PROFILE_GPS_MODE_FRIENDS = "friends";
     private static final String PROFILE_GPS_MODE_SOS = "sos";
     private String currentUid;
+    private String gpsRate;
 
     public ScreenMyProfileFragment() {
         // Required empty public constructor
@@ -122,6 +126,7 @@ public class ScreenMyProfileFragment extends Fragment {
         nickNameEdit = (EditText) view.findViewById(R.id.profile_nick_name_edit);
         motorcycleEdit = (EditText) view.findViewById(R.id.profile_motorcycle_edit);
         aboutMeEdit = (EditText) view.findViewById(R.id.profile_about_me_edit);
+
 
         avatar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -193,6 +198,41 @@ public class ScreenMyProfileFragment extends Fragment {
                 onStart();
             }
 
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        mapRate = (Spinner) view.findViewById(R.id.profile_set_gps_rate);
+        mapRate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                // TODO: 05.03.2017 add method contract to LocationListenerService
+                SharedPreferences preferencesRate = getContext().getSharedPreferences(GPS_RATE, MODE_PRIVATE);
+                switch (i) {
+                    case 0:
+                        preferencesRate.edit()
+                                .putString(mFirebaseDatabaseHelper.getCurrentUser().getUid()
+                                        , LOCATION_REQUEST_FREQUENCY_HIGH).apply();
+
+                        break;
+                    case 1:
+                        preferencesRate.edit()
+                                .putString(mFirebaseDatabaseHelper.getCurrentUser().getUid()
+                                        , LOCATION_REQUEST_FREQUENCY_DEFAULT).apply();
+                        break;
+                    case 2:
+                        preferencesRate.edit()
+                                .putString(mFirebaseDatabaseHelper.getCurrentUser().getUid()
+                                        , LOCATION_REQUEST_FREQUENCY_LOW).apply();
+                        break;
+                }
+
+            }
+
+
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
@@ -205,9 +245,11 @@ public class ScreenMyProfileFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        String gpsMode;
         SharedPreferences preferences = getContext().getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
+        gpsMode = preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null);
 
-        switch (preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null)) {
+        switch (gpsMode) {
             case PROFILE_GPS_MODE_SOS:
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
                 mapVisibility.setSelection(2);
@@ -219,6 +261,26 @@ public class ScreenMyProfileFragment extends Fragment {
             case PROFILE_GPS_MODE_PUBLIC:
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_green);
                 mapVisibility.setSelection(0);
+                break;
+        }
+        SharedPreferences preferencesRate = getContext().getSharedPreferences(GPS_RATE, Context.MODE_PRIVATE);
+        gpsRate = preferencesRate.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null);
+        if (gpsRate == null) {
+            gpsRate = LOCATION_REQUEST_FREQUENCY_DEFAULT;
+        }
+
+        switch (gpsRate) {
+            case LOCATION_REQUEST_FREQUENCY_LOW:
+
+                mapRate.setSelection(2);
+                break;
+            case LOCATION_REQUEST_FREQUENCY_DEFAULT:
+
+                mapRate.setSelection(1);
+                break;
+            case LOCATION_REQUEST_FREQUENCY_HIGH:
+
+                mapRate.setSelection(0);
                 break;
         }
     }
@@ -252,7 +314,7 @@ public class ScreenMyProfileFragment extends Fragment {
     @Subscribe
     public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
         editMode(View.VISIBLE, View.GONE);
-        myProfileFirebase=user.getMyProfileFirebase();
+        myProfileFirebase = user.getMyProfileFirebase();
         currentUid = user.getMyProfileFirebase().getId();
         email.setText(user.getMyProfileFirebase().getEmail());
 
@@ -295,7 +357,11 @@ public class ScreenMyProfileFragment extends Fragment {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), filePath);
                 avatar.setImageBitmap(bitmap);
 
-               uploadFile(filePath);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 10, baos);
+                byte[] dataBytes = baos.toByteArray();
+                uploadFile(dataBytes);
+
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -304,15 +370,15 @@ public class ScreenMyProfileFragment extends Fragment {
     }
 
     //this method will upload the file
-    private void uploadFile(Uri filePath) {
-        if (filePath != null) {
+    private void uploadFile(byte[] dataBytes) {
+        if (dataBytes != null) {
             final ProgressDialog progressDialog = new ProgressDialog(getContext());
             progressDialog.setTitle("Завантаження");
             progressDialog.show();
 
             final StorageReference avatarRef =
                     storage.getReference().child("avatars/" + currentUid + ".jpeg");
-            avatarRef.putFile(filePath)
+            avatarRef.putBytes(dataBytes)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -347,6 +413,5 @@ public class ScreenMyProfileFragment extends Fragment {
 
                     });
         }
-
     }
 }
