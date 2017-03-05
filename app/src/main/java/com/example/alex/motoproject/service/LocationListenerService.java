@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -29,6 +31,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 
 import javax.inject.Inject;
@@ -91,7 +94,6 @@ public class LocationListenerService extends Service implements
 
         mFirebaseDatabaseHelper.setUserOnline(preferences.getString(
                 mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
-
 
 
         ((App) getApplication()).setLocationListenerServiceOn(true);
@@ -157,6 +159,7 @@ public class LocationListenerService extends Service implements
     @Override
     public void onLocationChanged(Location location) {
         mFirebaseDatabaseHelper.updateUserLocation(location);
+        Log.i("loc", "UPDATE");
     }
 
     @Override
@@ -181,11 +184,13 @@ public class LocationListenerService extends Service implements
 
         LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
+        Log.i("loc", "createLocationRequest: " + mRequestFrequency);
         switch (mRequestFrequency) {
             case LOCATION_REQUEST_FREQUENCY_HIGH:
-                mLocationRequest.setInterval(10000); //10 secs
-                mLocationRequest.setFastestInterval(50000); //5 secs
+                mLocationRequest.setInterval(5000); //5 secs
+                //mLocationRequest.setFastestInterval(2000); //2 secs
+                mLocationRequest.setSmallestDisplacement(14f); //14 m
+
                 break;
             case LOCATION_REQUEST_FREQUENCY_DEFAULT:
                 mLocationRequest.setInterval(20000); //20 secs
@@ -272,6 +277,9 @@ public class LocationListenerService extends Service implements
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED;
     }
+
+
+
 
 //    @Subscribe
 //    public void onGpsStatusChanged(GpsStatusChangedEvent event) {
