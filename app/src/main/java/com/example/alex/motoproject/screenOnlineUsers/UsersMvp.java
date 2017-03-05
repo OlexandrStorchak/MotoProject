@@ -9,6 +9,10 @@ public interface UsersMvp {
         void onStop();
 
         void onViewCreated();
+
+        void onQueryTextChange(String newText);
+
+        void onRefreshSwipeLayout();
     }
 
     interface PresenterToView {
@@ -20,9 +24,19 @@ public interface UsersMvp {
 
         void notifyDataSetChanged();
 
-        void setListToAdapter(List<OnlineUser> users);
+//        void setListToAdapter(List<OnlineUser> users);
 
         int getListType();
+
+        void addOrUpdateUser(OnlineUser user);
+
+        void removeUser(OnlineUser user);
+
+        void replaceAllUsers(List<OnlineUser> filteredUsers);
+
+        void clearUsers();
+
+        void disableRefreshingSwipeLayout();
     }
 
     interface PresenterToModel {
@@ -37,9 +51,15 @@ public interface UsersMvp {
         void clearUsers();
 
         List<OnlineUser> getUsers();
+
+        List<OnlineUser> filterUsers(String query);
     }
 
     interface ModelToPresenter {
+        void addOrUpdateUser(OnlineUser user);
+
+        void removeUser(OnlineUser user);
+
         void notifyItemInserted(int position);
 
         void notifyItemChanged(int position);

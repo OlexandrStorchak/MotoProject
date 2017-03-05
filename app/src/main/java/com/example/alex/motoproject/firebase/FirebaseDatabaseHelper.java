@@ -59,7 +59,6 @@ public class FirebaseDatabaseHelper {
 
     //    private ArrayList<ValueEventListener> mLocationListeners = new ArrayList<>();
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
-    private HashMap<DatabaseReference, ValueEventListener> mUsersDataListeners = new HashMap<>();
     private String mFirstChatMsgKeyAfterFetch;
     private boolean isFirstChatMessageAfterFetch;
     private boolean isFirstNewChatMessageAfterFetch = true;
@@ -307,12 +306,12 @@ public class FirebaseDatabaseHelper {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 onFriendAdded(dataSnapshot, receiver);
+
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                onFriendRemoved(dataSnapshot, receiver);
-                onFriendAdded(dataSnapshot, receiver);
+                onFriendChanged(dataSnapshot, receiver);
             }
 
             @Override
@@ -361,10 +360,49 @@ public class FirebaseDatabaseHelper {
         ref.addListenerForSingleValueEvent(userDataListener);
     }
 
+    private void onFriendChanged(DataSnapshot dataSnapshot, final OnlineUsersUpdateReceiver receiver) {
+        final String uid = dataSnapshot.getKey();
+        final String relation = (String) dataSnapshot.getValue();
+        final String userStatus = mOnlineUserStatusHashMap.get(uid);
+        DatabaseReference ref = mDbReference.child("users").child(uid);
+        ValueEventListener userDataListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String name = (String) dataSnapshot.child("name").getValue();
+                String avatar = (String) dataSnapshot.child("avatar").getValue();
+                OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus, relation);
+                receiver.onUserChanged(onlineUser);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        ref.addListenerForSingleValueEvent(userDataListener);
+    }
+
     private void onFriendRemoved(DataSnapshot dataSnapshot,
                                  final OnlineUsersUpdateReceiver receiver) {
         final String uid = dataSnapshot.getKey();
-        receiver.onUserDeleted(uid);
+        final String relation = (String) dataSnapshot.getValue();
+        final String userStatus = mOnlineUserStatusHashMap.get(uid);
+        DatabaseReference ref = mDbReference.child("users").child(uid);
+        ValueEventListener userDataListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String name = (String) dataSnapshot.child("name").getValue();
+                String avatar = (String) dataSnapshot.child("avatar").getValue();
+                OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus, relation);
+                receiver.onUserDeleted(onlineUser);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        ref.addListenerForSingleValueEvent(userDataListener);
     }
 
     public void registerOnlineUsersListener(final OnlineUsersUpdateReceiver receiver) {
@@ -373,12 +411,12 @@ public class FirebaseDatabaseHelper {
         mOnlineUsersDataListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                onOnlineUserReady(dataSnapshot, receiver);
+                onOnlineUserAdded(dataSnapshot, receiver);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                onOnlineUserReady(dataSnapshot, receiver);
+                onOnlineUserChanged(dataSnapshot, receiver);
             }
 
             @Override
@@ -403,20 +441,10 @@ public class FirebaseDatabaseHelper {
         if (mOnlineUsersDataListener != null && getCurrentUser() != null) {
             DatabaseReference myRef = mDbReference.child("onlineUsers");
             myRef.removeEventListener(mOnlineUsersDataListener);
-//            getOnlineUserHashMap().clear();
-        }
-
-        if (!mUsersDataListeners.isEmpty()) {
-            for (Map.Entry<DatabaseReference, ValueEventListener> entry :
-                    mUsersDataListeners.entrySet()) {
-                DatabaseReference ref = entry.getKey();
-                ValueEventListener listener = entry.getValue();
-                ref.removeEventListener(listener);
-            }
         }
     }
 
-    private void onOnlineUserReady(DataSnapshot dataSnapshot,
+    private void onOnlineUserAdded(DataSnapshot dataSnapshot,
                                    final OnlineUsersUpdateReceiver receiver) {
         if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
             return;
@@ -430,14 +458,7 @@ public class FirebaseDatabaseHelper {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
                 OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus, null);
-//                if (!mOnlineUserHashMap.containsKey(uid)) {
-//                    mOnlineUserHashMap.put(uid, onlineUser);
                 receiver.onUserAdded(onlineUser);
-//                } else {
-//                    mOnlineUserHashMap.remove(uid);
-//                    mOnlineUserHashMap.put(uid, onlineUser);
-//                    receiver.onUserChanged(onlineUser);
-//                }
             }
 
             @Override
@@ -445,35 +466,62 @@ public class FirebaseDatabaseHelper {
 
             }
         };
-        ref.addValueEventListener(userDataListener);
-        mUsersDataListeners.put(ref, userDataListener);
+        ref.addListenerForSingleValueEvent(userDataListener);
+    }
+
+    private void onOnlineUserChanged(DataSnapshot dataSnapshot,
+                                     final OnlineUsersUpdateReceiver receiver) {
+        if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
+            return;
+        }
+        final String uid = dataSnapshot.getKey();
+        final String userStatus = (String) dataSnapshot.getValue();
+        DatabaseReference ref = mDbReference.child("users").child(uid);
+        ValueEventListener userDataListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String name = (String) dataSnapshot.child("name").getValue();
+                String avatar = (String) dataSnapshot.child("avatar").getValue();
+                OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus, null);
+                receiver.onUserChanged(onlineUser);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        ref.addListenerForSingleValueEvent(userDataListener);
     }
 
     private void onOnlineUserRemoved(DataSnapshot dataSnapshot,
                                      final OnlineUsersUpdateReceiver receiver) {
         final String uid = dataSnapshot.getKey();
-        receiver.onUserDeleted(uid);
-//        DatabaseReference ref = mDbReference.child("users").child(uid);
-//        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-////                receiver.onUserDeleted(mOnlineUserHashMap.get(uid));
-////                mOnlineUserHashMap.remove(uid);
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
+        final String userStatus = (String) dataSnapshot.getValue();
+
+        DatabaseReference ref = mDbReference.child("users").child(uid);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String name = (String) dataSnapshot.child("name").getValue();
+                String avatar = (String) dataSnapshot.child("avatar").getValue();
+                OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus, null);
+                receiver.onUserDeleted(onlineUser);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public interface OnlineUsersUpdateReceiver {
-        void onUserAdded(OnlineUser onlineUser);
+        void onUserAdded(OnlineUser user);
 
-        void onUserChanged(OnlineUser onlineUser);
+        void onUserChanged(OnlineUser user);
 
-        void onUserDeleted(String uid);
+        void onUserDeleted(OnlineUser user);
     }
 
     public void registerChatMessagesListener(ChatUpdateReceiver receiver) {

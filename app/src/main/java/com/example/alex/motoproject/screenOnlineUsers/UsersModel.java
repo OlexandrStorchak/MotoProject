@@ -51,37 +51,39 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     }
 
     @Override
-    public void onUserAdded(OnlineUser onlineUser) {
-        mUsers.add(onlineUser);
-        mPresenter.notifyItemInserted(mUsers.indexOf(onlineUser));
+    public void onUserAdded(OnlineUser user) {
+        mUsers.add(user);
+        mPresenter.addOrUpdateUser(user);
     }
 
     @Override
-    public void onUserChanged(OnlineUser onlineUser) {
-        String thisUserId = onlineUser.getUid();
+    public void onUserChanged(OnlineUser user) {
         for (OnlineUser iteratedUser : mUsers) {
-            if (iteratedUser.getUid().equals(thisUserId)) {
-                mUsers.set(mUsers.indexOf(iteratedUser), onlineUser);
-                mPresenter.notifyItemChanged(mUsers.indexOf(onlineUser));
+            if (iteratedUser.getUid().equals(user.getUid())) {
+                mUsers.set(mUsers.indexOf(iteratedUser), user);
                 return;
             }
         }
+
+        mPresenter.addOrUpdateUser(user);
     }
 
-//    @Override
-//    public void onUserDeleted(OnlineUser onlineUser) {
-//        mPresenter.notifyItemRemoved(mUsers.indexOf(onlineUser));
-//        mUsers.remove(onlineUser);
-//    }
     @Override
-    public void onUserDeleted(String thisUserId) {
-        for (OnlineUser iteratedUser : mUsers) {
-            if (iteratedUser.getUid().equals(thisUserId)) {
-                int position = mUsers.indexOf(iteratedUser);
-                mPresenter.notifyItemRemoved(position);
-                mUsers.remove(position);
-                return;
+    public void onUserDeleted(OnlineUser user) {
+        mUsers.remove(user);
+        mPresenter.removeUser(user);
+    }
+
+    public List<OnlineUser> filterUsers(String query) {
+        final String lowerCaseQuery = query.toLowerCase();
+
+        final List<OnlineUser> filteredModelList = new ArrayList<>();
+        for (OnlineUser user : mUsers) {
+            final String text = user.getName().toLowerCase();
+            if (text.contains(lowerCaseQuery)) {
+                filteredModelList.add(user);
             }
         }
+        return filteredModelList;
     }
 }

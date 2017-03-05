@@ -1,5 +1,6 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,18 +18,90 @@ import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.VH> {
     private static final int TYPE_PENDING_FRIEND = 10;
-    private List<OnlineUser> mUsers;
+//    private List<OnlineUser> mUsers;
+    private final SortedList.Callback<OnlineUser> mSortCallback = new SortedList.Callback<OnlineUser>() {
+
+        @Override
+        public void onInserted(int position, int count) {
+            notifyItemRangeInserted(position, count);
+        }
+
+        @Override
+        public void onRemoved(int position, int count) {
+            notifyItemRangeRemoved(position, count);
+        }
+
+        @Override
+        public void onMoved(int fromPosition, int toPosition) {
+            notifyItemMoved(fromPosition, toPosition);
+        }
+
+        @Override
+        public int compare(OnlineUser o1, OnlineUser o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+
+        @Override
+        public void onChanged(int position, int count) {
+            notifyItemRangeChanged(position, count);
+        }
+
+        @Override
+        public boolean areContentsTheSame(OnlineUser oldItem, OnlineUser newItem) {
+            return oldItem.equals(newItem);
+        }
+
+        @Override
+        public boolean areItemsTheSame(OnlineUser item1, OnlineUser item2) {
+            return item1.getUid().equals(item2.getUid());
+        }
+    };
+    private final SortedList<OnlineUser> mUsers =
+            new SortedList<>(OnlineUser.class, mSortCallback);
 
     UsersAdapter() {
 
     }
 
-    public void setUsersList(List<OnlineUser> users) {
-        mUsers = users;
+//    public void setUsersList(List<OnlineUser> users) {
+//        mUsers = users;
+//    }
+
+    void addUser(OnlineUser user) {
+        mUsers.add(user);
+    }
+
+    void removeUser(OnlineUser user) {
+        mUsers.remove(user);
+    }
+
+    void clearUsers() {
+        mUsers.clear();
+    }
+
+    List<OnlineUser> getUsers() {
+        List<OnlineUser> users = new ArrayList<>();
+        for (int i = mUsers.size() - 1; i >= 0; i--) {
+            users.add(mUsers.get(i));
+        }
+        return users;
+    }
+
+    public void replaceAll(List<OnlineUser> models) {
+        mUsers.beginBatchedUpdates();
+        for (int i = mUsers.size() - 1; i >= 0; i--) {
+            final OnlineUser model = mUsers.get(i);
+            if (!models.contains(model)) {
+                mUsers.remove(model);
+            }
+        }
+        mUsers.addAll(models);
+        mUsers.endBatchedUpdates();
     }
 
     @Override

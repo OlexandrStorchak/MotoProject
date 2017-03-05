@@ -53,7 +53,30 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
     @Override
     public void onViewCreated() {
-        getView().setListToAdapter(mModel.getUsers());
+//        getView().setListToAdapter(mModel.getUsers());
+    }
+
+    @Override
+    public void onQueryTextChange(String query) {
+        getView().replaceAllUsers(mModel.filterUsers(query));
+    }
+
+    @Override
+    public void onRefreshSwipeLayout() {
+        onStop();
+        getView().clearUsers();
+        getView().disableRefreshingSwipeLayout();
+        onStart();
+    }
+
+    @Override
+    public void addOrUpdateUser(OnlineUser user) {
+        getView().addOrUpdateUser(user);
+    }
+
+    @Override
+    public void removeUser(OnlineUser user) {
+        getView().removeUser(user);
     }
 
     @Override
