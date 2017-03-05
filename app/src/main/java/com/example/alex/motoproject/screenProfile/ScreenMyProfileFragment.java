@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -41,6 +42,8 @@ import com.squareup.picasso.Picasso;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import javax.inject.Inject;
@@ -74,7 +77,7 @@ public class ScreenMyProfileFragment extends Fragment {
     private SharedPreferences profileSet;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-    String currentUserId;
+    MyProfileFirebase myProfileFirebase;
 
     public static final String PROFSET = "profSett";
 
@@ -134,17 +137,16 @@ public class ScreenMyProfileFragment extends Fragment {
         saveProfileData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyProfileFirebase profile = new MyProfileFirebase();
-                profile.setId(mFirebaseDatabaseHelper.getCurrentUser().getUid());
-                profile.setAvatar(mFirebaseDatabaseHelper.getCurrentUser().getPhotoUrl().toString());
-                profile.setEmail(mFirebaseDatabaseHelper.getCurrentUser().getEmail());
+                myProfileFirebase.setId(mFirebaseDatabaseHelper.getCurrentUser().getUid());
+                myProfileFirebase.setEmail(mFirebaseDatabaseHelper.getCurrentUser().getEmail());
 
-                profile.setMotorcycle(motorcycleEdit.getText().toString());
-                profile.setName(nameEdit.getText().toString());
-                profile.setAboutMe(aboutMeEdit.getText().toString());
-                profile.setNickName(nickNameEdit.getText().toString());
+                myProfileFirebase.setMotorcycle(motorcycleEdit.getText().toString());
+                myProfileFirebase.setName(nameEdit.getText().toString());
+                myProfileFirebase.setAboutMe(aboutMeEdit.getText().toString());
+                myProfileFirebase.setNickName(nickNameEdit.getText().toString());
 
-                mFirebaseDatabaseHelper.saveMyProfile(profile);
+                mFirebaseDatabaseHelper.saveMyProfile(myProfileFirebase);
+
                 mFirebaseDatabaseHelper.getCurrentUserModel();
                 InputMethodManager inputMethodManager =
                         (InputMethodManager) getActivity()
@@ -250,6 +252,7 @@ public class ScreenMyProfileFragment extends Fragment {
     @Subscribe
     public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
         editMode(View.VISIBLE, View.GONE);
+        myProfileFirebase=user.getMyProfileFirebase();
         currentUid = user.getMyProfileFirebase().getId();
         email.setText(user.getMyProfileFirebase().getEmail());
 
@@ -266,10 +269,6 @@ public class ScreenMyProfileFragment extends Fragment {
 
     }
 
-    public void setUserId(String currentUserId) {
-        this.currentUserId = currentUserId;
-
-    }
 
     @Override
     public void onDestroy() {
@@ -295,7 +294,8 @@ public class ScreenMyProfileFragment extends Fragment {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), filePath);
                 avatar.setImageBitmap(bitmap);
-                uploadFile(filePath);
+
+               uploadFile(filePath);
 
             } catch (IOException e) {
                 e.printStackTrace();
