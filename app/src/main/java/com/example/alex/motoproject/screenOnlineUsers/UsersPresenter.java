@@ -70,6 +70,16 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     }
 
     @Override
+    public void onUserFriendshipAccepted(String uid) {
+        mModel.changeUserRelation(uid, "friend");
+    }
+
+    @Override
+    public void onUserFriendshipDeclined(String uid) {
+        mModel.changeUserRelation(uid, null);
+    }
+
+    @Override
     public void addOrUpdateUser(OnlineUser user) {
         getView().addOrUpdateUser(user);
     }

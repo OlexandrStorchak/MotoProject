@@ -93,4 +93,9 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         }
         return filteredModelList;
     }
+
+    @Override
+    public void changeUserRelation(String uid, String relation) {
+        mFirebaseDatabaseHelper.changeUserRelation(uid, relation);
+    }
 }

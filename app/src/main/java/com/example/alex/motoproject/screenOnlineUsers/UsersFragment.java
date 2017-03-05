@@ -24,16 +24,14 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class UsersFragment extends Fragment implements UsersMvp.PresenterToView {
+public class UsersFragment extends Fragment
+        implements UsersMvp.PresenterToView, UsersAdapter.UsersAdapterListener {
+    public UsersAdapter mAdapter = new UsersAdapter(this);
     // TODO: 02.03.2017 inject interface, not presenter itself
     @Inject
     UsersPresenter mPresenter;
-    public UsersAdapter mAdapter = new UsersAdapter();
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
-//    public BaseUsersFragment(UsersAdapter adapter) {
-//        mAdapter = adapter;
-//    }
     public UsersFragment() {
 
     }
@@ -83,7 +81,11 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                mPresenter.onQueryTextChange(newText);
+                // TODO: 05.03.2017 without checking the app crashes when trying to open up details fragment
+                if (mPresenter != null) {
+                    mPresenter.onQueryTextChange(newText);
+                }
+
                 return true;
             }
         });
@@ -112,11 +114,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
         rv.setAdapter(mAdapter);
     }
-
-//    @Override
-//    public void setListToAdapter(List<OnlineUser> users) {
-//        mAdapter.setUsersList(users);
-//    }
 
     @Override
     public int getListType() {
@@ -153,11 +150,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         mAdapter.clearUsers();
         mPresenter = null;
     }
-//    @Override
-//    public void onUserAdded(OnlineUser onlineUser) {
-//        mUsers.add(onlineUser);
-//        mAdapter.notifyItemInserted(mUsers.indexOf(onlineUser));
-//    }
 
     @Override
     public void notifyItemInserted(int position) {
@@ -179,21 +171,13 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
-//    @Override
-//    public void onUserChanged(OnlineUser onlineUser) {
-//        String thisUserId = onlineUser.getUid();
-//        for (OnlineUser iteratedUser : mUsers) {
-//            if (iteratedUser.getUid().equals(thisUserId)) {
-//                mUsers.set(mUsers.indexOf(iteratedUser), onlineUser);
-//                mAdapter.notifyItemChanged(mUsers.indexOf(onlineUser));
-//                return;
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void onUserDeleted(OnlineUser onlineUser) {
-//        mAdapter.notifyItemRemoved(mUsers.indexOf(onlineUser));
-//        mUsers.remove(onlineUser);
-//    }
+    @Override
+    public void onUserFriendshipAccepted(String uid) {
+        mPresenter.onUserFriendshipAccepted(uid);
+    }
+
+    @Override
+    public void onUserFriendshipDeclined(String uid) {
+        mPresenter.onUserFriendshipDeclined(uid);
+    }
 }

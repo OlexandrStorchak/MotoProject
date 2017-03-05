@@ -13,6 +13,10 @@ public interface UsersMvp {
         void onQueryTextChange(String newText);
 
         void onRefreshSwipeLayout();
+
+        void onUserFriendshipAccepted(String uid);
+
+        void onUserFriendshipDeclined(String uid);
     }
 
     interface PresenterToView {
@@ -53,6 +57,8 @@ public interface UsersMvp {
         List<OnlineUser> getUsers();
 
         List<OnlineUser> filterUsers(String query);
+
+        void changeUserRelation(String uid, String relation);
     }
 
     interface ModelToPresenter {

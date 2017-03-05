@@ -18,12 +18,10 @@ import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.VH> {
     private static final int TYPE_PENDING_FRIEND = 10;
-//    private List<OnlineUser> mUsers;
     private final SortedList.Callback<OnlineUser> mSortCallback = new SortedList.Callback<OnlineUser>() {
 
         @Override
@@ -63,14 +61,11 @@ class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.VH> {
     };
     private final SortedList<OnlineUser> mUsers =
             new SortedList<>(OnlineUser.class, mSortCallback);
+    private UsersAdapterListener mUsersFragment;
 
-    UsersAdapter() {
-
+    UsersAdapter(UsersAdapterListener listener) {
+        mUsersFragment = listener;
     }
-
-//    public void setUsersList(List<OnlineUser> users) {
-//        mUsers = users;
-//    }
 
     void addUser(OnlineUser user) {
         mUsers.add(user);
@@ -84,15 +79,7 @@ class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.VH> {
         mUsers.clear();
     }
 
-    List<OnlineUser> getUsers() {
-        List<OnlineUser> users = new ArrayList<>();
-        for (int i = mUsers.size() - 1; i >= 0; i--) {
-            users.add(mUsers.get(i));
-        }
-        return users;
-    }
-
-    public void replaceAll(List<OnlineUser> models) {
+    void replaceAll(List<OnlineUser> models) {
         mUsers.beginBatchedUpdates();
         for (int i = mUsers.size() - 1; i >= 0; i--) {
             final OnlineUser model = mUsers.get(i);
@@ -172,7 +159,7 @@ class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.VH> {
 
     private void bindPendingFriend(final VH holder, int position) {
         PendingFriendVH pendingFriendVH = (PendingFriendVH) holder;
-        pendingFriendVH.setButtonsClickListeners();
+        pendingFriendVH.setButtonsClickListeners(mUsers.get(position).getUid());
     }
 
     @Override
@@ -180,6 +167,12 @@ class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.VH> {
         return mUsers.size();
     }
 
+
+    interface UsersAdapterListener {
+        void onUserFriendshipAccepted(String uid);
+
+        void onUserFriendshipDeclined(String uid);
+    }
 
     class VH extends RecyclerView.ViewHolder {
         ImageView avatar;
@@ -222,18 +215,18 @@ class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.VH> {
             declineFriendshipButton = (Button) itemView.findViewById(R.id.button_decline_friend);
         }
 
-        void setButtonsClickListeners() {
+        void setButtonsClickListeners(final String uid) {
             acceptFriendshipButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    mUsersFragment.onUserFriendshipAccepted(uid);
                 }
             });
 
             declineFriendshipButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    mUsersFragment.onUserFriendshipDeclined(uid);
                 }
             });
         }

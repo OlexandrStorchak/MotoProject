@@ -268,6 +268,11 @@ public class FirebaseDatabaseHelper {
     /**
      * Users listener
      */
+    public void changeUserRelation(String uid, String relation) {
+        DatabaseReference ref = mDbReference.child("users")
+                .child(getCurrentUser().getUid()).child("friendList").child(uid);
+        ref.setValue(relation);
+    }
 
     public void registerOnlineUsersGlobalListener() {
         DatabaseReference ref = mDbReference.child("onlineUsers");
@@ -483,14 +488,6 @@ public class FirebaseDatabaseHelper {
         receiver.onUserDeleted(new OnlineUser(uid));
     }
 
-    public interface OnlineUsersUpdateReceiver {
-        void onUserAdded(OnlineUser user);
-
-        void onUserChanged(OnlineUser user);
-
-        void onUserDeleted(OnlineUser user);
-    }
-
     public void registerChatMessagesListener(ChatUpdateReceiver receiver) {
         mChatModel = receiver;
         mChatMessagesListener = new ChildEventListener() {
@@ -693,18 +690,6 @@ public class FirebaseDatabaseHelper {
                         ServerValue.TIMESTAMP));
     }
 
-    public interface ChatUpdateReceiver {
-        void onNewChatMessage(ChatMessage message);
-
-        void onOlderChatMessages(List<ChatMessage> olderMessages, int lastPos);
-
-        void onChatMessageNewData(ChatMessage message);
-
-        void onCurrentUserLocationReady(LatLng latLng);
-
-        void onLastMessages();
-    }
-
     //Send friend request
     public void sendFriendRequest(String userId) {
         final DatabaseReference ref = mDbReference.child("users").child(userId)
@@ -809,6 +794,26 @@ public class FirebaseDatabaseHelper {
             }
 
         });
+    }
+
+    public interface OnlineUsersUpdateReceiver {
+        void onUserAdded(OnlineUser user);
+
+        void onUserChanged(OnlineUser user);
+
+        void onUserDeleted(OnlineUser user);
+    }
+
+    public interface ChatUpdateReceiver {
+        void onNewChatMessage(ChatMessage message);
+
+        void onOlderChatMessages(List<ChatMessage> olderMessages, int lastPos);
+
+        void onChatMessageNewData(ChatMessage message);
+
+        void onCurrentUserLocationReady(LatLng latLng);
+
+        void onLastMessages();
     }
 
 
