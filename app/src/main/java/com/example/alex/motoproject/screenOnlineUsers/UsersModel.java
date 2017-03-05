@@ -58,18 +58,25 @@ public class UsersModel implements UsersMvp.PresenterToModel,
 
     @Override
     public void onUserChanged(OnlineUser user) {
+        mPresenter.addOrUpdateUser(user);
+
         for (OnlineUser iteratedUser : mUsers) {
             if (iteratedUser.getUid().equals(user.getUid())) {
                 mUsers.set(mUsers.indexOf(iteratedUser), user);
                 return;
             }
         }
-
-        mPresenter.addOrUpdateUser(user);
     }
 
     @Override
     public void onUserDeleted(OnlineUser user) {
+        for (OnlineUser iteratedUser : mUsers) {
+            if (iteratedUser.getUid().equals(user.getUid())) {
+                mPresenter.removeUser(iteratedUser);
+                mUsers.remove(mUsers.indexOf(iteratedUser));
+                return;
+            }
+        }
         mUsers.remove(user);
         mPresenter.removeUser(user);
     }

@@ -384,25 +384,8 @@ public class FirebaseDatabaseHelper {
 
     private void onFriendRemoved(DataSnapshot dataSnapshot,
                                  final OnlineUsersUpdateReceiver receiver) {
-        final String uid = dataSnapshot.getKey();
-        final String relation = (String) dataSnapshot.getValue();
-        final String userStatus = mOnlineUserStatusHashMap.get(uid);
-        DatabaseReference ref = mDbReference.child("users").child(uid);
-        ValueEventListener userDataListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String name = (String) dataSnapshot.child("name").getValue();
-                String avatar = (String) dataSnapshot.child("avatar").getValue();
-                OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus, relation);
-                receiver.onUserDeleted(onlineUser);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        ref.addListenerForSingleValueEvent(userDataListener);
+        String uid = dataSnapshot.getKey();
+        receiver.onUserDeleted(new OnlineUser(uid));
     }
 
     public void registerOnlineUsersListener(final OnlineUsersUpdateReceiver receiver) {
@@ -496,24 +479,8 @@ public class FirebaseDatabaseHelper {
 
     private void onOnlineUserRemoved(DataSnapshot dataSnapshot,
                                      final OnlineUsersUpdateReceiver receiver) {
-        final String uid = dataSnapshot.getKey();
-        final String userStatus = (String) dataSnapshot.getValue();
-
-        DatabaseReference ref = mDbReference.child("users").child(uid);
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String name = (String) dataSnapshot.child("name").getValue();
-                String avatar = (String) dataSnapshot.child("avatar").getValue();
-                OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus, null);
-                receiver.onUserDeleted(onlineUser);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        String uid = dataSnapshot.getKey();
+        receiver.onUserDeleted(new OnlineUser(uid));
     }
 
     public interface OnlineUsersUpdateReceiver {
