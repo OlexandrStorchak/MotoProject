@@ -13,7 +13,6 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,6 +74,7 @@ public class ScreenMyProfileFragment extends Fragment {
     private ImageView saveProfileData;
     private ImageView editProfileData;
     private LinearLayout gpsPanel;
+    private LinearLayout gpsRatePanel;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private SharedPreferences profileSet;
     private MyProfileFirebase myProfileFirebase;
@@ -126,7 +126,7 @@ public class ScreenMyProfileFragment extends Fragment {
         nickNameEdit = (EditText) view.findViewById(R.id.profile_nick_name_edit);
         motorcycleEdit = (EditText) view.findViewById(R.id.profile_motorcycle_edit);
         aboutMeEdit = (EditText) view.findViewById(R.id.profile_about_me_edit);
-
+        gpsRatePanel = (LinearLayout)view.findViewById(R.id.profile_gps_rate_panel);
 
         avatar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -263,6 +263,7 @@ public class ScreenMyProfileFragment extends Fragment {
                 mapVisibility.setSelection(0);
                 break;
         }
+
         SharedPreferences preferencesRate = getContext().getSharedPreferences(GPS_RATE, Context.MODE_PRIVATE);
         gpsRate = preferencesRate.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null);
         if (gpsRate == null) {
@@ -309,6 +310,7 @@ public class ScreenMyProfileFragment extends Fragment {
         editProfileData.setVisibility(textViews);
 
         gpsPanel.setVisibility(textViews);
+        gpsRatePanel.setVisibility(textViews);
     }
 
     @Subscribe

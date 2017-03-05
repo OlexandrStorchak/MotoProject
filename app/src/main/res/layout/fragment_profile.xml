@@ -11,7 +11,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="15dp"
             android:orientation="vertical">
 
 
@@ -20,48 +19,90 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/nav_header_height"
                 android:layout_gravity="center"
+                android:background="@color/colorPrimaryDark"
                 android:maxHeight="@dimen/nav_header_height"
                 android:maxWidth="200dp" />
-            <ImageView
-                android:id="@+id/profile_show_on_map_indicator"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_gravity="center" />
-            <TextView
-                android:id="@+id/profile_text_gps_rate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/time_rate_gps"
-                android:textColor="@color/colorDark"
-                android:textSize="15sp"
-                />
 
-            <Spinner
-                android:id="@+id/profile_set_gps_rate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textColor="@color/blueGrey50"
+            <LinearLayout
+                android:id="@+id/profile_gps_panel"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="bottom"
+                android:orientation="horizontal">
 
-                android:entries="@array/profile_spinner_set_gps_rate" />
+
+                <TextView
+                    android:id="@+id/profile_text_show_me_options"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="15dp"
+                    android:text="@string/text_show_me_on_map"
+                    android:textColor="@color/colorDark"
+                    android:textSize="15sp" />
+
+                <Spinner
+                    android:id="@+id/profile_set_gps_visibility"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:entries="@array/profile_spinner_set_gps_visibility"
+                    android:textAlignment="center"
+                    android:textColor="@color/blueGrey50" />
+
+                <ImageView
+                    android:id="@+id/profile_show_on_map_indicator"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/profile_gps_rate_panel"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="bottom">
+
+                <TextView
+                    android:id="@+id/profile_text_gps_rate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="15dp"
+                    android:text="@string/time_rate_gps"
+                    android:textColor="@color/colorDark"
+                    android:textSize="15sp" />
+
+                <Spinner
+                    android:id="@+id/profile_set_gps_rate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:entries="@array/profile_spinner_set_gps_rate"
+                    android:textAlignment="center"
+                    android:textColor="@color/blueGrey50" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/profile_email"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-
-                />
+                android:layout_gravity="left"
+                android:layout_margin="15dp"
+                android:textColor="@color/colorDark"
+                android:textSize="15sp" />
 
 
             <TextView
                 android:id="@+id/profile_name"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-
-                />
+                android:layout_gravity="left"
+                android:layout_margin="15dp"
+                android:textColor="@color/colorDark"
+                android:textSize="15sp" />
 
             <EditText
                 android:id="@+id/profile_name_edit"
@@ -73,11 +114,12 @@
 
             <TextView
                 android:id="@+id/profile_nick_name"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-
-                />
+                android:layout_gravity="left"
+                android:layout_margin="15dp"
+                android:textColor="@color/colorDark"
+                android:textSize="15sp" />
 
             <EditText
                 android:id="@+id/profile_nick_name_edit"
@@ -89,11 +131,12 @@
 
             <TextView
                 android:id="@+id/profile_motorcycle"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-
-                />
+                android:layout_gravity="left"
+                android:layout_margin="15dp"
+                android:textColor="@color/colorDark"
+                android:textSize="15sp" />
 
             <EditText
                 android:id="@+id/profile_motorcycle_edit"
@@ -105,11 +148,12 @@
 
             <TextView
                 android:id="@+id/profile_about_me"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-
-                />
+                android:layout_gravity="left"
+                android:layout_margin="15dp"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:textColor="@color/colorDark" />
 
             <EditText
                 android:id="@+id/profile_about_me_edit"
@@ -120,57 +164,36 @@
                 android:visibility="gone" />
 
 
-            <ImageView
-                android:id="@+id/profile_btn_edit"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center"
-                android:src="@mipmap/ic_edit_profile"
-                android:text="@string/edit_changes" />
-
-            <ImageView
-                android:id="@+id/profile_btn_save"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center"
-                android:src="@mipmap/ic_save_profile"
-                android:visibility="gone"
-                android:text="@string/save_changes" />
-
-
 
         </LinearLayout>
 
     </ScrollView>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:id="@+id/profile_gps_panel"
         android:layout_gravity="bottom"
-
+        android:gravity="end"
+        android:layout_margin="@dimen/activity_vertical_margin"
         >
 
+        <ImageView
+            android:id="@+id/profile_btn_edit"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:src="@mipmap/ic_edit_profile"
+            android:text="@string/edit_changes" />
 
-        <TextView
-            android:id="@+id/profile_text_show_me_options"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/text_show_me_on_map"
-            android:textColor="@color/colorDark"
-            android:textSize="15sp"
-            />
-
-        <Spinner
-            android:id="@+id/profile_set_gps_visibility"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textColor="@color/blueGrey50"
-
-            android:entries="@array/profile_spinner_set_gps_visibility" />
-
+        <ImageView
+            android:id="@+id/profile_btn_save"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:src="@mipmap/ic_save_profile"
+            android:text="@string/save_changes"
+            android:visibility="gone" />
 
     </LinearLayout>
 

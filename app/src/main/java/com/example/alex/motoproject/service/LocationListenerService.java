@@ -92,18 +92,7 @@ public class LocationListenerService extends Service implements
         mFirebaseDatabaseHelper.setUserOnline(preferences.getString(
                 mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
 
-        SharedPreferences preferencesRate = getApplicationContext()
-                .getSharedPreferences(GPS_RATE, Context.MODE_PRIVATE);
 
-        mRequestFrequency=preferencesRate.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),null);
-
-        if(mRequestFrequency==null){
-            mRequestFrequency=LOCATION_REQUEST_FREQUENCY_DEFAULT;
-
-            preferencesRate.edit()
-                    .putString(mFirebaseDatabaseHelper.getCurrentUser()
-                            .getUid(),LOCATION_REQUEST_FREQUENCY_DEFAULT).apply();
-        }
 
         ((App) getApplication()).setLocationListenerServiceOn(true);
 
@@ -126,11 +115,12 @@ public class LocationListenerService extends Service implements
                 SharedPreferences preferences = getApplicationContext()
                         .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
 
-                mFirebaseDatabaseHelper.setUserOnline(preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
+                mFirebaseDatabaseHelper.
+                        setUserOnline(preferences.getString(
+                                mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
             }
         }
 
-//        EventBus.getDefault().unregister(this);
 
         super.onDestroy();
     }
@@ -179,19 +169,30 @@ public class LocationListenerService extends Service implements
 
     //different variants of LocationRequest that might be changed via settings
     protected LocationRequest createLocationRequest() {
+        SharedPreferences preferencesRate = getApplicationContext()
+                .getSharedPreferences(GPS_RATE, Context.MODE_PRIVATE);
+
+        mRequestFrequency = preferencesRate
+                .getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null);
+
+        if (mRequestFrequency == null) {
+            mRequestFrequency = LOCATION_REQUEST_FREQUENCY_DEFAULT;
+        }
+
         LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
         switch (mRequestFrequency) {
-            case "highFrequency":
+            case LOCATION_REQUEST_FREQUENCY_HIGH:
                 mLocationRequest.setInterval(10000); //10 secs
                 mLocationRequest.setFastestInterval(50000); //5 secs
                 break;
-            case "default":
+            case LOCATION_REQUEST_FREQUENCY_DEFAULT:
                 mLocationRequest.setInterval(20000); //20 secs
                 mLocationRequest.setFastestInterval(10000); //10 secs
                 mLocationRequest.setSmallestDisplacement(10f); //10 m
                 break;
-            case "lowFrequency":
+            case LOCATION_REQUEST_FREQUENCY_LOW:
                 mLocationRequest.setInterval(30000); //30 secs
                 mLocationRequest.setFastestInterval(20000); //20 secs
                 mLocationRequest.setSmallestDisplacement(50f); //50 m
@@ -221,6 +222,7 @@ public class LocationListenerService extends Service implements
                         .setSmallIcon(R.drawable.ic_notification_v1)
                         .setContentTitle("MotoProject")
                         .setContentText("Місцезнаходження відстежується.")
+
                         .setShowWhen(false);
 
         //create pending intent used when tapping on the app notification
