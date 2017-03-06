@@ -43,7 +43,7 @@ public class FirebaseDatabaseHelper {
 
     private static final int CHAT_MESSAGES_MIN_COUNT_LIMIT = 31; //31
     private int mMessagesCountLimit = 0;
-    //    private final HashMap<String, OnlineUser> mOnlineUserHashMap = new HashMap<>();
+
     private ChatUpdateReceiver mChatModel;
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference mDbReference = mDatabase.getReference();
@@ -53,12 +53,9 @@ public class FirebaseDatabaseHelper {
     private ChildEventListener mChatMessagesListener;
     private DatabaseReference mOnlineUsersRef;
 
-    private ArrayList<String> mFriendsIds = new ArrayList<>();
-    private ArrayList<String> mOnlineUsersUids = new ArrayList<>();
     private HashMap<String, String> mOnlineUserStatusHashMap = new HashMap<>();
-
-    //    private ArrayList<ValueEventListener> mLocationListeners = new ArrayList<>();
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
+
     private String mFirstChatMsgKeyAfterFetch;
     private boolean isFirstChatMessageAfterFetch;
     private boolean isFirstNewChatMessageAfterFetch = true;
@@ -135,6 +132,9 @@ public class FirebaseDatabaseHelper {
 
     }
 
+    /**
+     * Location listeners
+     */
 
     public void registerOnlineUsersLocationListener() {
         mOnlineUsersRef = mDbReference.child("onlineUsers");
@@ -487,6 +487,10 @@ public class FirebaseDatabaseHelper {
         String uid = dataSnapshot.getKey();
         receiver.onUserDeleted(new OnlineUser(uid));
     }
+
+    /**
+     * Chat listeners
+     */
 
     public void registerChatMessagesListener(ChatUpdateReceiver receiver) {
         mChatModel = receiver;

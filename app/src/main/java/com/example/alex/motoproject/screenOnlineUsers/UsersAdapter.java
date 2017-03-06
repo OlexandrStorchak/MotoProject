@@ -2,7 +2,6 @@ package com.example.alex.motoproject.screenOnlineUsers;
 
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -102,7 +101,7 @@ class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.VH> {
                 viewHolder = new PendingFriendVH(itemView);
                 break;
             default:
-                itemView = inflater.inflate(R.layout.who_is_online_list_row_small, parent, false);
+                itemView = inflater.inflate(R.layout.item_user, parent, false);
                 viewHolder = new VH(itemView);
                 break;
         }
@@ -115,7 +114,7 @@ class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.VH> {
             case TYPE_PENDING_FRIEND:
                 PendingFriendVH pendingFriendVH = (PendingFriendVH) holder;
                 bindUser(pendingFriendVH, position);
-                bindPendingFriend(pendingFriendVH, position);
+                bindPendingFriend(pendingFriendVH);
                 break;
             default:
                 bindUser(holder, position);
@@ -148,7 +147,7 @@ class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.VH> {
         if (mUsers.get(position).getRelation() == null) {
             return super.getItemViewType(position);
         }
-        Log.e(String.valueOf(mUsers.get(position).getName()), String.valueOf(mUsers.get(position).getRelation()));
+
         switch (mUsers.get(position).getRelation()) {
             case "pending":
                 return TYPE_PENDING_FRIEND;
@@ -157,9 +156,9 @@ class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.VH> {
         }
     }
 
-    private void bindPendingFriend(final VH holder, int position) {
+    private void bindPendingFriend(final VH holder) {
         PendingFriendVH pendingFriendVH = (PendingFriendVH) holder;
-        pendingFriendVH.setButtonsClickListeners(mUsers.get(position).getUid());
+        pendingFriendVH.setButtonsClickListeners();
     }
 
     @Override
@@ -215,18 +214,18 @@ class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.VH> {
             declineFriendshipButton = (Button) itemView.findViewById(R.id.button_decline_friend);
         }
 
-        void setButtonsClickListeners(final String uid) {
+        void setButtonsClickListeners() {
             acceptFriendshipButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mUsersFragment.onUserFriendshipAccepted(uid);
+                    mUsersFragment.onUserFriendshipAccepted(mUsers.get(getAdapterPosition()).getUid());
                 }
             });
 
             declineFriendshipButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mUsersFragment.onUserFriendshipDeclined(uid);
+                    mUsersFragment.onUserFriendshipDeclined(mUsers.get(getAdapterPosition()).getUid());
                 }
             });
         }

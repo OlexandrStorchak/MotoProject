@@ -47,6 +47,8 @@
     <string name="chat_message_map">Місцезнаходження</string>
     <string name="drawer_btn_friends">Друзі</string>
     <string name="search_title_users">Пошук</string>
+    <string name="accept">Прийняти</string>
+    <string name="decline">Відхилити</string>
 
 
 </resources>

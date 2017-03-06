@@ -41,6 +41,8 @@ public interface UsersMvp {
         void clearUsers();
 
         void disableRefreshingSwipeLayout();
+
+        void setSearchViewIconified(boolean iconified);
     }
 
     interface PresenterToModel {

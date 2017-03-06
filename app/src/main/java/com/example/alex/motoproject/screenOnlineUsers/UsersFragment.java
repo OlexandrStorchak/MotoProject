@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -31,6 +32,7 @@ public class UsersFragment extends Fragment
     @Inject
     UsersPresenter mPresenter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private SearchView mSearchView;
 
     public UsersFragment() {
 
@@ -72,8 +74,8 @@ public class UsersFragment extends Fragment
         inflater.inflate(R.menu.appbar_userlist, menu);
 
         final MenuItem searchItem = menu.findItem(R.id.search_users);
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 return false;
@@ -111,8 +113,13 @@ public class UsersFragment extends Fragment
 
         mPresenter.onViewCreated();
         RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
-        rv.setLayoutManager(new LinearLayoutManager(getContext()));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rv.getContext(),
+                layoutManager.getOrientation());
+        rv.addItemDecoration(dividerItemDecoration);
+        rv.setLayoutManager(layoutManager);
         rv.setAdapter(mAdapter);
+//        rv.setItemAnimator(null);
     }
 
     @Override
@@ -179,5 +186,10 @@ public class UsersFragment extends Fragment
     @Override
     public void onUserFriendshipDeclined(String uid) {
         mPresenter.onUserFriendshipDeclined(uid);
+    }
+
+    @Override
+    public void setSearchViewIconified(boolean iconified) {
+        mSearchView.setIconified(iconified);
     }
 }

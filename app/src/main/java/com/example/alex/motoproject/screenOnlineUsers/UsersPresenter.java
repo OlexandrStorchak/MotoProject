@@ -66,6 +66,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
         onStop();
         getView().clearUsers();
         getView().disableRefreshingSwipeLayout();
+        getView().setSearchViewIconified(true);
         onStart();
     }
 

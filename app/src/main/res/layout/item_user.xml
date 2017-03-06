@@ -3,36 +3,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="55dp"
-    android:layout_marginLeft="@dimen/activity_vertical_margin"
-    android:layout_marginRight="@dimen/activity_vertical_margin"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:paddingLeft="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_vertical_margin">
+
     <ImageView
         android:id="@+id/friends_list_ava"
         android:layout_width="45dp"
         android:layout_height="45dp"
-        android:maxWidth="45dp"
-        android:maxHeight="45dp"
         android:layout_gravity="center_vertical"
+        android:maxHeight="45dp"
+        android:maxWidth="45dp"
         android:src="@drawable/ava4" />
 
     <TextView
+        android:id="@+id/userName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        tools:text="User name"
-        android:textColor="@color/grey500"
+        android:layout_gravity="center_vertical"
         android:layout_marginLeft="@dimen/activity_vertical_margin"
         android:layout_marginStart="@dimen/activity_vertical_margin"
-        android:layout_gravity="center_vertical"
-        android:id="@+id/userName" />
+        android:layout_weight="1"
+        android:textColor="@color/grey500"
+        android:textSize="18sp"
+        tools:text="User name" />
 
     <ImageView
+        android:id="@+id/friends_list_map_icon"
         android:layout_width="45dp"
         android:layout_height="45dp"
-        android:id="@+id/friends_list_map_icon"
-        android:maxWidth="45dp"
-        android:maxHeight="45dp"
         android:layout_gravity="center_vertical"
+        android:maxHeight="45dp"
+        android:maxWidth="45dp"
         android:src="@mipmap/ic_map_cur"
         android:visibility="gone" />
 
