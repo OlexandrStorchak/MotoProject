@@ -17,9 +17,13 @@ public interface UsersMvp {
         void onUserFriendshipAccepted(String uid);
 
         void onUserFriendshipDeclined(String uid);
+
+        List<OnlineUser> onGetUsersList();
     }
 
     interface PresenterToView {
+        void setUserList(List<OnlineUser> users);
+
         void notifyItemInserted(int position);
 
         void notifyItemChanged(int position);
@@ -32,10 +36,12 @@ public interface UsersMvp {
 
         int getListType();
 
-        void addOrUpdateUser(OnlineUser user);
-
-        void removeUser(OnlineUser user);
-
+        //        void addUser(OnlineUser user);
+//
+//        void updateUser(OnlineUser user);
+//
+//        void removeUser(OnlineUser user);
+//
         void replaceAllUsers(List<OnlineUser> filteredUsers);
 
         void clearUsers();
@@ -43,6 +49,8 @@ public interface UsersMvp {
         void disableRefreshingSwipeLayout();
 
         void setSearchViewIconified(boolean iconified);
+
+//        void removeAllSelections();
     }
 
     interface PresenterToModel {
@@ -64,9 +72,11 @@ public interface UsersMvp {
     }
 
     interface ModelToPresenter {
-        void addOrUpdateUser(OnlineUser user);
-
-        void removeUser(OnlineUser user);
+//        void addUser(OnlineUser user);
+//
+//        void updateUser(OnlineUser user);
+//
+//        void removeUser(OnlineUser user);
 
         void notifyItemInserted(int position);
 

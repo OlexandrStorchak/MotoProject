@@ -68,6 +68,11 @@ public class UsersFragment extends Fragment
         super.onStart();
     }
 
+//    @Override
+//    public void removeAllSelections() {
+//        mAdapter.removeAllSections();
+//    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -83,7 +88,7 @@ public class UsersFragment extends Fragment
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // TODO: 05.03.2017 without checking the app crashes when trying to open up details fragment
+                // TODO: 05.03.2017 without checking the app crashes when trying to open up details fragment when searching
                 if (mPresenter != null) {
                     mPresenter.onQueryTextChange(newText);
                 }
@@ -108,10 +113,17 @@ public class UsersFragment extends Fragment
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.container_users_swipe);
         setupSwipeRefreshLayout();
 
         mPresenter.onViewCreated();
+
+        if (!mAdapter.hasStableIds()) {
+            mAdapter.setHasStableIds(true);
+        }
+
+        mAdapter.addUsersSection();
         RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rv.getContext(),
@@ -119,6 +131,7 @@ public class UsersFragment extends Fragment
         rv.addItemDecoration(dividerItemDecoration);
         rv.setLayoutManager(layoutManager);
         rv.setAdapter(mAdapter);
+//        mAdapter.addPendingFriendSection();
 //        rv.setItemAnimator(null);
     }
 
@@ -131,16 +144,22 @@ public class UsersFragment extends Fragment
         }
     }
 
-    @Override
-    public void addOrUpdateUser(OnlineUser user) {
-        mAdapter.addUser(user);
-    }
-
-    @Override
-    public void removeUser(OnlineUser user) {
-        mAdapter.removeUser(user);
-    }
-
+    //
+//    @Override
+//    public void addUser(OnlineUser user) {
+//        mAdapter.addUser(user);
+//    }
+//
+//    @Override
+//    public void updateUser(OnlineUser user) {
+//        mAdapter.addUser(user);
+//    }
+//
+//    @Override
+//    public void removeUser(OnlineUser user) {
+//        mAdapter.removeUser(user);
+//    }
+//
     @Override
     public void replaceAllUsers(List<OnlineUser> filteredUsers) {
         mAdapter.replaceAll(filteredUsers);
@@ -155,6 +174,7 @@ public class UsersFragment extends Fragment
     public void onDestroyView() {
         super.onDestroyView();
         mAdapter.clearUsers();
+        mAdapter.removeAllSections();
         mPresenter = null;
     }
 
@@ -186,6 +206,11 @@ public class UsersFragment extends Fragment
     @Override
     public void onUserFriendshipDeclined(String uid) {
         mPresenter.onUserFriendshipDeclined(uid);
+    }
+
+    @Override
+    public void setUserList(List<OnlineUser> users) {
+        mAdapter.setUsers(users);
     }
 
     @Override

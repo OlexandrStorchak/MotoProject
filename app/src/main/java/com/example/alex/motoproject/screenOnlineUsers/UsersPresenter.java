@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -53,7 +54,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
     @Override
     public void onViewCreated() {
-//        getView().setListToAdapter(mModel.getUsers());
+        getView().setUserList(mModel.getUsers());
     }
 
     @Override
@@ -81,18 +82,30 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     }
 
     @Override
-    public void addOrUpdateUser(OnlineUser user) {
-        getView().addOrUpdateUser(user);
+    public List<OnlineUser> onGetUsersList() {
+        return mModel.getUsers();
     }
 
-    @Override
-    public void removeUser(OnlineUser user) {
-        getView().removeUser(user);
-    }
+//    @Override
+//    public void addUser(OnlineUser user) {
+//        getView().addUser(user);
+//    }
+//
+//    @Override
+//    public void updateUser(OnlineUser user) {
+//        getView().updateUser(user);
+//    }
+//
+//    @Override
+//    public void removeUser(OnlineUser user) {
+//        getView().removeUser(user);
+//    }
 
     @Override
     public void notifyItemInserted(int position) {
         getView().notifyItemInserted(position);
+
+
     }
 
     @Override

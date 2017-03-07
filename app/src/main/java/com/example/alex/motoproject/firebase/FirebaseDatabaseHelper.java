@@ -266,7 +266,7 @@ public class FirebaseDatabaseHelper {
     }
 
     /**
-     * Users listener
+     * Users
      */
     public void changeUserRelation(String uid, String relation) {
         DatabaseReference ref = mDbReference.child("users")
