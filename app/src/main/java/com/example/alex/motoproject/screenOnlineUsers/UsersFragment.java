@@ -22,6 +22,7 @@ import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -118,12 +119,11 @@ public class UsersFragment extends Fragment
         setupSwipeRefreshLayout();
 
         mPresenter.onViewCreated();
+//
+//        if (!mAdapter.hasStableIds()) {
+//            mAdapter.setHasStableIds(true);
+//        }
 
-        if (!mAdapter.hasStableIds()) {
-            mAdapter.setHasStableIds(true);
-        }
-
-        mAdapter.addUsersSection();
         RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rv.getContext(),
@@ -179,6 +179,11 @@ public class UsersFragment extends Fragment
     }
 
     @Override
+    public void setUserList(Map<String, List<OnlineUser>> users) {
+        mAdapter.setUsers(users);
+    }
+
+    @Override
     public void notifyItemInserted(int position) {
         mAdapter.notifyItemInserted(position);
     }
@@ -208,13 +213,18 @@ public class UsersFragment extends Fragment
         mPresenter.onUserFriendshipDeclined(uid);
     }
 
-    @Override
-    public void setUserList(List<OnlineUser> users) {
-        mAdapter.setUsers(users);
-    }
+//    @Override
+//    public void setUserList(List<OnlineUser> users) {
+//        mAdapter.setUsers(users);
+//    }
 
     @Override
     public void setSearchViewIconified(boolean iconified) {
         mSearchView.setIconified(iconified);
+    }
+
+    @Override
+    public void addNewSection(String relation) {
+        mAdapter.addNewSection(relation);
     }
 }

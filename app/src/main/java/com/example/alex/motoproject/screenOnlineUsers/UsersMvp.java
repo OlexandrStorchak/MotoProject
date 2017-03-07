@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UsersMvp {
     interface ViewToPresenter {
@@ -18,11 +19,11 @@ public interface UsersMvp {
 
         void onUserFriendshipDeclined(String uid);
 
-        List<OnlineUser> onGetUsersList();
+//        List<OnlineUser> onGetUsersList();
     }
 
     interface PresenterToView {
-        void setUserList(List<OnlineUser> users);
+        void setUserList(Map<String, List<OnlineUser>> users);
 
         void notifyItemInserted(int position);
 
@@ -51,6 +52,8 @@ public interface UsersMvp {
         void setSearchViewIconified(boolean iconified);
 
 //        void removeAllSelections();
+
+        void addNewSection(String relation);
     }
 
     interface PresenterToModel {
@@ -64,11 +67,13 @@ public interface UsersMvp {
 
         void clearUsers();
 
-        List<OnlineUser> getUsers();
+        Map<String, List<OnlineUser>> getUsers();
 
         List<OnlineUser> filterUsers(String query);
 
         void changeUserRelation(String uid, String relation);
+
+        void setListType(int listType);
     }
 
     interface ModelToPresenter {
@@ -83,5 +88,7 @@ public interface UsersMvp {
         void notifyItemChanged(int position);
 
         void notifyItemRemoved(int position);
+
+        void addNewSection(String relation);
     }
 }

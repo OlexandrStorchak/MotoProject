@@ -1,7 +1,6 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -11,11 +10,12 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     private int mUserListType = 0;
 
     private WeakReference<UsersMvp.PresenterToView> mView;
-    private UsersMvp.PresenterToModel mModel = new UsersModel(this);
+    private UsersMvp.PresenterToModel mModel;
 
     @Inject
     public UsersPresenter(UsersMvp.PresenterToView view) {
         mView = new WeakReference<>(view);
+        mModel = new UsersModel(this, getView().getListType());
     }
 
     private UsersMvp.PresenterToView getView() throws NullPointerException {
@@ -30,6 +30,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     public void onStart() {
         switch (getView().getListType()) {
             case LIST_TYPE_FRIENDS:
+                mModel.setListType(LIST_TYPE_FRIENDS);
                 mModel.registerFriendsListener();
                 break;
             default:
@@ -81,10 +82,10 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
         mModel.changeUserRelation(uid, null);
     }
 
-    @Override
-    public List<OnlineUser> onGetUsersList() {
-        return mModel.getUsers();
-    }
+//    @Override
+//    public List<OnlineUser> onGetUsersList() {
+//        return mModel.getUsers();
+//    }
 
 //    @Override
 //    public void addUser(OnlineUser user) {
@@ -104,7 +105,11 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     @Override
     public void notifyItemInserted(int position) {
         getView().notifyItemInserted(position);
-
+//        Якщо юзати датасет чейнджд, то нібито лагучіше і умира анімашка, шо логічно.
+//                Якщо ні, то ліст навіть без сортування передає у збитому порядку і декілька разів одне й те
+//                ж саме. Зараз ця штука принаймні робоча. Але поки не паше пошук.
+//                Можливо, якщо нічого не придумаєш, тупо верни назад сортед ліст в адаптер. Ще треба визначати,
+//        коли це список юзерів онлайн, а коли друзів. Зауваж, що в майбутньому треба буде ще багато і груп, і лістів
 
     }
 
@@ -116,5 +121,10 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     @Override
     public void notifyItemRemoved(int position) {
         getView().notifyItemRemoved(position);
+    }
+
+    @Override
+    public void addNewSection(String relation) {
+        getView().addNewSection(relation);
     }
 }

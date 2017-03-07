@@ -15,15 +15,16 @@ import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
 class UsersAdapter extends SectionedRecyclerViewAdapter {
     private static final int TYPE_PENDING_FRIEND = 10;
-    private List<OnlineUser> mUsers = new ArrayList<>();
+    private List<OnlineUser> mUsers;
+    private Map<String, List<OnlineUser>> mAllUsers;
     private UsersAdapterListener mUsersFragment;
 
     UsersAdapter(UsersAdapterListener listener) {
@@ -38,12 +39,18 @@ class UsersAdapter extends SectionedRecyclerViewAdapter {
 //    void removeUser(OnlineUser user) {
 //        mUsers.remove(user);
 //    }
-    void setUsers(List<OnlineUser> users) {
-        mUsers = users;
+//    void setUsers(List<OnlineUser> users) {
+//        mUsers = users;
+////        mAllUsers.put()
+//    }
+
+    void setUsers(Map<String, List<OnlineUser>> users) {
+        mAllUsers = users;
     }
 
     void clearUsers() {
-        mUsers.clear();
+//        mUsers.clear();
+        mAllUsers.clear();
     }
 
     void replaceAll(List<OnlineUser> models) {
@@ -58,18 +65,28 @@ class UsersAdapter extends SectionedRecyclerViewAdapter {
 //        mUsers.endBatchedUpdates();
     }
 
-    void addPendingFriendSection() {
-        List<OnlineUser> list = new ArrayList<>();
-        for (OnlineUser user : mUsers) {
-            if (user.getRelation() != null && user.getRelation().equals("pending")) {
-                list.add(user);
-            }
+    void addNewSection(String relation) {
+        if (relation == null) {
+            addSection(null, new UsersSection("Users", mAllUsers.get(null), null));
+            return;
         }
-        addSection(new PendingFriendsSection("Талосе, поможи", list));
-    }
+        switch (relation) {
+            case "pending":
+                addSection(relation, new PendingFriendsSection("Pending", mAllUsers.get(relation)));
+                break;
+            default:
+                addSection(relation, new UsersSection("Users", mAllUsers.get(relation), relation));
+                break;
+        }
 
-    void addUsersSection() {
-        addSection(new UsersSection("DEUS VULT", mUsers));
+
+//        List<OnlineUser> list = new ArrayList<>();
+//        for (OnlineUser user : mUsers) {
+//            if (user.getRelation().equals("pending")) {
+//                list.add(user);
+//            }
+//        }
+//        addSection(new PendingFriendsSection("Pending", list));
     }
 
 //    @Override
@@ -167,24 +184,29 @@ class UsersAdapter extends SectionedRecyclerViewAdapter {
     }
 
     public class PendingFriendsSection extends StatelessSection {
-        private List<OnlineUser> mPendingFriends = new ArrayList<>();
+        private List<OnlineUser> mPendingFriends;
         private String title;
 
-        public PendingFriendsSection(String title, List<OnlineUser> list) {
+        public PendingFriendsSection(String title, List<OnlineUser> pendingFriends) {
             super(R.layout.header_users, R.layout.item_friends_friend_pending);
-            mPendingFriends.addAll(list);
+            mPendingFriends = pendingFriends;
             this.title = title;
         }
 
         @Override
         public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder) {
             super.onBindHeaderViewHolder(holder);
-            HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
-            headerViewHolder.title.setText(title);
+            if (holder instanceof HeaderViewHolder) {
+                HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
+                headerViewHolder.title.setText(title);
+            }
         }
 
         @Override
         public int getContentItemsTotal() {
+            if (mPendingFriends == null) {
+                return 0;
+            }
             return mPendingFriends.size();
         }
 
@@ -221,24 +243,32 @@ class UsersAdapter extends SectionedRecyclerViewAdapter {
     public class UsersSection extends StatelessSection {
         private List<OnlineUser> mUsers;
         private String mTitle;
+        private String mRelation;
 
-        public UsersSection(String title, List<OnlineUser> users) {
+        public UsersSection(String title, List<OnlineUser> users, String relation) {
             super(R.layout.header_users, R.layout.item_user);
             mUsers = users;
             mTitle = title;
+            mRelation = relation;
+        }
+
+        @Override
+        public RecyclerView.ViewHolder getHeaderViewHolder(View view) {
+            return new HeaderViewHolder(view);
         }
 
         @Override
         public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder) {
             super.onBindHeaderViewHolder(holder);
-            if (holder instanceof HeaderViewHolder) {
                 HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
                 headerViewHolder.title.setText(mTitle);
-            }
         }
 
         @Override
         public int getContentItemsTotal() {
+            if (mUsers == null) {
+                return 0;
+            }
             return mUsers.size();
         }
 
@@ -251,18 +281,19 @@ class UsersAdapter extends SectionedRecyclerViewAdapter {
         public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
             VH itemHolder = (VH) holder;
             position = getSectionPosition(itemHolder.getAdapterPosition());
-            Log.e("User", mUsers.get(position).getName());
-            itemHolder.name.setText(mUsers.get(position).getName());
+            OnlineUser user = mAllUsers.get(mRelation).get(position);
+            Log.e("User", user.getName());
+            itemHolder.name.setText(user.getName());
 
             Picasso.with(itemHolder.avatar.getContext())
-                    .load(mUsers.get(position).getAvatar())
+                    .load(user.getAvatar())
                     .resize(itemHolder.avatar.getMaxWidth(), itemHolder.avatar.getMaxHeight())
                     .centerCrop()
                     .transform(new CircleTransform())
                     .into(itemHolder.avatar);
 
-            if (mUsers.get(position).getStatus() != null) {
-                if (mUsers.get(position).getStatus().equals("public")) {
+            if (user.getStatus() != null) {
+                if (user.getStatus().equals("public")) {
                     itemHolder.mapCur.setVisibility(View.VISIBLE);
                 } else {
                     itemHolder.mapCur.setVisibility(View.GONE);
@@ -334,7 +365,7 @@ class UsersAdapter extends SectionedRecyclerViewAdapter {
 
         public HeaderViewHolder(View view) {
             super(view);
-            title = (TextView) view.findViewById(R.id.title_header_pending_friend);
+            title = (TextView) view.findViewById(R.id.title_header_users);
         }
     }
 }
