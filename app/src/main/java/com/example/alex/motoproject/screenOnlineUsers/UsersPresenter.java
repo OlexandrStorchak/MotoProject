@@ -61,13 +61,13 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
     @Override
     public void onQueryTextChange(String query) {
-//        getView().replaceAllUsers(mModel.filterUsers(query));
+        getView().replaceAllUsers(mModel.filterUsers(query));
     }
 
     @Override
     public void onRefreshSwipeLayout() {
         onStop();
-//        getView().clearUsers();
+        getView().clearUsers();
         getView().disableRefreshingSwipeLayout();
         getView().setSearchViewIconified(true);
         onStart();

@@ -188,7 +188,7 @@ class UsersAdapter extends SectionedRecyclerViewAdapter {
         private String title;
 
         public PendingFriendsSection(String title, List<OnlineUser> pendingFriends) {
-            super(R.layout.header_users, R.layout.item_friends_friend_pending);
+            super(R.layout.item_users_header, R.layout.item_friends_friend_pending);
             mPendingFriends = pendingFriends;
             this.title = title;
         }
@@ -248,7 +248,7 @@ class UsersAdapter extends SectionedRecyclerViewAdapter {
         private String mRelation;
 
         public UsersSection(String title, List<OnlineUser> users, String relation) {
-            super(R.layout.header_users, R.layout.item_user);
+            super(R.layout.item_users_header, R.layout.item_user);
             mUsers = users;
             mTitle = title;
             mRelation = relation;

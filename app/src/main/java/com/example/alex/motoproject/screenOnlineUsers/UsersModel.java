@@ -138,18 +138,24 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         }
     }
 
-    public List<OnlineUser> filterUsers(String query) {
-//        final String lowerCaseQuery = query.toLowerCase();
-//
-//        final List<OnlineUser> filteredUserList = new ArrayList<>();
-//        for (OnlineUser user : mUsers) {
-//            final String text = user.getName().toLowerCase();
-//            if (text.contains(lowerCaseQuery)) {
-//                filteredUserList.add(user);
+    public Map<String, List<OnlineUser>> filterUsers(String query) {
+        final String lowerCaseQuery = query.toLowerCase();
+
+        Map<String, List<OnlineUser>> filteredUsers = new HashMap<>();
+        for (List<OnlineUser> list : mUsers.values()) {
+            List<OnlineUser> users = new ArrayList<>();
+            for (OnlineUser user : list) {
+                String string = user.getName().toLowerCase();
+                if (string.contains(lowerCaseQuery)) {
+                    users.add(user);
+                }
+            }
+
+//            if (!users.isEmpty()) {
+//                filteredUsers.put(users.get(0).getRelation(), users);
 //            }
-//        }
-//        return filteredUserList;
-        return null;
+        }
+        return filteredUsers;
     }
 
     @Override

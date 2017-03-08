@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -32,6 +33,7 @@ import com.squareup.picasso.Picasso;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -113,7 +115,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                 if (mPresenter != null) {
                     mPresenter.onQueryTextChange(newText);
                 }
-
                 return false;
             }
         });
@@ -164,10 +165,20 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         }
     }
 
-//    @Override
-//    public void replaceAllUsers(List<OnlineUser> filteredUsers) {
+    @Override
+    public void clearUsers() {
+        mAdapter.removeAllSections();
+    }
+
+    @Override
+    public void replaceAllUsers(Map<String, List<OnlineUser>> users) {
 //        mAdapter.replaceAll(filteredUsers);
-//    }
+        for (List<OnlineUser> list : users.values()) {
+            UsersSection section = (UsersSection) mAdapter.getSection(list.get(0).getRelation());
+            section.setUsers(list);
+            mAdapter.notifyDataSetChanged();
+        }
+    }
 
 //    @Override
 //    public void clearUsers() {
@@ -215,11 +226,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         mPresenter.onUserFriendshipDeclined(uid);
     }
 
-//    @Override
-//    public void setUserList(List<OnlineUser> users) {
-//        mAdapter.setUsers(users);
-//    }
-
     @Override
     public void setSearchViewIconified(boolean iconified) {
         mSearchView.setIconified(iconified);
@@ -228,14 +234,18 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     @Override
     public void addNewSection(String relation, List<OnlineUser> list) {
         if (relation == null) {
-            mAdapter.addSection(new UsersSection(null, list));
+            mAdapter.addSection(null, new UsersSection(null, list));
         } else {
+            Resources res = getContext().getResources();
+            String title;
             switch (relation) {
                 case "pending":
-                    mAdapter.addSection(new PendingFriendSection(relation, list));
+                    title = res.getString(R.string.title_pending_friends);
+                    mAdapter.addSection(relation, new PendingFriendSection(title, list));
                     break;
                 default:
-                    mAdapter.addSection(new UsersSection(relation, list));
+                    title = res.getString(R.string.title_friends);
+                    mAdapter.addSection(relation, new UsersSection(title, list));
                     break;
             }
         }
@@ -244,18 +254,13 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     private class PendingFriendSection extends UsersSection {
 
         private PendingFriendSection(String title, List<OnlineUser> users) {
-            super(title, users, R.layout.header_users, R.layout.item_friends_friend_pending);
+            super(title, users, R.layout.item_users_header, R.layout.item_friends_friend_pending);
         }
 
         @Override
         public RecyclerView.ViewHolder getItemViewHolder(View view) {
             return new PendingFriendViewHolder(view);
         }
-
-//        @Override
-//        public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
-//            PendingFriendViewHolder pendingFriendViewHolder = (PendingFriendViewHolder) holder;
-//        }
     }
 
     class UsersSection extends StatelessSection {
@@ -263,7 +268,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         private List<OnlineUser> mUsers;
 
         private UsersSection(String title, List<OnlineUser> users) {
-            super(R.layout.header_users, R.layout.item_user);
+            super(R.layout.item_users_header, R.layout.item_user);
             mTitle = title;
             mUsers = users;
         }
@@ -272,6 +277,10 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                              int headerLayout, int itemLayout) {
             super(headerLayout, itemLayout);
             mTitle = title;
+            mUsers = users;
+        }
+
+        public void setUsers(List<OnlineUser> users) {
             mUsers = users;
         }
 

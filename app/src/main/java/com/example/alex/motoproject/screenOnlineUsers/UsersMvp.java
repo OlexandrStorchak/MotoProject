@@ -43,7 +43,7 @@ public interface UsersMvp {
 //
 //        void removeUser(OnlineUser user);
 //
-//        void clearUsers();
+        void clearUsers();
 
         void disableRefreshingSwipeLayout();
 
@@ -52,6 +52,8 @@ public interface UsersMvp {
 //        void removeAllSelections();
 
         void addNewSection(String relation, List<OnlineUser> list);
+
+        void replaceAllUsers(Map<String, List<OnlineUser>> users);
     }
 
     interface PresenterToModel {
@@ -67,7 +69,7 @@ public interface UsersMvp {
 
         Map<String, List<OnlineUser>> getUsers();
 
-        List<OnlineUser> filterUsers(String query);
+        Map<String, List<OnlineUser>> filterUsers(String query);
 
         void changeUserRelation(String uid, String relation);
 
