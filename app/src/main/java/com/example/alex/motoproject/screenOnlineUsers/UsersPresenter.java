@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -55,18 +56,18 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
     @Override
     public void onViewCreated() {
-        getView().setUserList(mModel.getUsers());
+//        getView().setUserList(mModel.getUsers());
     }
 
     @Override
     public void onQueryTextChange(String query) {
-        getView().replaceAllUsers(mModel.filterUsers(query));
+//        getView().replaceAllUsers(mModel.filterUsers(query));
     }
 
     @Override
     public void onRefreshSwipeLayout() {
         onStop();
-        getView().clearUsers();
+//        getView().clearUsers();
         getView().disableRefreshingSwipeLayout();
         getView().setSearchViewIconified(true);
         onStart();
@@ -124,7 +125,12 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     }
 
     @Override
-    public void addNewSection(String relation) {
-        getView().addNewSection(relation);
+    public void notifyDataSetChanged() {
+        getView().notifyDataSetChanged();
+    }
+
+    @Override
+    public void addNewSection(String relation, List<OnlineUser> list) {
+        getView().addNewSection(relation, list);
     }
 }

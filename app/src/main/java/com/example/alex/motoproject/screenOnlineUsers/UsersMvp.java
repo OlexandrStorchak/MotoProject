@@ -23,7 +23,7 @@ public interface UsersMvp {
     }
 
     interface PresenterToView {
-        void setUserList(Map<String, List<OnlineUser>> users);
+//        void setUserList(Map<String, List<OnlineUser>> users);
 
         void notifyItemInserted(int position);
 
@@ -43,9 +43,7 @@ public interface UsersMvp {
 //
 //        void removeUser(OnlineUser user);
 //
-        void replaceAllUsers(List<OnlineUser> filteredUsers);
-
-        void clearUsers();
+//        void clearUsers();
 
         void disableRefreshingSwipeLayout();
 
@@ -53,7 +51,7 @@ public interface UsersMvp {
 
 //        void removeAllSelections();
 
-        void addNewSection(String relation);
+        void addNewSection(String relation, List<OnlineUser> list);
     }
 
     interface PresenterToModel {
@@ -89,6 +87,8 @@ public interface UsersMvp {
 
         void notifyItemRemoved(int position);
 
-        void addNewSection(String relation);
+        void notifyDataSetChanged();
+
+        void addNewSection(String relation, List<OnlineUser> list);
     }
 }

@@ -219,6 +219,8 @@ class UsersAdapter extends SectionedRecyclerViewAdapter {
         public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
             VH itemHolder = (VH) holder;
 
+            Log.e("PositionFriend", String.valueOf(position) + String.valueOf(getSectionPosition(position)) + String.valueOf(itemHolder.getAdapterPosition() + String.valueOf(position)));
+
             itemHolder.name.setText(mPendingFriends.get(position).getName());
 
             Picasso.with(itemHolder.avatar.getContext())
@@ -281,6 +283,7 @@ class UsersAdapter extends SectionedRecyclerViewAdapter {
         public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
             VH itemHolder = (VH) holder;
             position = getSectionPosition(itemHolder.getAdapterPosition());
+            Log.e("Position", String.valueOf(position) + String.valueOf(getSectionPosition(position)) + String.valueOf(itemHolder.getAdapterPosition() + String.valueOf(position)));
             OnlineUser user = mAllUsers.get(mRelation).get(position);
             Log.e("User", user.getName());
             itemHolder.name.setText(user.getName());

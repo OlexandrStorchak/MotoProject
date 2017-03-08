@@ -10,25 +10,37 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.alex.motoproject.DaggerPresenterComponent;
 import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.event.OpenMapEvent;
+import com.example.alex.motoproject.event.ShowUserProfileEvent;
+import com.example.alex.motoproject.util.CircleTransform;
+import com.squareup.picasso.Picasso;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
-public class UsersFragment extends Fragment
-        implements UsersMvp.PresenterToView, UsersAdapter.UsersAdapterListener {
-    public UsersAdapter mAdapter = new UsersAdapter(this);
+import io.github.luizgrp.sectionedrecyclerviewadapter.Section;
+import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
+import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
+
+public class UsersFragment extends Fragment implements UsersMvp.PresenterToView {
+    public SectionedRecyclerViewAdapter mAdapter = new SectionedRecyclerViewAdapter();
     // TODO: 02.03.2017 inject interface, not presenter itself
     @Inject
     UsersPresenter mPresenter;
@@ -61,6 +73,14 @@ public class UsersFragment extends Fragment
     @Override
     public void notifyDataSetChanged() {
         mAdapter.notifyDataSetChanged();
+
+        //Remove a header, if there are no items in a section except the header itself
+        for (Section section : mAdapter.getSectionsMap().values()) {
+            if (section.getSectionItemsTotal() < 2 && section.hasHeader()) {
+                section.setHasHeader(false);
+            }
+        }
+
     }
 
     @Override
@@ -94,7 +114,7 @@ public class UsersFragment extends Fragment
                     mPresenter.onQueryTextChange(newText);
                 }
 
-                return true;
+                return false;
             }
         });
     }
@@ -119,10 +139,10 @@ public class UsersFragment extends Fragment
         setupSwipeRefreshLayout();
 
         mPresenter.onViewCreated();
-//
-//        if (!mAdapter.hasStableIds()) {
-//            mAdapter.setHasStableIds(true);
-//        }
+
+        if (!mAdapter.hasStableIds()) {
+            mAdapter.setHasStableIds(true);
+        }
 
         RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -144,44 +164,28 @@ public class UsersFragment extends Fragment
         }
     }
 
-    //
 //    @Override
-//    public void addUser(OnlineUser user) {
-//        mAdapter.addUser(user);
+//    public void replaceAllUsers(List<OnlineUser> filteredUsers) {
+//        mAdapter.replaceAll(filteredUsers);
 //    }
-//
-//    @Override
-//    public void updateUser(OnlineUser user) {
-//        mAdapter.addUser(user);
-//    }
-//
-//    @Override
-//    public void removeUser(OnlineUser user) {
-//        mAdapter.removeUser(user);
-//    }
-//
-    @Override
-    public void replaceAllUsers(List<OnlineUser> filteredUsers) {
-        mAdapter.replaceAll(filteredUsers);
-    }
 
-    @Override
-    public void clearUsers() {
-        mAdapter.clearUsers();
-    }
+//    @Override
+//    public void clearUsers() {
+//        mAdapter.clearUsers();
+//    }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mAdapter.clearUsers();
+//        mAdapter.clearUsers();
         mAdapter.removeAllSections();
         mPresenter = null;
     }
 
-    @Override
-    public void setUserList(Map<String, List<OnlineUser>> users) {
-        mAdapter.setUsers(users);
-    }
+//    @Override
+//    public void setUserList(Map<String, List<OnlineUser>> users) {
+//        mAdapter.setUsers(users);
+//    }
 
     @Override
     public void notifyItemInserted(int position) {
@@ -203,12 +207,10 @@ public class UsersFragment extends Fragment
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
-    @Override
     public void onUserFriendshipAccepted(String uid) {
         mPresenter.onUserFriendshipAccepted(uid);
     }
 
-    @Override
     public void onUserFriendshipDeclined(String uid) {
         mPresenter.onUserFriendshipDeclined(uid);
     }
@@ -224,7 +226,174 @@ public class UsersFragment extends Fragment
     }
 
     @Override
-    public void addNewSection(String relation) {
-        mAdapter.addNewSection(relation);
+    public void addNewSection(String relation, List<OnlineUser> list) {
+        if (relation == null) {
+            mAdapter.addSection(new UsersSection(null, list));
+        } else {
+            switch (relation) {
+                case "pending":
+                    mAdapter.addSection(new PendingFriendSection(relation, list));
+                    break;
+                default:
+                    mAdapter.addSection(new UsersSection(relation, list));
+                    break;
+            }
+        }
+    }
+
+    private class PendingFriendSection extends UsersSection {
+
+        private PendingFriendSection(String title, List<OnlineUser> users) {
+            super(title, users, R.layout.header_users, R.layout.item_friends_friend_pending);
+        }
+
+        @Override
+        public RecyclerView.ViewHolder getItemViewHolder(View view) {
+            return new PendingFriendViewHolder(view);
+        }
+
+//        @Override
+//        public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
+//            PendingFriendViewHolder pendingFriendViewHolder = (PendingFriendViewHolder) holder;
+//        }
+    }
+
+    class UsersSection extends StatelessSection {
+        private String mTitle;
+        private List<OnlineUser> mUsers;
+
+        private UsersSection(String title, List<OnlineUser> users) {
+            super(R.layout.header_users, R.layout.item_user);
+            mTitle = title;
+            mUsers = users;
+        }
+
+        private UsersSection(String title, List<OnlineUser> users,
+                             int headerLayout, int itemLayout) {
+            super(headerLayout, itemLayout);
+            mTitle = title;
+            mUsers = users;
+        }
+
+        @Override
+        public int getContentItemsTotal() {
+            return mUsers.size();
+        }
+
+        @Override
+        public RecyclerView.ViewHolder getItemViewHolder(View view) {
+            return new UserViewHolder(view);
+        }
+
+        @Override
+        public RecyclerView.ViewHolder getHeaderViewHolder(View view) {
+            if (mUsers.isEmpty()) {
+                return new SectionedRecyclerViewAdapter.EmptyViewHolder(view);
+            } else {
+                return new HeaderViewHolder(view);
+            }
+        }
+
+        @Override
+        public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder) {
+            HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
+            headerViewHolder.title.setText(mTitle);
+        }
+
+        @Override
+        public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
+            UserViewHolder userViewHolder = (UserViewHolder) holder;
+            OnlineUser user = mUsers.get(position);
+
+            Log.e("OnBindPos", String.valueOf(position) + " "
+                    + String.valueOf(mAdapter.getSectionPosition(position)));
+
+            userViewHolder.name.setText(user.getName());
+            Picasso.with(userViewHolder.avatar.getContext())
+                    .load(user.getAvatar())
+                    .resize(userViewHolder.avatar.getMaxWidth(),
+                            userViewHolder.avatar.getMaxHeight())
+                    .centerCrop()
+                    .transform(new CircleTransform())
+                    .into(userViewHolder.avatar);
+            if (user.getStatus() != null && user.getStatus().equals("public")) {
+                userViewHolder.mapCur.setVisibility(View.VISIBLE);
+            } else {
+                userViewHolder.mapCur.setVisibility(View.GONE);
+            }
+        }
+
+        private class UserViewHolder extends RecyclerView.ViewHolder {
+            View rootView;
+            ImageView avatar;
+            TextView name;
+            ImageView mapCur;
+
+            private UserViewHolder(View view) {
+                super(view);
+                rootView = view;
+
+                avatar = (ImageView) view.findViewById(R.id.friends_list_ava);
+                name = (TextView) view.findViewById(R.id.userName);
+                mapCur = (ImageView) view.findViewById(R.id.friends_list_map_icon);
+
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Log.e("OnClickPos", String.valueOf(getAdapterPosition()));
+                        EventBus.getDefault().post(new ShowUserProfileEvent(
+                                mUsers.get(mAdapter.getSectionPosition(getAdapterPosition())).getUid()
+                        ));
+                    }
+                });
+
+                mapCur.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        EventBus.getDefault().post(new OpenMapEvent(
+                                mUsers.get(mAdapter.getSectionPosition(getAdapterPosition())).getUid()));
+                    }
+
+                });
+            }
+        }
+
+        class PendingFriendViewHolder extends UserViewHolder {
+            Button acceptFriendshipButton;
+            Button declineFriendshipButton;
+
+            PendingFriendViewHolder(View view) {
+                super(view);
+                acceptFriendshipButton = (Button) view.findViewById(R.id.button_accept_friend);
+                declineFriendshipButton = (Button) view.findViewById(R.id.button_decline_friend);
+
+                acceptFriendshipButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onUserFriendshipAccepted(mUsers.get(mAdapter
+                                .getSectionPosition(getAdapterPosition())).getUid());
+                    }
+                });
+
+                declineFriendshipButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        onUserFriendshipDeclined(mUsers.get(mAdapter
+                                .getSectionPosition(getAdapterPosition())).getUid());
+                    }
+                });
+            }
+        }
+
+        private class HeaderViewHolder extends RecyclerView.ViewHolder {
+            View rootView;
+            TextView title;
+
+            HeaderViewHolder(View itemView) {
+                super(itemView);
+                rootView = itemView;
+                title = (TextView) itemView.findViewById(R.id.title_header_users);
+            }
+        }
     }
 }
