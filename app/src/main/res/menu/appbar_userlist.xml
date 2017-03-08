@@ -5,5 +5,5 @@
         android:id="@+id/search_users"
         android:title="@string/search_title_users"
         app:actionViewClass="android.support.v7.widget.SearchView"
-        app:showAsAction="collapseActionView|ifRoom" />
+        app:showAsAction="always" />
 </menu>

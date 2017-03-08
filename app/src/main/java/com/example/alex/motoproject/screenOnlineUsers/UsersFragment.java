@@ -32,6 +32,7 @@ import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -172,11 +173,13 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void replaceAllUsers(Map<String, List<OnlineUser>> users) {
-//        mAdapter.replaceAll(filteredUsers);
+        List<String> mapKeys = new ArrayList<>(users.keySet());
+        int iteration = 0;
         for (List<OnlineUser> list : users.values()) {
-            UsersSection section = (UsersSection) mAdapter.getSection(list.get(0).getRelation());
+            UsersSection section = (UsersSection) mAdapter.getSection(mapKeys.get(iteration));
             section.setUsers(list);
             mAdapter.notifyDataSetChanged();
+            iteration++;
         }
     }
 

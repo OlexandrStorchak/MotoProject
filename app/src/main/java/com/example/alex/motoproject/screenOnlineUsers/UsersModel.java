@@ -142,6 +142,8 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         final String lowerCaseQuery = query.toLowerCase();
 
         Map<String, List<OnlineUser>> filteredUsers = new HashMap<>();
+        List<String> mapKeys = new ArrayList<>(mUsers.keySet());
+        int iteration = 0;
         for (List<OnlineUser> list : mUsers.values()) {
             List<OnlineUser> users = new ArrayList<>();
             for (OnlineUser user : list) {
@@ -150,7 +152,8 @@ public class UsersModel implements UsersMvp.PresenterToModel,
                     users.add(user);
                 }
             }
-
+            filteredUsers.put(mapKeys.get(iteration), users);
+            iteration++;
 //            if (!users.isEmpty()) {
 //                filteredUsers.put(users.get(0).getRelation(), users);
 //            }
