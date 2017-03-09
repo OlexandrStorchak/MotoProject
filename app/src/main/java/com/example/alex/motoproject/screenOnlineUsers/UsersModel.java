@@ -55,24 +55,11 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     }
 
     @Override
-    public Map<String, List<OnlineUser>> getUsers() {
-//        Collections.sort(mUsers);
-//        return mUsers;
-        return mUsers;
-    }
-
-    @Override
     public void onUserAdded(OnlineUser user) {
-////        Collections.sort(mUsers);
-//
-//        mUsers.add(user);
-//        Log.e("User from Model", user.getName());
-//        mPresenter.notifyItemInserted(mUsers.indexOf(user));
         List<OnlineUser> list = mUsers.get(user.getRelation());
         if (list != null) {
             list.add(user);
             Collections.sort(list);
-//            mPresenter.notifyItemInserted(list.indexOf(user));
             mPresenter.notifyDataSetChanged();
             Log.e("listPos", String.valueOf(list.indexOf(user)));
         } else {
@@ -81,23 +68,12 @@ public class UsersModel implements UsersMvp.PresenterToModel,
             mUsers.put(user.getRelation(), newList);
             mPresenter.addNewSection(user.getRelation(), newList);
             mPresenter.notifyDataSetChanged();
-//            mPresenter.notifyItemInserted(newList.indexOf(user));
             Log.e("newListPos", String.valueOf(newList.indexOf(user)));
         }
     }
 
     @Override
     public void onUserChanged(OnlineUser user) {
-//        for (OnlineUser iteratedUser : mUsers) {
-//            if (iteratedUser.getUid().equals(user.getUid())) {
-//                mUsers.set(mUsers.indexOf(iteratedUser), user);
-////                Collections.sort(mUsers);
-//                mPresenter.notifyItemChanged(mUsers.indexOf(iteratedUser));
-//                return;
-//            }
-//        }
-
-//        List<OnlineUser> list = mUsers.get(user.getRelation());
         for (List<OnlineUser> iteratedList : mUsers.values()) {
             for (OnlineUser iteratedUser : iteratedList) {
                 if (iteratedUser.getUid().equals(user.getUid())) {
@@ -108,7 +84,6 @@ public class UsersModel implements UsersMvp.PresenterToModel,
                     }
                     iteratedList.set(iteratedList.indexOf(iteratedUser), user);
                     mPresenter.notifyDataSetChanged();
-//                mPresenter.notifyItemChanged(list.indexOf(user));
                     return;
                 }
             }
@@ -131,7 +106,6 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         for (OnlineUser iteratedUser : users) {
             if (iteratedUser.getUid().equals(user.getUid())) {
                 users.remove(users.indexOf(iteratedUser));
-//                mPresenter.notifyItemRemoved(list.indexOf(iteratedUser));
                 mPresenter.notifyDataSetChanged();
                 return;
             }
@@ -154,9 +128,6 @@ public class UsersModel implements UsersMvp.PresenterToModel,
             }
             filteredUsers.put(mapKeys.get(iteration), users);
             iteration++;
-//            if (!users.isEmpty()) {
-//                filteredUsers.put(users.get(0).getRelation(), users);
-//            }
         }
         return filteredUsers;
     }

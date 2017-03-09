@@ -16,7 +16,9 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     @Inject
     public UsersPresenter(UsersMvp.PresenterToView view) {
         mView = new WeakReference<>(view);
-        mModel = new UsersModel(this, getView().getListType());
+        int listType = getView().getListType();
+        mModel = new UsersModel(this, listType);
+        mUserListType = listType;
     }
 
     private UsersMvp.PresenterToView getView() throws NullPointerException {
@@ -31,10 +33,12 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     public void onStart() {
         switch (getView().getListType()) {
             case LIST_TYPE_FRIENDS:
+                getView().setupFriendsList();
                 mModel.setListType(LIST_TYPE_FRIENDS);
                 mModel.registerFriendsListener();
                 break;
             default:
+                getView().setupUsersList();
                 mModel.registerUsersListener();
                 break;
         }

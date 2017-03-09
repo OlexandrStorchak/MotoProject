@@ -81,7 +81,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         for (Section section : mAdapter.getSectionsMap().values()) {
             if (section.hasHeader()) {
                 if (section.getContentItemsTotal() < 1) {
-                    section.setHasHeader(false); //remove header if no it has no children
+                    section.setHasHeader(false); //remove header if it has no children
                 }
             } else if (section.getContentItemsTotal() >= 1) {
                 section.setHasHeader(true); //add header if it has one or more children
@@ -95,11 +95,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         mPresenter.onStart();
         super.onStart();
     }
-
-//    @Override
-//    public void removeAllSelections() {
-//        mAdapter.removeAllSections();
-//    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -184,23 +179,12 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         }
     }
 
-//    @Override
-//    public void clearUsers() {
-//        mAdapter.clearUsers();
-//    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-//        mAdapter.clearUsers();
         mAdapter.removeAllSections();
         mPresenter = null;
     }
-
-//    @Override
-//    public void setUserList(Map<String, List<OnlineUser>> users) {
-//        mAdapter.setUsers(users);
-//    }
 
     @Override
     public void notifyItemInserted(int position) {
@@ -235,6 +219,21 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         mSearchView.setIconified(iconified);
     }
 
+
+    @Override
+    public void setupFriendsList() {
+        Resources res = getContext().getResources();
+        String title = res.getString(R.string.title_pending_friends);
+        PendingFriendSection pfs = new PendingFriendSection(title, new ArrayList<OnlineUser>());
+        pfs.setVisible(false);
+        mAdapter.addSection("pending", pfs);
+    }
+
+    @Override
+    public void setupUsersList() {
+
+    }
+
     @Override
     public void addNewSection(String relation, List<OnlineUser> list) {
         if (relation == null) {
@@ -244,14 +243,17 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             String title;
             switch (relation) {
                 case "pending":
-                    title = res.getString(R.string.title_pending_friends);
-                    mAdapter.addSection(relation, new PendingFriendSection(title, list));
+//                    title = res.getString(R.string.title_pending_friends);
+//                    mAdapter.addSection(relation, new PendingFriendSection(title, list));
+                    PendingFriendSection pfs = (PendingFriendSection) mAdapter.getSection(relation);
+                    pfs.setUsers(list);
                     break;
                 default:
                     title = res.getString(R.string.title_friends);
                     mAdapter.addSection(relation, new UsersSection(title, list));
                     break;
             }
+
         }
     }
 
@@ -284,10 +286,12 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             mUsers = users;
         }
 
-        public void setUsers(List<OnlineUser> users) {
+        void setUsers(List<OnlineUser> users) {
             mUsers = users;
-            if (mUsers.isEmpty()) {
-
+            if (mUsers == null) {
+                setVisible(false);
+            } else {
+                setVisible(true);
             }
         }
 
@@ -312,6 +316,9 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         @Override
         public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder) {
+            if (holder instanceof SectionedRecyclerViewAdapter.EmptyViewHolder) {
+                return;
+            }
             HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
             headerViewHolder.title.setText(mTitle);
         }
