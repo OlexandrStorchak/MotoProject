@@ -9,7 +9,7 @@ import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.screenChat.ChatMessage;
 import com.example.alex.motoproject.screenChat.ChatMessageSendable;
 import com.example.alex.motoproject.screenChat.ChatModel;
-import com.example.alex.motoproject.screenOnlineUsers.OnlineUser;
+import com.example.alex.motoproject.screenOnlineUsers.User;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -353,8 +353,8 @@ public class FirebaseDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
-                OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus, relation);
-                receiver.onUserAdded(onlineUser);
+                User user = new User(uid, name, avatar, userStatus, relation);
+                receiver.onUserAdded(user);
             }
 
             @Override
@@ -375,8 +375,8 @@ public class FirebaseDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
-                OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus, relation);
-                receiver.onUserChanged(onlineUser);
+                User user = new User(uid, name, avatar, userStatus, relation);
+                receiver.onUserChanged(user);
             }
 
             @Override
@@ -390,7 +390,7 @@ public class FirebaseDatabaseHelper {
     private void onFriendRemoved(DataSnapshot dataSnapshot,
                                  final OnlineUsersUpdateReceiver receiver) {
         String uid = dataSnapshot.getKey();
-        receiver.onUserDeleted(new OnlineUser(uid));
+        receiver.onUserDeleted(new User(uid));
     }
 
     public void registerOnlineUsersListener(final OnlineUsersUpdateReceiver receiver) {
@@ -445,8 +445,8 @@ public class FirebaseDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
-                OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus, null);
-                receiver.onUserAdded(onlineUser);
+                User user = new User(uid, name, avatar, userStatus, null);
+                receiver.onUserAdded(user);
             }
 
             @Override
@@ -470,8 +470,8 @@ public class FirebaseDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
-                OnlineUser onlineUser = new OnlineUser(uid, name, avatar, userStatus, null);
-                receiver.onUserChanged(onlineUser);
+                User user = new User(uid, name, avatar, userStatus, null);
+                receiver.onUserChanged(user);
             }
 
             @Override
@@ -485,7 +485,7 @@ public class FirebaseDatabaseHelper {
     private void onOnlineUserRemoved(DataSnapshot dataSnapshot,
                                      final OnlineUsersUpdateReceiver receiver) {
         String uid = dataSnapshot.getKey();
-        receiver.onUserDeleted(new OnlineUser(uid));
+        receiver.onUserDeleted(new User(uid));
     }
 
     /**
@@ -801,11 +801,11 @@ public class FirebaseDatabaseHelper {
     }
 
     public interface OnlineUsersUpdateReceiver {
-        void onUserAdded(OnlineUser user);
+        void onUserAdded(User user);
 
-        void onUserChanged(OnlineUser user);
+        void onUserChanged(User user);
 
-        void onUserDeleted(OnlineUser user);
+        void onUserDeleted(User user);
     }
 
     public interface ChatUpdateReceiver {

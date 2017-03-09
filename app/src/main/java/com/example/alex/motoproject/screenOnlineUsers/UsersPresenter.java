@@ -6,9 +6,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelToPresenter {
-    private static final int LIST_TYPE_ONLINE_USERS = 0;
     private static final int LIST_TYPE_FRIENDS = 10;
-    private int mUserListType = 0;
 
     private WeakReference<UsersMvp.PresenterToView> mView;
     private UsersMvp.PresenterToModel mModel;
@@ -16,9 +14,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     @Inject
     public UsersPresenter(UsersMvp.PresenterToView view) {
         mView = new WeakReference<>(view);
-        int listType = getView().getListType();
-        mModel = new UsersModel(this, listType);
-        mUserListType = listType;
+        mModel = new UsersModel(this);
     }
 
     private UsersMvp.PresenterToView getView() throws NullPointerException {
@@ -34,7 +30,6 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
         switch (getView().getListType()) {
             case LIST_TYPE_FRIENDS:
                 getView().setupFriendsList();
-                mModel.setListType(LIST_TYPE_FRIENDS);
                 mModel.registerFriendsListener();
                 break;
             default:
@@ -107,26 +102,20 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 //        getView().removeUser(user);
 //    }
 
-    @Override
-    public void notifyItemInserted(int position) {
-        getView().notifyItemInserted(position);
-//        Якщо юзати датасет чейнджд, то нібито лагучіше і умира анімашка, шо логічно.
-//                Якщо ні, то ліст навіть без сортування передає у збитому порядку і декілька разів одне й те
-//                ж саме. Зараз ця штука принаймні робоча. Але поки не паше пошук.
-//                Можливо, якщо нічого не придумаєш, тупо верни назад сортед ліст в адаптер. Ще треба визначати,
-//        коли це список юзерів онлайн, а коли друзів. Зауваж, що в майбутньому треба буде ще багато і груп, і лістів
-
-    }
-
-    @Override
-    public void notifyItemChanged(int position) {
-        getView().notifyItemChanged(position);
-    }
-
-    @Override
-    public void notifyItemRemoved(int position) {
-        getView().notifyItemRemoved(position);
-    }
+//    @Override
+//    public void notifyItemInserted(int position) {
+//        getView().notifyItemInserted(position);
+//    }
+//
+//    @Override
+//    public void notifyItemChanged(int position) {
+//        getView().notifyItemChanged(position);
+//    }
+//
+//    @Override
+//    public void notifyItemRemoved(int position) {
+//        getView().notifyItemRemoved(position);
+//    }
 
     @Override
     public void notifyDataSetChanged() {
@@ -134,7 +123,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     }
 
     @Override
-    public void addNewSection(String relation, List<OnlineUser> list) {
+    public void addNewSection(String relation, List<User> list) {
         getView().addNewSection(relation, list);
     }
 }

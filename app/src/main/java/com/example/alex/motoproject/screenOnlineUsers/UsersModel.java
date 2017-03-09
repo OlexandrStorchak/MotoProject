@@ -15,18 +15,15 @@ import javax.inject.Inject;
 
 public class UsersModel implements UsersMvp.PresenterToModel,
         FirebaseDatabaseHelper.OnlineUsersUpdateReceiver {
-    private static final int LIST_TYPE_FRIENDS = 10;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     private UsersMvp.ModelToPresenter mPresenter;
-    private int mListType;
 
-    private Map<String, List<OnlineUser>> mUsers = new HashMap<>();
+    private Map<String, List<User>> mUsers = new HashMap<>();
 
-    public UsersModel(UsersMvp.ModelToPresenter presenter, int listType) {
+    UsersModel(UsersMvp.ModelToPresenter presenter) {
         App.getCoreComponent().inject(this);
         mPresenter = presenter;
-        mListType = listType;
     }
 
     @Override
@@ -55,15 +52,15 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     }
 
     @Override
-    public void onUserAdded(OnlineUser user) {
-        List<OnlineUser> list = mUsers.get(user.getRelation());
+    public void onUserAdded(User user) {
+        List<User> list = mUsers.get(user.getRelation());
         if (list != null) {
             list.add(user);
             Collections.sort(list);
             mPresenter.notifyDataSetChanged();
             Log.e("listPos", String.valueOf(list.indexOf(user)));
         } else {
-            List<OnlineUser> newList = new ArrayList<>();
+            List<User> newList = new ArrayList<>();
             newList.add(user);
             mUsers.put(user.getRelation(), newList);
             mPresenter.addNewSection(user.getRelation(), newList);
@@ -73,9 +70,9 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     }
 
     @Override
-    public void onUserChanged(OnlineUser user) {
-        for (List<OnlineUser> iteratedList : mUsers.values()) {
-            for (OnlineUser iteratedUser : iteratedList) {
+    public void onUserChanged(User user) {
+        for (List<User> iteratedList : mUsers.values()) {
+            for (User iteratedUser : iteratedList) {
                 if (iteratedUser.getUid().equals(user.getUid())) {
                     if (!iteratedUser.getRelation().equals(user.getRelation())) {
                         iteratedList.remove(iteratedUser);
@@ -91,10 +88,10 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     }
 
     @Override
-    public void onUserDeleted(OnlineUser user) {
-        List<OnlineUser> list = mUsers.get(user.getRelation());
+    public void onUserDeleted(User user) {
+        List<User> list = mUsers.get(user.getRelation());
         if (list == null) {
-            for (List<OnlineUser> iteratedList : mUsers.values()) {
+            for (List<User> iteratedList : mUsers.values()) {
                 deleteUser(iteratedList, user);
             }
             return;
@@ -102,8 +99,8 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         deleteUser(list, user);
     }
 
-    private void deleteUser(List<OnlineUser> users, OnlineUser user) {
-        for (OnlineUser iteratedUser : users) {
+    private void deleteUser(List<User> users, User user) {
+        for (User iteratedUser : users) {
             if (iteratedUser.getUid().equals(user.getUid())) {
                 users.remove(users.indexOf(iteratedUser));
                 mPresenter.notifyDataSetChanged();
@@ -112,15 +109,15 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         }
     }
 
-    public Map<String, List<OnlineUser>> filterUsers(String query) {
+    public Map<String, List<User>> filterUsers(String query) {
         final String lowerCaseQuery = query.toLowerCase();
 
-        Map<String, List<OnlineUser>> filteredUsers = new HashMap<>();
+        Map<String, List<User>> filteredUsers = new HashMap<>();
         List<String> mapKeys = new ArrayList<>(mUsers.keySet());
         int iteration = 0;
-        for (List<OnlineUser> list : mUsers.values()) {
-            List<OnlineUser> users = new ArrayList<>();
-            for (OnlineUser user : list) {
+        for (List<User> list : mUsers.values()) {
+            List<User> users = new ArrayList<>();
+            for (User user : list) {
                 String string = user.getName().toLowerCase();
                 if (string.contains(lowerCaseQuery)) {
                     users.add(user);
@@ -135,10 +132,5 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     @Override
     public void changeUserRelation(String uid, String relation) {
         mFirebaseDatabaseHelper.changeUserRelation(uid, relation);
-    }
-
-    @Override
-    public void setListType(int listType) {
-        mListType = listType;
     }
 }

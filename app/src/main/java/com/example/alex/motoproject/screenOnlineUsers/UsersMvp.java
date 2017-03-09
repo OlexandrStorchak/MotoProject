@@ -37,9 +37,9 @@ public interface UsersMvp {
 
         void setSearchViewIconified(boolean iconified);
 
-        void addNewSection(String relation, List<OnlineUser> list);
+        void addNewSection(String relation, List<User> list);
 
-        void replaceAllUsers(Map<String, List<OnlineUser>> users);
+        void replaceAllUsers(Map<String, List<User>> users);
 
         void setupFriendsList();
 
@@ -57,11 +57,11 @@ public interface UsersMvp {
 
         void clearUsers();
 
-        Map<String, List<OnlineUser>> filterUsers(String query);
+        Map<String, List<User>> filterUsers(String query);
 
         void changeUserRelation(String uid, String relation);
 
-        void setListType(int listType);
+//        void setListType(int listType);
     }
 
     interface ModelToPresenter {
@@ -71,14 +71,14 @@ public interface UsersMvp {
 //
 //        void removeUser(OnlineUser user);
 
-        void notifyItemInserted(int position);
-
-        void notifyItemChanged(int position);
-
-        void notifyItemRemoved(int position);
+//        void notifyItemInserted(int position);
+//
+//        void notifyItemChanged(int position);
+//
+//        void notifyItemRemoved(int position);
 
         void notifyDataSetChanged();
 
-        void addNewSection(String relation, List<OnlineUser> list);
+        void addNewSection(String relation, List<User> list);
     }
 }

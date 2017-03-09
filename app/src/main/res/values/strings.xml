@@ -40,6 +40,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="button_send_description">Наділати повідомлення</string>
     <string name="button_share_location_description">Надіслати місцезнаходження</string>
+    <string name="map_cur_description">Місцезнаходження</string>
+    <string name="avatar_description">Аватар</string>
     <string name="navigation_drawer_btn_chat">Чат</string>
     <string name="me">Я</string>
     <string name="add_friend">add friend</string>

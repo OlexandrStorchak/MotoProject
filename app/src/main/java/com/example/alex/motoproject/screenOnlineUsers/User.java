@@ -2,10 +2,10 @@ package com.example.alex.motoproject.screenOnlineUsers;
 
 import android.support.annotation.NonNull;
 
-public class OnlineUser implements Comparable<OnlineUser> {
+public class User implements Comparable<User> {
     private String uid, name, avatar, status, relation;
 
-    public OnlineUser(String uid, String name, String avatar, String status, String relation) {
+    public User(String uid, String name, String avatar, String status, String relation) {
         this.uid = uid;
         this.name = name;
         this.avatar = avatar;
@@ -13,7 +13,7 @@ public class OnlineUser implements Comparable<OnlineUser> {
         this.relation = relation;
     }
 
-    public OnlineUser(String uid) {
+    public User(String uid) {
         this.uid = uid;
     }
 
@@ -41,7 +41,7 @@ public class OnlineUser implements Comparable<OnlineUser> {
         this.avatar = avatar;
     }
 
-    public String getStatus() {
+    String getStatus() {
         return status;
     }
 
@@ -49,7 +49,7 @@ public class OnlineUser implements Comparable<OnlineUser> {
         this.status = status;
     }
 
-    public String getRelation() {
+    String getRelation() {
         return relation;
     }
 
@@ -82,7 +82,7 @@ public class OnlineUser implements Comparable<OnlineUser> {
 //    }
 
     @Override
-    public int compareTo(@NonNull OnlineUser otherUser) {
+    public int compareTo(@NonNull User otherUser) {
         return this.getName().compareTo(otherUser.getName());
     }
 }

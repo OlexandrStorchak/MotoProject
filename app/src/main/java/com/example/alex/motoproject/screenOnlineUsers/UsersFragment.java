@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -144,9 +143,9 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rv.getContext(),
-                layoutManager.getOrientation());
-        rv.addItemDecoration(dividerItemDecoration);
+//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rv.getContext(),
+//                layoutManager.getOrientation());
+//        rv.addItemDecoration(dividerItemDecoration);
         rv.setLayoutManager(layoutManager);
         rv.setAdapter(mAdapter);
 //        mAdapter.addPendingFriendSection();
@@ -168,10 +167,10 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     }
 
     @Override
-    public void replaceAllUsers(Map<String, List<OnlineUser>> users) {
+    public void replaceAllUsers(Map<String, List<User>> users) {
         List<String> mapKeys = new ArrayList<>(users.keySet());
         int iteration = 0;
-        for (List<OnlineUser> list : users.values()) {
+        for (List<User> list : users.values()) {
             UsersSection section = (UsersSection) mAdapter.getSection(mapKeys.get(iteration));
             section.setUsers(list);
             notifyDataSetChanged();
@@ -224,7 +223,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     public void setupFriendsList() {
         Resources res = getContext().getResources();
         String title = res.getString(R.string.title_pending_friends);
-        PendingFriendSection pfs = new PendingFriendSection(title, new ArrayList<OnlineUser>());
+        PendingFriendSection pfs = new PendingFriendSection(title, new ArrayList<User>());
         pfs.setVisible(false);
         mAdapter.addSection("pending", pfs);
     }
@@ -235,9 +234,11 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     }
 
     @Override
-    public void addNewSection(String relation, List<OnlineUser> list) {
+    public void addNewSection(String relation, List<User> list) {
         if (relation == null) {
-            mAdapter.addSection(null, new UsersSection(null, list));
+            Section section = new UsersSection(null, list);
+//            section.setHasHeader(false);
+            mAdapter.addSection(null, section);
         } else {
             Resources res = getContext().getResources();
             String title;
@@ -259,7 +260,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     private class PendingFriendSection extends UsersSection {
 
-        private PendingFriendSection(String title, List<OnlineUser> users) {
+        private PendingFriendSection(String title, List<User> users) {
             super(title, users, R.layout.item_users_header, R.layout.item_friends_friend_pending);
         }
 
@@ -271,22 +272,22 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     class UsersSection extends StatelessSection {
         private String mTitle;
-        private List<OnlineUser> mUsers;
+        private List<User> mUsers;
 
-        private UsersSection(String title, List<OnlineUser> users) {
+        private UsersSection(String title, List<User> users) {
             super(R.layout.item_users_header, R.layout.item_user);
             mTitle = title;
             mUsers = users;
         }
 
-        private UsersSection(String title, List<OnlineUser> users,
+        private UsersSection(String title, List<User> users,
                              int headerLayout, int itemLayout) {
             super(headerLayout, itemLayout);
             mTitle = title;
             mUsers = users;
         }
 
-        void setUsers(List<OnlineUser> users) {
+        void setUsers(List<User> users) {
             mUsers = users;
             if (mUsers == null) {
                 setVisible(false);
@@ -326,7 +327,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         @Override
         public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
             UserViewHolder userViewHolder = (UserViewHolder) holder;
-            OnlineUser user = mUsers.get(position);
+            User user = mUsers.get(position);
 
             Log.e("OnBindPos", String.valueOf(position) + " "
                     + String.valueOf(mAdapter.getSectionPosition(position)));
