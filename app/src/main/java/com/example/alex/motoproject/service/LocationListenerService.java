@@ -96,6 +96,8 @@ public class LocationListenerService extends Service implements
         ((App) getApplication()).setLocationListenerServiceOn(true);
 
 
+        startLocationUpdates();
+
         super.onCreate();
     }
 
