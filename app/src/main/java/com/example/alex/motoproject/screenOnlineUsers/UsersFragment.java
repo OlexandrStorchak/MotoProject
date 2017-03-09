@@ -79,8 +79,12 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         //Remove a header, if there are no items in a section except the header itself
         for (Section section : mAdapter.getSectionsMap().values()) {
-            if (section.getSectionItemsTotal() < 2 && section.hasHeader()) {
-                section.setHasHeader(false);
+            if (section.hasHeader()) {
+                if (section.getContentItemsTotal() < 1) {
+                    section.setHasHeader(false); //remove header if no it has no children
+                }
+            } else if (section.getContentItemsTotal() >= 1) {
+                section.setHasHeader(true); //add header if it has one or more children
             }
         }
 
@@ -112,10 +116,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // TODO: 05.03.2017 without checking the app crashes when trying to open up details fragment when searching
-                if (mPresenter != null) {
-                    mPresenter.onQueryTextChange(newText);
-                }
+                mPresenter.onQueryTextChange(newText);
                 return false;
             }
         });
@@ -178,7 +179,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         for (List<OnlineUser> list : users.values()) {
             UsersSection section = (UsersSection) mAdapter.getSection(mapKeys.get(iteration));
             section.setUsers(list);
-            mAdapter.notifyDataSetChanged();
+            notifyDataSetChanged();
             iteration++;
         }
     }
@@ -285,6 +286,9 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         public void setUsers(List<OnlineUser> users) {
             mUsers = users;
+            if (mUsers.isEmpty()) {
+
+            }
         }
 
         @Override
