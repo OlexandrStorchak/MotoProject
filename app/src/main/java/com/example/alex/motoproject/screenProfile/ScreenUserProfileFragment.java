@@ -4,6 +4,7 @@ package com.example.alex.motoproject.screenProfile;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,17 +13,23 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UsersProfileFirebase;
 import com.squareup.picasso.Picasso;
 
+import javax.inject.Inject;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 
 public class ScreenUserProfileFragment extends Fragment {
+
+    @Inject
+    FirebaseDatabaseHelper mFirebaseDatabaseHelper;
 
 
     LinearLayout buttons;
@@ -43,6 +50,7 @@ public class ScreenUserProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        App.getCoreComponent().inject(this);
         EventBus.getDefault().register(this);
 
         // Inflate the layout for this fragment
@@ -102,7 +110,8 @@ public class ScreenUserProfileFragment extends Fragment {
                 Toast.makeText(getContext(),
                         "add to friend " + user.getName(),
                         Toast.LENGTH_SHORT).show();
-                new FirebaseDatabaseHelper().sendFriendRequest(user.getId());
+                mFirebaseDatabaseHelper.sendFriendRequest(user.getId());
+
             }
         });
         sendMessage.setOnClickListener(new View.OnClickListener() {

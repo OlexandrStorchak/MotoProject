@@ -591,26 +591,8 @@ public class FirebaseDatabaseHelper {
 
     //Send friend request
     public void sendFriendRequest(String userId) {
-        final DatabaseReference ref = mDbReference.child("users").child(userId)
-                .child("friendsRequest").child(getCurrentUser().getUid());
-        Log.d("log", "sendFriendRequest: " + userId);
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    //Request already exists
-                    Log.d("log", "onDataChange: NO ADD");
-                    return;
-                }
-                ref.setValue("timeStamp");
-                Log.d("log", "onDataChange: ADD USER REQUEST");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d("log", "onCancelled: ");
-            }
-        });
+        DatabaseReference ref = mDbReference.child("users").child(userId).child("friendList");
+        ref.child(getCurrentUser().getUid()).setValue("pending");
     }
 
     //Friend request table listener

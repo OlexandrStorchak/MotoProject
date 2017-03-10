@@ -7,6 +7,7 @@ import com.example.alex.motoproject.screenChat.ChatModel;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 import com.example.alex.motoproject.screenOnlineUsers.ScreenOnlineUsersFragment;
 import com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment;
+import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
 import com.example.alex.motoproject.service.LocationListenerService;
 
 import javax.inject.Singleton;
@@ -19,6 +20,8 @@ public interface CoreComponent {
     void inject(ScreenMapFragment screenMapFragment);
 
     void inject(ChatModel chatModel);
+
+    void inject(ScreenUserProfileFragment userProfileFragment);
 
     void inject(ScreenOnlineUsersFragment onlineUsersFragment);
 
