@@ -215,6 +215,7 @@ public class ScreenMyProfileFragment extends Fragment {
                 // TODO: 05.03.2017 add method contract to LocationListenerService
                 SharedPreferences preferencesRate = getContext().getSharedPreferences(GPS_RATE, MODE_PRIVATE);
                 switch (i) {
+
                     case 0:
                         preferencesRate.edit()
                                 .putString(currentUid, LOCATION_REQUEST_FREQUENCY_HIGH).apply();

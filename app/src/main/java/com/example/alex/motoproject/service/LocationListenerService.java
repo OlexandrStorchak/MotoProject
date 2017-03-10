@@ -45,7 +45,7 @@ public class LocationListenerService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener
-,Runnable{
+        , Runnable {
     public static final String LOCATION_REQUEST_FREQUENCY_HIGH = "high";
     public static final String LOCATION_REQUEST_FREQUENCY_DEFAULT = "default";
     public static final String LOCATION_REQUEST_FREQUENCY_LOW = "low";
@@ -64,6 +64,8 @@ public class LocationListenerService extends Service implements
     NetworkStateReceiver mNetworkStateReceiver;
     FirebaseAuth mFirebaseAuth;
     private Handler handler = new Handler();
+    private String gpsRate;
+    private int updateTime=10000;
 
 
     public LocationListenerService() {
@@ -84,7 +86,7 @@ public class LocationListenerService extends Service implements
                     .addApi(LocationServices.API)
                     .build();
         }
-        mGoogleApiClient.connect();
+
 
         mFirebaseAuth = FirebaseAuth.getInstance();
 
@@ -94,6 +96,25 @@ public class LocationListenerService extends Service implements
         SharedPreferences preferences = getApplicationContext()
                 .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
 
+        SharedPreferences preferencesRate = getApplicationContext()
+                .getSharedPreferences(GPS_RATE, Context.MODE_PRIVATE);
+
+        gpsRate = preferencesRate.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),null);
+        if (gpsRate == null) {
+            gpsRate = LOCATION_REQUEST_FREQUENCY_DEFAULT;
+        }
+        switch (gpsRate){
+            case LOCATION_REQUEST_FREQUENCY_LOW:
+                updateTime=20000;
+                break;
+            case LOCATION_REQUEST_FREQUENCY_DEFAULT:
+                updateTime=10000;
+                break;
+            case LOCATION_REQUEST_FREQUENCY_HIGH:
+                updateTime=3000;
+                break;
+        }
+
         mFirebaseDatabaseHelper.setUserOnline(preferences.getString(
                 mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
 
@@ -101,13 +122,10 @@ public class LocationListenerService extends Service implements
         ((App) getApplication()).setLocationListenerServiceOn(true);
 
 
-
-
-        startLocationUpdates();
+        handler.postDelayed(this, 500);
 
         super.onCreate();
     }
-
 
 
     @Override
@@ -115,7 +133,7 @@ public class LocationListenerService extends Service implements
 
         handler.removeCallbacks(this);
         stopLocationUpdates();
-        mGoogleApiClient.disconnect();
+
         unregisterReceiver(mNetworkStateReceiver);
         cleanupNotifications();
 
@@ -171,6 +189,7 @@ public class LocationListenerService extends Service implements
     public void onLocationChanged(Location location) {
         mFirebaseDatabaseHelper.updateUserLocation(location);
         Log.i("loc", "UPDATE");
+        stopLocationUpdates();
     }
 
     @Override
@@ -181,58 +200,36 @@ public class LocationListenerService extends Service implements
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
     }
 
-    //different variants of LocationRequest that might be changed via settings
-    protected LocationRequest createLocationRequest() {
-        SharedPreferences preferencesRate = getApplicationContext()
-                .getSharedPreferences(GPS_RATE, Context.MODE_PRIVATE);
-
-        mRequestFrequency = preferencesRate
-                .getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null);
-
-        if (mRequestFrequency == null) {
-            mRequestFrequency = LOCATION_REQUEST_FREQUENCY_DEFAULT;
-        }
-
-        LocationRequest mLocationRequest = new LocationRequest();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        Log.i("loc", "createLocationRequest: " + mRequestFrequency);
-        switch (mRequestFrequency) {
-            case LOCATION_REQUEST_FREQUENCY_HIGH:
-                mLocationRequest.setInterval(5000); //5 secs
-                //mLocationRequest.setFastestInterval(2000); //2 secs
-                mLocationRequest.setSmallestDisplacement(14f); //14 m
-
-                break;
-            case LOCATION_REQUEST_FREQUENCY_DEFAULT:
-                mLocationRequest.setInterval(20000); //20 secs
-                mLocationRequest.setFastestInterval(10000); //10 secs
-                mLocationRequest.setSmallestDisplacement(10f); //10 m
-                break;
-            case LOCATION_REQUEST_FREQUENCY_LOW:
-                mLocationRequest.setInterval(30000); //30 secs
-                mLocationRequest.setFastestInterval(20000); //20 secs
-                mLocationRequest.setSmallestDisplacement(50f); //50 m
-                break;
-        }
-        return mLocationRequest;
-    }
 
     private void startLocationUpdates() {
         //handle unexpected permission absence
-        if (checkLocationPermission()) {
+        mGoogleApiClient.connect();
+        if (mGoogleApiClient.isConnected()) {
 
-            //Do something after 100ms
 
-            handler.postDelayed(this, 100);
-//            LocationServices.FusedLocationApi.requestLocationUpdates(
-//                    mGoogleApiClient, createLocationRequest(), this);
+            if (checkLocationPermission()) {
+                LocationRequest mLocationRequest = new LocationRequest();
+                mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+
+                mLocationRequest.setInterval(1000); //1 secs
+                //mLocationRequest.setFastestInterval(2000); //2 secs
+                mLocationRequest.setSmallestDisplacement(4f); //4 m
+
+
+                LocationServices.FusedLocationApi.requestLocationUpdates(
+                        mGoogleApiClient, mLocationRequest, this);
+            }
         }
     }
 
     private void stopLocationUpdates() {
         if (mGoogleApiClient.isConnected()) {
+
+
             LocationServices.FusedLocationApi.removeLocationUpdates(
                     mGoogleApiClient, this);
+            mGoogleApiClient.disconnect();
         }
 
     }
@@ -297,8 +294,9 @@ public class LocationListenerService extends Service implements
 
     @Override
     public void run() {
-        Toast.makeText(getApplicationContext(), "check", Toast.LENGTH_SHORT).show();
-        handler.postDelayed(this,5000);
+        Toast.makeText(getApplicationContext(), "Update time "+updateTime/1000+" sec.", Toast.LENGTH_SHORT).show();
+        handler.postDelayed(this,updateTime );
         Log.d("time", "run: ");
+        startLocationUpdates();
     }
 }
