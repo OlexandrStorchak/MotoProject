@@ -55,7 +55,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
     @Override
     public void onViewCreated() {
-//        getView().setUserList(mModel.getUsers());
+//        getView().setUserList(mModel.getFriends());
     }
 
     @Override
@@ -84,7 +84,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
 //    @Override
 //    public List<OnlineUser> onGetUsersList() {
-//        return mModel.getUsers();
+//        return mModel.getFriends();
 //    }
 
 //    @Override

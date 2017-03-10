@@ -14,7 +14,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 public class UsersModel implements UsersMvp.PresenterToModel,
-        FirebaseDatabaseHelper.OnlineUsersUpdateReceiver {
+        FirebaseDatabaseHelper.UsersUpdateReceiver {
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     private UsersMvp.ModelToPresenter mPresenter;
@@ -28,6 +28,7 @@ public class UsersModel implements UsersMvp.PresenterToModel,
 
     @Override
     public void registerUsersListener() {
+        mFirebaseDatabaseHelper.getOnlineUsers(this);
         mFirebaseDatabaseHelper.registerOnlineUsersListener(this);
     }
 
@@ -38,6 +39,7 @@ public class UsersModel implements UsersMvp.PresenterToModel,
 
     @Override
     public void registerFriendsListener() {
+        mFirebaseDatabaseHelper.getFriends(this);
         mFirebaseDatabaseHelper.registerFriendsListener(this);
     }
 
@@ -49,6 +51,23 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     @Override
     public void clearUsers() {
         mUsers.clear();
+    }
+
+    @Override
+    public void onUsersAdded(List<User> users) {
+        Collections.sort(users);
+        for (User user : users) {
+            List<User> list = mUsers.get(user.getRelation());
+            if (list != null) {
+                list.add(user);
+            } else {
+                List<User> newList = new ArrayList<>();
+                newList.add(user);
+                mUsers.put(user.getRelation(), newList);
+                mPresenter.addNewSection(user.getRelation(), newList);
+            }
+        }
+        mPresenter.notifyDataSetChanged();
     }
 
     @Override

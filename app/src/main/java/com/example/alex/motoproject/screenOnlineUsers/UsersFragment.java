@@ -83,10 +83,12 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                     section.setHasHeader(false); //remove header if it has no children
                 }
             } else if (section.getContentItemsTotal() >= 1) {
-                section.setHasHeader(true); //add header if it has one or more children
+                UsersSection usersSection = (UsersSection) section;
+                if (usersSection.getTitle() != null) {
+                    section.setHasHeader(true); //add header if it has one or more children
+                }
             }
         }
-
     }
 
     @Override
@@ -276,6 +278,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         private UsersSection(String title, List<User> users) {
             super(R.layout.item_users_header, R.layout.item_user);
+            setHasHeader(false);
             mTitle = title;
             mUsers = users;
         }
@@ -283,6 +286,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         private UsersSection(String title, List<User> users,
                              int headerLayout, int itemLayout) {
             super(headerLayout, itemLayout);
+            setHasHeader(false);
             mTitle = title;
             mUsers = users;
         }
@@ -294,6 +298,10 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             } else {
                 setVisible(true);
             }
+        }
+
+        private String getTitle() {
+            return mTitle;
         }
 
         @Override
@@ -379,6 +387,10 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                     }
 
                 });
+            }
+
+            private String getTitle() {
+                return mTitle;
             }
         }
 
