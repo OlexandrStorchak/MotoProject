@@ -12,12 +12,14 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
@@ -42,7 +44,8 @@ import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment
 public class LocationListenerService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener
+,Runnable{
     public static final String LOCATION_REQUEST_FREQUENCY_HIGH = "high";
     public static final String LOCATION_REQUEST_FREQUENCY_DEFAULT = "default";
     public static final String LOCATION_REQUEST_FREQUENCY_LOW = "low";
@@ -60,6 +63,8 @@ public class LocationListenerService extends Service implements
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
     FirebaseAuth mFirebaseAuth;
+    private Handler handler = new Handler();
+
 
     public LocationListenerService() {
         // Required empty public constructor
@@ -96,13 +101,19 @@ public class LocationListenerService extends Service implements
         ((App) getApplication()).setLocationListenerServiceOn(true);
 
 
+
+
         startLocationUpdates();
 
         super.onCreate();
     }
 
+
+
     @Override
     public void onDestroy() {
+
+        handler.removeCallbacks(this);
         stopLocationUpdates();
         mGoogleApiClient.disconnect();
         unregisterReceiver(mNetworkStateReceiver);
@@ -124,6 +135,7 @@ public class LocationListenerService extends Service implements
 
 
         super.onDestroy();
+
     }
 
     //The service is not designed for binding
@@ -208,8 +220,12 @@ public class LocationListenerService extends Service implements
     private void startLocationUpdates() {
         //handle unexpected permission absence
         if (checkLocationPermission()) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    mGoogleApiClient, createLocationRequest(), this);
+
+            //Do something after 100ms
+
+            handler.postDelayed(this, 100);
+//            LocationServices.FusedLocationApi.requestLocationUpdates(
+//                    mGoogleApiClient, createLocationRequest(), this);
         }
     }
 
@@ -218,6 +234,7 @@ public class LocationListenerService extends Service implements
             LocationServices.FusedLocationApi.removeLocationUpdates(
                     mGoogleApiClient, this);
         }
+
     }
 
     private void showNotification() {
@@ -278,4 +295,10 @@ public class LocationListenerService extends Service implements
     }
 
 
+    @Override
+    public void run() {
+        Toast.makeText(getApplicationContext(), "check", Toast.LENGTH_SHORT).show();
+        handler.postDelayed(this,5000);
+        Log.d("time", "run: ");
+    }
 }
