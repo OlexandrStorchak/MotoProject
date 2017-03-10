@@ -57,14 +57,13 @@ public class LocationListenerService extends Service implements
     //TODO: where to store notification ids?
     int mNotificationId = 3;
     GoogleApiClient mGoogleApiClient;
-    String mRequestFrequency = "default";
+
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
     FirebaseAuth mFirebaseAuth;
     private Handler handler = new Handler();
-    private String gpsRate;
     private int updateTime=10000;
 
 
@@ -99,7 +98,7 @@ public class LocationListenerService extends Service implements
         SharedPreferences preferencesRate = getApplicationContext()
                 .getSharedPreferences(GPS_RATE, Context.MODE_PRIVATE);
 
-        gpsRate = preferencesRate.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),null);
+        String gpsRate = preferencesRate.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null);
         if (gpsRate == null) {
             gpsRate = LOCATION_REQUEST_FREQUENCY_DEFAULT;
         }
@@ -213,7 +212,7 @@ public class LocationListenerService extends Service implements
 
 
                 mLocationRequest.setInterval(1000); //1 secs
-                //mLocationRequest.setFastestInterval(2000); //2 secs
+                mLocationRequest.setFastestInterval(2000); //2 secs
                 mLocationRequest.setSmallestDisplacement(4f); //4 m
 
 
@@ -296,7 +295,7 @@ public class LocationListenerService extends Service implements
     public void run() {
         Toast.makeText(getApplicationContext(), "Update time "+updateTime/1000+" sec.", Toast.LENGTH_SHORT).show();
         handler.postDelayed(this,updateTime );
-        Log.d("time", "run: ");
+        Log.i("time", "run: ");
         startLocationUpdates();
     }
 }
