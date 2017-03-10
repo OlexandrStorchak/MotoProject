@@ -76,7 +76,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     public void notifyDataSetChanged() {
         mAdapter.notifyDataSetChanged();
 
-        //Remove a header, if there are no items in a section except the header itself
+        //Add or remove header
         for (Section section : mAdapter.getSectionsMap().values()) {
             if (section.hasHeader()) {
                 if (section.getContentItemsTotal() < 1) {
@@ -84,8 +84,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                 }
             } else if (section.getContentItemsTotal() >= 1) {
                 UsersSection usersSection = (UsersSection) section;
-                if (usersSection.getTitle() != null) {
-                    section.setHasHeader(true); //add header if it has one or more children
+                if (usersSection.getTitle() != null) { //add header if it has one or more children
+                    section.setHasHeader(true); //and if there is something to show in this header
                 }
             }
         }
@@ -223,10 +223,10 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void setupFriendsList() {
+        //Makes pending friends section always show on top if it has any child
         Resources res = getContext().getResources();
         String title = res.getString(R.string.title_pending_friends);
         PendingFriendSection pfs = new PendingFriendSection(title, new ArrayList<User>());
-        pfs.setVisible(false);
         mAdapter.addSection("pending", pfs);
     }
 
