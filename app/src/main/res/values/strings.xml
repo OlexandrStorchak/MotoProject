@@ -54,4 +54,7 @@
 
     <string name="title_pending_friends">Пропозиції</string>
     <string name="title_friends">Друзі</string>
+    <string name="filter_title_chat">Фільтр</string>
+    <string name="km10">10 кілометрів</string>
+    <string name="km20">20 кілометрів</string>
 </resources>

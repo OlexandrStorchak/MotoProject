@@ -14,12 +14,16 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.alex.motoproject.DaggerPresenterComponent;
 import com.example.alex.motoproject.PresenterModule;
@@ -93,12 +97,16 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         mShareLocationButton = (ImageButton) view.findViewById(R.id.button_sharelocation_chat);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_chat);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.container_chat_swipe);
+
         setupMessageSending();
         setupLocationSharing();
         setupTextFilter();
         setupRecyclerView();
         setupSwipeRefreshLayout();
+
         EventBus.getDefault().register(mPresenter);
+
+        setHasOptionsMenu(true);
     }
 
     private void setupSwipeRefreshLayout() {
@@ -163,6 +171,33 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
 
     private void setupTextFilter() {
         mEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MESSAGE_MAX_CHARS)});
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.filter_messages_chat_10km:
+                break;
+            case R.id.filter_messages_chat_20km:
+                break;
+            default:
+                Toast.makeText(getContext(), "Unsupported action", Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return false;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.appbar_chat, menu);
+
+        final MenuItem mainFilterItem = menu.findItem(R.id.filter_messages_chat);
+
+        final MenuItem filterItem10km = menu.findItem(R.id.filter_messages_chat_10km);
+        final MenuItem filterItem20km = menu.findItem(R.id.filter_messages_chat_20km);
+
+
     }
 
     private void setupRecyclerView() {
