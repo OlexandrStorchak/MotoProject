@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import com.example.alex.motoproject.DaggerPresenterComponent;
 import com.example.alex.motoproject.PresenterModule;
@@ -175,15 +174,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.filter_messages_chat_10km:
-                break;
-            case R.id.filter_messages_chat_20km:
-                break;
-            default:
-                Toast.makeText(getContext(), "Unsupported action", Toast.LENGTH_SHORT).show();
-                break;
-        }
+        mPresenter.onOptionsItemSelected(item.getItemId());
         return false;
     }
 
@@ -191,13 +182,6 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.appbar_chat, menu);
-
-        final MenuItem mainFilterItem = menu.findItem(R.id.filter_messages_chat);
-
-        final MenuItem filterItem10km = menu.findItem(R.id.filter_messages_chat_10km);
-        final MenuItem filterItem20km = menu.findItem(R.id.filter_messages_chat_20km);
-
-
     }
 
     private void setupRecyclerView() {

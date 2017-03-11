@@ -10,7 +10,8 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class ChatModel implements ChatMvp.PresenterToModel,
-        FirebaseDatabaseHelper.ChatUpdateReceiver {
+        FirebaseDatabaseHelper.ChatUpdateReceiver,
+        FirebaseDatabaseHelper.UsersLocationReceiver {
     @Inject
     FirebaseDatabaseHelper mFirebaseHelper;
     private ChatMvp.ModelToPresenter mPresenter;
@@ -73,7 +74,7 @@ public class ChatModel implements ChatMvp.PresenterToModel,
     }
 
     @Override
-    public void onLastMessages() {
+    public void onLastMessage() {
         mPresenter.disableSwipeLayout();
     }
 
@@ -83,7 +84,18 @@ public class ChatModel implements ChatMvp.PresenterToModel,
     }
 
     @Override
+    public void filterChatToDistance(int meters) {
+        mFirebaseHelper.fetchUsersLocations(this);
+        mFirebaseHelper.setCloseDistance(meters);
+    }
+
+    @Override
     public void onCurrentUserLocationReady(LatLng latLng) {
         mFirebaseHelper.sendChatMessage(latLng);
+    }
+
+    @Override
+    public void onUsersLocationsReady() {
+        registerChatMessagesListener();
     }
 }

@@ -22,6 +22,8 @@ public interface ChatMvp {
         void registerAdapter();
 
         void onRefreshSwipeLayout();
+
+        void onOptionsItemSelected(int itemId);
     }
 
     interface PresenterToView {
@@ -68,6 +70,8 @@ public interface ChatMvp {
         void fetchOlderChatMessages();
 
         void fetchDataForLocationShare();
+
+        void filterChatToDistance(int meters);
     }
 
     interface ModelToPresenter {

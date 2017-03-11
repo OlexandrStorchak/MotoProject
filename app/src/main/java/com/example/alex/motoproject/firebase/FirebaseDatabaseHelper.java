@@ -10,6 +10,7 @@ import com.example.alex.motoproject.screenChat.ChatMessage;
 import com.example.alex.motoproject.screenChat.ChatMessageSendable;
 import com.example.alex.motoproject.screenChat.ChatModel;
 import com.example.alex.motoproject.screenOnlineUsers.User;
+import com.example.alex.motoproject.util.DistanceUtil;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,7 +42,7 @@ public class FirebaseDatabaseHelper {
             "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
                     "o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
 
-    private static final int CHAT_MESSAGES_MIN_COUNT_LIMIT = 31; //31
+    private static final int CHAT_MESSAGES_MIN_COUNT_LIMIT = 31;
     private int mMessagesCountLimit = 0;
 
     private ChatUpdateReceiver mChatModel;
@@ -54,6 +55,7 @@ public class FirebaseDatabaseHelper {
     private DatabaseReference mOnlineUsersRef;
 
     private HashMap<String, String> mOnlineUserStatusHashMap = new HashMap<>();
+    private HashMap<String, LatLng> mUsersLocation;
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
 
     private String mFirstChatMsgKeyAfterFetch;
@@ -61,6 +63,9 @@ public class FirebaseDatabaseHelper {
     private boolean isFirstNewChatMessageAfterFetch = true;
 
     private int mReceivedUsersCount;
+
+    private LatLng mCurrentUserLocation;
+    private int mCloseDistance = 0;
 
     public FirebaseDatabaseHelper() {
 
@@ -185,6 +190,32 @@ public class FirebaseDatabaseHelper {
         }
     }
 
+    public void fetchUsersLocations(final UsersLocationReceiver receiver) {
+        mUsersLocation = new HashMap<>();
+        DatabaseReference ref = mDbReference.child("location");
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot entry : dataSnapshot.getChildren()) {
+                    String uid = entry.getKey();
+                    Number lat = (Number) entry.child("lat").getValue();
+                    Number lng = (Number) entry.child("lng").getValue();
+                    if (lat == null || lng == null) {
+                        return;
+                    }
+                    LatLng location = new LatLng(lat.doubleValue(), lng.doubleValue());
+                    mUsersLocation.put(uid, location);
+                }
+                receiver.onUsersLocationsReady();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     private void postChangeMarkerEvent(DataSnapshot dataSnapshot) {
         if (!(dataSnapshot.getValue() instanceof String)) {
             return;
@@ -198,14 +229,18 @@ public class FirebaseDatabaseHelper {
         ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
-                    return;
-                }
                 Number lat = (Number) dataSnapshot.child("lat").getValue();
                 Number lng = (Number) dataSnapshot.child("lng").getValue();
                 if (lat == null || lng == null) {
                     return;
                 }
+
+                if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
+                    mCurrentUserLocation = new LatLng(lat.doubleValue(), lng.doubleValue());
+                    return;
+                }
+
+
                 final String uid = dataSnapshot.getKey();
                 final LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
                 DatabaseReference nameRef = mDbReference.child("users").child(uid).child("name");
@@ -581,25 +616,42 @@ public class FirebaseDatabaseHelper {
     }
 
     /**
-     * Chat listeners
+     * Chat
      */
+
+    public void setCloseDistance(int closeDistance) {
+        mCloseDistance = closeDistance;
+    }
 
     public void registerChatMessagesListener(ChatUpdateReceiver receiver) {
         mChatModel = receiver;
         mChatMessagesListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String uid = (String) dataSnapshot.child("uid").getValue();
+                String text = (String) dataSnapshot.child("text").getValue();
+                Long sendTime = (Long) dataSnapshot.child("sendTime").getValue();
+                Number lat = (Number) dataSnapshot.child("location").child("latitude").getValue();
+                Number lng = (Number) dataSnapshot.child("location").child("longitude").getValue();
+
+                if (mCloseDistance > 0) {
+                    if (mCurrentUserLocation == null) {
+                        mCurrentUserLocation = mUsersLocation.get(getCurrentUser().getUid());
+                    }
+
+                    if (DistanceUtil.isClose(mCurrentUserLocation,
+                            mUsersLocation.get(uid),
+                            mCloseDistance)) {
+
+                    }
+                }
+
                 mMessagesCountLimit++;
                 if (isFirstNewChatMessageAfterFetch) {
                     mFirstChatMsgKeyAfterFetch = dataSnapshot.getKey();
                     isFirstNewChatMessageAfterFetch = false;
                     return;
                 }
-                String uid = (String) dataSnapshot.child("uid").getValue();
-                String text = (String) dataSnapshot.child("text").getValue();
-                Long sendTime = (Long) dataSnapshot.child("sendTime").getValue();
-                Number lat = (Number) dataSnapshot.child("location").child("latitude").getValue();
-                Number lng = (Number) dataSnapshot.child("location").child("longitude").getValue();
 
                 final ChatMessage message = new ChatMessage(uid, convertUnixTimeToDate(sendTime));
                 if (text != null) {
@@ -607,7 +659,6 @@ public class FirebaseDatabaseHelper {
                 } else if (lat != null && lng != null) {
                     LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
                     message.setLocation(latLng);
-                    System.out.println(latLng);
                 } else {
                     return;
                 }
@@ -661,8 +712,9 @@ public class FirebaseDatabaseHelper {
 
     }
 
-    //Called every time users scrolls to the end of the list and swipes up if there are more messages
+    //Called every time users scrolls to the end of the list and swipes up, if there are more messages
     public void fetchOlderChatMessages(ChatModel receiver) {
+        // TODO: 11.03.2017 call this method till there are less that 30 fetched messages if filtering
         isFirstChatMessageAfterFetch = true;
         final ChatUpdateReceiver chatModel = receiver;
         mDbReference.child("chat").orderByKey().endAt(mFirstChatMsgKeyAfterFetch)
@@ -717,9 +769,8 @@ public class FirebaseDatabaseHelper {
                             }
 
                         }
-                        if (parentSnapshot.getChildrenCount()
-                                < CHAT_MESSAGES_MIN_COUNT_LIMIT) {
-                            chatModel.onLastMessages();
+                        if (parentSnapshot.getChildrenCount() < CHAT_MESSAGES_MIN_COUNT_LIMIT) {
+                            chatModel.onLastMessage();
                         }
                         onOlderChatMessagesReady(olderMessages, chatModel);
                     }
@@ -753,16 +804,15 @@ public class FirebaseDatabaseHelper {
         }
     }
 
-    public void getCurrentUserLocation(ChatModel receiver) {
-        final ChatUpdateReceiver chatModel = receiver;
+    public void getCurrentUserLocation(final UsersLocationReceiver receiver) {
         mDbReference.child("location").child(getCurrentUser().getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Number lat = (Number) dataSnapshot.child("lat").getValue();
                         Number lng = (Number) dataSnapshot.child("lng").getValue();
-                        chatModel.onCurrentUserLocationReady(
-                                new LatLng(lat.doubleValue(), lng.doubleValue()));
+                        mCurrentUserLocation = new LatLng(lat.doubleValue(), lng.doubleValue());
+                        receiver.onCurrentUserLocationReady(mCurrentUserLocation);
                     }
 
                     @Override
@@ -909,9 +959,13 @@ public class FirebaseDatabaseHelper {
 
         void onChatMessageNewData(ChatMessage message);
 
+        void onLastMessage();
+    }
+
+    public interface UsersLocationReceiver {
         void onCurrentUserLocationReady(LatLng latLng);
 
-        void onLastMessages();
+        void onUsersLocationsReady();
     }
 
 

@@ -2,6 +2,7 @@ package com.example.alex.motoproject.screenChat;
 
 import android.view.View;
 
+import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
@@ -77,6 +78,19 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
     @Override
     public void onRefreshSwipeLayout() {
         mModel.fetchOlderChatMessages();
+    }
+
+    @Override
+    public void onOptionsItemSelected(int itemId) {
+        switch (itemId) {
+            case R.id.filter_messages_chat_10km:
+                mModel.filterChatToDistance(10000);
+                break;
+            case R.id.filter_messages_chat_20km:
+                mModel.filterChatToDistance(20000);
+                break;
+        }
+        mModel.unregisterChatMessagesListener();
     }
 
     @Override
