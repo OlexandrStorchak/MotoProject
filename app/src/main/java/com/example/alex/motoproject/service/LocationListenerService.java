@@ -16,8 +16,6 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -28,8 +26,6 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 
 import javax.inject.Inject;
@@ -40,10 +36,7 @@ import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment
 /**
  * The Service that listens for location changes and sends them to Firebase
  */
-public class LocationListenerService extends Service implements
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener
-        , Runnable {
+public class LocationListenerService extends Service implements Runnable {
     public static final String LOCATION_REQUEST_FREQUENCY_HIGH = "high";
     public static final String LOCATION_REQUEST_FREQUENCY_DEFAULT = "default";
     public static final String LOCATION_REQUEST_FREQUENCY_LOW = "low";
@@ -156,21 +149,6 @@ public class LocationListenerService extends Service implements
             stopSelf();
         }
         return super.onStartCommand(intent, flags, startId);
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-
-
-    }
-
-
-    @Override
-    public void onConnectionSuspended(int i) {
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
     }
 
 
