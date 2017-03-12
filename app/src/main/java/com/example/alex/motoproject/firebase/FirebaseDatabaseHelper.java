@@ -639,10 +639,10 @@ public class FirebaseDatabaseHelper {
                         mCurrentUserLocation = mUsersLocation.get(getCurrentUser().getUid());
                     }
 
-                    if (DistanceUtil.isClose(mCurrentUserLocation,
+                    if (!DistanceUtil.isClose(mCurrentUserLocation,
                             mUsersLocation.get(uid),
                             mCloseDistance)) {
-
+                        return;
                     }
                 }
 
@@ -723,53 +723,73 @@ public class FirebaseDatabaseHelper {
                     @Override
                     public void onDataChange(DataSnapshot parentSnapshot) {
                         List<ChatMessage> olderMessages = new ArrayList<>();
+                        int i = 0;
                         for (DataSnapshot dataSnapshot : parentSnapshot.getChildren()) {
+                            Log.e("dataSnapshot", String.valueOf(i));
+                            i++;
+                            String uid = (String) dataSnapshot.child("uid").getValue();
+
                             String messageId = dataSnapshot.getKey();
                             if (isFirstChatMessageAfterFetch && parentSnapshot.getChildrenCount()
-                                    >= CHAT_MESSAGES_MIN_COUNT_LIMIT) {
+                                    >= mMessagesCountLimit) {
                                 mFirstChatMsgKeyAfterFetch = messageId;
                                 isFirstChatMessageAfterFetch = false;
-                            } else {
-                                String uid = (String) dataSnapshot.child("uid").getValue();
-                                String text = (String) dataSnapshot.child("text").getValue();
-                                long sendTime = (long) dataSnapshot.child("sendTime").getValue();
-                                Number lat = (Number) dataSnapshot.child("location").child("latitude").getValue();
-                                Number lng = (Number) dataSnapshot.child("location").child("longitude").getValue();
-
-                                final ChatMessage message = new ChatMessage(uid, convertUnixTimeToDate(sendTime));
-                                if (text != null) {
-                                    message.setText(text);
-                                } else if (lat != null && lng != null) {
-                                    LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
-                                    message.setLocation(latLng);
-                                } else {
-                                    return;
-                                }
-
-                                olderMessages.add(message);
-                                if (message.getUid().equals(getCurrentUser().getUid())) {
-                                    message.setCurrentUserMsg(true);
-                                }
-                                mDbReference.child("users").child(uid)
-                                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                String name = (String) dataSnapshot.child("name").getValue();
-                                                String avatarRef = (String) dataSnapshot.child("avatar").getValue();
-                                                message.setName(name);
-                                                message.setAvatarRef(avatarRef);
-                                                mChatModel.onChatMessageNewData(message);
-                                            }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-
-                                            }
-                                        });
+                                continue;
                             }
 
+                            if (mCloseDistance > 0) {
+                                if (mCurrentUserLocation == null) {
+                                    mCurrentUserLocation = mUsersLocation.get(getCurrentUser().getUid());
+                                }
+
+                                if (!DistanceUtil.isClose(mCurrentUserLocation,
+                                        mUsersLocation.get(uid),
+                                        mCloseDistance)) {
+                                    Log.e("fff", "fdfd");
+                                    continue;
+                                }
+                            }
+
+                            String text = (String) dataSnapshot.child("text").getValue();
+                            long sendTime = (long) dataSnapshot.child("sendTime").getValue();
+                            Number lat = (Number) dataSnapshot.child("location").child("latitude").getValue();
+                            Number lng = (Number) dataSnapshot.child("location").child("longitude").getValue();
+
+                            final ChatMessage message = new ChatMessage(uid, convertUnixTimeToDate(sendTime));
+                            if (text != null) {
+                                message.setText(text);
+                            } else if (lat != null && lng != null) {
+                                LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
+                                message.setLocation(latLng);
+                            } else {
+                                Log.e("fff", "fdfd");
+                                continue;
+                            }
+
+                            olderMessages.add(message);
+                            if (message.getUid().equals(getCurrentUser().getUid())) {
+                                message.setCurrentUserMsg(true);
+                            }
+                            mDbReference.child("users").child(uid)
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            String name = (String) dataSnapshot.child("name").getValue();
+                                            String avatarRef = (String) dataSnapshot.child("avatar").getValue();
+                                            message.setName(name);
+                                            message.setAvatarRef(avatarRef);
+                                            mChatModel.onChatMessageNewData(message);
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+
                         }
-                        if (parentSnapshot.getChildrenCount() < CHAT_MESSAGES_MIN_COUNT_LIMIT) {
+                        Log.e("ChildrenCount", String.valueOf(parentSnapshot.getChildrenCount()));
+                        if (parentSnapshot.getChildrenCount() < mMessagesCountLimit) {
                             chatModel.onLastMessage();
                         }
                         onOlderChatMessagesReady(olderMessages, chatModel);

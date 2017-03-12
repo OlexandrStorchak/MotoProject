@@ -54,6 +54,8 @@ public interface ChatMvp {
         void enableShareLocationButton();
 
         int getLastCompletelyVisibleItemPosition();
+
+        void clearMessages();
     }
 
     interface PresenterToModel {

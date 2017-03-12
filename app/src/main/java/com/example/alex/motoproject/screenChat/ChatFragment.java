@@ -211,6 +211,12 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     @Override
+    public void clearMessages() {
+        mAdapter.clearMessages();
+        mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
     public void notifyItemInserted(int position) {
         mAdapter.notifyItemInserted(position - 1);
     }

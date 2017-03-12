@@ -89,8 +89,11 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
             case R.id.filter_messages_chat_20km:
                 mModel.filterChatToDistance(20000);
                 break;
+            default:
+                return;
         }
         mModel.unregisterChatMessagesListener();
+        getView().clearMessages();
     }
 
     @Override
