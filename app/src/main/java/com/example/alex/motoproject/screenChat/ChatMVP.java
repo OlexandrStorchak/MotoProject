@@ -47,7 +47,7 @@ public interface ChatMvp {
 
         void disableRefreshingSwipeLayout();
 
-        void disableSwipeLayout();
+        void enableSwipeLayout(boolean enable);
 
         void disableShareLocationButton();
 
@@ -83,7 +83,7 @@ public interface ChatMvp {
 
         void disableRefreshingSwipeLayout();
 
-        void disableSwipeLayout();
+        void enableSwipeLayout(boolean enable);
 
         void updateMessage(int position);
     }

@@ -256,8 +256,8 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     @Override
-    public void disableSwipeLayout() {
-        mSwipeRefreshLayout.setEnabled(false);
+    public void enableSwipeLayout(boolean enable) {
+        mSwipeRefreshLayout.setEnabled(enable);
     }
 
     @Override

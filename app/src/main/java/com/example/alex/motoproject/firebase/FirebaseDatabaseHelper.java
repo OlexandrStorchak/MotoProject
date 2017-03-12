@@ -8,7 +8,6 @@ import com.example.alex.motoproject.event.MapMarkerEvent;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.screenChat.ChatMessage;
 import com.example.alex.motoproject.screenChat.ChatMessageSendable;
-import com.example.alex.motoproject.screenChat.ChatModel;
 import com.example.alex.motoproject.screenOnlineUsers.User;
 import com.example.alex.motoproject.util.DistanceUtil;
 import com.google.android.gms.maps.model.LatLng;
@@ -42,7 +41,9 @@ public class FirebaseDatabaseHelper {
             "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
                     "o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
 
-    private static final int CHAT_MESSAGES_MIN_COUNT_LIMIT = 31;
+    private static final int FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT = 31;
+    private static final int SHOWN_MESSAGES_MIN_COUNT_LIMIT =
+            FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT - 1;
     private int mMessagesCountLimit = 0;
 
     private ChatUpdateReceiver mChatModel;
@@ -63,6 +64,7 @@ public class FirebaseDatabaseHelper {
     private boolean isFirstNewChatMessageAfterFetch = true;
 
     private int mReceivedUsersCount;
+    private int mOlderMessagesCount;
 
     private LatLng mCurrentUserLocation;
     private int mCloseDistance = 0;
@@ -707,26 +709,22 @@ public class FirebaseDatabaseHelper {
 
             }
         };
-        mDbReference.child("chat").limitToLast(CHAT_MESSAGES_MIN_COUNT_LIMIT)
+        mDbReference.child("chat").limitToLast(FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT)
                 .addChildEventListener(mChatMessagesListener);
 
     }
 
     //Called every time users scrolls to the end of the list and swipes up, if there are more messages
-    public void fetchOlderChatMessages(ChatModel receiver) {
+    public void fetchOlderChatMessages(final ChatUpdateReceiver receiver) {
         // TODO: 11.03.2017 call this method till there are less that 30 fetched messages if filtering
         isFirstChatMessageAfterFetch = true;
-        final ChatUpdateReceiver chatModel = receiver;
         mDbReference.child("chat").orderByKey().endAt(mFirstChatMsgKeyAfterFetch)
                 .limitToLast(mMessagesCountLimit)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot parentSnapshot) {
                         List<ChatMessage> olderMessages = new ArrayList<>();
-                        int i = 0;
                         for (DataSnapshot dataSnapshot : parentSnapshot.getChildren()) {
-                            Log.e("dataSnapshot", String.valueOf(i));
-                            i++;
                             String uid = (String) dataSnapshot.child("uid").getValue();
 
                             String messageId = dataSnapshot.getKey();
@@ -745,7 +743,6 @@ public class FirebaseDatabaseHelper {
                                 if (!DistanceUtil.isClose(mCurrentUserLocation,
                                         mUsersLocation.get(uid),
                                         mCloseDistance)) {
-                                    Log.e("fff", "fdfd");
                                     continue;
                                 }
                             }
@@ -762,14 +759,16 @@ public class FirebaseDatabaseHelper {
                                 LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
                                 message.setLocation(latLng);
                             } else {
-                                Log.e("fff", "fdfd");
                                 continue;
                             }
 
-                            olderMessages.add(message);
                             if (message.getUid().equals(getCurrentUser().getUid())) {
                                 message.setCurrentUserMsg(true);
                             }
+
+                            mOlderMessagesCount++;
+                            olderMessages.add(message);
+
                             mDbReference.child("users").child(uid)
                                     .addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
@@ -788,11 +787,17 @@ public class FirebaseDatabaseHelper {
                                     });
 
                         }
-                        Log.e("ChildrenCount", String.valueOf(parentSnapshot.getChildrenCount()));
+
                         if (parentSnapshot.getChildrenCount() < mMessagesCountLimit) {
-                            chatModel.onLastMessage();
+                            receiver.onLastMessage();
                         }
-                        onOlderChatMessagesReady(olderMessages, chatModel);
+
+                        if (mOlderMessagesCount < SHOWN_MESSAGES_MIN_COUNT_LIMIT) {
+                            fetchOlderChatMessages(receiver);
+                            return;
+                        }
+
+                        onOlderChatMessagesReady(olderMessages, receiver);
                     }
 
                     @Override
@@ -821,6 +826,7 @@ public class FirebaseDatabaseHelper {
             myRef.removeEventListener(mChatMessagesListener);
             isFirstNewChatMessageAfterFetch = true;
             mMessagesCountLimit = 0;
+            mOlderMessagesCount = 0;
         }
     }
 

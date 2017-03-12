@@ -75,7 +75,7 @@ public class ChatModel implements ChatMvp.PresenterToModel,
 
     @Override
     public void onLastMessage() {
-        mPresenter.disableSwipeLayout();
+        mPresenter.enableSwipeLayout(false);
     }
 
     @Override

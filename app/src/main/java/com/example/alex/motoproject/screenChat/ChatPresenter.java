@@ -82,16 +82,22 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
 
     @Override
     public void onOptionsItemSelected(int itemId) {
+        int meters;
         switch (itemId) {
+            case R.id.filter_messages_chat_off:
+                meters = 0;
+                break;
             case R.id.filter_messages_chat_10km:
-                mModel.filterChatToDistance(10000);
+                meters = 10000;
                 break;
             case R.id.filter_messages_chat_20km:
-                mModel.filterChatToDistance(20000);
+                meters = 20000;
                 break;
             default:
                 return;
         }
+        getView().enableSwipeLayout(true);
+        mModel.filterChatToDistance(meters);
         mModel.unregisterChatMessagesListener();
         getView().clearMessages();
     }
@@ -118,8 +124,8 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
     }
 
     @Override
-    public void disableSwipeLayout() {
-        getView().disableSwipeLayout();
+    public void enableSwipeLayout(boolean enable) {
+        getView().enableSwipeLayout(enable);
     }
 
     @Override
