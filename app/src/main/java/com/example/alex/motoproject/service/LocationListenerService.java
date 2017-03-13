@@ -118,7 +118,7 @@ public class LocationListenerService extends Service implements Runnable, Google
         ((App) getApplication()).setLocationListenerServiceOn(true);
 
 
-        handler.postDelayed(this, 500);
+        handler.postDelayed(this,100);
 
         super.onCreate();
     }
@@ -241,7 +241,7 @@ public class LocationListenerService extends Service implements Runnable, Google
             public void run() {
                 stopLocationUpdates();
             }
-        }, 1500);
+        }, 2900);
         Log.i("time", "run: ");
 
 
