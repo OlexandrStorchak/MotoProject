@@ -2,8 +2,10 @@ package com.example.alex.motoproject.screenChat;
 
 import android.view.View;
 
+import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
+import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
 import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -13,17 +15,19 @@ import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 
-public class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPresenter {
+public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPresenter {
 
-    private WeakReference<ChatMVP.PresenterToView> mView;
-    private ChatMVP.PresenterToModel mModel = new ChatModel(this);
+    private WeakReference<ChatMvp.PresenterToView> mView;
+    private ChatMvp.PresenterToModel mModel = new ChatModel(this);
+
+    private int mDistanceLimit;
 
     @Inject
-    public ChatPresenter(ChatMVP.PresenterToView view) {
+    public ChatPresenter(ChatMvp.PresenterToView view) {
         mView = new WeakReference<>(view);
     }
 
-    private ChatMVP.PresenterToView getView() throws NullPointerException {
+    private ChatMvp.PresenterToView getView() throws NullPointerException {
         if (mView != null) {
             return mView.get();
         } else {
@@ -59,24 +63,74 @@ public class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPr
         getView().hideKeyboard(view);
     }
 
-    @Override
-    public void registerChatMessagesListener() {
+    private void registerChatMessagesListener() {
         mModel.registerChatMessagesListener();
     }
 
-    @Override
-    public void unregisterChatMessagesListener() {
+    private void unregisterChatMessagesListener() {
         mModel.unregisterChatMessagesListener();
     }
 
-    @Override
-    public void registerAdapter() {
+    private void registerAdapter() {
         getView().setListToAdapter(mModel.getMessages());
     }
 
     @Override
     public void onRefreshSwipeLayout() {
         mModel.fetchOlderChatMessages();
+    }
+
+    @Override
+    public void onOptionsItemSelected(int itemId) {
+        // TODO: 12.03.2017 maybe use an interface here
+        switch (itemId) {
+            case R.id.filter_messages_chat:
+                getView().showLocLimitDialog();
+                break;
+        }
+
+//        int meters;
+//        switch (itemId) {
+//            case R.id.filter_messages_chat_off:
+//                meters = 0;
+//                break;
+//            case R.id.filter_messages_chat_10km:
+//                meters = 10000;
+//                break;
+//            case R.id.filter_messages_chat_20km:
+//                meters = 20000;
+//                break;
+//            default:
+//                return;
+//        }
+
+//        setChatFiltering(mDistanceLimit);
+//        resetChat();
+    }
+
+    @Override
+    public void onViewCreated() {
+        registerAdapter();
+        mDistanceLimit = getView().getDistanceLimit();
+        setChatFiltering(mDistanceLimit);
+        registerChatMessagesListener();
+        getView().setupAll();
+    }
+
+    @Override
+    public void onDestroyView() {
+        unregisterChatMessagesListener();
+    }
+
+    private void setChatFiltering(int limit) {
+        mModel.filterChatToDistance(limit);
+    }
+
+    private void resetChat() {
+        getView().enableSwipeLayout(true);
+        mModel.unregisterChatMessagesListener();
+        getView().clearMessages();
+        mModel.registerChatMessagesListener();
     }
 
     @Override
@@ -101,8 +155,8 @@ public class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPr
     }
 
     @Override
-    public void disableSwipeLayout() {
-        getView().disableSwipeLayout();
+    public void enableSwipeLayout(boolean enable) {
+        getView().enableSwipeLayout(enable);
     }
 
     @Override
@@ -122,5 +176,11 @@ public class ChatPresenter implements ChatMVP.ViewToPresenter, ChatMVP.ModelToPr
     @Subscribe
     public void onShareLocationInChatAllowed(ShareLocationInChatAllowedEvent event) {
         mModel.fetchDataForLocationShare();
+    }
+
+    @Subscribe
+    public void OnClickChatDialogFragment(OnClickChatDialogFragmentEvent event) {
+        setChatFiltering(event.getDistanceLimit());
+        resetChat();
     }
 }

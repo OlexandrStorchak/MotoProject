@@ -147,4 +147,8 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public int getItemCount() {
         return mMessages.size();
     }
+
+    void clearMessages() {
+        mMessages.clear();
+    }
 }

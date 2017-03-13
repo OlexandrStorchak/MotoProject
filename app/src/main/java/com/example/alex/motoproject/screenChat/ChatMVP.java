@@ -4,7 +4,7 @@ import android.view.View;
 
 import java.util.List;
 
-public interface ChatMVP {
+public interface ChatMvp {
 
     interface ViewToPresenter {
         void onEditTextTextChanged(CharSequence charSequence);
@@ -15,13 +15,13 @@ public interface ChatMVP {
 
         void onTouchRecyclerView(View view);
 
-        void registerChatMessagesListener();
-
-        void unregisterChatMessagesListener();
-
-        void registerAdapter();
-
         void onRefreshSwipeLayout();
+
+        void onOptionsItemSelected(int itemId);
+
+        void onViewCreated();
+
+        void onDestroyView();
     }
 
     interface PresenterToView {
@@ -45,13 +45,21 @@ public interface ChatMVP {
 
         void disableRefreshingSwipeLayout();
 
-        void disableSwipeLayout();
+        void enableSwipeLayout(boolean enable);
 
         void disableShareLocationButton();
 
         void enableShareLocationButton();
 
         int getLastCompletelyVisibleItemPosition();
+
+        void clearMessages();
+
+        void showLocLimitDialog();
+
+        int getDistanceLimit();
+
+        void setupAll();
     }
 
     interface PresenterToModel {
@@ -68,6 +76,8 @@ public interface ChatMVP {
         void fetchOlderChatMessages();
 
         void fetchDataForLocationShare();
+
+        void filterChatToDistance(int meters);
     }
 
     interface ModelToPresenter {
@@ -77,7 +87,7 @@ public interface ChatMVP {
 
         void disableRefreshingSwipeLayout();
 
-        void disableSwipeLayout();
+        void enableSwipeLayout(boolean enable);
 
         void updateMessage(int position);
     }

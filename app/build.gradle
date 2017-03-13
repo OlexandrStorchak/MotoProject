@@ -35,6 +35,10 @@ android {
 
     }
     return true
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
 }
 repositories {
     mavenCentral()
@@ -69,7 +73,8 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.1.0'
     compile 'org.greenrobot:eventbus:3.0.0'
     compile 'com.google.dagger:dagger:2.9'
-    annotationProcessor 'com.google.dagger:dagger-compiler:2.9'
+    compile 'io.github.luizgrp.sectionedrecyclerviewadapter:sectionedrecyclerviewadapter:1.0.4'
     testCompile 'junit:junit:4.12'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.9'
 }
 apply plugin: 'com.google.gms.google-services'
