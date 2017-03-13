@@ -15,17 +15,13 @@ public interface ChatMvp {
 
         void onTouchRecyclerView(View view);
 
-        void registerChatMessagesListener();
-
-        void unregisterChatMessagesListener();
-
-        void registerAdapter();
-
         void onRefreshSwipeLayout();
 
         void onOptionsItemSelected(int itemId);
 
-        void onClickPositiveButtonDialogFragment(int limit);
+        void onViewCreated();
+
+        void onDestroyView();
     }
 
     interface PresenterToView {
@@ -60,6 +56,10 @@ public interface ChatMvp {
         void clearMessages();
 
         void showLocLimitDialog();
+
+        int getDistanceLimit();
+
+        void setupAll();
     }
 
     interface PresenterToModel {

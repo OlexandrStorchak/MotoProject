@@ -29,6 +29,7 @@ import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.dialog.ChatLocLimitDialogFragment;
 import com.example.alex.motoproject.mainActivity.MainActivity;
+import com.example.alex.motoproject.util.SharedPrefsUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -60,8 +61,6 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
                 .presenterModule(new PresenterModule(this))
                 .build()
                 .inject(this);
-        mPresenter.registerChatMessagesListener();
-        mPresenter.registerAdapter();
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_chat, container, false);
@@ -84,7 +83,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
 
     @Override
     public void onDestroyView() {
-        mPresenter.unregisterChatMessagesListener();
+        mPresenter.onDestroyView();
         EventBus.getDefault().unregister(mPresenter);
         mPresenter = null;
         super.onDestroyView();
@@ -99,15 +98,20 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_chat);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.container_chat_swipe);
 
+        EventBus.getDefault().register(mPresenter);
+
+        setHasOptionsMenu(true);
+
+        mPresenter.onViewCreated();
+    }
+
+    @Override
+    public void setupAll() {
         setupMessageSending();
         setupLocationSharing();
         setupTextFilter();
         setupRecyclerView();
         setupSwipeRefreshLayout();
-
-        EventBus.getDefault().register(mPresenter);
-
-        setHasOptionsMenu(true);
     }
 
     private void setupSwipeRefreshLayout() {
@@ -224,7 +228,12 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         ((MainActivity) getActivity()).showDialogFragment(new ChatLocLimitDialogFragment(),
                 ChatLocLimitDialogFragment.class.getSimpleName());
 //         ChatLocLimitDialogFragment dialogFragment = new ChatLocLimitDialogFragment();
+    }
 
+    @Override
+    public int getDistanceLimit() {
+        return SharedPrefsUtil.getFromPrefs(getActivity(),
+                getString(R.string.chat_location_limit_preferences));
     }
 
     @Override
@@ -255,15 +264,15 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     @Override
     public void disableSendButton() {
         mSendButton.setEnabled(false);
-            mSendButton.setColorFilter(ResourcesCompat
-                    .getColor(getResources(), R.color.grey500, null));
+        mSendButton.setColorFilter(ResourcesCompat
+                .getColor(getResources(), R.color.grey500, null));
     }
 
     @Override
     public void enableSendButton() {
         mSendButton.setEnabled(true);
-            mSendButton.setColorFilter(ResourcesCompat
-                    .getColor(getResources(), R.color.blue900, null));
+        mSendButton.setColorFilter(ResourcesCompat
+                .getColor(getResources(), R.color.blue900, null));
     }
 
     @Override
@@ -274,15 +283,15 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     @Override
     public void disableShareLocationButton() {
         mShareLocationButton.setEnabled(false);
-            mShareLocationButton.setColorFilter(ResourcesCompat
-                    .getColor(getResources(), R.color.grey500, null));
+        mShareLocationButton.setColorFilter(ResourcesCompat
+                .getColor(getResources(), R.color.grey500, null));
     }
 
     @Override
     public void enableShareLocationButton() {
         mShareLocationButton.setEnabled(true);
-            mShareLocationButton.setColorFilter(ResourcesCompat
-                    .getColor(getResources(), R.color.blue900, null));
+        mShareLocationButton.setColorFilter(ResourcesCompat
+                .getColor(getResources(), R.color.blue900, null));
     }
 
 //    @Override

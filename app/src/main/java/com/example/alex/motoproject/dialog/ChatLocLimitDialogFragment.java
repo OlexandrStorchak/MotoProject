@@ -11,7 +11,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
 import com.example.alex.motoproject.util.SharedPrefsUtil;
+
+import org.greenrobot.eventbus.EventBus;
 
 public class ChatLocLimitDialogFragment extends DialogFragment
         implements SeekBar.OnSeekBarChangeListener {
@@ -49,6 +52,7 @@ public class ChatLocLimitDialogFragment extends DialogFragment
                         getString(R.string.chat_location_limit_preferences),
                         mLimit);
 //                mListener.onClickPositiveButton(mLimit);
+                EventBus.getDefault().post(new OnClickChatDialogFragmentEvent(mLimit));
             }
         });
 

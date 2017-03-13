@@ -192,7 +192,7 @@ public class FirebaseDatabaseHelper {
         }
     }
 
-    public void fetchUsersLocations(final UsersLocationReceiver receiver) {
+    public void fetchUsersLocations() {
         mUsersLocation = new HashMap<>();
         DatabaseReference ref = mDbReference.child("location");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -208,7 +208,7 @@ public class FirebaseDatabaseHelper {
                     LatLng location = new LatLng(lat.doubleValue(), lng.doubleValue());
                     mUsersLocation.put(uid, location);
                 }
-                receiver.onUsersLocationsReady();
+//                receiver.onUsersLocationsReady();
             }
 
             @Override
@@ -636,6 +636,8 @@ public class FirebaseDatabaseHelper {
                 Number lat = (Number) dataSnapshot.child("location").child("latitude").getValue();
                 Number lng = (Number) dataSnapshot.child("location").child("longitude").getValue();
 
+                mMessagesCountLimit++;
+
                 if (mCloseDistance > 0) {
                     if (mCurrentUserLocation == null) {
                         mCurrentUserLocation = mUsersLocation.get(getCurrentUser().getUid());
@@ -648,7 +650,6 @@ public class FirebaseDatabaseHelper {
                     }
                 }
 
-                mMessagesCountLimit++;
                 if (isFirstNewChatMessageAfterFetch) {
                     mFirstChatMsgKeyAfterFetch = dataSnapshot.getKey();
                     isFirstNewChatMessageAfterFetch = false;
@@ -809,6 +810,7 @@ public class FirebaseDatabaseHelper {
 
     private void onOlderChatMessagesReady(List<ChatMessage> olderMessages,
                                           ChatUpdateReceiver chatModel) {
+        //// TODO: 13.03.2017 add list from secont iteration to the start of this
         Collections.reverse(olderMessages);
         chatModel.onOlderChatMessages(olderMessages, olderMessages.size());
         olderMessages.clear();

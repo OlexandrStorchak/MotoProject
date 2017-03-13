@@ -85,7 +85,7 @@ public class ChatModel implements ChatMvp.PresenterToModel,
 
     @Override
     public void filterChatToDistance(int meters) {
-        mFirebaseHelper.fetchUsersLocations(this);
+        mFirebaseHelper.fetchUsersLocations();
         mFirebaseHelper.setCloseDistance(meters);
     }
 
@@ -96,6 +96,11 @@ public class ChatModel implements ChatMvp.PresenterToModel,
 
     @Override
     public void onUsersLocationsReady() {
-        registerChatMessagesListener();
+
     }
+
+//    @Override
+//    public void onUsersLocationsReady() {
+//        registerChatMessagesListener();
+//    }
 }
