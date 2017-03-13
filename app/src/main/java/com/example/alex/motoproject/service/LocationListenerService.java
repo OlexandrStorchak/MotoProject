@@ -241,7 +241,7 @@ public class LocationListenerService extends Service implements Runnable, Google
             public void run() {
                 stopLocationUpdates();
             }
-        }, 1900);
+        }, 1500);
         Log.i("time", "run: ");
 
 
@@ -258,11 +258,12 @@ public class LocationListenerService extends Service implements Runnable, Google
 
     private LocationRequest createLocationRequest() {
         LocationRequest mLocationRequest = new LocationRequest();
+
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         mLocationRequest.setInterval(1000); //1 secs
-        mLocationRequest.setFastestInterval(1000); //1 secs
-        mLocationRequest.setSmallestDisplacement(5f); //5 m
+        mLocationRequest.setFastestInterval(100); //1 secs
+        mLocationRequest.setSmallestDisplacement(1f); //1 m
 
 
         return mLocationRequest;
@@ -278,7 +279,7 @@ public class LocationListenerService extends Service implements Runnable, Google
 
     @Override
     public void onLocationChanged(Location location) {
-        myLocation=location;
+        mFirebaseDatabaseHelper.updateUserLocation(location);
     }
 
     @Override
