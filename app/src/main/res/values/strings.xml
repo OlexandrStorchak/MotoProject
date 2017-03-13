@@ -16,6 +16,8 @@
     <string name="to_settings">В налаштування</string>
     <string name="how_to_change_location_setting">Ви можете змінити свій вибір у налаштуваннях. Дозволи —> Ваше місцезнаходження</string>
     <string name="confirm_sharing_location_in_chat">Поділитися з усіма своїм теперішнім місцезнаходженням?</string>
+    <string name="chat_location_limit">Максимальна відстань, на якій ви маєте перебувати від відправника, щоб бачити його повідомлення</string>
+    <string name="chat_location_limit_title">Виберіть відстань</string>
     <string name="ok">Гаразд</string>
     <string name="close">Закрити</string>
 
@@ -51,11 +53,16 @@
     <string name="search_title_users">Пошук</string>
     <string name="accept">Прийняти</string>
     <string name="decline">Відхилити</string>
-    <string name="off">Вимкнути</string>
+    <string name="switch_off">Вимкнути</string>
 
     <string name="title_pending_friends">Пропозиції</string>
     <string name="title_friends">Друзі</string>
     <string name="filter_title_chat">Фільтр</string>
+    <string name="km">км</string>
     <string name="km10">10 кілометрів</string>
-    <string name="km20">20 кілометрів</string>
+    <string name="km20">20 км</string>
+    <string name="off">Вимкнено</string>
+
+    <string name="chat_location_limit_preferences">ChatLimitPref</string>
+    <integer name="chat_location_limit_default">0</integer>
 </resources>

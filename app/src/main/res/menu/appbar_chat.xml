@@ -4,18 +4,6 @@
     <item
         android:id="@+id/filter_messages_chat"
         android:title="@string/filter_title_chat"
-        app:showAsAction="always">
-        <menu>
-            <item
-                android:id="@+id/filter_messages_chat_off"
-                android:title="@string/off" />
-            <item
-                android:id="@+id/filter_messages_chat_10km"
-                android:title="@string/km10" />
-            <item
-                android:id="@+id/filter_messages_chat_20km"
-                android:title="@string/km20" />
-        </menu>
-    </item>
+        app:showAsAction="always" />
 
 </menu>

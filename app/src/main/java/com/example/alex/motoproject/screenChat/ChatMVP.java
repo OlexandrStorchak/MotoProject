@@ -24,6 +24,8 @@ public interface ChatMvp {
         void onRefreshSwipeLayout();
 
         void onOptionsItemSelected(int itemId);
+
+        void onClickPositiveButtonDialogFragment(int limit);
     }
 
     interface PresenterToView {
@@ -56,6 +58,8 @@ public interface ChatMvp {
         int getLastCompletelyVisibleItemPosition();
 
         void clearMessages();
+
+        void showLocLimitDialog();
     }
 
     interface PresenterToModel {

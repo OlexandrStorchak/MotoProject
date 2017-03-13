@@ -82,23 +82,42 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
 
     @Override
     public void onOptionsItemSelected(int itemId) {
-        int meters;
+        // TODO: 12.03.2017 maybe use an interface here
         switch (itemId) {
-            case R.id.filter_messages_chat_off:
-                meters = 0;
+            case R.id.filter_messages_chat:
+                getView().showLocLimitDialog();
                 break;
-            case R.id.filter_messages_chat_10km:
-                meters = 10000;
-                break;
-            case R.id.filter_messages_chat_20km:
-                meters = 20000;
-                break;
-            default:
-                return;
         }
+
+//        int meters;
+//        switch (itemId) {
+//            case R.id.filter_messages_chat_off:
+//                meters = 0;
+//                break;
+//            case R.id.filter_messages_chat_10km:
+//                meters = 10000;
+//                break;
+//            case R.id.filter_messages_chat_20km:
+//                meters = 20000;
+//                break;
+//            default:
+//                return;
+//        }
+//        getView().enableSwipeLayout(true);
+//        mModel.filterChatToDistance(meters);
+//        mModel.unregisterChatMessagesListener();
+//        getView().clearMessages();
+    }
+
+    @Override
+    public void onClickPositiveButtonDialogFragment(int limit) {
+
+    }
+
+    private void setChatFiltering(int limit) {
         getView().enableSwipeLayout(true);
-        mModel.filterChatToDistance(meters);
-        mModel.unregisterChatMessagesListener();
+        mModel.filterChatToDistance(limit);
+//        mModel.unregisterChatMessagesListener();
         getView().clearMessages();
     }
 

@@ -27,6 +27,8 @@ import android.widget.ImageButton;
 import com.example.alex.motoproject.DaggerPresenterComponent;
 import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.dialog.ChatLocLimitDialogFragment;
+import com.example.alex.motoproject.mainActivity.MainActivity;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -217,6 +219,15 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     @Override
+    public void showLocLimitDialog() {
+//        ((MainActivity) getActivity()).replaceFragment(new ChatLocLimitDialogFragment());
+        ((MainActivity) getActivity()).showDialogFragment(new ChatLocLimitDialogFragment(),
+                ChatLocLimitDialogFragment.class.getSimpleName());
+//         ChatLocLimitDialogFragment dialogFragment = new ChatLocLimitDialogFragment();
+
+    }
+
+    @Override
     public void notifyItemInserted(int position) {
         mAdapter.notifyItemInserted(position - 1);
     }
@@ -273,4 +284,9 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
             mShareLocationButton.setColorFilter(ResourcesCompat
                     .getColor(getResources(), R.color.blue900, null));
     }
+
+//    @Override
+//    public void onClickPositiveButton(int limit) {
+//        mPresenter.onClickPositiveButtonDialogFragment(limit);
+//    }
 }

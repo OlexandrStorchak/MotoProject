@@ -3,6 +3,7 @@ package com.example.alex.motoproject.mainActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
@@ -44,12 +45,12 @@ import javax.inject.Inject;
 public class MainActivity extends AppCompatActivity implements
         MainViewInterface, FragmentManager.OnBackStackChangedListener {
 
+    protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
-
-    protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
+    AlertControl alertControl = new AlertControl(this);
 //    private OnlineUsersFragment onlineUsersFragment = new OnlineUsersFragment();
 //    private FriendsFragment friendsFragment = new FriendsFragment();
     private UsersFragment onlineUsersFragment = new UsersFragment();
@@ -57,9 +58,6 @@ public class MainActivity extends AppCompatActivity implements
     private ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
     private ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
     private ChatFragment chatFragment = new ChatFragment();
-
-    AlertControl alertControl = new AlertControl(this);
-
     private TextView mNameHeader;
     private TextView mEmailHeader;
     private ImageView mAvatarHeader;
@@ -300,7 +298,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void login(FirebaseUser user) {
-        // TODO: 11.02.2017 let users choose avatars
         mFirebaseDatabaseHelper.addUserToFirebase(
                 user.getUid(),
                 user.getEmail(),
@@ -366,6 +363,10 @@ public class MainActivity extends AppCompatActivity implements
         bundle.putInt("listType", listType);
         fragment.setArguments(bundle);
         replaceFragment(fragment);
+    }
+
+    public void showDialogFragment(DialogFragment dialogFragment, String tag) {
+        dialogFragment.show(fm, tag);
     }
 
     @Override
