@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class FirebaseDatabaseHelper {
             "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
                     "o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
 
-    private static final int FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT = 31;
+    private static final int FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT = 6; //31
     private static final int SHOWN_MESSAGES_MIN_COUNT_LIMIT =
             FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT - 1;
     private int mMessagesCountLimit = 0;
@@ -59,6 +60,8 @@ public class FirebaseDatabaseHelper {
     private HashMap<String, LatLng> mUsersLocation;
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
 
+    private LinkedList<ChatMessage> mOlderMessages = new LinkedList<>();
+
     private String mFirstChatMsgKeyAfterFetch;
     private boolean isFirstChatMessageAfterFetch;
     private boolean isFirstNewChatMessageAfterFetch = true;
@@ -68,6 +71,8 @@ public class FirebaseDatabaseHelper {
 
     private LatLng mCurrentUserLocation;
     private int mCloseDistance = 0;
+
+    private boolean isOlderMessagesFirstIteration = true;
 
     public FirebaseDatabaseHelper() {
 
@@ -724,7 +729,7 @@ public class FirebaseDatabaseHelper {
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot parentSnapshot) {
-                        List<ChatMessage> olderMessages = new ArrayList<>();
+                        LinkedList<ChatMessage> olderMessages = new LinkedList<>();
                         for (DataSnapshot dataSnapshot : parentSnapshot.getChildren()) {
                             String uid = (String) dataSnapshot.child("uid").getValue();
 
@@ -768,7 +773,13 @@ public class FirebaseDatabaseHelper {
                             }
 
                             mOlderMessagesCount++;
-                            olderMessages.add(message);
+                            if (!isOlderMessagesFirstIteration) {
+//                                Collections
+//                                mOlderMessages.add(message);
+                                olderMessages.addFirst(message);
+                            } else {
+                                mOlderMessages.add(message);
+                            }
 
                             mDbReference.child("users").child(uid)
                                     .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -793,8 +804,13 @@ public class FirebaseDatabaseHelper {
                             receiver.onLastMessage();
                         }
 
-                        if (mOlderMessagesCount < SHOWN_MESSAGES_MIN_COUNT_LIMIT) {
+                        for (ChatMessage message : olderMessages) {
+                            mOlderMessages.addFirst(message);
+                        }
+
+                        if (mOlderMessages.size() < SHOWN_MESSAGES_MIN_COUNT_LIMIT) {
                             fetchOlderChatMessages(receiver);
+                            isOlderMessagesFirstIteration = false;
                             return;
                         }
 
@@ -810,10 +826,15 @@ public class FirebaseDatabaseHelper {
 
     private void onOlderChatMessagesReady(List<ChatMessage> olderMessages,
                                           ChatUpdateReceiver chatModel) {
-        //// TODO: 13.03.2017 add list from secont iteration to the start of this
-        Collections.reverse(olderMessages);
-        chatModel.onOlderChatMessages(olderMessages, olderMessages.size());
-        olderMessages.clear();
+        Collections.reverse(mOlderMessages);
+
+//        Collections.reverse(olderMessages);
+//        for (int i = 0; i >= olderMessages.size(); i++) {
+//            mOlderMessages.addLast(olderMessages.get(i));
+//        }
+        chatModel.onOlderChatMessages(mOlderMessages, mOlderMessages.size());
+        mOlderMessages.clear();
+        isOlderMessagesFirstIteration = true;
     }
 
     private String convertUnixTimeToDate(long unixTime) {
