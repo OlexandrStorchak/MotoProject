@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.alex.motoproject.DaggerPresenterComponent;
 import com.example.alex.motoproject.PresenterModule;
@@ -112,6 +113,11 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         setupTextFilter();
         setupRecyclerView();
         setupSwipeRefreshLayout();
+    }
+
+    @Override
+    public void showToast(int stringId) {
+        Toast.makeText(getContext(), getContext().getString(stringId), Toast.LENGTH_LONG).show();
     }
 
     private void setupSwipeRefreshLayout() {

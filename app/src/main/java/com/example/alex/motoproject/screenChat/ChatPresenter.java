@@ -143,6 +143,11 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
         getView().updateMessage(position);
     }
 
+    @Override
+    public void onNoCurrentUserLocation() {
+        getView().showToast(R.string.chat_location_no_current_user_location);
+    }
+
     @Subscribe(sticky = true)
     public void onGpsStateChanged(GpsStatusChangedEvent event) {
         if (event.isGpsOn()) {

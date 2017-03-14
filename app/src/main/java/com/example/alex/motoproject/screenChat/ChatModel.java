@@ -79,6 +79,11 @@ public class ChatModel implements ChatMvp.PresenterToModel,
     }
 
     @Override
+    public void onNoCurrentUserLocation() {
+        mPresenter.onNoCurrentUserLocation();
+    }
+
+    @Override
     public void fetchDataForLocationShare() {
         mFirebaseHelper.getCurrentUserLocation(this);
     }
