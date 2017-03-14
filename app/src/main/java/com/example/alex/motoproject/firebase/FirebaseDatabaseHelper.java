@@ -42,7 +42,7 @@ public class FirebaseDatabaseHelper {
             "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
                     "o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
 
-    private static final int FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT = 6; //31
+    private static final int FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT = 31; //31
     private static final int SHOWN_MESSAGES_MIN_COUNT_LIMIT =
             FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT - 1;
     private int mMessagesCountLimit = 0;
@@ -67,7 +67,6 @@ public class FirebaseDatabaseHelper {
     private boolean isFirstNewChatMessageAfterFetch = true;
 
     private int mReceivedUsersCount;
-    private int mOlderMessagesCount;
 
     private LatLng mCurrentUserLocation;
     private int mCloseDistance = 0;
@@ -722,7 +721,6 @@ public class FirebaseDatabaseHelper {
 
     //Called every time users scrolls to the end of the list and swipes up, if there are more messages
     public void fetchOlderChatMessages(final ChatUpdateReceiver receiver) {
-        // TODO: 11.03.2017 call this method till there are less that 30 fetched messages if filtering
         isFirstChatMessageAfterFetch = true;
         mDbReference.child("chat").orderByKey().endAt(mFirstChatMsgKeyAfterFetch)
                 .limitToLast(mMessagesCountLimit)
@@ -772,10 +770,7 @@ public class FirebaseDatabaseHelper {
                                 message.setCurrentUserMsg(true);
                             }
 
-                            mOlderMessagesCount++;
                             if (!isOlderMessagesFirstIteration) {
-//                                Collections
-//                                mOlderMessages.add(message);
                                 olderMessages.addFirst(message);
                             } else {
                                 mOlderMessages.add(message);
@@ -800,12 +795,14 @@ public class FirebaseDatabaseHelper {
 
                         }
 
-                        if (parentSnapshot.getChildrenCount() < mMessagesCountLimit) {
-                            receiver.onLastMessage();
-                        }
-
                         for (ChatMessage message : olderMessages) {
                             mOlderMessages.addFirst(message);
+                        }
+
+                        if (parentSnapshot.getChildrenCount() < mMessagesCountLimit) {
+                            receiver.onLastMessage();
+                            onOlderChatMessagesReady(olderMessages, receiver);
+                            return;
                         }
 
                         if (mOlderMessages.size() < SHOWN_MESSAGES_MIN_COUNT_LIMIT) {
@@ -849,7 +846,6 @@ public class FirebaseDatabaseHelper {
             myRef.removeEventListener(mChatMessagesListener);
             isFirstNewChatMessageAfterFetch = true;
             mMessagesCountLimit = 0;
-            mOlderMessagesCount = 0;
         }
     }
 
