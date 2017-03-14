@@ -739,6 +739,7 @@ public class FirebaseDatabaseHelper {
                                 continue;
                             }
 
+                            //Distance filter is on
                             if (mCloseDistance > 0) {
                                 if (mCurrentUserLocation == null) {
                                     mCurrentUserLocation = mUsersLocation.get(getCurrentUser().getUid());
@@ -770,10 +771,10 @@ public class FirebaseDatabaseHelper {
                                 message.setCurrentUserMsg(true);
                             }
 
-                            if (!isOlderMessagesFirstIteration) {
-                                olderMessages.addFirst(message);
-                            } else {
+                            if (isOlderMessagesFirstIteration) {
                                 mOlderMessages.add(message);
+                            } else {
+                                olderMessages.addFirst(message);
                             }
 
                             mDbReference.child("users").child(uid)
@@ -801,7 +802,7 @@ public class FirebaseDatabaseHelper {
 
                         if (parentSnapshot.getChildrenCount() < mMessagesCountLimit) {
                             receiver.onLastMessage();
-                            onOlderChatMessagesReady(olderMessages, receiver);
+                            onOlderChatMessagesReady(receiver);
                             return;
                         }
 
@@ -811,7 +812,7 @@ public class FirebaseDatabaseHelper {
                             return;
                         }
 
-                        onOlderChatMessagesReady(olderMessages, receiver);
+                        onOlderChatMessagesReady(receiver);
                     }
 
                     @Override
@@ -821,14 +822,8 @@ public class FirebaseDatabaseHelper {
                 });
     }
 
-    private void onOlderChatMessagesReady(List<ChatMessage> olderMessages,
-                                          ChatUpdateReceiver chatModel) {
+    private void onOlderChatMessagesReady(ChatUpdateReceiver chatModel) {
         Collections.reverse(mOlderMessages);
-
-//        Collections.reverse(olderMessages);
-//        for (int i = 0; i >= olderMessages.size(); i++) {
-//            mOlderMessages.addLast(olderMessages.get(i));
-//        }
         chatModel.onOlderChatMessages(mOlderMessages, mOlderMessages.size());
         mOlderMessages.clear();
         isOlderMessagesFirstIteration = true;
@@ -1012,8 +1007,6 @@ public class FirebaseDatabaseHelper {
 
     public interface UsersLocationReceiver {
         void onCurrentUserLocationReady(LatLng latLng);
-
-        void onUsersLocationsReady();
     }
 
 

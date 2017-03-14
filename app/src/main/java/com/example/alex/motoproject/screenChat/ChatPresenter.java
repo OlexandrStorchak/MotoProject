@@ -20,8 +20,6 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
     private WeakReference<ChatMvp.PresenterToView> mView;
     private ChatMvp.PresenterToModel mModel = new ChatModel(this);
 
-    private int mDistanceLimit;
-
     @Inject
     public ChatPresenter(ChatMvp.PresenterToView view) {
         mView = new WeakReference<>(view);
@@ -82,36 +80,17 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
 
     @Override
     public void onOptionsItemSelected(int itemId) {
-        // TODO: 12.03.2017 maybe use an interface here
         switch (itemId) {
             case R.id.filter_messages_chat:
                 getView().showLocLimitDialog();
                 break;
         }
-
-//        int meters;
-//        switch (itemId) {
-//            case R.id.filter_messages_chat_off:
-//                meters = 0;
-//                break;
-//            case R.id.filter_messages_chat_10km:
-//                meters = 10000;
-//                break;
-//            case R.id.filter_messages_chat_20km:
-//                meters = 20000;
-//                break;
-//            default:
-//                return;
-//        }
-
-//        setChatFiltering(mDistanceLimit);
-//        resetChat();
     }
 
     @Override
     public void onViewCreated() {
         registerAdapter();
-        mDistanceLimit = getView().getDistanceLimit();
+        int mDistanceLimit = getView().getDistanceLimit();
         setChatFiltering(mDistanceLimit);
         registerChatMessagesListener();
         getView().setupAll();

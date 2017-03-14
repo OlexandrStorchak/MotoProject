@@ -93,14 +93,4 @@ public class ChatModel implements ChatMvp.PresenterToModel,
     public void onCurrentUserLocationReady(LatLng latLng) {
         mFirebaseHelper.sendChatMessage(latLng);
     }
-
-    @Override
-    public void onUsersLocationsReady() {
-
-    }
-
-//    @Override
-//    public void onUsersLocationsReady() {
-//        registerChatMessagesListener();
-//    }
 }
