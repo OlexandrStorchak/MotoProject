@@ -361,7 +361,8 @@ public class FirebaseDatabaseHelper {
                 for (DataSnapshot entry : dataSnapshot.getChildren()) {
                     final String uid = entry.getKey();
                     final String relation = (String) entry.getValue();
-                    final String userStatus = mOnlineUserStatusHashMap.get(uid);
+//                    final String userStatus = mOnlineUserStatusHashMap.get(uid);
+                    final String userStatus = null;
                     DatabaseReference ref = mDbReference.child("users").child(uid);
                     ref.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -432,7 +433,8 @@ public class FirebaseDatabaseHelper {
     private void onFriendAdded(DataSnapshot dataSnapshot, final UsersUpdateReceiver receiver) {
         final String uid = dataSnapshot.getKey();
         final String relation = (String) dataSnapshot.getValue();
-        final String userStatus = mOnlineUserStatusHashMap.get(uid);
+//        final String userStatus = mOnlineUserStatusHashMap.get(uid);
+        final String userStatus = null;
         DatabaseReference ref = mDbReference.child("users").child(uid);
         ValueEventListener userDataListener = new ValueEventListener() {
             @Override
@@ -454,7 +456,8 @@ public class FirebaseDatabaseHelper {
     private void onFriendChanged(DataSnapshot dataSnapshot, final UsersUpdateReceiver receiver) {
         final String uid = dataSnapshot.getKey();
         final String relation = (String) dataSnapshot.getValue();
-        final String userStatus = mOnlineUserStatusHashMap.get(uid);
+//        final String userStatus = mOnlineUserStatusHashMap.get(uid);
+        final String userStatus = null;
         DatabaseReference ref = mDbReference.child("users").child(uid);
         ValueEventListener userDataListener = new ValueEventListener() {
             @Override
@@ -542,7 +545,7 @@ public class FirebaseDatabaseHelper {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             String name = (String) dataSnapshot.child("name").getValue();
                             String avatar = (String) dataSnapshot.child("avatar").getValue();
-                            User user = new User(uid, name, avatar, userStatus, null);
+                            User user = new User(uid, name, avatar, userStatus, "unknown");
                             onlineUsers.add(user);
                             mReceivedUsersCount++;
                             // TODO: 10.03.2017 why does it work only with + 1?
@@ -579,7 +582,7 @@ public class FirebaseDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
-                User user = new User(uid, name, avatar, userStatus, null);
+                User user = new User(uid, name, avatar, userStatus, "unknown");
                 receiver.onUserAdded(user);
             }
 
@@ -604,7 +607,7 @@ public class FirebaseDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
-                User user = new User(uid, name, avatar, userStatus, null);
+                User user = new User(uid, name, avatar, userStatus, "unknown");
                 receiver.onUserChanged(user);
             }
 

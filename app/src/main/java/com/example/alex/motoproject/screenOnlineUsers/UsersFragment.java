@@ -43,7 +43,12 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapt
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
 public class UsersFragment extends Fragment implements UsersMvp.PresenterToView {
-    public SectionedRecyclerViewAdapter mAdapter = new SectionedRecyclerViewAdapter();
+    public SectionedRecyclerViewAdapter mAdapter = new SectionedRecyclerViewAdapter() {
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+    };
     // TODO: 02.03.2017 inject interface, not presenter itself
     @Inject
     UsersPresenter mPresenter;
@@ -129,6 +134,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                 .presenterModule(new PresenterModule(this))
                 .build()
                 .inject(this);
+
+        mAdapter.setHasStableIds(true);
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_users_online, container, false);
     }
@@ -142,12 +149,17 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         mPresenter.onViewCreated();
 
-        if (!mAdapter.hasStableIds()) {
-            mAdapter.setHasStableIds(true);
-        }
+//        if (!mAdapter.hasStableIds()) {
+//            mAdapter.setHasStableIds(true);
+//        }
 
         RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext()) {
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return true;
+            }
+        };
 //        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rv.getContext(),
 //                layoutManager.getOrientation());
 //        rv.addItemDecoration(dividerItemDecoration);
@@ -264,9 +276,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     @Override
     public void addNewSection(String relation) {
         if (relation == null) {
-            Section section = new UsersSection(null);
-//            section.setHasHeader(false);
-            mAdapter.addSection(null, section);
+
         } else {
             Resources res = getContext().getResources();
             String title;
@@ -280,8 +290,11 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                     title = res.getString(R.string.title_friends);
                     mAdapter.addSection(relation, new UsersSection(title));
                     break;
+                default:
+                    Section section = new UsersSection(null);
+                    mAdapter.addSection(relation, section);
+                    break;
             }
-
         }
     }
 
@@ -313,7 +326,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
                     @Override
                     public boolean areContentsTheSame(User oldItem, User newItem) {
-                        return oldItem.getUid().equals(newItem.getUid());
+                        return oldItem.equals(newItem);
                     }
 
                     @Override

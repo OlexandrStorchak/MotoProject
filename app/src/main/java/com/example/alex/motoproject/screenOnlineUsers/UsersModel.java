@@ -84,15 +84,16 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     public void onUserChanged(User user) {
         for (List<User> iteratedList : mUsers.values()) {
             for (User iteratedUser : iteratedList) {
-                if (iteratedUser.getUid().equals(user.getUid())) {
-                    if (!iteratedUser.getRelation().equals(user.getRelation())) {
-                        iteratedList.remove(iteratedUser);
-                        onUserAdded(user);
-                        mPresenter.onUserChanged(user);
+                if (!iteratedUser.getUid().equals(user.getUid())) {
+                    if (iteratedUser.getRelation().equals(user.getRelation())) {
+                        iteratedUser = user;
+//                        iteratedList.remove(iteratedUser);
+                        onUserAdded(iteratedUser);
+                        mPresenter.onUserChanged(iteratedUser);
+//                        iteratedList.set(iteratedList.indexOf(iteratedUser), user);
                         return;
                     }
-                    iteratedList.set(iteratedList.indexOf(iteratedUser), user);
-                    return;
+
                 }
             }
         }
