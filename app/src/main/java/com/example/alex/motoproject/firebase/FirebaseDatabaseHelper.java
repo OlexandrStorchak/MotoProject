@@ -649,10 +649,18 @@ public class FirebaseDatabaseHelper {
 
                 mMessagesCountLimit++;
 
-                if (!DistanceUtil.isClose(mCurrentUserLocation,
-                        mUsersLocation.get(uid),
-                        mCloseDistance)) {
-                    return;
+                if (mCloseDistance > 0) {
+//                    if (mCurrentUserLocation == null) {
+//                        receiver.onNoCurrentUserLocation();
+//                        mCloseDistance = 0;
+//                        return;
+//                    }
+
+                    if (!DistanceUtil.isClose(mCurrentUserLocation,
+                            mUsersLocation.get(uid),
+                            mCloseDistance)) {
+                        return;
+                    }
                 }
 
                 if (isFirstNewChatMessageAfterFetch) {
