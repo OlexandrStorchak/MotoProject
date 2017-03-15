@@ -43,7 +43,7 @@
     <string name="navigation_drawer_btn_chat">Чат</string>
     <string name="me">Я</string>
     <string name="add_friend">add friend</string>
-    <string name="send_message">send message</string>
+    <string name="remove_from_friends">send message</string>
     <string name="chat_message_map">Місцезнаходження</string>
     <string name="save_changes">Зберегти зміни</string>
     <string name="text_show_me_on_map">Показувати на мапі : </string>

@@ -19,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
@@ -62,7 +63,7 @@ public class LocationListenerService extends Service implements Runnable, Google
     private int updateTime = 10000;
 
     private GoogleApiClient mGoogleApiClient;
-    private Location myLocation;
+    private Location myLocation=null;
 
 
     public LocationListenerService() {
@@ -284,6 +285,8 @@ public class LocationListenerService extends Service implements Runnable, Google
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+
+        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
         if (checkLocationPermission()) {
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
@@ -296,11 +299,11 @@ public class LocationListenerService extends Service implements Runnable, Google
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        Toast.makeText(this, "Connection suspended", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        Toast.makeText(this, "Connection failed", Toast.LENGTH_SHORT).show();
     }
 }
