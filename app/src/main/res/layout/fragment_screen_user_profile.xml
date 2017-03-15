@@ -87,7 +87,7 @@ android:layout_margin="@dimen/activity_vertical_margin"
             android:layout_height="60dp"
             android:visibility="gone"
             android:contentDescription="@string/remove_from_friends"
-            android:src="@mipmap/ic_remove_friend"
+            android:src="@mipmap/ic_remove_friendd"
             />
 
     </LinearLayout>
