@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -75,7 +76,9 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     @Override
     public void notifyDataSetChanged() {
         mAdapter.notifyDataSetChanged();
+    }
 
+    private void changeHeaders() {
         //Add or remove header
         for (Section section : mAdapter.getSectionsMap().values()) {
             if (section.hasHeader()) {
@@ -174,8 +177,10 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         int iteration = 0;
         for (List<User> list : users.values()) {
             UsersSection section = (UsersSection) mAdapter.getSection(mapKeys.get(iteration));
-            section.setUsers(list);
-            notifyDataSetChanged();
+//            section.setUsers(list);
+            section.removeAllUsers();
+            section.addUsers(list);
+//            notifyDataSetChanged();
             iteration++;
         }
     }
@@ -226,7 +231,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         //Makes pending friends section always show on top if it has any child
         Resources res = getContext().getResources();
         String title = res.getString(R.string.title_pending_friends);
-        PendingFriendSection pfs = new PendingFriendSection(title, new ArrayList<User>());
+        PendingFriendSection pfs = new PendingFriendSection(title);
         mAdapter.addSection("pending", pfs);
     }
 
@@ -236,9 +241,30 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     }
 
     @Override
-    public void addNewSection(String relation, List<User> list) {
+    public void addUser(User user) {
+        UsersSection section = (UsersSection) mAdapter.getSection(user.getRelation());
+        section.addUser(user);
+    }
+
+    @Override
+    public void changeUser(User user) {
+        UsersSection section = (UsersSection) mAdapter.getSection(user.getRelation());
+        section.updateUser(user);
+    }
+
+    @Override
+    public void removeUser(User user) {
+//        for (UsersSection section : mAdapter.getSectionsMap().values()) {
+//
+//        }
+//        UsersSection section = (UsersSection) mAdapter.getSection(user.getRelation());
+//        section.removeUser(user);
+    }
+
+    @Override
+    public void addNewSection(String relation) {
         if (relation == null) {
-            Section section = new UsersSection(null, list);
+            Section section = new UsersSection(null);
 //            section.setHasHeader(false);
             mAdapter.addSection(null, section);
         } else {
@@ -249,11 +275,10 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 //                    title = res.getString(R.string.title_pending_friends);
 //                    mAdapter.addSection(relation, new PendingFriendSection(title, list));
                     PendingFriendSection pfs = (PendingFriendSection) mAdapter.getSection(relation);
-                    pfs.setUsers(list);
                     break;
-                default:
+                case "friend":
                     title = res.getString(R.string.title_friends);
-                    mAdapter.addSection(relation, new UsersSection(title, list));
+                    mAdapter.addSection(relation, new UsersSection(title));
                     break;
             }
 
@@ -262,8 +287,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     private class PendingFriendSection extends UsersSection {
 
-        private PendingFriendSection(String title, List<User> users) {
-            super(title, users, R.layout.item_users_header, R.layout.item_friends_friend_pending);
+        private PendingFriendSection(String title) {
+            super(title, R.layout.item_users_header, R.layout.item_friends_friend_pending);
         }
 
         @Override
@@ -274,31 +299,88 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     class UsersSection extends StatelessSection {
         private String mTitle;
-        private List<User> mUsers;
+        private SortedList<User> mUsers = new SortedList<>(User.class,
+                new SortedList.Callback<User>() {
+                    @Override
+                    public int compare(User o1, User o2) {
+                        return o1.getName().compareTo(o2.getName());
+                    }
 
-        private UsersSection(String title, List<User> users) {
+                    @Override
+                    public void onChanged(int position, int count) {
+                        mAdapter.notifyItemRangeChanged(position, count);
+                    }
+
+                    @Override
+                    public boolean areContentsTheSame(User oldItem, User newItem) {
+                        return oldItem.getUid().equals(newItem.getUid());
+                    }
+
+                    @Override
+                    public boolean areItemsTheSame(User item1, User item2) {
+                        return item1.getUid().equals(item2.getUid());
+                    }
+
+                    @Override
+                    public void onInserted(int position, int count) {
+                        mAdapter.notifyItemRangeInserted(position, count);
+                    }
+
+                    @Override
+                    public void onRemoved(int position, int count) {
+                        mAdapter.notifyItemRangeRemoved(position, count);
+                    }
+
+                    @Override
+                    public void onMoved(int fromPosition, int toPosition) {
+                        mAdapter.notifyItemMoved(fromPosition, toPosition);
+                    }
+                });
+
+        private UsersSection(String title) {
             super(R.layout.item_users_header, R.layout.item_user);
             setHasHeader(false);
             mTitle = title;
-            mUsers = users;
         }
 
-        private UsersSection(String title, List<User> users,
-                             int headerLayout, int itemLayout) {
+        private UsersSection(String title, int headerLayout, int itemLayout) {
             super(headerLayout, itemLayout);
             setHasHeader(false);
             mTitle = title;
-            mUsers = users;
         }
 
-        void setUsers(List<User> users) {
-            mUsers = users;
-            if (mUsers == null) {
-                setVisible(false);
-            } else {
-                setVisible(true);
-            }
+        private void addUser(User user) {
+            mUsers.add(user);
+            changeHeaders();
         }
+
+        private void addUsers(List<User> users) {
+            mUsers.beginBatchedUpdates();
+            mUsers.addAll(users);
+            mUsers.endBatchedUpdates();
+            changeHeaders();
+        }
+
+        private void updateUser(User user) {
+            mUsers.add(user);
+        }
+
+        private void removeUser(User user) {
+            mUsers.remove(user);
+        }
+
+        private void removeAllUsers() {
+            mUsers.clear();
+        }
+
+//        void setUsers(List<User> users) {
+//            mUsers = users;
+//            if (mUsers == null) {
+//                setVisible(false);
+//            } else {
+//                setVisible(true);
+//            }
+//        }
 
         private String getTitle() {
             return mTitle;
@@ -316,7 +398,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         @Override
         public RecyclerView.ViewHolder getHeaderViewHolder(View view) {
-            if (mUsers.isEmpty()) {
+            if (mUsers.size() <= 0) {
                 return new SectionedRecyclerViewAdapter.EmptyViewHolder(view);
             } else {
                 return new HeaderViewHolder(view);

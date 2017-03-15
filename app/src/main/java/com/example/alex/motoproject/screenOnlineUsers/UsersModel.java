@@ -1,12 +1,9 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
-import android.util.Log;
-
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +52,6 @@ public class UsersModel implements UsersMvp.PresenterToModel,
 
     @Override
     public void onUsersAdded(List<User> users) {
-        Collections.sort(users);
         for (User user : users) {
             List<User> list = mUsers.get(user.getRelation());
             if (list != null) {
@@ -64,10 +60,10 @@ public class UsersModel implements UsersMvp.PresenterToModel,
                 List<User> newList = new ArrayList<>();
                 newList.add(user);
                 mUsers.put(user.getRelation(), newList);
-                mPresenter.addNewSection(user.getRelation(), newList);
+                mPresenter.addNewSection(user.getRelation());
             }
+            mPresenter.onUserAdded(user);
         }
-        mPresenter.notifyDataSetChanged();
     }
 
     @Override
@@ -75,17 +71,13 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         List<User> list = mUsers.get(user.getRelation());
         if (list != null) {
             list.add(user);
-            Collections.sort(list);
-            mPresenter.notifyDataSetChanged();
-            Log.e("listPos", String.valueOf(list.indexOf(user)));
         } else {
             List<User> newList = new ArrayList<>();
             newList.add(user);
             mUsers.put(user.getRelation(), newList);
-            mPresenter.addNewSection(user.getRelation(), newList);
-            mPresenter.notifyDataSetChanged();
-            Log.e("newListPos", String.valueOf(newList.indexOf(user)));
+            mPresenter.addNewSection(user.getRelation());
         }
+        mPresenter.onUserAdded(user);
     }
 
     @Override
@@ -96,10 +88,10 @@ public class UsersModel implements UsersMvp.PresenterToModel,
                     if (!iteratedUser.getRelation().equals(user.getRelation())) {
                         iteratedList.remove(iteratedUser);
                         onUserAdded(user);
+                        mPresenter.onUserChanged(user);
                         return;
                     }
                     iteratedList.set(iteratedList.indexOf(iteratedUser), user);
-                    mPresenter.notifyDataSetChanged();
                     return;
                 }
             }
@@ -121,8 +113,8 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     private void deleteUser(List<User> users, User user) {
         for (User iteratedUser : users) {
             if (iteratedUser.getUid().equals(user.getUid())) {
+                mPresenter.onUserRemoved(user);
                 users.remove(users.indexOf(iteratedUser));
-                mPresenter.notifyDataSetChanged();
                 return;
             }
         }

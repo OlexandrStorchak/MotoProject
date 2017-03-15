@@ -650,11 +650,6 @@ public class FirebaseDatabaseHelper {
                 mMessagesCountLimit++;
 
                 if (mCloseDistance > 0) {
-//                    if (mCurrentUserLocation == null) {
-//                        receiver.onNoCurrentUserLocation();
-//                        mCloseDistance = 0;
-//                        return;
-//                    }
 
                     if (!DistanceUtil.isClose(mCurrentUserLocation,
                             mUsersLocation.get(uid),
