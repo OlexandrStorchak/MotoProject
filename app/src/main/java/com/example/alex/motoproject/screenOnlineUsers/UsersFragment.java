@@ -83,7 +83,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         mAdapter.notifyDataSetChanged();
     }
 
-    private void changeHeaders() {
+    protected void changeHeaders() {
         //Add or remove header
         for (Section section : mAdapter.getSectionsMap().values()) {
             if (section.hasHeader()) {
@@ -277,26 +277,22 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void addNewSection(String relation) {
-        if (relation == null) {
-
-        } else {
-            Resources res = getContext().getResources();
-            String title;
-            switch (relation) {
-                case "pending":
+        Resources res = getContext().getResources();
+        String title;
+        switch (relation) {
+            case "pending":
 //                    title = res.getString(R.string.title_pending_friends);
 //                    mAdapter.addSection(relation, new PendingFriendSection(title, list));
-                    PendingFriendSection pfs = (PendingFriendSection) mAdapter.getSection(relation);
-                    break;
-                case "friend":
-                    title = res.getString(R.string.title_friends);
-                    mAdapter.addSection(relation, new UsersSection(title));
-                    break;
-                default:
-                    Section section = new UsersSection(null);
-                    mAdapter.addSection(relation, section);
-                    break;
-            }
+                PendingFriendSection pfs = (PendingFriendSection) mAdapter.getSection(relation);
+                break;
+            case "friend":
+                title = res.getString(R.string.title_friends);
+                mAdapter.addSection(relation, new UsersSection(title));
+                break;
+            default:
+                Section section = new UsersSection(null);
+                mAdapter.addSection(relation, section);
+                break;
         }
     }
 
@@ -323,7 +319,9 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
                     @Override
                     public void onChanged(int position, int count) {
-                        mAdapter.notifyItemRangeChanged(position, count);
+                        mAdapter.notifyItemRangeChanged(mAdapter.getSectionPosition(position), count);
+                        Log.d("changed", String.valueOf(mAdapter.getSectionPosition(position)));
+//                        mAdapter.notifyDataSetChanged();
                     }
 
                     @Override
@@ -338,17 +336,24 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
                     @Override
                     public void onInserted(int position, int count) {
-                        mAdapter.notifyItemRangeInserted(position, count);
+//                        mAdapter.notifyItemRangeInserted(mAdapter.getSectionPosition(position), count);
+//                        Log.d("inserted", String.valueOf(mAdapter.getSectionPosition(position)));
+                        mAdapter.notifyDataSetChanged();
                     }
 
                     @Override
                     public void onRemoved(int position, int count) {
-                        mAdapter.notifyItemRangeRemoved(position, count);
+                        mAdapter.notifyItemRangeRemoved(mAdapter.getSectionPosition(position), count);
+
+//                        Log.d("removed", String.valueOf(mAdapter.getSectionPosition(position)));
+//                        mAdapter.notifyDataSetChanged();
                     }
 
                     @Override
                     public void onMoved(int fromPosition, int toPosition) {
-                        mAdapter.notifyItemMoved(fromPosition, toPosition);
+                        mAdapter.notifyItemMoved(mAdapter.getSectionPosition(fromPosition)
+                                , mAdapter.getSectionPosition(toPosition));
+//                        mAdapter.notifyDataSetChanged();
                     }
                 });
 
@@ -373,7 +378,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             mUsers.beginBatchedUpdates();
             mUsers.addAll(users);
             mUsers.endBatchedUpdates();
-            notifyDataSetChanged();
+            mAdapter.notifyDataSetChanged();
             changeHeaders();
         }
 
@@ -383,6 +388,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         private void removeUser(User user) {
             mUsers.remove(user);
+
+//            mAdapter.notifyDataSetChanged();
         }
 
         private void removeAllUsers() {

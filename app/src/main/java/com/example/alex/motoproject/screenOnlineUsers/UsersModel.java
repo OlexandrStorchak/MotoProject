@@ -25,8 +25,7 @@ public class UsersModel implements UsersMvp.PresenterToModel,
 
     @Override
     public void registerUsersListener() {
-        mFirebaseDatabaseHelper.getOnlineUsers(this);
-        mFirebaseDatabaseHelper.registerOnlineUsersListener(this);
+        mFirebaseDatabaseHelper.getOnlineUsersAndRegisterListener(this);
     }
 
     @Override
@@ -36,8 +35,7 @@ public class UsersModel implements UsersMvp.PresenterToModel,
 
     @Override
     public void registerFriendsListener() {
-        mFirebaseDatabaseHelper.getFriends(this);
-        mFirebaseDatabaseHelper.registerFriendsListener(this);
+        mFirebaseDatabaseHelper.getFriendsAndRegisterListener(this);
     }
 
     @Override
@@ -64,6 +62,23 @@ public class UsersModel implements UsersMvp.PresenterToModel,
             }
             mPresenter.onUserAdded(user);
         }
+    }
+
+    @Override
+    public boolean hasUser(String uidToCheck, String relation) {
+        List<User> list = mUsers.get(relation);
+
+        if (list == null) {
+            return false;
+        }
+
+        for (User user : list) {
+            if (user.getUid().equals(uidToCheck)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

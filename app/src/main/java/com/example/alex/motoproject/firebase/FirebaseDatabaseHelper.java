@@ -350,7 +350,7 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-    public void getFriends(final UsersUpdateReceiver receiver) {
+    public void getFriendsAndRegisterListener(final UsersUpdateReceiver receiver) {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("friendList");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -384,6 +384,7 @@ public class FirebaseDatabaseHelper {
                         }
                     });
                 }
+                registerFriendsListener(receiver);
             }
 
             @Override
@@ -393,7 +394,7 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-    public void registerFriendsListener(final UsersUpdateReceiver receiver) {
+    private void registerFriendsListener(final UsersUpdateReceiver receiver) {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("friendList");
         mFriendsListener = new ChildEventListener() {
@@ -434,7 +435,11 @@ public class FirebaseDatabaseHelper {
     private void onFriendAdded(DataSnapshot dataSnapshot, final UsersUpdateReceiver receiver) {
         final String uid = dataSnapshot.getKey();
         final String relation = (String) dataSnapshot.getValue();
-//        final String userStatus = mOnlineUserStatusHashMap.get(uid);
+
+        if (receiver.hasUser(uid, relation)) {
+            return;
+        }
+
         final String userStatus = null;
         DatabaseReference ref = mDbReference.child("users").child(uid);
         ValueEventListener userDataListener = new ValueEventListener() {
@@ -484,7 +489,7 @@ public class FirebaseDatabaseHelper {
         receiver.onUserDeleted(new User(uid, relation));
     }
 
-    public void registerOnlineUsersListener(final UsersUpdateReceiver receiver) {
+    private void registerOnlineUsersListener(final UsersUpdateReceiver receiver) {
         // Read from the mDatabase
         DatabaseReference myRef = mDbReference.child("onlineUsers");
         mOnlineUsersDataListener = new ChildEventListener() {
@@ -523,7 +528,7 @@ public class FirebaseDatabaseHelper {
         }
     }
 
-    public void getOnlineUsers(final UsersUpdateReceiver receiver) {
+    public void getOnlineUsersAndRegisterListener(final UsersUpdateReceiver receiver) {
         DatabaseReference ref = mDbReference.child("onlineUsers");
 
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -562,6 +567,7 @@ public class FirebaseDatabaseHelper {
                         }
                     });
                 }
+                registerOnlineUsersListener(receiver);
             }
 
             @Override
@@ -576,8 +582,15 @@ public class FirebaseDatabaseHelper {
         if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
             return;
         }
+
         final String uid = dataSnapshot.getKey();
         final String userStatus = (String) dataSnapshot.getValue();
+        final String relation = "unknown";
+
+        if (receiver.hasUser(uid, relation)) {
+            return;
+        }
+
         DatabaseReference ref = mDbReference.child("users").child(uid);
         ValueEventListener userDataListener = new ValueEventListener() {
             @Override
@@ -1003,6 +1016,8 @@ public class FirebaseDatabaseHelper {
         void onUserDeleted(User user);
 
         void onUsersAdded(List<User> users);
+
+        boolean hasUser(String uid, String relation);
     }
 
     public interface ChatUpdateReceiver {
