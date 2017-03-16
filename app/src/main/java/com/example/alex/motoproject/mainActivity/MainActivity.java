@@ -46,7 +46,6 @@ import javax.inject.Inject;
 
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
-import static com.example.alex.motoproject.service.LocationListenerService.GPS_RATE;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -252,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStop() {
         super.onStop();
+
         alertControl.unregisterNetworkStateReceiver();
         alertControl.unregisterEventBus();
         loginController.stop();
@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements
 
         //Send result to ScreenLoginFragment for Facebook auth.manager
 
-        ScreenLoginFragment.getCallbackManager().onActivityResult(requestCode, resultCode, data);
+        screenLoginFragment.getCallbackManager().onActivityResult(requestCode, resultCode, data);
 
     }
 
