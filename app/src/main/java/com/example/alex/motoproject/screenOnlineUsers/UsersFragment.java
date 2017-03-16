@@ -373,6 +373,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             mUsers.beginBatchedUpdates();
             mUsers.addAll(users);
             mUsers.endBatchedUpdates();
+            notifyDataSetChanged();
             changeHeaders();
         }
 

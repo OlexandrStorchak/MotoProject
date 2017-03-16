@@ -315,7 +315,12 @@ public class FirebaseDatabaseHelper {
     public void changeUserRelation(String uid, String relation) {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("friendList").child(uid);
+        ref.removeValue();
         ref.setValue(relation);
+        // TODO: 16.03.2017 схоже, в тебе тут останній міні-бос. Ця скотиняка крашиться у лісті ЛИШЕ ДРУЗІВ
+        // TODO: 16.03.2017 і не через скрол. Імовірно, десь я не встигаю пронотифікувати адаптер про видалення
+        // TODO: 16.03.2017 бо крашить саме на видаленні. І на зміні ліста в пошуку, причому не зразу.
+        // TODO: 16.03.2017 це дуже схоже на анімацію. Окей, успіхів, чувак! ^^
     }
 
     // TODO: 10.03.2017 use automatic saving but listener

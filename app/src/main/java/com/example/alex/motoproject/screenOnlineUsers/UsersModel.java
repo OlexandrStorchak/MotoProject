@@ -109,25 +109,7 @@ public class UsersModel implements UsersMvp.PresenterToModel,
                 return;
             }
         }
-
-//        if (list == null) {
-//            for (List<User> iteratedList : mUsers.values()) {
-//                deleteUser(iteratedList, user);
-//            }
-//            return;
-//        }
-//        deleteUser(list, user);
     }
-
-//    private void deleteUser(List<User> users, User user) {
-//        for (User iteratedUser : users) {
-//            if (iteratedUser.getUid().equals(user.getUid())) {
-//                mPresenter.onUserRemoved(user);
-//                users.remove(users.indexOf(iteratedUser));
-//                return;
-//            }
-//        }
-//    }
 
     public Map<String, List<User>> filterUsers(String query) {
         final String lowerCaseQuery = query.toLowerCase();
