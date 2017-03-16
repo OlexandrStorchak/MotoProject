@@ -62,6 +62,7 @@ public class ScreenLoginFragment extends Fragment {
     private Button mButtonSignUp;
     private Button mButtonSubmit;
     private LoginManager loginManager = LoginManager.getInstance();
+    private CallbackManager callbackManager = CallbackManager.Factory.create();
     private Button mButtonSignInFacebook;
 
 
@@ -71,8 +72,8 @@ public class ScreenLoginFragment extends Fragment {
     }
 
 
-    public static CallbackManager getCallbackManager() {
-        return CallbackManager.Factory.create();
+    public CallbackManager getCallbackManager() {
+        return callbackManager;
     }
 
 
@@ -80,7 +81,7 @@ public class ScreenLoginFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        loginManager.registerCallback(CallbackManager.Factory.create(), new FacebookCallback<LoginResult>() {
+        loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 // App code
@@ -404,7 +405,7 @@ public class ScreenLoginFragment extends Fragment {
             }
         } else {
             Log.d(TAG, "onActivityResult: facebook");
-            CallbackManager.Factory.create().onActivityResult(requestCode, resultCode, data);
+            callbackManager.onActivityResult(requestCode, resultCode, data);
 
         }
     }
