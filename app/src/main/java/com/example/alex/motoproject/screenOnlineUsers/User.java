@@ -13,8 +13,9 @@ public class User implements Comparable<User> {
         this.relation = relation;
     }
 
-    public User(String uid) {
+    public User(String uid, String relation) {
         this.uid = uid;
+        this.relation = relation;
     }
 
     public String getUid() {

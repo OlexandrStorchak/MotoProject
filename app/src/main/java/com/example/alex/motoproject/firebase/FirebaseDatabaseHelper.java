@@ -479,7 +479,8 @@ public class FirebaseDatabaseHelper {
     private void onFriendRemoved(DataSnapshot dataSnapshot,
                                  final UsersUpdateReceiver receiver) {
         String uid = dataSnapshot.getKey();
-        receiver.onUserDeleted(new User(uid));
+        String relation = (String) dataSnapshot.getValue();
+        receiver.onUserDeleted(new User(uid, relation));
     }
 
     public void registerOnlineUsersListener(final UsersUpdateReceiver receiver) {
@@ -622,7 +623,7 @@ public class FirebaseDatabaseHelper {
     private void onOnlineUserRemoved(DataSnapshot dataSnapshot,
                                      final UsersUpdateReceiver receiver) {
         String uid = dataSnapshot.getKey();
-        receiver.onUserDeleted(new User(uid));
+        receiver.onUserDeleted(new User(uid, "unknown"));
     }
 
     /**

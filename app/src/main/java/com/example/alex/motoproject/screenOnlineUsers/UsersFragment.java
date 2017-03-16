@@ -135,7 +135,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                 .build()
                 .inject(this);
 
-        mAdapter.setHasStableIds(true);
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_users_online, container, false);
     }
@@ -149,9 +148,9 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         mPresenter.onViewCreated();
 
-//        if (!mAdapter.hasStableIds()) {
-//            mAdapter.setHasStableIds(true);
-//        }
+        if (!mAdapter.hasStableIds()) {
+            mAdapter.setHasStableIds(true);
+        }
 
         RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext()) {
@@ -266,11 +265,14 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void removeUser(User user) {
-//        for (UsersSection section : mAdapter.getSectionsMap().values()) {
-//
+//        for (Section section : mAdapter.getSectionsMap().values()) {
+//            UsersSection usersSection = (UsersSection) section;
+//            if (usersSection.)
 //        }
 //        UsersSection section = (UsersSection) mAdapter.getSection(user.getRelation());
 //        section.removeUser(user);
+        UsersSection section = (UsersSection) mAdapter.getSection(user.getRelation());
+        section.removeUser(user);
     }
 
     @Override
