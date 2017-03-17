@@ -32,7 +32,6 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
                 mModel.registerFriendsListener();
                 break;
             default:
-                getView().setupUsersList();
                 mModel.registerUsersListener();
                 break;
         }
@@ -50,11 +49,6 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
         }
         getView().notifyDataSetChanged();
         mModel.clearUsers();
-    }
-
-    @Override
-    public void onViewCreated() {
-//        getView().setUserList(mModel.getFriendsAndRegisterListener());
     }
 
     @Override
@@ -81,40 +75,10 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
         mModel.changeUserRelation(uid, null);
     }
 
-//    @Override
-//    public List<OnlineUser> onGetUsersList() {
-//        return mModel.getFriendsAndRegisterListener();
-//    }
-
-//    @Override
-//    public void onUserAdded(OnlineUser user) {
-//        getView().onUserAdded(user);
-//    }
-//
-//    @Override
-//    public void updateUser(OnlineUser user) {
-//        getView().updateUser(user);
-//    }
-//
-//    @Override
-//    public void removeUser(OnlineUser user) {
-//        getView().removeUser(user);
-//    }
-
-//    @Override
-//    public void notifyItemInserted(int position) {
-//        getView().notifyItemInserted(position);
-//    }
-//
-//    @Override
-//    public void notifyItemChanged(int position) {
-//        getView().notifyItemChanged(position);
-//    }
-//
-//    @Override
-//    public void notifyItemRemoved(int position) {
-//        getView().notifyItemRemoved(position);
-//    }
+    @Override
+    public void onUserListUpdate() {
+        getView().updateHeaders();
+    }
 
     @Override
     public void onUserAdded(User user) {
@@ -132,12 +96,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     }
 
     @Override
-    public void notifyDataSetChanged() {
-        getView().notifyDataSetChanged();
-    }
-
-    @Override
-    public void addNewSection(String relation) {
+    public void onAddNewSection(String relation) {
         getView().addNewSection(relation);
     }
 }

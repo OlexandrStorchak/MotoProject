@@ -27,14 +27,14 @@ public class PresenterModule {
     @Provides
     @NonNull
     @Singleton
-    ChatPresenter provideChatPresenter() {
+    ChatMvp.ViewToPresenter provideChatPresenter() {
         return new ChatPresenter(chatView);
     }
 
     @Provides
     @NonNull
     @Singleton
-    UsersPresenter provideUsersPresenter() {
+    UsersMvp.ViewToPresenter provideUsersPresenter() {
         return new UsersPresenter(usersView);
     }
 }

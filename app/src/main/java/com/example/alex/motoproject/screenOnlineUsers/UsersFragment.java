@@ -11,7 +11,6 @@ import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -43,15 +42,15 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapt
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
 public class UsersFragment extends Fragment implements UsersMvp.PresenterToView {
+    private static final String LIST_TYPE_KEY = "listType";
     public SectionedRecyclerViewAdapter mAdapter = new SectionedRecyclerViewAdapter() {
         @Override
         public long getItemId(int position) {
             return position;
         }
     };
-    // TODO: 02.03.2017 inject interface, not presenter itself
     @Inject
-    UsersPresenter mPresenter;
+    UsersMvp.ViewToPresenter mPresenter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SearchView mSearchView;
 
@@ -83,18 +82,18 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         mAdapter.notifyDataSetChanged();
     }
 
-    protected void changeHeaders() {
+    public void updateHeaders() {
         //Add or remove header
         for (Section section : mAdapter.getSectionsMap().values()) {
-            if (section.hasHeader()) {
-                if (section.getContentItemsTotal() < 1) {
-                    section.setHasHeader(false); //remove header if it has no children
-                }
-            } else if (section.getContentItemsTotal() >= 1) {
-                UsersSection usersSection = (UsersSection) section;
-                if (usersSection.getTitle() != null) { //add header if it has one or more children
-                    section.setHasHeader(true); //and if there is something to show in this header
-                }
+            UsersSection usersSection = (UsersSection) section;
+
+            //remove header if it has no children
+            if (section.hasHeader() && section.getContentItemsTotal() < 1) {
+                section.setHasHeader(false);
+
+                //add header if it has one or more children and title`s not null
+            } else if (section.getContentItemsTotal() >= 1 && usersSection.getTitle() != null) {
+                section.setHasHeader(true);
             }
         }
     }
@@ -112,6 +111,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         final MenuItem searchItem = menu.findItem(R.id.search_users);
         mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -146,8 +146,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.container_users_swipe);
         setupSwipeRefreshLayout();
 
-        mPresenter.onViewCreated();
-
         if (!mAdapter.hasStableIds()) {
             mAdapter.setHasStableIds(true);
         }
@@ -159,19 +157,15 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                 return true;
             }
         };
-//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rv.getContext(),
-//                layoutManager.getOrientation());
-//        rv.addItemDecoration(dividerItemDecoration);
+
         rv.setLayoutManager(layoutManager);
         rv.setAdapter(mAdapter);
-//        mAdapter.addPendingFriendSection();
-//        rv.setItemAnimator(null);
     }
 
     @Override
     public int getListType() {
         if (getArguments() != null) {
-            return getArguments().getInt("listType", 0);
+            return getArguments().getInt(LIST_TYPE_KEY);
         } else {
             return 0;
         }
@@ -188,10 +182,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         int iteration = 0;
         for (List<User> list : users.values()) {
             UsersSection section = (UsersSection) mAdapter.getSection(mapKeys.get(iteration));
-//            section.setUsers(list);
             section.removeAllUsers();
             section.addUsers(list);
-//            notifyDataSetChanged();
             iteration++;
         }
     }
@@ -201,21 +193,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         super.onDestroyView();
         mAdapter.removeAllSections();
         mPresenter = null;
-    }
-
-    @Override
-    public void notifyItemInserted(int position) {
-        mAdapter.notifyItemInserted(position);
-    }
-
-    @Override
-    public void notifyItemChanged(int position) {
-        mAdapter.notifyItemChanged(position);
-    }
-
-    @Override
-    public void notifyItemRemoved(int position) {
-        mAdapter.notifyItemRemoved(position);
     }
 
     @Override
@@ -239,16 +216,11 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void setupFriendsList() {
-        //Makes pending friends section always show on top if it has any child
+        //Make pending friends section always show on top
         Resources res = getContext().getResources();
         String title = res.getString(R.string.title_pending_friends);
         PendingFriendSection pfs = new PendingFriendSection(title);
-        mAdapter.addSection("pending", pfs);
-    }
-
-    @Override
-    public void setupUsersList() {
-
+        mAdapter.addSection(getContext().getString(R.string.tag_pending_friends), pfs);
     }
 
     @Override
@@ -265,12 +237,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void removeUser(User user) {
-//        for (Section section : mAdapter.getSectionsMap().values()) {
-//            UsersSection usersSection = (UsersSection) section;
-//            if (usersSection.)
-//        }
-//        UsersSection section = (UsersSection) mAdapter.getSection(user.getRelation());
-//        section.removeUser(user);
         UsersSection section = (UsersSection) mAdapter.getSection(user.getRelation());
         section.removeUser(user);
     }
@@ -280,11 +246,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         Resources res = getContext().getResources();
         String title;
         switch (relation) {
-            case "pending":
-//                    title = res.getString(R.string.title_pending_friends);
-//                    mAdapter.addSection(relation, new PendingFriendSection(title, list));
-                PendingFriendSection pfs = (PendingFriendSection) mAdapter.getSection(relation);
-                break;
             case "friend":
                 title = res.getString(R.string.title_friends);
                 mAdapter.addSection(relation, new UsersSection(title));
@@ -320,8 +281,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                     @Override
                     public void onChanged(int position, int count) {
                         mAdapter.notifyItemRangeChanged(mAdapter.getSectionPosition(position), count);
-                        Log.d("changed", String.valueOf(mAdapter.getSectionPosition(position)));
-//                        mAdapter.notifyDataSetChanged();
                     }
 
                     @Override
@@ -336,25 +295,18 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
                     @Override
                     public void onInserted(int position, int count) {
-//                        mAdapter.notifyItemRangeInserted(mAdapter.getSectionPosition(position), count);
-//                        Log.d("inserted", String.valueOf(mAdapter.getSectionPosition(position)));
                         mAdapter.notifyDataSetChanged();
                     }
 
                     @Override
                     public void onRemoved(int position, int count) {
-//                        mAdapter.notifyItemRangeRemoved(mAdapter.getSectionPosition(position), count);
                         mAdapter.notifyDataSetChanged();
-
-//                        Log.d("removed", String.valueOf(mAdapter.getSectionPosition(position)));
-//                        mAdapter.notifyDataSetChanged();
                     }
 
                     @Override
                     public void onMoved(int fromPosition, int toPosition) {
-                        mAdapter.notifyItemMoved(mAdapter.getSectionPosition(fromPosition)
-                                , mAdapter.getSectionPosition(toPosition));
-//                        mAdapter.notifyDataSetChanged();
+                        mAdapter.notifyItemMoved(mAdapter.getSectionPosition(fromPosition),
+                                mAdapter.getSectionPosition(toPosition));
                     }
                 });
 
@@ -372,7 +324,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         private void addUser(User user) {
             mUsers.add(user);
-            changeHeaders();
+            mPresenter.onUserListUpdate();
         }
 
         private void addUsers(List<User> users) {
@@ -380,7 +332,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             mUsers.addAll(users);
             mUsers.endBatchedUpdates();
             mAdapter.notifyDataSetChanged();
-            changeHeaders();
+            mPresenter.onUserListUpdate();
         }
 
         private void updateUser(User user) {
@@ -389,23 +341,12 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         private void removeUser(User user) {
             mUsers.remove(user);
-            changeHeaders();
-
-//            mAdapter.notifyDataSetChanged();
+            mPresenter.onUserListUpdate();
         }
 
         private void removeAllUsers() {
             mUsers.clear();
         }
-
-//        void setUsers(List<User> users) {
-//            mUsers = users;
-//            if (mUsers == null) {
-//                setVisible(false);
-//            } else {
-//                setVisible(true);
-//            }
-//        }
 
         private String getTitle() {
             return mTitle;
@@ -435,6 +376,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             if (holder instanceof SectionedRecyclerViewAdapter.EmptyViewHolder) {
                 return;
             }
+
             HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
             headerViewHolder.title.setText(mTitle);
         }
@@ -443,9 +385,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
             UserViewHolder userViewHolder = (UserViewHolder) holder;
             User user = mUsers.get(position);
-
-            Log.e("OnBindPos", String.valueOf(position) + " "
-                    + String.valueOf(mAdapter.getSectionPosition(position)));
 
             userViewHolder.name.setText(user.getName());
             Picasso.with(userViewHolder.avatar.getContext())
@@ -479,7 +418,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Log.e("OnClickPos", String.valueOf(getAdapterPosition()));
                         EventBus.getDefault().post(new ShowUserProfileEvent(
                                 mUsers.get(mAdapter.getSectionPosition(getAdapterPosition())).getUid()
                         ));
@@ -494,10 +432,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                     }
 
                 });
-            }
-
-            private String getTitle() {
-                return mTitle;
             }
         }
 

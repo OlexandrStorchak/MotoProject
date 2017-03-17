@@ -9,8 +9,6 @@ public interface UsersMvp {
 
         void onStop();
 
-        void onViewCreated();
-
         void onQueryTextChange(String newText);
 
         void onRefreshSwipeLayout();
@@ -18,38 +16,34 @@ public interface UsersMvp {
         void onUserFriendshipAccepted(String uid);
 
         void onUserFriendshipDeclined(String uid);
+
+        void onUserListUpdate();
     }
 
     interface PresenterToView {
-        void notifyItemInserted(int position);
-
-        void notifyItemChanged(int position);
-
-        void notifyItemRemoved(int position);
-
-        void notifyDataSetChanged();
-
-        int getListType();
-
-        void clearUsers();
-
-        void disableRefreshingSwipeLayout();
-
-        void setSearchViewIconified(boolean iconified);
-
         void addNewSection(String relation);
 
-        void replaceAllUsers(Map<String, List<User>> users);
-
         void setupFriendsList();
-
-        void setupUsersList();
 
         void addUser(User user);
 
         void changeUser(User user);
 
         void removeUser(User user);
+
+        void clearUsers();
+
+        void updateHeaders();
+
+        void replaceAllUsers(Map<String, List<User>> users);
+
+        void notifyDataSetChanged();
+
+        void disableRefreshingSwipeLayout();
+
+        void setSearchViewIconified(boolean iconified);
+
+        int getListType();
     }
 
     interface PresenterToModel {
@@ -63,28 +57,18 @@ public interface UsersMvp {
 
         void clearUsers();
 
-        Map<String, List<User>> filterUsers(String query);
-
         void changeUserRelation(String uid, String relation);
 
-//        void setListType(int listType);
+        Map<String, List<User>> filterUsers(String query);
     }
 
     interface ModelToPresenter {
+        void onAddNewSection(String relation);
+
         void onUserAdded(User user);
 
         void onUserChanged(User user);
 
         void onUserRemoved(User user);
-
-//        void notifyItemInserted(int position);
-//
-//        void notifyItemChanged(int position);
-//
-//        void notifyItemRemoved(int position);
-
-        void notifyDataSetChanged();
-
-        void addNewSection(String relation);
     }
 }

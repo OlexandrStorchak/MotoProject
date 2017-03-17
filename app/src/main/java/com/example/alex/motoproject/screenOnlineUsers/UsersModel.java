@@ -58,7 +58,7 @@ public class UsersModel implements UsersMvp.PresenterToModel,
                 List<User> newList = new ArrayList<>();
                 newList.add(user);
                 mUsers.put(user.getRelation(), newList);
-                mPresenter.addNewSection(user.getRelation());
+                mPresenter.onAddNewSection(user.getRelation());
             }
             mPresenter.onUserAdded(user);
         }
@@ -90,7 +90,7 @@ public class UsersModel implements UsersMvp.PresenterToModel,
             List<User> newList = new ArrayList<>();
             newList.add(user);
             mUsers.put(user.getRelation(), newList);
-            mPresenter.addNewSection(user.getRelation());
+            mPresenter.onAddNewSection(user.getRelation());
         }
         mPresenter.onUserAdded(user);
     }
@@ -102,13 +102,10 @@ public class UsersModel implements UsersMvp.PresenterToModel,
                 if (!iteratedUser.getUid().equals(user.getUid())) {
                     if (iteratedUser.getRelation().equals(user.getRelation())) {
                         iteratedUser = user;
-//                        iteratedList.remove(iteratedUser);
                         onUserAdded(iteratedUser);
                         mPresenter.onUserChanged(iteratedUser);
-//                        iteratedList.set(iteratedList.indexOf(iteratedUser), user);
                         return;
                     }
-
                 }
             }
         }
@@ -132,14 +129,18 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         Map<String, List<User>> filteredUsers = new HashMap<>();
         List<String> mapKeys = new ArrayList<>(mUsers.keySet());
         int iteration = 0;
+
         for (List<User> list : mUsers.values()) {
             List<User> users = new ArrayList<>();
+
             for (User user : list) {
                 String string = user.getName().toLowerCase();
+
                 if (string.contains(lowerCaseQuery)) {
                     users.add(user);
                 }
             }
+
             filteredUsers.put(mapKeys.get(iteration), users);
             iteration++;
         }

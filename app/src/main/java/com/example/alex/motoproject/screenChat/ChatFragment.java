@@ -41,7 +41,7 @@ import javax.inject.Inject;
 public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     private static final int MESSAGE_MAX_CHARS = 200;
     @Inject
-    ChatPresenter mPresenter;
+    ChatMvp.ViewToPresenter mPresenter;
     private RecyclerView mRecyclerView;
     private EditText mEditText;
     private ImageButton mSendButton;
@@ -299,9 +299,4 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         mShareLocationButton.setColorFilter(ResourcesCompat
                 .getColor(getResources(), R.color.blue900, null));
     }
-
-//    @Override
-//    public void onClickPositiveButton(int limit) {
-//        mPresenter.onClickPositiveButtonDialogFragment(limit);
-//    }
 }
