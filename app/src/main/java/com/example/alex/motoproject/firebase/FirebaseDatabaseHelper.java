@@ -317,6 +317,11 @@ public class FirebaseDatabaseHelper {
                 .child(getCurrentUser().getUid()).child("friendList").child(uid);
         ref.removeValue();
         ref.setValue(relation);
+
+        ref = mDbReference.child("users").child(uid)
+                .child("friendList").child(getCurrentUser().getUid());
+        ref.removeValue();
+        ref.setValue(relation);
     }
 
     // TODO: 10.03.2017 use automatic saving but listener

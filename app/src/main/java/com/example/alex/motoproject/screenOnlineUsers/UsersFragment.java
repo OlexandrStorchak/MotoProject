@@ -343,7 +343,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
                     @Override
                     public void onRemoved(int position, int count) {
-                        mAdapter.notifyItemRangeRemoved(mAdapter.getSectionPosition(position), count);
+//                        mAdapter.notifyItemRangeRemoved(mAdapter.getSectionPosition(position), count);
+                        mAdapter.notifyDataSetChanged();
 
 //                        Log.d("removed", String.valueOf(mAdapter.getSectionPosition(position)));
 //                        mAdapter.notifyDataSetChanged();
@@ -388,6 +389,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         private void removeUser(User user) {
             mUsers.remove(user);
+            changeHeaders();
 
 //            mAdapter.notifyDataSetChanged();
         }
