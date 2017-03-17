@@ -282,8 +282,17 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
     public void onCameraMove() {
 
         if (mMap.getCameraPosition().zoom > 18){
-            Toast.makeText(mApp, "Camera update zoom > 13", Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(mApp, "Camera update zoom > 18", Toast.LENGTH_SHORT).show();
+                mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+                    @Override
+                    public void onCameraMove() {
+                        if (mMap.getCameraPosition().zoom < 18){
+                            mMap.setOnCameraMoveListener(ScreenMapFragment.this);
+                        }
+                    }
+                });
+        } else {
+            mMap.setOnCameraMoveListener(this);
         }
     }
 
