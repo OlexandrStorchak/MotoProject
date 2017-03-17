@@ -57,7 +57,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 public class ScreenMyProfileFragment extends Fragment {
 
 
-    private static final int PICK_IMAGE_REQUEST = 13;
+    private static final int PICK_IMAGE_REQUEST = 189;
     private TextView email;
     private TextView name;
     private TextView nickName;
@@ -68,12 +68,11 @@ public class ScreenMyProfileFragment extends Fragment {
     private EditText motorcycleEdit;
     private EditText aboutMeEdit;
     private ImageView avatar;
-    private ImageView mapIndicator;
-    private Spinner mapVisibility;
+
     private Spinner mapRate;
     private ImageView saveProfileData;
     private ImageView editProfileData;
-    private LinearLayout gpsPanel;
+
     private LinearLayout gpsRatePanel;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
 
@@ -85,10 +84,12 @@ public class ScreenMyProfileFragment extends Fragment {
     public static final String PROFSET = "profSett";
 
     public static final String PROFILE_GPS_MODE_PUBLIC = "public";
-    private static final String PROFILE_GPS_MODE_FRIENDS = "friends";
-    private static final String PROFILE_GPS_MODE_SOS = "sos";
+    public static final String PROFILE_GPS_MODE_FRIENDS = "friends";
+    public static final String PROFILE_GPS_MODE_SOS = "sos";
+    public static final String PROFILE_GPS_MODE_NOGPS = "noGps";
     private String currentUid;
-    private SharedPreferences preferences;
+
+    private SharedPreferences preferencesRate;
 
     public ScreenMyProfileFragment() {
         // Required empty public constructor
@@ -98,6 +99,7 @@ public class ScreenMyProfileFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
+
     }
 
     @Override
@@ -111,7 +113,7 @@ public class ScreenMyProfileFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        preferencesRate = getContext().getSharedPreferences(GPS_RATE, MODE_PRIVATE);
 
         avatar = (ImageView) view.findViewById(R.id.profile_avatar);
         email = (TextView) view.findViewById(R.id.profile_email);
@@ -119,9 +121,8 @@ public class ScreenMyProfileFragment extends Fragment {
         motorcycle = (TextView) view.findViewById(R.id.profile_motorcycle);
         nickName = (TextView) view.findViewById(R.id.profile_nick_name);
         aboutMe = (TextView) view.findViewById(R.id.profile_about_me);
-        mapIndicator = (ImageView) view.findViewById(R.id.profile_show_on_map_indicator);
+
         mFirebaseDatabaseHelper.getCurrentUserModel();
-        mapVisibility = (Spinner) view.findViewById(R.id.profile_set_gps_visibility);
         nameEdit = (EditText) view.findViewById(R.id.profile_name_edit);
         nickNameEdit = (EditText) view.findViewById(R.id.profile_nick_name_edit);
         motorcycleEdit = (EditText) view.findViewById(R.id.profile_motorcycle_edit);
@@ -135,7 +136,6 @@ public class ScreenMyProfileFragment extends Fragment {
             }
         });
 
-        gpsPanel = (LinearLayout) view.findViewById(R.id.profile_gps_panel);
 
         saveProfileData = (ImageView) view.findViewById(R.id.profile_btn_save);
 
@@ -173,47 +173,13 @@ public class ScreenMyProfileFragment extends Fragment {
         });
 
 
-        mapVisibility.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-                switch (i) {
-                    case 0:
-                        preferences.edit()
-                                .putString(currentUid, PROFILE_GPS_MODE_PUBLIC).apply();
-                        mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_PUBLIC);
-
-                        break;
-                    case 1:
-                        preferences.edit()
-                                .putString(currentUid, PROFILE_GPS_MODE_FRIENDS).apply();
-                        mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_FRIENDS);
-
-                        break;
-                    case 2:
-                        preferences.edit()
-                                .putString(currentUid, PROFILE_GPS_MODE_SOS).apply();
-                        mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_SOS);
-
-                        break;
-                }
-
-                onStart();
-            }
-
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
 
         mapRate = (Spinner) view.findViewById(R.id.profile_set_gps_rate);
         mapRate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 // TODO: 05.03.2017 add method contract to LocationListenerService
-                SharedPreferences preferencesRate = getContext().getSharedPreferences(GPS_RATE, MODE_PRIVATE);
+
                 switch (i) {
 
                     case 0:
@@ -246,46 +212,9 @@ public class ScreenMyProfileFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        preferences = getContext().getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
-        String gpsMode = preferences.getString(currentUid, null);
-        if (gpsMode == null) {
-            gpsMode = PROFILE_GPS_MODE_PUBLIC;
-        }
-        switch (gpsMode) {
-            case PROFILE_GPS_MODE_SOS:
-                mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
-                mapVisibility.setSelection(2);
-                break;
-            case PROFILE_GPS_MODE_FRIENDS:
-                mapIndicator.setImageResource(R.mipmap.ic_map_indicator_yellow);
-                mapVisibility.setSelection(1);
-                break;
-            case PROFILE_GPS_MODE_PUBLIC:
-                mapIndicator.setImageResource(R.mipmap.ic_map_indicator_green);
-                mapVisibility.setSelection(0);
-                break;
-        }
 
-        SharedPreferences preferencesRate = getContext().getSharedPreferences(GPS_RATE, Context.MODE_PRIVATE);
-        String gpsRate = preferencesRate.getString(currentUid, null);
-        if (gpsRate == null) {
-            gpsRate = LOCATION_REQUEST_FREQUENCY_DEFAULT;
-        }
 
-        switch (gpsRate) {
-            case LOCATION_REQUEST_FREQUENCY_LOW:
 
-                mapRate.setSelection(2);
-                break;
-            case LOCATION_REQUEST_FREQUENCY_DEFAULT:
-
-                mapRate.setSelection(1);
-                break;
-            case LOCATION_REQUEST_FREQUENCY_HIGH:
-
-                mapRate.setSelection(0);
-                break;
-        }
     }
 
     private void editMode(int textViews, int editViews) {
@@ -311,7 +240,7 @@ public class ScreenMyProfileFragment extends Fragment {
         saveProfileData.setVisibility(editViews);
         editProfileData.setVisibility(textViews);
 
-        gpsPanel.setVisibility(textViews);
+
         gpsRatePanel.setVisibility(textViews);
     }
 
@@ -332,6 +261,25 @@ public class ScreenMyProfileFragment extends Fragment {
         aboutMe.setText(user.getMyProfileFirebase().getAboutMe());
         motorcycle.setText(user.getMyProfileFirebase().getMotorcycle());
 
+        String gpsRate = preferencesRate.getString(currentUid, null);
+        if (gpsRate == null) {
+            gpsRate = LOCATION_REQUEST_FREQUENCY_DEFAULT;
+        }
+
+        switch (gpsRate) {
+            case LOCATION_REQUEST_FREQUENCY_LOW:
+
+                mapRate.setSelection(2);
+                break;
+            case LOCATION_REQUEST_FREQUENCY_DEFAULT:
+
+                mapRate.setSelection(1);
+                break;
+            case LOCATION_REQUEST_FREQUENCY_HIGH:
+
+                mapRate.setSelection(0);
+                break;
+        }
 
     }
 

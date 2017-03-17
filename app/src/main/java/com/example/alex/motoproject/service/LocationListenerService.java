@@ -63,7 +63,7 @@ public class LocationListenerService extends Service implements Runnable, Google
     private int updateTime = 10000;
 
     private GoogleApiClient mGoogleApiClient;
-    private Location myLocation=null;
+    private Location myLocation = null;
 
 
     public LocationListenerService() {
@@ -119,7 +119,7 @@ public class LocationListenerService extends Service implements Runnable, Google
         ((App) getApplication()).setLocationListenerServiceOn(true);
 
 
-        handler.postDelayed(this,100);
+        handler.postDelayed(this, 100);
 
         super.onCreate();
     }
@@ -135,21 +135,12 @@ public class LocationListenerService extends Service implements Runnable, Google
         unregisterReceiver(mNetworkStateReceiver);
         cleanupNotifications();
 
+
         ((App) getApplication()).setLocationListenerServiceOn(false);
         if (((App) getApplication()).isMainActivityDestroyed()) {
             mFirebaseDatabaseHelper.setUserOffline();
-        } else {
-            if (mFirebaseDatabaseHelper.getCurrentUser() != null) {
-                SharedPreferences preferences = getApplicationContext()
-                        .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
 
-                mFirebaseDatabaseHelper.
-                        setUserOnline(preferences.getString(
-                                mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
-            }
         }
-
-
         super.onDestroy();
 
     }
@@ -167,6 +158,7 @@ public class LocationListenerService extends Service implements Runnable, Google
                 intent.getExtras().getBoolean(SHOULD_STOP_SERVICE_EXTRA)) {
             stopSelf();
         }
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -200,9 +192,10 @@ public class LocationListenerService extends Service implements Runnable, Google
                         0,
                         stopSelfIntent,
                         PendingIntent.FLAG_CANCEL_CURRENT);
-        mBuilder.addAction(R.drawable.ic_clear_gray_24dp,
-                "Прибрати мене з мапи",
-                StopSelfPendingIntent);
+        //TODO : run sos from notification
+//        mBuilder.addAction(R.drawable.ic_clear_gray_24dp,
+//                "Прибрати мене з мапи",
+//                StopSelfPendingIntent);
 
         // send notification
         startForeground(mNotificationId, mBuilder.build());
@@ -234,15 +227,17 @@ public class LocationListenerService extends Service implements Runnable, Google
 
         handler.postDelayed(this, updateTime);
         startLocationUpdates();
-        if (myLocation!=null) {
+        if (myLocation != null) {
             mFirebaseDatabaseHelper.updateUserLocation(myLocation);
         }
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 stopLocationUpdates();
+
             }
         }, 2900);
+
         Log.i("time", "run: ");
 
 
@@ -250,10 +245,14 @@ public class LocationListenerService extends Service implements Runnable, Google
 
     private void startLocationUpdates() {
         //handle unexpected permission absence
-        if (checkLocationPermission()) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    mGoogleApiClient, createLocationRequest(), this);
+        if (mGoogleApiClient.isConnected()) {
+            if (checkLocationPermission()) {
+                LocationServices.FusedLocationApi.requestLocationUpdates(
+                        mGoogleApiClient, createLocationRequest(), this);
 
+            }
+        } else {
+            mGoogleApiClient.connect();
         }
     }
 
@@ -274,6 +273,7 @@ public class LocationListenerService extends Service implements Runnable, Google
     private void stopLocationUpdates() {
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+
         }
     }
 

@@ -1,13 +1,16 @@
 package com.example.alex.motoproject.mainActivity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -16,8 +19,11 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.alex.motoproject.App;
@@ -44,7 +50,10 @@ import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
+import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_FRIENDS;
+import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_NOGPS;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
+import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_SOS;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
 
 
@@ -62,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements
     private ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
     private ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
     private ChatFragment chatFragment = new ChatFragment();
-
+    private LinearLayout mGpsStatus;
     AlertControl alertControl = new AlertControl(this);
 
 
@@ -93,6 +102,11 @@ public class MainActivity extends AppCompatActivity implements
         }
     };
 
+    private Spinner mapVisibility;
+    private ImageView mapIndicator;
+    private App mApp;
+    private Button mNavigationStartRide;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements
 
         EventBus.getDefault().register(this);
         App.getCoreComponent().inject(this);
-
+        mApp = (App) getApplicationContext();
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
         loginController = new FirebaseLoginController(presenterImp);
@@ -156,6 +170,17 @@ public class MainActivity extends AppCompatActivity implements
                 mDrawerLayout.closeDrawers();
             }
         });
+        mGpsStatus = (LinearLayout) mNavigationView.findViewById(R.id.profile_gps_panel);
+        mNavigationStartRide = (Button) mNavigationView.findViewById(R.id.navigation_btn_ride);
+
+        mNavigationStartRide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                startRideService();
+
+            }
+        });
 
 
         //Button in Navigation Drawer for show the Map fragment
@@ -208,7 +233,78 @@ public class MainActivity extends AppCompatActivity implements
                 mDrawerLayout.closeDrawers();
             }
         });
+        mapVisibility = (Spinner) mNavigationView.findViewById(R.id.profile_set_gps_visibility);
+        mapIndicator = (ImageView) mNavigationView.findViewById(R.id.profile_show_on_map_indicator);
+        mapVisibility.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if (mFirebaseDatabaseHelper.getCurrentUser() != null) {
+                    SharedPreferences preferences = getApplicationContext()
+                            .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
+                    switch (i) {
+                        case 0:
 
+                            preferences.edit()
+                                    .putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),
+                                            PROFILE_GPS_MODE_PUBLIC).apply();
+                            mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_PUBLIC);
+                            mapIndicator.setImageResource(R.mipmap.ic_map_indicator_green);
+
+                            break;
+                        case 1:
+                            preferences.edit()
+                                    .putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),
+                                            PROFILE_GPS_MODE_FRIENDS).apply();
+                            mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_FRIENDS);
+                            mapIndicator.setImageResource(R.mipmap.ic_map_indicator_yellow);
+                            break;
+                        case 2:
+                            preferences.edit()
+                                    .putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),
+                                            PROFILE_GPS_MODE_SOS).apply();
+                            mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_SOS);
+                            mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
+                            break;
+                        case 3:
+                            preferences.edit()
+                                    .putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),
+                                            PROFILE_GPS_MODE_NOGPS).apply();
+                            mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_NOGPS);
+                            mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
+
+                            break;
+                    }
+
+                }
+            }
+
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+
+        });
+
+    }
+
+    private void startRideService() {
+        if (!mApp.isLocationListenerServiceOn()) {
+
+            alertControl.handleLocation();
+            mGpsStatus.setVisibility(View.VISIBLE);
+            mNavigationStartRide.setText("Приїхали");
+            screenMapFragment.setSosVisibility(View.VISIBLE);
+
+        } else if (checkLocationPermission()) {
+            screenMapFragment.getmMap().setMyLocationEnabled(false);
+            getApplication().stopService(
+                    new Intent(getApplicationContext(), LocationListenerService.class));
+            mGpsStatus.setVisibility(View.GONE);
+            screenMapFragment.setSosVisibility(View.GONE);
+            mNavigationStartRide.setText("Поїхали");
+
+        }
     }
 
 
@@ -237,6 +333,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onStart() {
+
         super.onStart();
         alertControl.registerNetworkStateReceiver(getApplicationContext());
         alertControl.registerEventBus();
@@ -245,6 +342,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+
 
     }
 
@@ -336,6 +434,7 @@ public class MainActivity extends AppCompatActivity implements
                 String.valueOf(user.getPhotoUrl()));
         mFirebaseDatabaseHelper.getCurrentUserModel();
 
+
         SharedPreferences sharedPreferences = getApplicationContext()
                 .getSharedPreferences(PROFSET, MODE_PRIVATE);
 
@@ -343,6 +442,31 @@ public class MainActivity extends AppCompatActivity implements
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), PROFILE_GPS_MODE_PUBLIC);
             editor.apply();
+        }
+
+
+        String gpsMode = sharedPreferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null);
+
+        if (gpsMode == null) {
+            gpsMode = PROFILE_GPS_MODE_PUBLIC;
+        }
+        switch (gpsMode) {
+            case PROFILE_GPS_MODE_NOGPS:
+                mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
+                mapVisibility.setSelection(3);
+                break;
+            case PROFILE_GPS_MODE_SOS:
+                mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
+                mapVisibility.setSelection(2);
+                break;
+            case PROFILE_GPS_MODE_FRIENDS:
+                mapIndicator.setImageResource(R.mipmap.ic_map_indicator_yellow);
+                mapVisibility.setSelection(1);
+                break;
+            case PROFILE_GPS_MODE_PUBLIC:
+                mapIndicator.setImageResource(R.mipmap.ic_map_indicator_green);
+                mapVisibility.setSelection(0);
+                break;
         }
 
         if (getSupportActionBar() != null) {
@@ -361,6 +485,19 @@ public class MainActivity extends AppCompatActivity implements
         mFirebaseDatabaseHelper.setUserOnline(preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
         fm.addOnBackStackChangedListener(this);
 
+        if (mApp.isLocationListenerServiceOn()) {
+
+            mGpsStatus.setVisibility(View.VISIBLE);
+            mNavigationStartRide.setText("Приїхали");
+            // screenMapFragment.setSosVisibility(View.VISIBLE);
+
+        } else if (checkLocationPermission()) {
+
+            mGpsStatus.setVisibility(View.GONE);
+//            screenMapFragment.setSosVisibility(View.GONE);
+            mNavigationStartRide.setText("Поїхали");
+
+        }
 
     }
 
@@ -415,5 +552,11 @@ public class MainActivity extends AppCompatActivity implements
             toggle.syncState();
 
         }
+    }
+
+    private boolean checkLocationPermission() {
+        return ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
     }
 }

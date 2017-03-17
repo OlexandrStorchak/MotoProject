@@ -12,13 +12,15 @@
         android:layout_height="match_parent" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/button_drive_toggle"
+        android:id="@+id/button_drive_sos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_motorcycle_white_24dp"
+        android:background="@mipmap/ic_sos"
+        android:visibility="gone"
         app:fabSize="normal"
         app:layout_anchorGravity="bottom|right|end" />
+
 
 </android.support.design.widget.CoordinatorLayout>
