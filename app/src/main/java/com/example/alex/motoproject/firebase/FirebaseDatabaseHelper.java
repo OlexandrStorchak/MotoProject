@@ -672,7 +672,7 @@ public class FirebaseDatabaseHelper {
                     message.setCurrentUserMsg(true);
                     return;
                 }
-
+//prepare to work with anything hard
                 mDbReference.child("users").child(uid)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override

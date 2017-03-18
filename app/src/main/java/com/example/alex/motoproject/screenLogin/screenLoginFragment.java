@@ -188,7 +188,7 @@ public class ScreenLoginFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.main_activity_frame,new ScreenSignUpFragment())
+                        .replace(R.id.main_activity_frame, new ScreenSignUpFragment())
                         .addToBackStack("signUp").commit();
             }
         });
@@ -358,7 +358,6 @@ public class ScreenLoginFragment extends Fragment {
                     }
                 });
     }
-
 
 
     @Override
