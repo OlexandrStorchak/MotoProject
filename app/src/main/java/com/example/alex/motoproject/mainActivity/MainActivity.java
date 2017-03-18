@@ -66,6 +66,9 @@ public class MainActivity extends AppCompatActivity implements
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
+
+
+    protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
    @Inject
     NetworkStateReceiver mNetworkStateReceiver;
     AlertControl alertControl = new AlertControl(this);
@@ -75,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements
     private ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
     private ChatFragment chatFragment = new ChatFragment();
     private LinearLayout mGpsStatus;
+
+
     private TextView mNameHeader;
     private TextView mEmailHeader;
     private ImageView mAvatarHeader;
