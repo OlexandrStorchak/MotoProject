@@ -1,7 +1,8 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
+import com.example.alex.motoproject.firebase.Constants;
+
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -33,7 +34,6 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
                 mModel.registerFriendsListener();
                 break;
             default:
-                getView().setupUsersList();
                 mModel.registerUsersListener();
                 break;
         }
@@ -54,11 +54,6 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     }
 
     @Override
-    public void onViewCreated() {
-//        getView().setUserList(mModel.getFriends());
-    }
-
-    @Override
     public void onQueryTextChange(String query) {
         getView().replaceAllUsers(mModel.filterUsers(query));
     }
@@ -74,7 +69,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
     @Override
     public void onUserFriendshipAccepted(String uid) {
-        mModel.changeUserRelation(uid, "friend");
+        mModel.changeUserRelation(uid, Constants.RELATION_FRIEND);
     }
 
     @Override
@@ -82,48 +77,28 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
         mModel.changeUserRelation(uid, null);
     }
 
-//    @Override
-//    public List<OnlineUser> onGetUsersList() {
-//        return mModel.getFriends();
-//    }
-
-//    @Override
-//    public void addUser(OnlineUser user) {
-//        getView().addUser(user);
-//    }
-//
-//    @Override
-//    public void updateUser(OnlineUser user) {
-//        getView().updateUser(user);
-//    }
-//
-//    @Override
-//    public void removeUser(OnlineUser user) {
-//        getView().removeUser(user);
-//    }
-
-//    @Override
-//    public void notifyItemInserted(int position) {
-//        getView().notifyItemInserted(position);
-//    }
-//
-//    @Override
-//    public void notifyItemChanged(int position) {
-//        getView().notifyItemChanged(position);
-//    }
-//
-//    @Override
-//    public void notifyItemRemoved(int position) {
-//        getView().notifyItemRemoved(position);
-//    }
-
     @Override
-    public void notifyDataSetChanged() {
-        getView().notifyDataSetChanged();
+    public void onUserListUpdate() {
+        getView().updateHeaders();
     }
 
     @Override
-    public void addNewSection(String relation, List<User> list) {
-        getView().addNewSection(relation, list);
+    public void onUserAdded(User user) {
+        getView().addUser(user);
+    }
+
+    @Override
+    public void onUserChanged(User user) {
+        getView().changeUser(user);
+    }
+
+    @Override
+    public void onUserRemoved(User user) {
+        getView().removeUser(user);
+    }
+
+    @Override
+    public void onAddNewSection(String relation) {
+        getView().addNewSection(relation);
     }
 }

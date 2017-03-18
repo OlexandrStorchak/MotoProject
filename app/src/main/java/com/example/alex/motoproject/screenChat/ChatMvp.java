@@ -60,6 +60,8 @@ public interface ChatMvp {
         int getDistanceLimit();
 
         void setupAll();
+
+        void showToast(int stringId);
     }
 
     interface PresenterToModel {
@@ -90,5 +92,7 @@ public interface ChatMvp {
         void enableSwipeLayout(boolean enable);
 
         void updateMessage(int position);
+
+        void onNoCurrentUserLocation();
     }
 }

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class FirebaseDatabaseHelper {
             "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
                     "o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
 
-    private static final int FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT = 31;
+    private static final int FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT = 31; //31
     private static final int SHOWN_MESSAGES_MIN_COUNT_LIMIT =
             FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT - 1;
     private int mMessagesCountLimit = 0;
@@ -55,19 +56,21 @@ public class FirebaseDatabaseHelper {
     private ChildEventListener mChatMessagesListener;
     private DatabaseReference mOnlineUsersRef;
 
-    private HashMap<String, String> mOnlineUserStatusHashMap = new HashMap<>();
-    private HashMap<String, LatLng> mUsersLocation;
+    private HashMap<String, LatLng> mUsersLocation = new HashMap<>();
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
+
+    private LinkedList<ChatMessage> mOlderMessages = new LinkedList<>();
 
     private String mFirstChatMsgKeyAfterFetch;
     private boolean isFirstChatMessageAfterFetch;
     private boolean isFirstNewChatMessageAfterFetch = true;
 
     private int mReceivedUsersCount;
-    private int mOlderMessagesCount;
 
     private LatLng mCurrentUserLocation;
     private int mCloseDistance = 0;
+
+    private boolean isOlderMessagesFirstIteration = true;
 
     public FirebaseDatabaseHelper() {
 
@@ -193,7 +196,6 @@ public class FirebaseDatabaseHelper {
     }
 
     public void fetchUsersLocations() {
-        mUsersLocation = new HashMap<>();
         DatabaseReference ref = mDbReference.child("location");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -237,14 +239,16 @@ public class FirebaseDatabaseHelper {
                     return;
                 }
 
+                final String uid = dataSnapshot.getKey();
+                final LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
+
+                mUsersLocation.put(uid, latLng);
+
                 if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
-                    mCurrentUserLocation = new LatLng(lat.doubleValue(), lng.doubleValue());
+//                    mCurrentUserLocation = new LatLng(lat.doubleValue(), lng.doubleValue());
                     return;
                 }
 
-
-                final String uid = dataSnapshot.getKey();
-                final LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
                 DatabaseReference nameRef = mDbReference.child("users").child(uid).child("name");
                 nameRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -303,6 +307,7 @@ public class FirebaseDatabaseHelper {
             }
         });
     }
+    // TODO: 18.03.2017 method that returns true if a user is in current user friend list
 
     /**
      * Users
@@ -310,41 +315,16 @@ public class FirebaseDatabaseHelper {
     public void changeUserRelation(String uid, String relation) {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("friendList").child(uid);
+        ref.removeValue();
+        ref.setValue(relation);
+
+        ref = mDbReference.child("users").child(uid)
+                .child("friendList").child(getCurrentUser().getUid());
+        ref.removeValue();
         ref.setValue(relation);
     }
 
-    // TODO: 10.03.2017 use automatic saving but listener
-    public void registerOnlineUsersGlobalListener() {
-        DatabaseReference ref = mDbReference.child("onlineUsers");
-        ref.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                mOnlineUserStatusHashMap.put(dataSnapshot.getKey(), (String) dataSnapshot.getValue());
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                mOnlineUserStatusHashMap.put(dataSnapshot.getKey(), (String) dataSnapshot.getValue());
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                mOnlineUserStatusHashMap.remove(dataSnapshot.getKey());
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    public void getFriends(final UsersUpdateReceiver receiver) {
+    public void getFriendsAndRegisterListener(final UsersUpdateReceiver receiver) {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("friendList");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -356,7 +336,7 @@ public class FirebaseDatabaseHelper {
                 for (DataSnapshot entry : dataSnapshot.getChildren()) {
                     final String uid = entry.getKey();
                     final String relation = (String) entry.getValue();
-                    final String userStatus = mOnlineUserStatusHashMap.get(uid);
+                    final String userStatus = null;
                     DatabaseReference ref = mDbReference.child("users").child(uid);
                     ref.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -377,6 +357,7 @@ public class FirebaseDatabaseHelper {
                         }
                     });
                 }
+                registerFriendsListener(receiver);
             }
 
             @Override
@@ -386,7 +367,7 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-    public void registerFriendsListener(final UsersUpdateReceiver receiver) {
+    private void registerFriendsListener(final UsersUpdateReceiver receiver) {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("friendList");
         mFriendsListener = new ChildEventListener() {
@@ -427,7 +408,12 @@ public class FirebaseDatabaseHelper {
     private void onFriendAdded(DataSnapshot dataSnapshot, final UsersUpdateReceiver receiver) {
         final String uid = dataSnapshot.getKey();
         final String relation = (String) dataSnapshot.getValue();
-        final String userStatus = mOnlineUserStatusHashMap.get(uid);
+
+        if (receiver.hasUser(uid, relation)) {
+            return;
+        }
+
+        final String userStatus = null;
         DatabaseReference ref = mDbReference.child("users").child(uid);
         ValueEventListener userDataListener = new ValueEventListener() {
             @Override
@@ -449,7 +435,7 @@ public class FirebaseDatabaseHelper {
     private void onFriendChanged(DataSnapshot dataSnapshot, final UsersUpdateReceiver receiver) {
         final String uid = dataSnapshot.getKey();
         final String relation = (String) dataSnapshot.getValue();
-        final String userStatus = mOnlineUserStatusHashMap.get(uid);
+        final String userStatus = null;
         DatabaseReference ref = mDbReference.child("users").child(uid);
         ValueEventListener userDataListener = new ValueEventListener() {
             @Override
@@ -471,10 +457,11 @@ public class FirebaseDatabaseHelper {
     private void onFriendRemoved(DataSnapshot dataSnapshot,
                                  final UsersUpdateReceiver receiver) {
         String uid = dataSnapshot.getKey();
-        receiver.onUserDeleted(new User(uid));
+        String relation = (String) dataSnapshot.getValue();
+        receiver.onUserDeleted(new User(uid, relation));
     }
 
-    public void registerOnlineUsersListener(final UsersUpdateReceiver receiver) {
+    private void registerOnlineUsersListener(final UsersUpdateReceiver receiver) {
         // Read from the mDatabase
         DatabaseReference myRef = mDbReference.child("onlineUsers");
         mOnlineUsersDataListener = new ChildEventListener() {
@@ -513,7 +500,7 @@ public class FirebaseDatabaseHelper {
         }
     }
 
-    public void getOnlineUsers(final UsersUpdateReceiver receiver) {
+    public void getOnlineUsersAndRegisterListener(final UsersUpdateReceiver receiver) {
         DatabaseReference ref = mDbReference.child("onlineUsers");
 
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -537,10 +524,10 @@ public class FirebaseDatabaseHelper {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             String name = (String) dataSnapshot.child("name").getValue();
                             String avatar = (String) dataSnapshot.child("avatar").getValue();
-                            User user = new User(uid, name, avatar, userStatus, null);
+                            User user = new User(uid, name, avatar, userStatus, Constants.RELATION_UNKNOWN);
                             onlineUsers.add(user);
                             mReceivedUsersCount++;
-                            // TODO: 10.03.2017 why does it work only with + 1?
+                            //+1 is for not added to list current user
                             if (mReceivedUsersCount + 1 == childrenCount) {
                                 receiver.onUsersAdded(onlineUsers);
                             }
@@ -552,6 +539,7 @@ public class FirebaseDatabaseHelper {
                         }
                     });
                 }
+                registerOnlineUsersListener(receiver);
             }
 
             @Override
@@ -566,15 +554,22 @@ public class FirebaseDatabaseHelper {
         if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
             return;
         }
+
         final String uid = dataSnapshot.getKey();
         final String userStatus = (String) dataSnapshot.getValue();
+        final String relation = Constants.RELATION_UNKNOWN;
+
+        if (receiver.hasUser(uid, relation)) {
+            return;
+        }
+
         DatabaseReference ref = mDbReference.child("users").child(uid);
         ValueEventListener userDataListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
-                User user = new User(uid, name, avatar, userStatus, null);
+                User user = new User(uid, name, avatar, userStatus, relation);
                 receiver.onUserAdded(user);
             }
 
@@ -599,7 +594,7 @@ public class FirebaseDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
-                User user = new User(uid, name, avatar, userStatus, null);
+                User user = new User(uid, name, avatar, userStatus, "unknown");
                 receiver.onUserChanged(user);
             }
 
@@ -614,7 +609,7 @@ public class FirebaseDatabaseHelper {
     private void onOnlineUserRemoved(DataSnapshot dataSnapshot,
                                      final UsersUpdateReceiver receiver) {
         String uid = dataSnapshot.getKey();
-        receiver.onUserDeleted(new User(uid));
+        receiver.onUserDeleted(new User(uid, Constants.RELATION_UNKNOWN));
     }
 
     /**
@@ -622,10 +617,16 @@ public class FirebaseDatabaseHelper {
      */
 
     public void setCloseDistance(int closeDistance) {
-        mCloseDistance = closeDistance;
+        mCloseDistance = closeDistance * 1000; //kilometers to meters
     }
 
-    public void registerChatMessagesListener(ChatUpdateReceiver receiver) {
+    public void registerChatMessagesListener(final ChatUpdateReceiver receiver) {
+        mCurrentUserLocation = mUsersLocation.get(getCurrentUser().getUid());
+
+        if (mCloseDistance > 0 && mCurrentUserLocation == null) {
+            mCloseDistance = 0;
+            receiver.onNoCurrentUserLocation();
+        }
         mChatModel = receiver;
         mChatMessagesListener = new ChildEventListener() {
             @Override
@@ -638,22 +639,19 @@ public class FirebaseDatabaseHelper {
 
                 mMessagesCountLimit++;
 
+                if (isFirstNewChatMessageAfterFetch) {
+                    mFirstChatMsgKeyAfterFetch = dataSnapshot.getKey();
+                    isFirstNewChatMessageAfterFetch = false;
+                    return;
+                }
+
                 if (mCloseDistance > 0) {
-                    if (mCurrentUserLocation == null) {
-                        mCurrentUserLocation = mUsersLocation.get(getCurrentUser().getUid());
-                    }
 
                     if (!DistanceUtil.isClose(mCurrentUserLocation,
                             mUsersLocation.get(uid),
                             mCloseDistance)) {
                         return;
                     }
-                }
-
-                if (isFirstNewChatMessageAfterFetch) {
-                    mFirstChatMsgKeyAfterFetch = dataSnapshot.getKey();
-                    isFirstNewChatMessageAfterFetch = false;
-                    return;
                 }
 
                 final ChatMessage message = new ChatMessage(uid, convertUnixTimeToDate(sendTime));
@@ -717,14 +715,13 @@ public class FirebaseDatabaseHelper {
 
     //Called every time users scrolls to the end of the list and swipes up, if there are more messages
     public void fetchOlderChatMessages(final ChatUpdateReceiver receiver) {
-        // TODO: 11.03.2017 call this method till there are less that 30 fetched messages if filtering
         isFirstChatMessageAfterFetch = true;
         mDbReference.child("chat").orderByKey().endAt(mFirstChatMsgKeyAfterFetch)
                 .limitToLast(mMessagesCountLimit)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot parentSnapshot) {
-                        List<ChatMessage> olderMessages = new ArrayList<>();
+                        LinkedList<ChatMessage> olderMessages = new LinkedList<>();
                         for (DataSnapshot dataSnapshot : parentSnapshot.getChildren()) {
                             String uid = (String) dataSnapshot.child("uid").getValue();
 
@@ -736,9 +733,11 @@ public class FirebaseDatabaseHelper {
                                 continue;
                             }
 
+                            //Distance filter is on
                             if (mCloseDistance > 0) {
                                 if (mCurrentUserLocation == null) {
-                                    mCurrentUserLocation = mUsersLocation.get(getCurrentUser().getUid());
+//                                    mCurrentUserLocation = mUsersLocation.get(getCurrentUser().getUid());
+                                    return;
                                 }
 
                                 if (!DistanceUtil.isClose(mCurrentUserLocation,
@@ -767,8 +766,11 @@ public class FirebaseDatabaseHelper {
                                 message.setCurrentUserMsg(true);
                             }
 
-                            mOlderMessagesCount++;
-                            olderMessages.add(message);
+                            if (isOlderMessagesFirstIteration) {
+                                mOlderMessages.add(message);
+                            } else {
+                                olderMessages.addFirst(message);
+                            }
 
                             mDbReference.child("users").child(uid)
                                     .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -789,16 +791,23 @@ public class FirebaseDatabaseHelper {
 
                         }
 
-                        if (parentSnapshot.getChildrenCount() < mMessagesCountLimit) {
-                            receiver.onLastMessage();
+                        for (ChatMessage message : olderMessages) {
+                            mOlderMessages.addFirst(message);
                         }
 
-                        if (mOlderMessagesCount < SHOWN_MESSAGES_MIN_COUNT_LIMIT) {
-                            fetchOlderChatMessages(receiver);
+                        if (parentSnapshot.getChildrenCount() < mMessagesCountLimit) {
+                            receiver.onLastMessage();
+                            onOlderChatMessagesReady(receiver);
                             return;
                         }
 
-                        onOlderChatMessagesReady(olderMessages, receiver);
+                        if (mOlderMessages.size() < SHOWN_MESSAGES_MIN_COUNT_LIMIT) {
+                            fetchOlderChatMessages(receiver);
+                            isOlderMessagesFirstIteration = false;
+                            return;
+                        }
+
+                        onOlderChatMessagesReady(receiver);
                     }
 
                     @Override
@@ -808,12 +817,11 @@ public class FirebaseDatabaseHelper {
                 });
     }
 
-    private void onOlderChatMessagesReady(List<ChatMessage> olderMessages,
-                                          ChatUpdateReceiver chatModel) {
-        //// TODO: 13.03.2017 add list from secont iteration to the start of this
-        Collections.reverse(olderMessages);
-        chatModel.onOlderChatMessages(olderMessages, olderMessages.size());
-        olderMessages.clear();
+    private void onOlderChatMessagesReady(ChatUpdateReceiver chatModel) {
+        Collections.reverse(mOlderMessages);
+        chatModel.onOlderChatMessages(mOlderMessages, mOlderMessages.size());
+        mOlderMessages.clear();
+        isOlderMessagesFirstIteration = true;
     }
 
     private String convertUnixTimeToDate(long unixTime) {
@@ -828,7 +836,6 @@ public class FirebaseDatabaseHelper {
             myRef.removeEventListener(mChatMessagesListener);
             isFirstNewChatMessageAfterFetch = true;
             mMessagesCountLimit = 0;
-            mOlderMessagesCount = 0;
         }
     }
 
@@ -981,6 +988,8 @@ public class FirebaseDatabaseHelper {
         void onUserDeleted(User user);
 
         void onUsersAdded(List<User> users);
+
+        boolean hasUser(String uid, String relation);
     }
 
     public interface ChatUpdateReceiver {
@@ -991,12 +1000,12 @@ public class FirebaseDatabaseHelper {
         void onChatMessageNewData(ChatMessage message);
 
         void onLastMessage();
+
+        void onNoCurrentUserLocation();
     }
 
     public interface UsersLocationReceiver {
         void onCurrentUserLocationReady(LatLng latLng);
-
-        void onUsersLocationsReady();
     }
 
 

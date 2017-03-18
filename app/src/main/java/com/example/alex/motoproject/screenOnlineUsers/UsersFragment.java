@@ -7,10 +7,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,6 +26,7 @@ import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
+import com.example.alex.motoproject.firebase.Constants;
 import com.example.alex.motoproject.util.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -42,10 +43,15 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapt
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
 public class UsersFragment extends Fragment implements UsersMvp.PresenterToView {
-    public SectionedRecyclerViewAdapter mAdapter = new SectionedRecyclerViewAdapter();
-    // TODO: 02.03.2017 inject interface, not presenter itself
+    private static final String LIST_TYPE_KEY = "listType";
+    public SectionedRecyclerViewAdapter mAdapter = new SectionedRecyclerViewAdapter() {
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+    };
     @Inject
-    UsersPresenter mPresenter;
+    UsersMvp.ViewToPresenter mPresenter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SearchView mSearchView;
 
@@ -75,18 +81,20 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     @Override
     public void notifyDataSetChanged() {
         mAdapter.notifyDataSetChanged();
+    }
 
+    public void updateHeaders() {
         //Add or remove header
         for (Section section : mAdapter.getSectionsMap().values()) {
-            if (section.hasHeader()) {
-                if (section.getContentItemsTotal() < 1) {
-                    section.setHasHeader(false); //remove header if it has no children
-                }
-            } else if (section.getContentItemsTotal() >= 1) {
-                UsersSection usersSection = (UsersSection) section;
-                if (usersSection.getTitle() != null) { //add header if it has one or more children
-                    section.setHasHeader(true); //and if there is something to show in this header
-                }
+            UsersSection usersSection = (UsersSection) section;
+
+            //remove header if it has no children
+            if (section.hasHeader() && section.getContentItemsTotal() < 1) {
+                section.setHasHeader(false);
+
+                //add header if it has one or more children and title`s not null
+            } else if (section.getContentItemsTotal() >= 1 && usersSection.getTitle() != null) {
+                section.setHasHeader(true);
             }
         }
     }
@@ -104,6 +112,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         final MenuItem searchItem = menu.findItem(R.id.search_users);
         mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -126,6 +135,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                 .presenterModule(new PresenterModule(this))
                 .build()
                 .inject(this);
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_users_online, container, false);
     }
@@ -137,27 +147,26 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.container_users_swipe);
         setupSwipeRefreshLayout();
 
-        mPresenter.onViewCreated();
-
         if (!mAdapter.hasStableIds()) {
             mAdapter.setHasStableIds(true);
         }
 
         RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rv.getContext(),
-//                layoutManager.getOrientation());
-//        rv.addItemDecoration(dividerItemDecoration);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext()) {
+            @Override
+            public boolean supportsPredictiveItemAnimations() {
+                return true;
+            }
+        };
+
         rv.setLayoutManager(layoutManager);
         rv.setAdapter(mAdapter);
-//        mAdapter.addPendingFriendSection();
-//        rv.setItemAnimator(null);
     }
 
     @Override
     public int getListType() {
         if (getArguments() != null) {
-            return getArguments().getInt("listType", 0);
+            return getArguments().getInt(LIST_TYPE_KEY);
         } else {
             return 0;
         }
@@ -174,8 +183,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         int iteration = 0;
         for (List<User> list : users.values()) {
             UsersSection section = (UsersSection) mAdapter.getSection(mapKeys.get(iteration));
-            section.setUsers(list);
-            notifyDataSetChanged();
+            section.removeAllUsers();
+            section.addUsers(list);
             iteration++;
         }
     }
@@ -185,21 +194,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         super.onDestroyView();
         mAdapter.removeAllSections();
         mPresenter = null;
-    }
-
-    @Override
-    public void notifyItemInserted(int position) {
-        mAdapter.notifyItemInserted(position);
-    }
-
-    @Override
-    public void notifyItemChanged(int position) {
-        mAdapter.notifyItemChanged(position);
-    }
-
-    @Override
-    public void notifyItemRemoved(int position) {
-        mAdapter.notifyItemRemoved(position);
     }
 
     @Override
@@ -223,47 +217,54 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void setupFriendsList() {
-        //Makes pending friends section always show on top if it has any child
+        //Make pending friends section always show on top
         Resources res = getContext().getResources();
         String title = res.getString(R.string.title_pending_friends);
-        PendingFriendSection pfs = new PendingFriendSection(title, new ArrayList<User>());
-        mAdapter.addSection("pending", pfs);
+        PendingFriendSection pfs = new PendingFriendSection(title);
+        mAdapter.addSection(Constants.RELATION_PENDING, pfs);
     }
 
     @Override
-    public void setupUsersList() {
-
+    public void addUser(User user) {
+        UsersSection section = (UsersSection) mAdapter.getSection(user.getRelation());
+        section.addUser(user);
     }
 
     @Override
-    public void addNewSection(String relation, List<User> list) {
-        if (relation == null) {
-            Section section = new UsersSection(null, list);
-//            section.setHasHeader(false);
-            mAdapter.addSection(null, section);
-        } else {
-            Resources res = getContext().getResources();
-            String title;
-            switch (relation) {
-                case "pending":
-//                    title = res.getString(R.string.title_pending_friends);
-//                    mAdapter.addSection(relation, new PendingFriendSection(title, list));
-                    PendingFriendSection pfs = (PendingFriendSection) mAdapter.getSection(relation);
-                    pfs.setUsers(list);
-                    break;
-                default:
-                    title = res.getString(R.string.title_friends);
-                    mAdapter.addSection(relation, new UsersSection(title, list));
-                    break;
-            }
+    public void changeUser(User user) {
+        UsersSection section = (UsersSection) mAdapter.getSection(user.getRelation());
+        section.updateUser(user);
+    }
 
+    @Override
+    public void removeUser(User user) {
+        UsersSection section = (UsersSection) mAdapter.getSection(user.getRelation());
+        section.removeUser(user);
+    }
+
+    @Override
+    public void addNewSection(String relation) {
+        Resources res = getContext().getResources();
+        String title;
+        switch (relation) {
+            case Constants.RELATION_PENDING:
+                //Pending friends section was added earlier to appear on top
+                break;
+            case Constants.RELATION_FRIEND:
+                title = res.getString(R.string.title_friends);
+                mAdapter.addSection(relation, new UsersSection(title));
+                break;
+            default:
+                Section section = new UsersSection(null);
+                mAdapter.addSection(relation, section);
+                break;
         }
     }
 
     private class PendingFriendSection extends UsersSection {
 
-        private PendingFriendSection(String title, List<User> users) {
-            super(title, users, R.layout.item_users_header, R.layout.item_friends_friend_pending);
+        private PendingFriendSection(String title) {
+            super(title, R.layout.item_users_header, R.layout.item_friends_friend_pending);
         }
 
         @Override
@@ -274,30 +275,81 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     class UsersSection extends StatelessSection {
         private String mTitle;
-        private List<User> mUsers;
+        private SortedList<User> mUsers = new SortedList<>(User.class,
+                new SortedList.Callback<User>() {
+                    @Override
+                    public int compare(User o1, User o2) {
+                        return o1.getName().compareTo(o2.getName());
+                    }
 
-        private UsersSection(String title, List<User> users) {
+                    @Override
+                    public void onChanged(int position, int count) {
+                        mAdapter.notifyItemRangeChanged(mAdapter.getSectionPosition(position), count);
+                    }
+
+                    @Override
+                    public boolean areContentsTheSame(User oldItem, User newItem) {
+                        return oldItem.equals(newItem);
+                    }
+
+                    @Override
+                    public boolean areItemsTheSame(User item1, User item2) {
+                        return item1.getUid().equals(item2.getUid());
+                    }
+
+                    @Override
+                    public void onInserted(int position, int count) {
+                        mAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onRemoved(int position, int count) {
+                        mAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onMoved(int fromPosition, int toPosition) {
+                        mAdapter.notifyItemMoved(mAdapter.getSectionPosition(fromPosition),
+                                mAdapter.getSectionPosition(toPosition));
+                    }
+                });
+
+        private UsersSection(String title) {
             super(R.layout.item_users_header, R.layout.item_user);
             setHasHeader(false);
             mTitle = title;
-            mUsers = users;
         }
 
-        private UsersSection(String title, List<User> users,
-                             int headerLayout, int itemLayout) {
+        private UsersSection(String title, int headerLayout, int itemLayout) {
             super(headerLayout, itemLayout);
             setHasHeader(false);
             mTitle = title;
-            mUsers = users;
         }
 
-        void setUsers(List<User> users) {
-            mUsers = users;
-            if (mUsers == null) {
-                setVisible(false);
-            } else {
-                setVisible(true);
-            }
+        private void addUser(User user) {
+            mUsers.add(user);
+            mPresenter.onUserListUpdate();
+        }
+
+        private void addUsers(List<User> users) {
+            mUsers.beginBatchedUpdates();
+            mUsers.addAll(users);
+            mUsers.endBatchedUpdates();
+            mAdapter.notifyDataSetChanged();
+            mPresenter.onUserListUpdate();
+        }
+
+        private void updateUser(User user) {
+            mUsers.add(user);
+        }
+
+        private void removeUser(User user) {
+            mUsers.remove(user);
+            mPresenter.onUserListUpdate();
+        }
+
+        private void removeAllUsers() {
+            mUsers.clear();
         }
 
         private String getTitle() {
@@ -316,7 +368,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         @Override
         public RecyclerView.ViewHolder getHeaderViewHolder(View view) {
-            if (mUsers.isEmpty()) {
+            if (mUsers.size() <= 0) {
                 return new SectionedRecyclerViewAdapter.EmptyViewHolder(view);
             } else {
                 return new HeaderViewHolder(view);
@@ -328,6 +380,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             if (holder instanceof SectionedRecyclerViewAdapter.EmptyViewHolder) {
                 return;
             }
+
             HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
             headerViewHolder.title.setText(mTitle);
         }
@@ -337,9 +390,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             UserViewHolder userViewHolder = (UserViewHolder) holder;
             User user = mUsers.get(position);
 
-            Log.e("OnBindPos", String.valueOf(position) + " "
-                    + String.valueOf(mAdapter.getSectionPosition(position)));
-
             userViewHolder.name.setText(user.getName());
             Picasso.with(userViewHolder.avatar.getContext())
                     .load(user.getAvatar())
@@ -348,7 +398,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                     .centerCrop()
                     .transform(new CircleTransform())
                     .into(userViewHolder.avatar);
-            if (user.getStatus() != null && user.getStatus().equals("public")) {
+            if (user.getStatus() != null && user.getStatus().equals(Constants.STATUS_PUBLIC)) {
                 userViewHolder.mapCur.setVisibility(View.VISIBLE);
             } else {
                 userViewHolder.mapCur.setVisibility(View.GONE);
@@ -372,7 +422,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Log.e("OnClickPos", String.valueOf(getAdapterPosition()));
                         EventBus.getDefault().post(new ShowUserProfileEvent(
                                 mUsers.get(mAdapter.getSectionPosition(getAdapterPosition())).getUid()
                         ));
@@ -387,10 +436,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                     }
 
                 });
-            }
-
-            private String getTitle() {
-                return mTitle;
             }
         }
 

@@ -110,8 +110,6 @@ public class MainActivity extends AppCompatActivity implements
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        mFirebaseDatabaseHelper.registerOnlineUsersGlobalListener();
-
         //Define view of Navigation Drawer
         NavigationView mNavigationView = (NavigationView) findViewById(R.id.nav_view);
 

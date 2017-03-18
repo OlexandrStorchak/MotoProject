@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.alex.motoproject.DaggerPresenterComponent;
 import com.example.alex.motoproject.PresenterModule;
@@ -40,7 +41,7 @@ import javax.inject.Inject;
 public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     private static final int MESSAGE_MAX_CHARS = 200;
     @Inject
-    ChatPresenter mPresenter;
+    ChatMvp.ViewToPresenter mPresenter;
     private RecyclerView mRecyclerView;
     private EditText mEditText;
     private ImageButton mSendButton;
@@ -112,6 +113,11 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         setupTextFilter();
         setupRecyclerView();
         setupSwipeRefreshLayout();
+    }
+
+    @Override
+    public void showToast(int stringId) {
+        Toast.makeText(getContext(), getContext().getString(stringId), Toast.LENGTH_LONG).show();
     }
 
     private void setupSwipeRefreshLayout() {
@@ -293,9 +299,4 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         mShareLocationButton.setColorFilter(ResourcesCompat
                 .getColor(getResources(), R.color.blue900, null));
     }
-
-//    @Override
-//    public void onClickPositiveButton(int limit) {
-//        mPresenter.onClickPositiveButtonDialogFragment(limit);
-//    }
 }
