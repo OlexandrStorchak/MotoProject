@@ -425,7 +425,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void login(FirebaseUser user) {
-        // TODO: 11.02.2017 let users choose avatars
 
         mFirebaseDatabaseHelper.addUserToFirebase(
                 user.getUid(),
