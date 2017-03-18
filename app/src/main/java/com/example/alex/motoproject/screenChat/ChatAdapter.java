@@ -20,6 +20,7 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<ChatMessage> mMessages;
     private Context mContext;
 
+
     ChatAdapter(List<ChatMessage> messages) {
         mMessages = messages;
     }
