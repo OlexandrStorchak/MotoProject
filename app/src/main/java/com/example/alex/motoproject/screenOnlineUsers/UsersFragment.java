@@ -26,6 +26,7 @@ import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
+import com.example.alex.motoproject.firebase.Constants;
 import com.example.alex.motoproject.util.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -220,7 +221,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         Resources res = getContext().getResources();
         String title = res.getString(R.string.title_pending_friends);
         PendingFriendSection pfs = new PendingFriendSection(title);
-        mAdapter.addSection(getContext().getString(R.string.tag_pending_friends), pfs);
+        mAdapter.addSection(Constants.RELATION_PENDING, pfs);
     }
 
     @Override
@@ -246,7 +247,10 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         Resources res = getContext().getResources();
         String title;
         switch (relation) {
-            case "friend":
+            case Constants.RELATION_PENDING:
+                //Pending friends section was added earlier to appear on top
+                break;
+            case Constants.RELATION_FRIEND:
                 title = res.getString(R.string.title_friends);
                 mAdapter.addSection(relation, new UsersSection(title));
                 break;
@@ -394,7 +398,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                     .centerCrop()
                     .transform(new CircleTransform())
                     .into(userViewHolder.avatar);
-            if (user.getStatus() != null && user.getStatus().equals("public")) {
+            if (user.getStatus() != null && user.getStatus().equals(Constants.STATUS_PUBLIC)) {
                 userViewHolder.mapCur.setVisibility(View.VISIBLE);
             } else {
                 userViewHolder.mapCur.setVisibility(View.GONE);

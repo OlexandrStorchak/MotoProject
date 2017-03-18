@@ -56,7 +56,6 @@ public class FirebaseDatabaseHelper {
     private ChildEventListener mChatMessagesListener;
     private DatabaseReference mOnlineUsersRef;
 
-    private HashMap<String, String> mOnlineUserStatusHashMap = new HashMap<>();
     private HashMap<String, LatLng> mUsersLocation = new HashMap<>();
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
 
@@ -308,6 +307,7 @@ public class FirebaseDatabaseHelper {
             }
         });
     }
+    // TODO: 18.03.2017 method that returns true if a user is in current user friend list
 
     /**
      * Users
@@ -324,37 +324,6 @@ public class FirebaseDatabaseHelper {
         ref.setValue(relation);
     }
 
-    // TODO: 10.03.2017 use automatic saving but listener
-    public void registerOnlineUsersGlobalListener() {
-        DatabaseReference ref = mDbReference.child("onlineUsers");
-        ref.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                mOnlineUserStatusHashMap.put(dataSnapshot.getKey(), (String) dataSnapshot.getValue());
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                mOnlineUserStatusHashMap.put(dataSnapshot.getKey(), (String) dataSnapshot.getValue());
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                mOnlineUserStatusHashMap.remove(dataSnapshot.getKey());
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
     public void getFriendsAndRegisterListener(final UsersUpdateReceiver receiver) {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("friendList");
@@ -367,7 +336,6 @@ public class FirebaseDatabaseHelper {
                 for (DataSnapshot entry : dataSnapshot.getChildren()) {
                     final String uid = entry.getKey();
                     final String relation = (String) entry.getValue();
-//                    final String userStatus = mOnlineUserStatusHashMap.get(uid);
                     final String userStatus = null;
                     DatabaseReference ref = mDbReference.child("users").child(uid);
                     ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -467,7 +435,6 @@ public class FirebaseDatabaseHelper {
     private void onFriendChanged(DataSnapshot dataSnapshot, final UsersUpdateReceiver receiver) {
         final String uid = dataSnapshot.getKey();
         final String relation = (String) dataSnapshot.getValue();
-//        final String userStatus = mOnlineUserStatusHashMap.get(uid);
         final String userStatus = null;
         DatabaseReference ref = mDbReference.child("users").child(uid);
         ValueEventListener userDataListener = new ValueEventListener() {
@@ -557,10 +524,10 @@ public class FirebaseDatabaseHelper {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             String name = (String) dataSnapshot.child("name").getValue();
                             String avatar = (String) dataSnapshot.child("avatar").getValue();
-                            User user = new User(uid, name, avatar, userStatus, "unknown");
+                            User user = new User(uid, name, avatar, userStatus, Constants.RELATION_UNKNOWN);
                             onlineUsers.add(user);
                             mReceivedUsersCount++;
-                            // TODO: 10.03.2017 why does it work only with + 1?
+                            //+1 is for not added to list current user
                             if (mReceivedUsersCount + 1 == childrenCount) {
                                 receiver.onUsersAdded(onlineUsers);
                             }
@@ -590,7 +557,7 @@ public class FirebaseDatabaseHelper {
 
         final String uid = dataSnapshot.getKey();
         final String userStatus = (String) dataSnapshot.getValue();
-        final String relation = "unknown";
+        final String relation = Constants.RELATION_UNKNOWN;
 
         if (receiver.hasUser(uid, relation)) {
             return;
@@ -602,7 +569,7 @@ public class FirebaseDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child("name").getValue();
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
-                User user = new User(uid, name, avatar, userStatus, "unknown");
+                User user = new User(uid, name, avatar, userStatus, relation);
                 receiver.onUserAdded(user);
             }
 
@@ -642,7 +609,7 @@ public class FirebaseDatabaseHelper {
     private void onOnlineUserRemoved(DataSnapshot dataSnapshot,
                                      final UsersUpdateReceiver receiver) {
         String uid = dataSnapshot.getKey();
-        receiver.onUserDeleted(new User(uid, "unknown"));
+        receiver.onUserDeleted(new User(uid, Constants.RELATION_UNKNOWN));
     }
 
     /**

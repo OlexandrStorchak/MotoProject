@@ -1,5 +1,7 @@
 package com.example.alex.motoproject.screenOnlineUsers;
 
+import com.example.alex.motoproject.firebase.Constants;
+
 import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
@@ -67,7 +69,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
     @Override
     public void onUserFriendshipAccepted(String uid) {
-        mModel.changeUserRelation(uid, "friend");
+        mModel.changeUserRelation(uid, Constants.RELATION_FRIEND);
     }
 
     @Override
