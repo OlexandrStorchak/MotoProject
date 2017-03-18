@@ -2,7 +2,6 @@ package com.example.alex.motoproject.mainActivity;
 
 
 import android.Manifest;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -22,7 +21,6 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.event.CancelAlertEvent;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
-import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
 import com.example.alex.motoproject.event.ShowAlertEvent;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
@@ -55,6 +53,10 @@ public class AlertControl implements ScreenMapFragment.MapFragmentListener,
     public AlertControl(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
 
+    }
+
+    void plusNetworkStateReceiver() {
+        ((App) mainActivity.getApplicationContext()).plusNetworkStateReceiverComponent();
     }
 
     void registerEventBus() {
@@ -262,14 +264,13 @@ public class AlertControl implements ScreenMapFragment.MapFragmentListener,
 
     }
 
-    void registerNetworkStateReceiver(Context appContext) {
+    void registerNetworkStateReceiver() {
         //if LocationListenerService is on, this receiver has already been registered
         if (!isServiceOn()) {
             IntentFilter intentFilter = new IntentFilter(
                     ConnectivityManager.CONNECTIVITY_ACTION);
             intentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
 
-            ((App) appContext).plusNetworkStateReceiverComponent();
             mainActivity.registerReceiver(
                     mNetworkStateReceiver, intentFilter);
         }
@@ -287,11 +288,6 @@ public class AlertControl implements ScreenMapFragment.MapFragmentListener,
 
     boolean isServiceOn() {
         return ((App) mainActivity.getApplication()).isLocationListenerServiceOn();
-    }
-
-    @Subscribe
-    public void onOpenMapWithLatLngEvent(OpenMapEvent event) {
-        // TODO: 25.02.2017 handle this event
     }
 
     @Subscribe

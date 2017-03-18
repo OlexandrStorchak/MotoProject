@@ -13,7 +13,7 @@ import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 
-abstract class BaseChatItemHolder extends RecyclerView.ViewHolder {
+class BaseChatItemHolder extends RecyclerView.ViewHolder {
 
     private ImageView mUserAvatarView;
     private TextView mNameView;

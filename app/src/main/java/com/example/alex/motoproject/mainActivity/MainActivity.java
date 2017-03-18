@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
@@ -36,7 +38,7 @@ import com.example.alex.motoproject.firebase.FirebaseLoginController;
 import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
-import com.example.alex.motoproject.screenOnlineUsers.ScreenOnlineUsersFragment;
+import com.example.alex.motoproject.screenOnlineUsers.UsersFragment;
 import com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment;
 import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
 import com.example.alex.motoproject.service.LocationListenerService;
@@ -66,8 +68,12 @@ public class MainActivity extends AppCompatActivity implements
 
 
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
-    private ScreenOnlineUsersFragment screenOnlineUsersFragment
-            = new ScreenOnlineUsersFragment();
+   @Inject
+    NetworkStateReceiver mNetworkStateReceiver;
+//    private OnlineUsersFragment onlineUsersFragment = new OnlineUsersFragment();
+//    private FriendsFragment friendsFragment = new FriendsFragment();
+    private UsersFragment onlineUsersFragment = new UsersFragment();
+    private UsersFragment friendsFragment = new UsersFragment();
     private ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
     private ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
     private ChatFragment chatFragment = new ChatFragment();
@@ -114,6 +120,8 @@ public class MainActivity extends AppCompatActivity implements
 
         EventBus.getDefault().register(this);
         App.getCoreComponent().inject(this);
+        App.getCoreComponent().inject(alertControl);
+
         mApp = (App) getApplicationContext();
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
@@ -146,7 +154,6 @@ public class MainActivity extends AppCompatActivity implements
         };
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-
 
         //Define view of Navigation Drawer
         NavigationView mNavigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -182,7 +189,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-
         //Button in Navigation Drawer for show the Map fragment
         mNavigationBtnMap = (Button) mNavigationView.findViewById(R.id.navigation_btn_map);
         mNavigationBtnMap.setOnClickListener(new View.OnClickListener() {
@@ -194,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements
 
             }
         });
+
         //Button in Navigation Drawer for SignOut
         mNavigationBtnSignOut = (Button) mNavigationView.findViewById(R.id.navigation_btn_signout);
         mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
@@ -206,22 +213,29 @@ public class MainActivity extends AppCompatActivity implements
 
             }
         });
-        //Button in Navigation Drawer for display Friends List
+
+        //Button in Navigation Drawer for displaying online users list
         Button mNavigationBtnUsersOnline =
                 (Button) mNavigationView.findViewById(R.id.navigation_btn_users_online);
         mNavigationBtnUsersOnline.setOnClickListener(new View.OnClickListener() {
-
-
             @Override
             public void onClick(View view) {
-
-                replaceFragment(screenOnlineUsersFragment);
+                replaceFragment(onlineUsersFragment);
                 mDrawerLayout.closeDrawers();
 
             }
         });
 
-
+        //Button in Navigation Drawer for displaying friend list
+        Button navigationBtnFriends =
+                (Button) mNavigationView.findViewById(R.id.navigation_btn_friends);
+        navigationBtnFriends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                replaceFragment(friendsFragment, 10);
+                mDrawerLayout.closeDrawers();
+            }
+        });
         //Button in Navigation Drawer for displaying chat
         Button navigationBtnChat = (Button) mNavigationView.findViewById(R.id.navigation_btn_chat);
         navigationBtnChat.setOnClickListener(new View.OnClickListener() {
@@ -325,7 +339,6 @@ public class MainActivity extends AppCompatActivity implements
             mDrawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
-
         }
         fm.popBackStack();
     }
@@ -335,7 +348,8 @@ public class MainActivity extends AppCompatActivity implements
     protected void onStart() {
 
         super.onStart();
-        alertControl.registerNetworkStateReceiver(getApplicationContext());
+        alertControl.plusNetworkStateReceiver();
+        alertControl.registerNetworkStateReceiver();
         alertControl.registerEventBus();
     }
 
@@ -537,6 +551,17 @@ public class MainActivity extends AppCompatActivity implements
         replaceFragment(fragment);
     }
 
+    public void replaceFragment(Fragment fragment, int listType) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("listType", listType);
+        fragment.setArguments(bundle);
+        replaceFragment(fragment);
+    }
+
+    public void showDialogFragment(DialogFragment dialogFragment, String tag) {
+        dialogFragment.show(fm, tag);
+    }
+
     @Override
     public void onBackStackChanged() {
         Log.d("log", "onBackStackChanged: " + fm.getBackStackEntryCount());
@@ -549,7 +574,6 @@ public class MainActivity extends AppCompatActivity implements
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             toolbar.setNavigationOnClickListener(drawerMenu);
             toggle.syncState();
-
         }
     }
 

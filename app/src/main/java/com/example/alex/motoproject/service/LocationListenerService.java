@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
+import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
@@ -31,6 +32,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
@@ -48,7 +52,6 @@ public class LocationListenerService extends Service implements Runnable, Google
     public static final String LOCATION_REQUEST_FREQUENCY_LOW = "low";
 
 
-    private static final String LOG_TAG = "LocationListenerService";
     private static final String SHOULD_STOP_SERVICE_EXTRA = "isShouldStopService";
     public static final String GPS_RATE = "gpsRate";
     //TODO: where to store notification ids?
@@ -74,7 +77,7 @@ public class LocationListenerService extends Service implements Runnable, Google
     public void onCreate() {
         App.getCoreComponent().inject(this);
         ((App) getApplication()).plusNetworkStateReceiverComponent();
-        Log.d(LOG_TAG, "onCreate");
+
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -84,7 +87,6 @@ public class LocationListenerService extends Service implements Runnable, Google
                     .build();
         }
         mGoogleApiClient.connect();
-
         mFirebaseAuth = FirebaseAuth.getInstance();
 
         showNotification();

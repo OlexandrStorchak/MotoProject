@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,16 +14,23 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.alex.motoproject.DaggerPresenterComponent;
 import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.dialog.ChatLocLimitDialogFragment;
+import com.example.alex.motoproject.mainActivity.MainActivity;
+import com.example.alex.motoproject.util.SharedPrefsUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -30,10 +38,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
+public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     private static final int MESSAGE_MAX_CHARS = 200;
     @Inject
-    ChatPresenter mPresenter;
+    ChatMvp.ViewToPresenter mPresenter;
     private RecyclerView mRecyclerView;
     private EditText mEditText;
     private ImageButton mSendButton;
@@ -54,8 +62,6 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
                 .presenterModule(new PresenterModule(this))
                 .build()
                 .inject(this);
-        mPresenter.registerChatMessagesListener();
-        mPresenter.registerAdapter();
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_chat, container, false);
@@ -72,12 +78,13 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     @Override
     public void onStop() {
         savedInstanceStateRecycler = mRecyclerView.getLayoutManager().onSaveInstanceState();
+        hideKeyboard(getView());
         super.onStop();
     }
 
     @Override
     public void onDestroyView() {
-        mPresenter.unregisterChatMessagesListener();
+        mPresenter.onDestroyView();
         EventBus.getDefault().unregister(mPresenter);
         mPresenter = null;
         super.onDestroyView();
@@ -91,12 +98,26 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
         mShareLocationButton = (ImageButton) view.findViewById(R.id.button_sharelocation_chat);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_chat);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.container_chat_swipe);
+
+        EventBus.getDefault().register(mPresenter);
+
+        setHasOptionsMenu(true);
+
+        mPresenter.onViewCreated();
+    }
+
+    @Override
+    public void setupAll() {
         setupMessageSending();
         setupLocationSharing();
         setupTextFilter();
         setupRecyclerView();
         setupSwipeRefreshLayout();
-        EventBus.getDefault().register(mPresenter);
+    }
+
+    @Override
+    public void showToast(int stringId) {
+        Toast.makeText(getContext(), getContext().getString(stringId), Toast.LENGTH_LONG).show();
     }
 
     private void setupSwipeRefreshLayout() {
@@ -113,7 +134,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     }
 
     private void setupLocationSharing() {
-        mShareLocationButton.setEnabled(false);
+        disableShareLocationButton();
         mShareLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,7 +144,7 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     }
 
     private void setupMessageSending() {
-        mSendButton.setEnabled(false);
+        disableSendButton();
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -163,6 +184,18 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
         mEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MESSAGE_MAX_CHARS)});
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        mPresenter.onOptionsItemSelected(item.getItemId());
+        return false;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.appbar_chat, menu);
+    }
+
     private void setupRecyclerView() {
         mLayoutManager = new LinearLayoutManager(getContext());
         mLayoutManager.setStackFromEnd(true);
@@ -187,6 +220,26 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     @Override
     public int getLastCompletelyVisibleItemPosition() {
         return mLayoutManager.findLastCompletelyVisibleItemPosition();
+    }
+
+    @Override
+    public void clearMessages() {
+        mAdapter.clearMessages();
+        mAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void showLocLimitDialog() {
+//        ((MainActivity) getActivity()).replaceFragment(new ChatLocLimitDialogFragment());
+        ((MainActivity) getActivity()).showDialogFragment(new ChatLocLimitDialogFragment(),
+                ChatLocLimitDialogFragment.class.getSimpleName());
+//         ChatLocLimitDialogFragment dialogFragment = new ChatLocLimitDialogFragment();
+    }
+
+    @Override
+    public int getDistanceLimit() {
+        return SharedPrefsUtil.getFromPrefs(getActivity(),
+                getString(R.string.chat_location_limit_preferences));
     }
 
     @Override
@@ -217,25 +270,33 @@ public class ChatFragment extends Fragment implements ChatMVP.PresenterToView {
     @Override
     public void disableSendButton() {
         mSendButton.setEnabled(false);
+        mSendButton.setColorFilter(ResourcesCompat
+                .getColor(getResources(), R.color.grey500, null));
     }
 
     @Override
     public void enableSendButton() {
         mSendButton.setEnabled(true);
+        mSendButton.setColorFilter(ResourcesCompat
+                .getColor(getResources(), R.color.blue900, null));
     }
 
     @Override
-    public void disableSwipeLayout() {
-        mSwipeRefreshLayout.setEnabled(false);
+    public void enableSwipeLayout(boolean enable) {
+        mSwipeRefreshLayout.setEnabled(enable);
     }
 
     @Override
     public void disableShareLocationButton() {
         mShareLocationButton.setEnabled(false);
+        mShareLocationButton.setColorFilter(ResourcesCompat
+                .getColor(getResources(), R.color.grey500, null));
     }
 
     @Override
     public void enableShareLocationButton() {
         mShareLocationButton.setEnabled(true);
+        mShareLocationButton.setColorFilter(ResourcesCompat
+                .getColor(getResources(), R.color.blue900, null));
     }
 }
