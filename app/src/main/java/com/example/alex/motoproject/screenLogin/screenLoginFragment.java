@@ -65,8 +65,6 @@ public class ScreenLoginFragment extends Fragment {
     private CallbackManager callbackManager = CallbackManager.Factory.create();
     private Button mButtonSignInFacebook;
 
-
-
     public ScreenLoginFragment() {
         // Required empty public constructor
     }
