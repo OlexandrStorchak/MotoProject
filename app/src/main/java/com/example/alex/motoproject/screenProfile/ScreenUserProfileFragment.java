@@ -12,17 +12,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UsersProfileFirebase;
 import com.squareup.picasso.Picasso;
 
+import javax.inject.Inject;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.function.ToDoubleBiFunction;
+
 
 public class ScreenUserProfileFragment extends Fragment {
+
+    @Inject
+    FirebaseDatabaseHelper mFirebaseDatabaseHelper;
 
 
     LinearLayout buttons;
@@ -31,7 +39,7 @@ public class ScreenUserProfileFragment extends Fragment {
     private TextView nickName;
     private TextView email;
     private ImageView avatar;
-    private ImageView sendMessage;
+    private ImageView removeFriend;
     private ImageView addToFriend;
 
 
@@ -43,6 +51,7 @@ public class ScreenUserProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        App.getCoreComponent().inject(this);
         EventBus.getDefault().register(this);
 
         // Inflate the layout for this fragment
@@ -55,7 +64,7 @@ public class ScreenUserProfileFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         addToFriend = (ImageView) view.findViewById(R.id.profile_add_friend);
-        sendMessage = (ImageView) view.findViewById(R.id.profile_send_message);
+        removeFriend = (ImageView) view.findViewById(R.id.profile_remove_from_friends);
 
         name = (TextView) view.findViewById(R.id.profile_user_name);
         motorcycle = (TextView) view.findViewById(R.id.profile_user_motorcycle);
@@ -96,21 +105,33 @@ public class ScreenUserProfileFragment extends Fragment {
                 .centerCrop()
                 .into(avatar);
 
+        //TODO add or remove person from friendList
+        //If friend allready added
+//        if (friendAlreadyAdded){
+//            removeFriend.setVisibility(View.GONE);
+//            addToFriend.setVisibility(View.VISIBLE);
+//        }
+
         addToFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getContext(),
                         "add to friend " + user.getName(),
                         Toast.LENGTH_SHORT).show();
-                new FirebaseDatabaseHelper().sendFriendRequest(user.getId());
+                removeFriend.setVisibility(View.VISIBLE);
+                addToFriend.setVisibility(View.GONE);
+                mFirebaseDatabaseHelper.sendFriendRequest(user.getId());
+
             }
         });
-        sendMessage.setOnClickListener(new View.OnClickListener() {
+        removeFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getContext(),
                         "send message " + user.getName(),
                         Toast.LENGTH_SHORT).show();
+                removeFriend.setVisibility(View.GONE);
+                addToFriend.setVisibility(View.VISIBLE);
             }
         });
 

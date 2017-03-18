@@ -4,17 +4,22 @@ import android.Manifest;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
@@ -24,7 +29,6 @@ import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,24 +38,37 @@ import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
+import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
+
+
 /**
  * The Service that listens for location changes and sends them to Firebase
  */
-public class LocationListenerService extends Service implements
-        GoogleApiClient.ConnectionCallbacks,
+public class LocationListenerService extends Service implements Runnable, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        com.google.android.gms.location.LocationListener {
+    public static final String LOCATION_REQUEST_FREQUENCY_HIGH = "high";
+    public static final String LOCATION_REQUEST_FREQUENCY_DEFAULT = "default";
+    public static final String LOCATION_REQUEST_FREQUENCY_LOW = "low";
+
 
     private static final String SHOULD_STOP_SERVICE_EXTRA = "isShouldStopService";
+    public static final String GPS_RATE = "gpsRate";
     //TODO: where to store notification ids?
     int mNotificationId = 3;
-    GoogleApiClient mGoogleApiClient;
-    String mRequestFrequency = "default";
+
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
     FirebaseAuth mFirebaseAuth;
+    private Handler handler = new Handler();
+    private int updateTime = 10000;
+
+    private GoogleApiClient mGoogleApiClient;
+    private Location myLocation = null;
+
+
     public LocationListenerService() {
         // Required empty public constructor
     }
@@ -60,9 +77,8 @@ public class LocationListenerService extends Service implements
     public void onCreate() {
         App.getCoreComponent().inject(this);
         ((App) getApplication()).plusNetworkStateReceiverComponent();
-        ((App) getApplication()).setLocationListenerServiceOn(true);
 
-        // create an instance of GoogleAPIClient
+
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -76,32 +92,59 @@ public class LocationListenerService extends Service implements
         showNotification();
         registerReceiver();
 
-        mFirebaseDatabaseHelper.setUserOnline("public");
+        SharedPreferences preferences = getApplicationContext()
+                .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
 
-        EventBus.getDefault().register(this);
+        SharedPreferences preferencesRate = getApplicationContext()
+                .getSharedPreferences(GPS_RATE, Context.MODE_PRIVATE);
+
+        String gpsRate = preferencesRate.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null);
+        if (gpsRate == null) {
+            gpsRate = LOCATION_REQUEST_FREQUENCY_DEFAULT;
+        }
+        switch (gpsRate) {
+            case LOCATION_REQUEST_FREQUENCY_LOW:
+                updateTime = 20000;
+                break;
+            case LOCATION_REQUEST_FREQUENCY_DEFAULT:
+                updateTime = 10000;
+                break;
+            case LOCATION_REQUEST_FREQUENCY_HIGH:
+                updateTime = 3000;
+                break;
+        }
+
+        mFirebaseDatabaseHelper.setUserOnline(preferences.getString(
+                mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
+
+
+        ((App) getApplication()).setLocationListenerServiceOn(true);
+
+
+        handler.postDelayed(this, 100);
 
         super.onCreate();
     }
 
+
     @Override
     public void onDestroy() {
-        stopLocationUpdates();
+
+        handler.removeCallbacks(this);
+
         mGoogleApiClient.disconnect();
+
         unregisterReceiver(mNetworkStateReceiver);
         cleanupNotifications();
+
 
         ((App) getApplication()).setLocationListenerServiceOn(false);
         if (((App) getApplication()).isMainActivityDestroyed()) {
             mFirebaseDatabaseHelper.setUserOffline();
-        } else {
-            if (mFirebaseDatabaseHelper.getCurrentUser() != null) {
-                mFirebaseDatabaseHelper.setUserOnline("noGps");
-            }
+
         }
-
-        EventBus.getDefault().unregister(this);
-
         super.onDestroy();
+
     }
 
     //The service is not designed for binding
@@ -117,72 +160,10 @@ public class LocationListenerService extends Service implements
                 intent.getExtras().getBoolean(SHOULD_STOP_SERVICE_EXTRA)) {
             stopSelf();
         }
+
         return super.onStartCommand(intent, flags, startId);
     }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        if (checkLocationPermission()) {
-            Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                    mGoogleApiClient);
-            if (lastLocation != null) {
-                mFirebaseDatabaseHelper.updateUserLocation(lastLocation);
-            }
-        }
-        startLocationUpdates();
-
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        mFirebaseDatabaseHelper.updateUserLocation(location);
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-    }
-
-    //different variants of LocationRequest that might be changed via settings
-    protected LocationRequest createLocationRequest() {
-        LocationRequest mLocationRequest = new LocationRequest();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        switch (mRequestFrequency) {
-            case "highFrequency":
-                mLocationRequest.setInterval(10000); //10 secs
-                mLocationRequest.setFastestInterval(50000); //5 secs
-                break;
-            case "default":
-                mLocationRequest.setInterval(20000); //20 secs
-                mLocationRequest.setFastestInterval(10000); //10 secs
-                mLocationRequest.setSmallestDisplacement(10f); //10 m
-                break;
-            case "lowFrequency":
-                mLocationRequest.setInterval(30000); //30 secs
-                mLocationRequest.setFastestInterval(20000); //20 secs
-                mLocationRequest.setSmallestDisplacement(50f); //50 m
-                break;
-        }
-        return mLocationRequest;
-    }
-
-    private void startLocationUpdates() {
-        //handle unexpected permission absence
-        if (checkLocationPermission()) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    mGoogleApiClient, createLocationRequest(), this);
-        }
-    }
-
-    private void stopLocationUpdates() {
-        if (mGoogleApiClient.isConnected()) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(
-                    mGoogleApiClient, this);
-        }
-    }
 
     private void showNotification() {
         NotificationCompat.Builder mBuilder =
@@ -190,6 +171,7 @@ public class LocationListenerService extends Service implements
                         .setSmallIcon(R.drawable.ic_notification_v1)
                         .setContentTitle("MotoProject")
                         .setContentText("Місцезнаходження відстежується.")
+
                         .setShowWhen(false);
 
         //create pending intent used when tapping on the app notification
@@ -212,9 +194,10 @@ public class LocationListenerService extends Service implements
                         0,
                         stopSelfIntent,
                         PendingIntent.FLAG_CANCEL_CURRENT);
-        mBuilder.addAction(R.drawable.ic_clear_gray_24dp,
-                "Прибрати мене з мапи",
-                StopSelfPendingIntent);
+        //TODO : run sos from notification
+//        mBuilder.addAction(R.drawable.ic_clear_gray_24dp,
+//                "Прибрати мене з мапи",
+//                StopSelfPendingIntent);
 
         // send notification
         startForeground(mNotificationId, mBuilder.build());
@@ -240,10 +223,89 @@ public class LocationListenerService extends Service implements
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    @Subscribe
-    public void onGpsStatusChanged(GpsStatusChangedEvent event) {
-        if (!event.isGpsOn()) {
-            stopSelf();
+
+    @Override
+    public void run() {
+
+        handler.postDelayed(this, updateTime);
+        startLocationUpdates();
+        if (myLocation != null) {
+            mFirebaseDatabaseHelper.updateUserLocation(myLocation);
         }
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                stopLocationUpdates();
+
+            }
+        }, 2900);
+
+        Log.i("time", "run: ");
+
+
+    }
+
+    private void startLocationUpdates() {
+        //handle unexpected permission absence
+        if (mGoogleApiClient.isConnected()) {
+            if (checkLocationPermission()) {
+                LocationServices.FusedLocationApi.requestLocationUpdates(
+                        mGoogleApiClient, createLocationRequest(), this);
+
+            }
+        } else {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    private LocationRequest createLocationRequest() {
+        LocationRequest mLocationRequest = new LocationRequest();
+
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        mLocationRequest.setInterval(1000); //1 secs
+        mLocationRequest.setFastestInterval(100); //1 secs
+        mLocationRequest.setSmallestDisplacement(1f); //1 m
+
+
+        return mLocationRequest;
+
+    }
+
+    private void stopLocationUpdates() {
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+
+        }
+    }
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mFirebaseDatabaseHelper.updateUserLocation(location);
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
+        if (checkLocationPermission()) {
+            Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+            if (lastLocation != null) {
+                mFirebaseDatabaseHelper.updateUserLocation(lastLocation);
+            }
+        }
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Toast.makeText(this, "Connection suspended", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Toast.makeText(this, "Connection failed", Toast.LENGTH_SHORT).show();
     }
 }

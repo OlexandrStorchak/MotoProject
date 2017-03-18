@@ -84,12 +84,14 @@
             />
 
         <ImageView
-            android:id="@+id/profile_send_message"
+            android:id="@+id/profile_remove_from_friends"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:contentDescription="@string/send_message"
-            android:src="@mipmap/ic_profille_send"
-            android:visibility="gone" />
+            android:contentDescription="@string/remove_from_friends"
+
+            android:visibility="gone"
+            android:src="@mipmap/ic_remove_friendd"
+            />
 
     </LinearLayout>
 

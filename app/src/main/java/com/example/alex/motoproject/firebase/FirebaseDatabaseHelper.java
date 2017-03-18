@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.firebase;
 
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
@@ -35,6 +36,7 @@ import java.util.Map;
 
 import dagger.Module;
 
+//Talos, plz help us with merge
 @Module
 public class FirebaseDatabaseHelper {
 
@@ -149,6 +151,7 @@ public class FirebaseDatabaseHelper {
      */
 
     public void registerOnlineUsersLocationListener() {
+        Log.v("e", "listener registered");
         mOnlineUsersRef = mDbReference.child("onlineUsers");
         mOnlineUsersLocationListener = new ChildEventListener() {
             @Override
@@ -620,7 +623,6 @@ public class FirebaseDatabaseHelper {
         mCloseDistance = closeDistance * 1000; //kilometers to meters
     }
 
-
     public void registerChatMessagesListener(final ChatUpdateReceiver receiver) {
         mCurrentUserLocation = mUsersLocation.get(getCurrentUser().getUid());
 
@@ -877,26 +879,8 @@ public class FirebaseDatabaseHelper {
 
     //Send friend request
     public void sendFriendRequest(String userId) {
-        final DatabaseReference ref = mDbReference.child("users").child(userId)
-                .child("friendsRequest").child(getCurrentUser().getUid());
-        Log.d("log", "sendFriendRequest: " + userId);
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    //Request already exists
-                    Log.d("log", "onDataChange: NO ADD");
-                    return;
-                }
-                ref.setValue("timeStamp");
-                Log.d("log", "onDataChange: ADD USER REQUEST");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d("log", "onCancelled: ");
-            }
-        });
+        DatabaseReference ref = mDbReference.child("users").child(userId).child("friendList");
+        ref.child(getCurrentUser().getUid()).setValue("pending");
     }
 
     //Friend request table listener
@@ -938,7 +922,7 @@ public class FirebaseDatabaseHelper {
 
         DatabaseReference ref = mDbReference.child("users").child(getCurrentUser().getUid());
 
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        ref.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -976,10 +960,22 @@ public class FirebaseDatabaseHelper {
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
-            }
+                            }
 
         });
     }
+
+    public void saveMyProfile(MyProfileFirebase profile){
+        DatabaseReference ref = mDbReference.child("users").child(getCurrentUser().getUid());
+        ref.setValue(profile);
+    }
+
+    public void setCurrentUserAvatar(@NonNull String avatarUrl){
+        DatabaseReference ref = mDbReference.child("users")
+                .child(getCurrentUser().getUid()).child("avatar");
+        ref.setValue(avatarUrl);
+    }
+
 
     public interface UsersUpdateReceiver {
         void onUserAdded(User user);

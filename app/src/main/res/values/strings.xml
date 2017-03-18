@@ -49,7 +49,6 @@
     <string name="add_friend">add friend</string>
     <string name="remove_from_friends">send message</string>
     <string name="chat_message_map">Місцезнаходження</string>
-
     <string name="save_changes">Зберегти зміни</string>
     <string name="text_show_me_on_map">Видимість : </string>
     <string name="edit_changes">edit_changes</string>
@@ -66,6 +65,12 @@
     <string name="decline">Відхилити</string>
     <string name="switch_off">Вимкнути</string>
 
+    <string-array name="profile_spinner_set_gps_visibility">
+        <item>Всім</item>
+        <item>Друзям</item>
+        <item>SOS</item>
+        <item>Нікому</item>
+    </string-array>
     <string name="title_pending_friends">Пропозиції</string>
     <string name="title_friends">Друзі</string>
     <string name="filter_title_chat">Фільтр</string>
@@ -73,15 +78,6 @@
     <string name="km10">10 кілометрів</string>
     <string name="km20">20 км</string>
     <string name="off">Вимкнено</string>
-
-    <string-array name="profile_spinner_set_gps_visibility">
-        <item>Всім</item>
-        <item>Друзям</item>
-        <item>SOS</item>
-        <item>Нікому</item>
-    </string-array>
-
-
 
     <string-array name="profile_spinner_set_gps_rate">
         <item>Висока</item>

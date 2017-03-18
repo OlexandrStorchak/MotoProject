@@ -17,14 +17,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.event.MapMarkerEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.mainActivity.AlertControl;
-import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.service.LocationListenerService;
 import com.example.alex.motoproject.util.CircleTransform;
 import com.google.android.gms.maps.CameraUpdate;
@@ -49,12 +48,11 @@ import javax.inject.Inject;
 import static com.example.alex.motoproject.R.id.map;
 
 
-
 /**
  * The fragment that contains a map from Google Play Services.
  */
 
-public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
+public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,GoogleMap.OnCameraMoveListener {
 
 
     public static final LatLng CHERKASY = new LatLng(49.443, 32.0727);
@@ -65,6 +63,11 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
 
     private App mApp;
+    private FloatingActionButton sosToggleButton;
+
+    public GoogleMap getmMap() {
+        return mMap;
+    }
 
     //for methods calling, like creating pins
     private GoogleMap mMap;
@@ -73,6 +76,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     //stores created markers
     private HashMap<String, Marker> mMarkerHashMap;
     private CameraUpdate mCameraUpdate;
+
 
     public ScreenMapFragment() {
         // Required empty public constructor
@@ -101,6 +105,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
 
+
         Bundle arguments = getArguments();
         if (arguments != null) {
             String uid = arguments.getString("uid");
@@ -112,20 +117,14 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             }
         }
 
+
         //setup fab that starts or stops LocationListenerService
-        FloatingActionButton drivingToggleButton =
-                (FloatingActionButton) view.findViewById(R.id.button_drive_toggle);
-        drivingToggleButton.setOnClickListener(new View.OnClickListener() {
+        sosToggleButton = (FloatingActionButton) view.findViewById(R.id.button_drive_sos);
+        sosToggleButton.setImageResource(R.mipmap.ic_sos);
+        sosToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!mApp.isLocationListenerServiceOn()) {
-                    //mMapFragmentListener.handleLocation();
-                    new AlertControl((MainActivity) getActivity()).handleLocation();
-                } else if (checkLocationPermission()) {
-                    mMap.setMyLocationEnabled(false);
-                    getContext().stopService(
-                            new Intent(getContext(), LocationListenerService.class));
-                }
+                Toast.makeText(getContext(), "Send SOS message!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -141,12 +140,14 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         mMap.getUiSettings().setMapToolbarEnabled(false);
         if (checkLocationPermission() && mApp.isLocationListenerServiceOn()) {
             mMap.setMyLocationEnabled(true);
+            setSosVisibility(View.VISIBLE);
         }
         if (mCameraUpdate == null) {
             int zoom = 11;
             mCameraUpdate = CameraUpdateFactory.newLatLngZoom(CHERKASY, zoom);
         }
         map.moveCamera(mCameraUpdate);
+        mMap.setOnCameraMoveListener(this);
     }
 
     public void onMapCk() {
@@ -186,6 +187,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         mMapView.onStart();
         EventBus.getDefault().register(this);
         mFirebaseDatabaseHelper.registerOnlineUsersLocationListener();
+
         super.onStart();
     }
 
@@ -234,25 +236,28 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
             }
         };
-        Picasso.with(getContext()).load(avatarRef).resize(80, 80)
+        Picasso.with(getContext()).load(avatarRef).resize(48, 48)
                 .centerCrop().transform(new CircleTransform()).into(iconTarget);
     }
 
     private boolean checkLocationPermission() {
-        return ContextCompat.checkSelfPermission(getContext(),
+        return ContextCompat.checkSelfPermission(mApp,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
     public void onLocationAllowed() {
-        getContext().startService(new Intent(getContext(), LocationListenerService.class));
-        try {
-            getContext().unregisterReceiver(mNetworkStateReceiver);
-        } catch (IllegalArgumentException e) {
-            Log.d("log", "onLocationAllowed: ");
+        if (!mApp.isLocationListenerServiceOn()) {
+            mApp.startService(new Intent(mApp, LocationListenerService.class));
+            try {
+                mApp.unregisterReceiver(mNetworkStateReceiver);
+            } catch (IllegalArgumentException e) {
+                Log.d("log", "onLocationAllowed: ");
+            }
         }
 
         if (checkLocationPermission()) {
+
             mMap.setMyLocationEnabled(true);
         }
     }
@@ -268,6 +273,29 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     public void setPosition(@NonNull LatLng latLng) {
         mCameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
     }
+
+    public void setSosVisibility(int visibility) {
+        sosToggleButton.setVisibility(visibility);
+    }
+
+    @Override
+    public void onCameraMove() {
+
+        if (mMap.getCameraPosition().zoom > 18){
+            Toast.makeText(mApp, "Camera update zoom > 18", Toast.LENGTH_SHORT).show();
+                mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+                    @Override
+                    public void onCameraMove() {
+                        if (mMap.getCameraPosition().zoom < 18){
+                            mMap.setOnCameraMoveListener(ScreenMapFragment.this);
+                        }
+                    }
+                });
+        } else {
+            mMap.setOnCameraMoveListener(this);
+        }
+    }
+
 
     //TODO a better interface name
     public interface MapFragmentListener {
