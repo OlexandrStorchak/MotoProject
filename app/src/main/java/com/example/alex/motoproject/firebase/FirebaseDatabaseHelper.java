@@ -620,6 +620,7 @@ public class FirebaseDatabaseHelper {
         mCloseDistance = closeDistance * 1000; //kilometers to meters
     }
 
+
     public void registerChatMessagesListener(final ChatUpdateReceiver receiver) {
         mCurrentUserLocation = mUsersLocation.get(getCurrentUser().getUid());
 
