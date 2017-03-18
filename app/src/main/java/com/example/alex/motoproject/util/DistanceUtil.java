@@ -18,7 +18,7 @@ public class DistanceUtil {
                 otherUserLocation.latitude,
                 otherUserLocation.longitude);
 
-        return distance <= closeDistance;
+        return distance <= 8000;
     }
 
     private static float calculateDistanceMeters(double firstLat, double firstLng,

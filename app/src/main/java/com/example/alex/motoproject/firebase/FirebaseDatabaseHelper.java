@@ -617,7 +617,7 @@ public class FirebaseDatabaseHelper {
      */
 
     public void setCloseDistance(int closeDistance) {
-        mCloseDistance = closeDistance;
+        mCloseDistance = closeDistance * 1000; //kilometers to meters
     }
 
     public void registerChatMessagesListener(final ChatUpdateReceiver receiver) {
@@ -639,6 +639,12 @@ public class FirebaseDatabaseHelper {
 
                 mMessagesCountLimit++;
 
+                if (isFirstNewChatMessageAfterFetch) {
+                    mFirstChatMsgKeyAfterFetch = dataSnapshot.getKey();
+                    isFirstNewChatMessageAfterFetch = false;
+                    return;
+                }
+
                 if (mCloseDistance > 0) {
 
                     if (!DistanceUtil.isClose(mCurrentUserLocation,
@@ -646,12 +652,6 @@ public class FirebaseDatabaseHelper {
                             mCloseDistance)) {
                         return;
                     }
-                }
-
-                if (isFirstNewChatMessageAfterFetch) {
-                    mFirstChatMsgKeyAfterFetch = dataSnapshot.getKey();
-                    isFirstNewChatMessageAfterFetch = false;
-                    return;
                 }
 
                 final ChatMessage message = new ChatMessage(uid, convertUnixTimeToDate(sendTime));
