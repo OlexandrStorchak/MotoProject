@@ -346,7 +346,6 @@ public class FirebaseDatabaseHelper {
     public boolean isInFriendList(String friendId, String relation) {
         String friendRelation = mFriends.get(friendId);
         return friendRelation != null && friendRelation.equals(relation);
-        // TODO: 19.03.2017 might not be accurate when clicking add-remove friend multiple times
     }
 
     public void changeUserRelation(String uid, String relation) {
@@ -354,6 +353,26 @@ public class FirebaseDatabaseHelper {
                 .child(getCurrentUser().getUid()).child("friendList").child(uid);
         ref.removeValue();
         ref.setValue(relation);
+    }
+
+    public void getFriends() {
+        DatabaseReference ref = mDbReference.child("users")
+                .child(getCurrentUser().getUid()).child("friendList");
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot entry : dataSnapshot.getChildren()) {
+                    final String uid = entry.getKey();
+                    final String relation = (String) entry.getValue();
+                    mFriends.put(uid, relation);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void getFriends() {

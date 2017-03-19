@@ -83,7 +83,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         // Required empty public constructor
     }
 
-    public GoogleMap getMap() {
+    public GoogleMap getxMap() {
         return mMap;
     }
 
@@ -140,6 +140,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         //make map accessible from other methods
         mMap = map;
         mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.setOnCameraMoveListener(this);
         if (checkLocationPermission() && mApp.isLocationListenerServiceOn()) {
             mMap.setMyLocationEnabled(true);
             setSosVisibility(View.VISIBLE);
