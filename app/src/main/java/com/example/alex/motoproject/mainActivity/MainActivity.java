@@ -250,7 +250,6 @@ public class MainActivity extends AppCompatActivity implements
                             .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
                     switch (i) {
                         case 0:
-
                             preferences.edit()
                                     .putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),
                                             PROFILE_GPS_MODE_PUBLIC).apply();
@@ -280,10 +279,8 @@ public class MainActivity extends AppCompatActivity implements
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
                             break;
                     }
-
                 }
             }
-
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {

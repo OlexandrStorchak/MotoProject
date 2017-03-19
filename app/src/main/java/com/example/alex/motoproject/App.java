@@ -21,30 +21,22 @@ import io.realm.RealmConfiguration;
 
 public class App extends Application
         implements Application.ActivityLifecycleCallbacks {
-    private static final String TAG = "log";
+    private static final String LOG_TAG = App.class.getSimpleName();
     private static CoreComponent coreComponent;
     private static NetworkStateReceiverComponent networkStateReceiverComponent;
-    //    private static ChatPresenterComponent chatPresenterComponent;
-    private boolean isMainActivityVisible = false;
-    private boolean isLocationListenerServiceOn = false;
+    private boolean isMainActivityVisible;
+    private boolean isLocationListenerServiceOn;
     private boolean isMainActivityDestroyed;
 
     public static CoreComponent getCoreComponent() {
         return coreComponent;
     }
 
-//    public static ChatPresenterComponent getChatPresenterComponent(Context context,
-//                                                                   ChatMVP.PresenterToView view) {
-//        if (App.chatPresenterComponent == null) {
-//            App app = (App) context.getApplicationContext();
-//        }
-//        return chatPresenterComponent;
-//    }
-
     @Override
     public void onCreate() {
         super.onCreate();
         Fabric.with(this, new Crashlytics());
+
         Realm.init(getApplicationContext());
         RealmConfiguration configuration =
                 new RealmConfiguration.Builder()
@@ -52,7 +44,7 @@ public class App extends Application
                         .schemaVersion(1)
                         .build();
         Realm.setDefaultConfiguration(configuration);
-        Log.d(TAG, "realmInit: well done");
+        Log.d(LOG_TAG, "realmInit: well done");
 
         registerActivityLifecycleCallbacks(this);
 
