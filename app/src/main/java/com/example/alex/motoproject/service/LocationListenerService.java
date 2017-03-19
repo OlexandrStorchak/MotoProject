@@ -24,7 +24,6 @@ import android.widget.Toast;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
-import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
@@ -32,9 +31,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
@@ -50,10 +46,8 @@ public class LocationListenerService extends Service implements Runnable, Google
     public static final String LOCATION_REQUEST_FREQUENCY_HIGH = "high";
     public static final String LOCATION_REQUEST_FREQUENCY_DEFAULT = "default";
     public static final String LOCATION_REQUEST_FREQUENCY_LOW = "low";
-
-
-    private static final String SHOULD_STOP_SERVICE_EXTRA = "isShouldStopService";
     public static final String GPS_RATE = "gpsRate";
+    private static final String SHOULD_STOP_SERVICE_EXTRA = "isShouldStopService";
     //TODO: where to store notification ids?
     int mNotificationId = 3;
 
@@ -138,11 +132,11 @@ public class LocationListenerService extends Service implements Runnable, Google
         cleanupNotifications();
 
 
-        ((App) getApplication()).setLocationListenerServiceOn(false);
-        if (((App) getApplication()).isMainActivityDestroyed()) {
-            mFirebaseDatabaseHelper.setUserOffline();
-
-        }
+//        ((App) getApplication()).setLocationListenerServiceOn(false);
+//        if (((App) getApplication()).isMainActivityDestroyed()) {
+//            mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
+//
+//        }
         super.onDestroy();
 
     }

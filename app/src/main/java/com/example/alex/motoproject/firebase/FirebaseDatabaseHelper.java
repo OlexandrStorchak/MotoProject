@@ -90,10 +90,10 @@ public class FirebaseDatabaseHelper {
         onlineUsers.setValue(status);
     }
 
-    public void setUserOffline() {
+    public void setUserOfflineOnDisconnect() {
         String uid = getCurrentUser().getUid();
         DatabaseReference onlineUsers = mDbReference.child("onlineUsers").child(uid);
-        onlineUsers.removeValue();
+        onlineUsers.onDisconnect().removeValue();
     }
 
     public void updateUserLocation(Location location) {
@@ -222,14 +222,23 @@ public class FirebaseDatabaseHelper {
         });
     }
 
+    private boolean isAllowedToSeeMarker(String uid, String status) {
+        return status.equals(Constants.STATUS_PUBLIC) ||
+                isInFriendList(uid, Constants.RELATION_FRIEND);
+    }
+
     private void postChangeMarkerEvent(DataSnapshot dataSnapshot) {
-        if (!(dataSnapshot.getValue() instanceof String)) {
-            return;
-        }
         String status = (String) dataSnapshot.getValue();
-        if (!status.equals("public")) {
+        final String uid = dataSnapshot.getKey();
+
+//        if (!(dataSnapshot.getValue() instanceof String)) {
+//            return;
+//        }
+
+        if (!isAllowedToSeeMarker(uid, status)) {
             return;
         }
+
         DatabaseReference location =
                 mDbReference.child("location").child(dataSnapshot.getKey());
         ValueEventListener listener = new ValueEventListener() {
@@ -241,7 +250,6 @@ public class FirebaseDatabaseHelper {
                     return;
                 }
 
-                final String uid = dataSnapshot.getKey();
                 final LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
 
                 mUsersLocation.put(uid, latLng);
@@ -308,7 +316,6 @@ public class FirebaseDatabaseHelper {
             }
         });
     }
-    // TODO: 18.03.2017 method that returns true if a user is in current user friend list
 
     /**
      * Users
@@ -317,15 +324,12 @@ public class FirebaseDatabaseHelper {
     public boolean isInFriendList(String friendId, String relation) {
         String friendRelation = mFriends.get(friendId);
         return friendRelation != null && friendRelation.equals(relation);
+        // TODO: 19.03.2017 friends listener has no time to fetch data on startup and doesnt react on changes
     }
+
     public void changeUserRelation(String uid, String relation) {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("friendList").child(uid);
-        ref.removeValue();
-        ref.setValue(relation);
-
-        ref = mDbReference.child("users").child(uid)
-                .child("friendList").child(getCurrentUser().getUid());
         ref.removeValue();
         ref.setValue(relation);
     }

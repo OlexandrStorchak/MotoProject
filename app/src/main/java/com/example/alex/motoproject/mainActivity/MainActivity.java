@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements
             public void onDrawerOpened(View drawerView) {
 
                 super.onDrawerOpened(drawerView);
-                hideKeyBoard();
+                hideKeyboard();
             }
         };
         mDrawerLayout.addDrawerListener(toggle);
@@ -179,7 +179,6 @@ public class MainActivity extends AppCompatActivity implements
             public void onClick(View view) {
 
                 startRideService();
-
             }
         });
 
@@ -200,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements
         mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mFirebaseDatabaseHelper.setUserOffline();
+//                mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
                 loginController.signOut();
                 stopService(new Intent(MainActivity.this, LocationListenerService.class));
 
@@ -279,7 +278,6 @@ public class MainActivity extends AppCompatActivity implements
                                             PROFILE_GPS_MODE_NOGPS).apply();
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_NOGPS);
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
-
                             break;
                     }
 
@@ -294,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements
 
         });
         mFirebaseDatabaseHelper.getFriends();
+        mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
     }
 
     private void startRideService() {
@@ -316,16 +315,15 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-    private void hideKeyBoard() {
+    private void hideKeyboard() {
         View view = getCurrentFocus();
         if (view == null) {
             return;
         }
-        
+
         InputMethodManager inputMethodManager =
                 (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-
     }
 
 
@@ -353,8 +351,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-
-
     }
 
     @Override
@@ -373,7 +369,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onActivityResult(requestCode, resultCode, data);
 
         //Send result to ScreenLoginFragment for Facebook auth.manager
-
         screenLoginFragment.getCallbackManager().onActivityResult(requestCode, resultCode, data);
 
     }
@@ -385,13 +380,10 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         if (!alertControl.isServiceOn()) {
-
             Log.d("log", "onDestroy: service is Off");
         }
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-
-
     }
 
 

@@ -41,7 +41,9 @@ import com.squareup.picasso.Target;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -52,7 +54,7 @@ import static com.example.alex.motoproject.R.id.map;
  * The fragment that contains a map from Google Play Services.
  */
 
-public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,GoogleMap.OnCameraMoveListener {
+public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
 
     public static final LatLng CHERKASY = new LatLng(49.443, 32.0727);
@@ -64,7 +66,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
 
     private App mApp;
     private FloatingActionButton sosToggleButton;
-    private HashMap<String, Target> mTargets = new HashMap<>();
+    private List<Target> mTargetStrongRef = new ArrayList<>();
     //for methods calling, like creating pins
     private GoogleMap mMap;
     //for map lifecycle
@@ -135,7 +137,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
         //make map accessible from other methods
         mMap = map;
         mMap.getUiSettings().setMapToolbarEnabled(false);
-        mMap.setOnCameraMoveListener(this);
         if (checkLocationPermission() && mApp.isLocationListenerServiceOn()) {
             mMap.setMyLocationEnabled(true);
             setSosVisibility(View.VISIBLE);
@@ -145,7 +146,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
             mCameraUpdate = CameraUpdateFactory.newLatLngZoom(CHERKASY, zoom);
         }
         map.moveCamera(mCameraUpdate);
-        mMap.setOnCameraMoveListener(this);
     }
 
     public void onMapCk() {
@@ -211,17 +211,18 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
                 .position(event.latLng)
                 .title(event.userName)
                 .anchor(0.5f, 0.5f));
-
         mMarkerHashMap.put(event.uid, marker);
-        fetchAndSetMarkerIcon(event.uid, event.avatarRef);
-
+        marker.setAlpha(0);
+        fetchAndSetMarkerIcon(event.uid, event.avatarRef, marker);
     }
 
-    private void fetchAndSetMarkerIcon(final String uid, String avatarRef) {
-        Target iconTarget = new Target() {
+    private void fetchAndSetMarkerIcon(final String uid, String avatarRef, final Marker marker) {
+        final Target iconTarget = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 mMarkerHashMap.get(uid).setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
+                marker.setAlpha(100);
+                mTargetStrongRef.remove(this);
             }
 
             @Override
@@ -233,7 +234,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
 
             }
         };
-        mTargets.put(avatarRef, iconTarget);
+        mTargetStrongRef.add(iconTarget);
         Picasso.with(getContext()).load(avatarRef).resize(80, 80)
                 .centerCrop().transform(new CircleTransform()).into(iconTarget);
     }
@@ -255,7 +256,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
         }
 
         if (checkLocationPermission()) {
-
             mMap.setMyLocationEnabled(true);
         }
     }
@@ -276,38 +276,37 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
         sosToggleButton.setVisibility(visibility);
     }
 
-    @Override
-    public void onCameraMove() {
+//    @Override
+//    public void onCameraMove() {
 //        int iconZoom = (int) mMap.getCameraPosition().zoom * 10;
-//        for (String avatarRef : mTargets.keySet()) {
+//        for (String avatarRef : mTargetStrongRef.keySet()) {
 //            Picasso.with(getContext()).load(avatarRef).resize(iconZoom, iconZoom)
-//                    .centerCrop().transform(new CircleTransform()).into(mTargets.get(avatarRef));
+//                    .centerCrop().transform(new CircleTransform()).into(mTargetStrongRef.get(avatarRef));
 //        }
 //        if (mMap.getCameraPosition().zoom > 14) {
-//            for (String avatarRef : mTargets.keySet()) {
+//            for (String avatarRef : mTargetStrongRef.keySet()) {
 //                Picasso.with(getContext()).load(avatarRef).resize(140, 140)
-//                        .centerCrop().transform(new CircleTransform()).into(mTargets.get(avatarRef));
+//                        .centerCrop().transform(new CircleTransform()).into(mTargetStrongRef.get(avatarRef));
 //            }
 //        }
 //        if (mMap.getCameraPosition().zoom > 18) {
-//            for (String avatarRef : mTargets.keySet()) {
+//            for (String avatarRef : mTargetStrongRef.keySet()) {
 //                Picasso.with(getContext()).load(avatarRef).resize(180, 180)
-//                        .centerCrop().transform(new CircleTransform()).into(mTargets.get(avatarRef));
+//                        .centerCrop().transform(new CircleTransform()).into(mTargetStrongRef.get(avatarRef));
 //            }
 //            Toast.makeText(mApp, "Camera update zoom > 18", Toast.LENGTH_SHORT).show();
-//                mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-//                    @Override
-//                    public void onCameraMove() {
-//                        if (mMap.getCameraPosition().zoom < 18){
-//                            mMap.setOnCameraMoveListener(ScreenMapFragment.this);
-//                        }
+//            mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+//                @Override
+//                public void onCameraMove() {
+//                    if (mMap.getCameraPosition().zoom < 18){
+//                        mMap.setOnCameraMoveListener(ScreenMapFragment.this);
 //                    }
-//                });
+//                }
+//            });
 //        } else {
 //            mMap.setOnCameraMoveListener(this);
 //        }
-    }
-
+//    }
 
     //TODO a better interface name
     public interface MapFragmentListener {
