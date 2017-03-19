@@ -64,11 +64,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
 
     private App mApp;
     private FloatingActionButton sosToggleButton;
-
-    public GoogleMap getmMap() {
-        return mMap;
-    }
-
+    private HashMap<String, Target> mTargets = new HashMap<>();
     //for methods calling, like creating pins
     private GoogleMap mMap;
     //for map lifecycle
@@ -76,12 +72,13 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
     //stores created markers
     private HashMap<String, Marker> mMarkerHashMap;
     private CameraUpdate mCameraUpdate;
-
-
     public ScreenMapFragment() {
         // Required empty public constructor
     }
 
+    public GoogleMap getMap() {
+        return mMap;
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -138,6 +135,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
         //make map accessible from other methods
         mMap = map;
         mMap.getUiSettings().setMapToolbarEnabled(false);
+        mMap.setOnCameraMoveListener(this);
         if (checkLocationPermission() && mApp.isLocationListenerServiceOn()) {
             mMap.setMyLocationEnabled(true);
             setSosVisibility(View.VISIBLE);
@@ -220,7 +218,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
     }
 
     private void fetchAndSetMarkerIcon(final String uid, String avatarRef) {
-        // TODO: 26.02.2017 handle garbage collecting
         Target iconTarget = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
@@ -236,7 +233,8 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
 
             }
         };
-        Picasso.with(getContext()).load(avatarRef).resize(48, 48)
+        mTargets.put(avatarRef, iconTarget);
+        Picasso.with(getContext()).load(avatarRef).resize(80, 80)
                 .centerCrop().transform(new CircleTransform()).into(iconTarget);
     }
 
@@ -280,20 +278,34 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback,Go
 
     @Override
     public void onCameraMove() {
-
-        if (mMap.getCameraPosition().zoom > 18){
-            Toast.makeText(mApp, "Camera update zoom > 18", Toast.LENGTH_SHORT).show();
-                mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-                    @Override
-                    public void onCameraMove() {
-                        if (mMap.getCameraPosition().zoom < 18){
-                            mMap.setOnCameraMoveListener(ScreenMapFragment.this);
-                        }
-                    }
-                });
-        } else {
-            mMap.setOnCameraMoveListener(this);
-        }
+//        int iconZoom = (int) mMap.getCameraPosition().zoom * 10;
+//        for (String avatarRef : mTargets.keySet()) {
+//            Picasso.with(getContext()).load(avatarRef).resize(iconZoom, iconZoom)
+//                    .centerCrop().transform(new CircleTransform()).into(mTargets.get(avatarRef));
+//        }
+//        if (mMap.getCameraPosition().zoom > 14) {
+//            for (String avatarRef : mTargets.keySet()) {
+//                Picasso.with(getContext()).load(avatarRef).resize(140, 140)
+//                        .centerCrop().transform(new CircleTransform()).into(mTargets.get(avatarRef));
+//            }
+//        }
+//        if (mMap.getCameraPosition().zoom > 18) {
+//            for (String avatarRef : mTargets.keySet()) {
+//                Picasso.with(getContext()).load(avatarRef).resize(180, 180)
+//                        .centerCrop().transform(new CircleTransform()).into(mTargets.get(avatarRef));
+//            }
+//            Toast.makeText(mApp, "Camera update zoom > 18", Toast.LENGTH_SHORT).show();
+//                mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+//                    @Override
+//                    public void onCameraMove() {
+//                        if (mMap.getCameraPosition().zoom < 18){
+//                            mMap.setOnCameraMoveListener(ScreenMapFragment.this);
+//                        }
+//                    }
+//                });
+//        } else {
+//            mMap.setOnCameraMoveListener(this);
+//        }
     }
 
 

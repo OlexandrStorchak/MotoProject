@@ -60,6 +60,7 @@ public class FirebaseDatabaseHelper {
 
     private HashMap<String, LatLng> mUsersLocation = new HashMap<>();
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
+    private Map<String, String> mFriends = new HashMap<>();
 
     private LinkedList<ChatMessage> mOlderMessages = new LinkedList<>();
 
@@ -151,7 +152,6 @@ public class FirebaseDatabaseHelper {
      */
 
     public void registerOnlineUsersLocationListener() {
-        Log.v("e", "listener registered");
         mOnlineUsersRef = mDbReference.child("onlineUsers");
         mOnlineUsersLocationListener = new ChildEventListener() {
             @Override
@@ -213,7 +213,6 @@ public class FirebaseDatabaseHelper {
                     LatLng location = new LatLng(lat.doubleValue(), lng.doubleValue());
                     mUsersLocation.put(uid, location);
                 }
-//                receiver.onUsersLocationsReady();
             }
 
             @Override
@@ -248,7 +247,6 @@ public class FirebaseDatabaseHelper {
                 mUsersLocation.put(uid, latLng);
 
                 if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
-//                    mCurrentUserLocation = new LatLng(lat.doubleValue(), lng.doubleValue());
                     return;
                 }
 
@@ -315,6 +313,11 @@ public class FirebaseDatabaseHelper {
     /**
      * Users
      */
+
+    public boolean isInFriendList(String friendId, String relation) {
+        String friendRelation = mFriends.get(friendId);
+        return friendRelation != null && friendRelation.equals(relation);
+    }
     public void changeUserRelation(String uid, String relation) {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("friendList").child(uid);
@@ -325,6 +328,26 @@ public class FirebaseDatabaseHelper {
                 .child("friendList").child(getCurrentUser().getUid());
         ref.removeValue();
         ref.setValue(relation);
+    }
+
+    public void getFriends() {
+        DatabaseReference ref = mDbReference.child("users")
+                .child(getCurrentUser().getUid()).child("friendList");
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot entry : dataSnapshot.getChildren()) {
+                    final String uid = entry.getKey();
+                    final String relation = (String) entry.getValue();
+                    mFriends.put(uid, relation);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void getFriendsAndRegisterListener(final UsersUpdateReceiver receiver) {
@@ -348,6 +371,7 @@ public class FirebaseDatabaseHelper {
                             String avatar = (String) dataSnapshot.child("avatar").getValue();
                             User user = new User(uid, name, avatar, userStatus, relation);
                             friends.add(user);
+                            mFriends.put(uid, relation);
                             mReceivedUsersCount++;
                             if (mReceivedUsersCount == childrenCount) {
                                 receiver.onUsersAdded(friends);
@@ -425,6 +449,7 @@ public class FirebaseDatabaseHelper {
                 String avatar = (String) dataSnapshot.child("avatar").getValue();
                 User user = new User(uid, name, avatar, userStatus, relation);
                 receiver.onUserAdded(user);
+                mFriends.put(uid, relation);
             }
 
             @Override
@@ -462,6 +487,7 @@ public class FirebaseDatabaseHelper {
         String uid = dataSnapshot.getKey();
         String relation = (String) dataSnapshot.getValue();
         receiver.onUserDeleted(new User(uid, relation));
+        mFriends.remove(uid);
     }
 
     private void registerOnlineUsersListener(final UsersUpdateReceiver receiver) {
@@ -672,7 +698,7 @@ public class FirebaseDatabaseHelper {
                     message.setCurrentUserMsg(true);
                     return;
                 }
-//prepare to work with anything hard
+
                 mDbReference.child("users").child(uid)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -941,27 +967,22 @@ public class FirebaseDatabaseHelper {
     }
 
     //get user from database by userId
-    public void getUserModel(String userId) {
+    public void getUserModel(final String userId) {
         //get user name
-
         DatabaseReference ref = mDbReference.child("users").child(userId);
-
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
                 UsersProfileFirebase usersProfileFirebase = dataSnapshot.getValue(UsersProfileFirebase.class);
+                usersProfileFirebase.setId(userId);
                 EventBus.getDefault().post(new OnlineUserProfileReadyEvent(usersProfileFirebase));
-
-
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
-                            }
-
+            }
         });
     }
 

@@ -63,24 +63,18 @@ public class MainActivity extends AppCompatActivity implements
         MainViewInterface, FragmentManager.OnBackStackChangedListener {
 
 
+    protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-
-
-    protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
    @Inject
     NetworkStateReceiver mNetworkStateReceiver;
-//    private OnlineUsersFragment onlineUsersFragment = new OnlineUsersFragment();
-//    private FriendsFragment friendsFragment = new FriendsFragment();
+    AlertControl alertControl = new AlertControl(this);
     private UsersFragment onlineUsersFragment = new UsersFragment();
     private UsersFragment friendsFragment = new UsersFragment();
     private ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
     private ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
     private ChatFragment chatFragment = new ChatFragment();
     private LinearLayout mGpsStatus;
-    AlertControl alertControl = new AlertControl(this);
-
-
     private TextView mNameHeader;
     private TextView mEmailHeader;
     private ImageView mAvatarHeader;
@@ -299,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements
             }
 
         });
-
+        mFirebaseDatabaseHelper.getFriends();
     }
 
     private void startRideService() {
@@ -311,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements
             screenMapFragment.setSosVisibility(View.VISIBLE);
 
         } else if (checkLocationPermission()) {
-            screenMapFragment.getmMap().setMyLocationEnabled(false);
+            screenMapFragment.getMap().setMyLocationEnabled(false);
             getApplication().stopService(
                     new Intent(getApplicationContext(), LocationListenerService.class));
             mGpsStatus.setVisibility(View.GONE);
@@ -323,11 +317,14 @@ public class MainActivity extends AppCompatActivity implements
 
 
     private void hideKeyBoard() {
-        Log.d("log", "hideKeyBoard: ");
+        View view = getCurrentFocus();
+        if (view == null) {
+            return;
+        }
+        
         InputMethodManager inputMethodManager =
                 (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-
-        inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
     }
 

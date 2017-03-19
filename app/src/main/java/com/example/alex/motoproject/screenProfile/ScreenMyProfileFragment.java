@@ -3,7 +3,6 @@ package com.example.alex.motoproject.screenProfile;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -57,7 +56,14 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 public class ScreenMyProfileFragment extends Fragment {
 
 
+    public static final String PROFSET = "profSett";
+    public static final String PROFILE_GPS_MODE_PUBLIC = "public";
+    public static final String PROFILE_GPS_MODE_FRIENDS = "friends";
+    public static final String PROFILE_GPS_MODE_SOS = "sos";
+    public static final String PROFILE_GPS_MODE_NOGPS = "noGps";
     private static final int PICK_IMAGE_REQUEST = 189;
+    @Inject
+    FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     private TextView email;
     private TextView name;
     private TextView nickName;
@@ -68,25 +74,12 @@ public class ScreenMyProfileFragment extends Fragment {
     private EditText motorcycleEdit;
     private EditText aboutMeEdit;
     private ImageView avatar;
-
     private Spinner mapRate;
     private ImageView saveProfileData;
     private ImageView editProfileData;
-
     private LinearLayout gpsRatePanel;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
-
     private MyProfileFirebase myProfileFirebase;
-
-    @Inject
-    FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-
-    public static final String PROFSET = "profSett";
-
-    public static final String PROFILE_GPS_MODE_PUBLIC = "public";
-    public static final String PROFILE_GPS_MODE_FRIENDS = "friends";
-    public static final String PROFILE_GPS_MODE_SOS = "sos";
-    public static final String PROFILE_GPS_MODE_NOGPS = "noGps";
     private String currentUid;
 
     private SharedPreferences preferencesRate;
@@ -334,7 +327,7 @@ public class ScreenMyProfileFragment extends Fragment {
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            //if the upload is successfull
+                            //if the upload is successful
                             progressDialog.dismiss();
                             mFirebaseDatabaseHelper.
                                     setCurrentUserAvatar(taskSnapshot.getDownloadUrl().toString());

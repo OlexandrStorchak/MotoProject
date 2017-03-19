@@ -15,17 +15,15 @@ import android.widget.Toast;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
+import com.example.alex.motoproject.firebase.Constants;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UsersProfileFirebase;
 import com.squareup.picasso.Picasso;
 
-import javax.inject.Inject;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.function.ToDoubleBiFunction;
-
+import javax.inject.Inject;
 
 public class ScreenUserProfileFragment extends Fragment {
 
@@ -72,15 +70,12 @@ public class ScreenUserProfileFragment extends Fragment {
         email = (TextView) view.findViewById(R.id.profile_user_email);
         avatar = (ImageView) view.findViewById(R.id.profile_user_avatar);
         buttons = (LinearLayout) view.findViewById(R.id.profile_user_buttons);
-
-
     }
 
     @Override
     public void onStop() {
         super.onStop();
         getActivity().setTitle("MotoProject");
-
     }
 
     @Override
@@ -106,11 +101,11 @@ public class ScreenUserProfileFragment extends Fragment {
                 .into(avatar);
 
         //TODO add or remove person from friendList
-        //If friend allready added
-//        if (friendAlreadyAdded){
-//            removeFriend.setVisibility(View.GONE);
-//            addToFriend.setVisibility(View.VISIBLE);
-//        }
+        //If friend already added
+        if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
+            removeFriend.setVisibility(View.VISIBLE);
+            addToFriend.setVisibility(View.GONE);
+        }
 
         addToFriend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,6 +117,10 @@ public class ScreenUserProfileFragment extends Fragment {
                 addToFriend.setVisibility(View.GONE);
                 mFirebaseDatabaseHelper.sendFriendRequest(user.getId());
 
+                if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
+                    removeFriend.setVisibility(View.VISIBLE);
+                    addToFriend.setVisibility(View.GONE);
+                }
             }
         });
         removeFriend.setOnClickListener(new View.OnClickListener() {
@@ -132,9 +131,13 @@ public class ScreenUserProfileFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
                 removeFriend.setVisibility(View.GONE);
                 addToFriend.setVisibility(View.VISIBLE);
+                mFirebaseDatabaseHelper.changeUserRelation(user.getId(), null);
+
+                if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
+                    removeFriend.setVisibility(View.GONE);
+                    addToFriend.setVisibility(View.VISIBLE);
+                }
             }
         });
-
     }
-
 }

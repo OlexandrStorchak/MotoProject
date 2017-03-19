@@ -1,11 +1,9 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_user_profile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment">
-
 
     <ScrollView
         android:layout_width="match_parent"
@@ -13,8 +11,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-
+            android:layout_height="wrap_content"
             android:layout_margin="15dp"
             android:orientation="vertical">
 
@@ -32,37 +29,28 @@
                 android:id="@+id/profile_user_email"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-
-
-                />
+                android:layout_gravity="center" />
 
             <TextView
                 android:id="@+id/profile_user_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-
-                />
+                android:layout_gravity="center" />
 
             <TextView
                 android:id="@+id/profile_user_motorcycle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-
-                />
+                android:layout_gravity="center" />
 
             <TextView
                 android:id="@+id/profile_user_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-
-                />
-
+                android:layout_gravity="center" />
 
         </LinearLayout>
+
     </ScrollView>
 
     <LinearLayout
@@ -79,19 +67,15 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:contentDescription="@string/add_friend"
-            android:src="@mipmap/ic_profille_add"
-
-            />
+            android:src="@mipmap/ic_profile_add" />
 
         <ImageView
             android:id="@+id/profile_remove_from_friends"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:contentDescription="@string/remove_from_friends"
-
-            android:visibility="gone"
-            android:src="@mipmap/ic_remove_friendd"
-            />
+            android:src="@mipmap/ic_remove_friend"
+            android:visibility="gone" />
 
     </LinearLayout>
 
