@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.dialog;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,7 +13,6 @@ import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
-import com.example.alex.motoproject.util.SharedPrefsUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -27,8 +27,8 @@ public class ChatLocLimitDialogFragment extends DialogFragment
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mLimit = SharedPrefsUtil.getFromPrefs(getActivity(),
-                getString(R.string.chat_location_limit_preferences));
+        mLimit = getActivity().getPreferences(Context.MODE_PRIVATE)
+                .getInt(getString(R.string.chat_location_limit_preferences), 0);
 
         View view = View.inflate(getContext(), R.layout.dialog_chat_location_limit, null);
         final SeekBar seekBar = (SeekBar) view.findViewById(R.id.seekbar_chat_limit);
@@ -48,10 +48,9 @@ public class ChatLocLimitDialogFragment extends DialogFragment
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                SharedPrefsUtil.saveToPrefs(getActivity(),
-                        getString(R.string.chat_location_limit_preferences),
-                        mLimit);
-//                mListener.onClickPositiveButton(mLimit);
+                getActivity().getPreferences(Context.MODE_PRIVATE).edit()
+                        .putInt(getString(R.string.chat_location_limit_preferences), mLimit)
+                        .apply();
                 EventBus.getDefault().post(new OnClickChatDialogFragmentEvent(mLimit));
             }
         });

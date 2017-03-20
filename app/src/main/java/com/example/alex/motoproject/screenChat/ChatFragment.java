@@ -30,7 +30,6 @@ import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.dialog.ChatLocLimitDialogFragment;
 import com.example.alex.motoproject.mainActivity.MainActivity;
-import com.example.alex.motoproject.util.SharedPrefsUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -238,8 +237,8 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
 
     @Override
     public int getDistanceLimit() {
-        return SharedPrefsUtil.getFromPrefs(getActivity(),
-                getString(R.string.chat_location_limit_preferences));
+        return getActivity().getPreferences(Context.MODE_PRIVATE)
+                .getInt(getString(R.string.chat_location_limit_preferences), 0);
     }
 
     @Override

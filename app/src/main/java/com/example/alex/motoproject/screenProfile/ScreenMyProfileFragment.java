@@ -166,19 +166,15 @@ public class ScreenMyProfileFragment extends Fragment {
         });
 
 
-
         mapRate = (Spinner) view.findViewById(R.id.profile_set_gps_rate);
         mapRate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 // TODO: 05.03.2017 add method contract to LocationListenerService
-
                 switch (i) {
-
                     case 0:
                         preferencesRate.edit()
                                 .putString(currentUid, LOCATION_REQUEST_FREQUENCY_HIGH).apply();
-
                         break;
                     case 1:
                         preferencesRate.edit()
@@ -205,7 +201,6 @@ public class ScreenMyProfileFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-
 
 
     }
@@ -339,7 +334,7 @@ public class ScreenMyProfileFragment extends Fragment {
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            //if the upload is not successfull
+                            //if the upload is not successful
                             progressDialog.dismiss();
                             Toast.makeText(getApplicationContext(), "Завантаження перервалось",
                                     Toast.LENGTH_LONG).show();
