@@ -22,6 +22,7 @@
                 android:layout_height="@dimen/nav_header_height"
                 android:layout_gravity="center"
                 android:contentDescription="@string/avatar"
+                android:background="@color/colorGrey"
                 android:maxHeight="@dimen/nav_header_height"
                 android:maxWidth="@dimen/nav_header_height" />
 
