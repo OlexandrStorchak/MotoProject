@@ -12,10 +12,10 @@
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_gravity="center_vertical"
-        android:maxWidth="45dp"
+        android:contentDescription="@string/avatar_description"
         android:maxHeight="45dp"
-        android:src="@drawable/ava4"
-        />
+        android:maxWidth="45dp"
+        android:src="@drawable/ava4" />
 
     <TextView
         android:id="@+id/userName"

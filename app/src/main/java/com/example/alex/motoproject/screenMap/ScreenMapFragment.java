@@ -22,9 +22,12 @@ import android.widget.Toast;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
+import com.example.alex.motoproject.dialog.MapUserDetailsDialogFragment;
 import com.example.alex.motoproject.event.MapMarkerEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.service.LocationListenerService;
+import com.example.alex.motoproject.util.ArgumentKeys;
 import com.example.alex.motoproject.util.CircleTransform;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -74,6 +77,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     //stores created markers
     private HashMap<String, Marker> mMarkerHashMap;
     private CameraUpdate mCameraUpdate;
+
     public ScreenMapFragment() {
         // Required empty public constructor
     }
@@ -104,7 +108,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
 
-
         Bundle arguments = getArguments();
         if (arguments != null) {
             String uid = arguments.getString("uid");
@@ -115,7 +118,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
                 setPosition(userCoords);
             }
         }
-
 
         //setup fab that starts or stops LocationListenerService
         sosToggleButton = (FloatingActionButton) view.findViewById(R.id.button_drive_sos);
@@ -146,6 +148,18 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             mCameraUpdate = CameraUpdateFactory.newLatLngZoom(CHERKASY, zoom);
         }
         map.moveCamera(mCameraUpdate);
+
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                ((MainActivity) getActivity())
+                        .showDialogFragment(new MapUserDetailsDialogFragment(),
+                                MapUserDetailsDialogFragment.class.getSimpleName(),
+                                (Bundle) marker.getTag());
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+                return true;
+            }
+        });
     }
 
     public void onMapCk() {
@@ -169,9 +183,9 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onStop() {
         mMapView.onStop();
+        super.onStop();
         EventBus.getDefault().unregister(this);
         mFirebaseDatabaseHelper.unregisterOnlineUsersLocationListener();
-        super.onStop();
     }
 
     @Override
@@ -183,10 +197,9 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onStart() {
         mMapView.onStart();
+        super.onStart();
         EventBus.getDefault().register(this);
         mFirebaseDatabaseHelper.registerOnlineUsersLocationListener();
-
-        super.onStart();
     }
 
     @Override
@@ -209,10 +222,16 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         }
         Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(event.latLng)
-                .title(event.userName)
                 .anchor(0.5f, 0.5f));
+        marker.setVisible(false);
+
+        Bundle markerData = new Bundle();
+        markerData.putString(ArgumentKeys.KEY_UID, event.uid);
+        markerData.putString(ArgumentKeys.KEY_NAME, event.userName);
+        markerData.putString(ArgumentKeys.KEY_AVATAR_REF, event.avatarRef);
+        marker.setTag(markerData);
+
         mMarkerHashMap.put(event.uid, marker);
-        marker.setAlpha(0);
         fetchAndSetMarkerIcon(event.uid, event.avatarRef, marker);
     }
 
@@ -221,7 +240,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 mMarkerHashMap.get(uid).setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
-                marker.setAlpha(100);
+                marker.setVisible(true);
                 mTargetStrongRef.remove(this);
             }
 
