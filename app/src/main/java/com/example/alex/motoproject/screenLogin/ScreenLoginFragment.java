@@ -157,7 +157,7 @@ public class ScreenLoginFragment extends Fragment {
 
                     mEmail.setVisibility(View.VISIBLE);
                     mPassword.setVisibility(View.VISIBLE);
-
+                    setClearEditText();
                     firstStart = false;
                 } else {
                     if (mEmail.getText().length() == 0) {
@@ -408,4 +408,8 @@ public class ScreenLoginFragment extends Fragment {
     }
 
 
+    public void setClearEditText() {
+        mEmail.setText("");
+        mPassword.setText("");
+    }
 }

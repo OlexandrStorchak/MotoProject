@@ -9,8 +9,7 @@ import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class FirebaseLoginController extends MainActivity implements FirebaseAuth.AuthStateListener
-        {
+public class FirebaseLoginController extends MainActivity implements FirebaseAuth.AuthStateListener {
     public static boolean loginWithEmail = false; // Flag for validate with email login method
 
 
@@ -21,7 +20,6 @@ public class FirebaseLoginController extends MainActivity implements FirebaseAut
     public FirebaseLoginController(MainActivityPresenter mainActivityPresenter) {
         this.mainActivityPresenter = mainActivityPresenter;
     }
-
 
 
     public void start() {
@@ -37,6 +35,7 @@ public class FirebaseLoginController extends MainActivity implements FirebaseAut
     }
 
     public void signOut() {
+        new FirebaseDatabaseHelper().setUserOfflineOnDisconnect();
         //For Firebase logout
         mFirebaseAuth.signOut();
         //For Facebook logout

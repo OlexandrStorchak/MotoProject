@@ -127,7 +127,7 @@ public class ScreenUserProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getContext(),
-                        "send message " + user.getName(),
+                        "Remove " + user.getName(),
                         Toast.LENGTH_SHORT).show();
                 removeFriend.setVisibility(View.GONE);
                 addToFriend.setVisibility(View.VISIBLE);

@@ -33,8 +33,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
+import com.example.alex.motoproject.firebase.Constants;
 import dagger.Module;
+
+import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_ABOUTME;
+import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_AVATAR;
+import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_EMAIL;
+import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_MOTORCYCLE;
+import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_NAME;
+import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_NICK;
 
 //Talos, plz help us with merge
 @Module
@@ -93,7 +100,7 @@ public class FirebaseDatabaseHelper {
     public void setUserOfflineOnDisconnect() {
         String uid = getCurrentUser().getUid();
         DatabaseReference onlineUsers = mDbReference.child("onlineUsers").child(uid);
-        onlineUsers.onDisconnect().removeValue();
+        onlineUsers.removeValue();
     }
 
     public void updateUserLocation(Location location) {
@@ -1032,8 +1039,31 @@ public class FirebaseDatabaseHelper {
     }
 
     public void saveMyProfile(MyProfileFirebase profile){
-        DatabaseReference ref = mDbReference.child("users").child(getCurrentUser().getUid());
-        ref.setValue(profile);
+
+        DatabaseReference ref = mDbReference.child("users")
+                .child(getCurrentUser().getUid()).child(USER_PROFILE_ABOUTME);
+        ref.setValue(profile.aboutMe);
+
+        ref = mDbReference.child("users")
+                .child(getCurrentUser().getUid()).child(USER_PROFILE_AVATAR);
+        ref.setValue(profile.avatar);
+
+        ref = mDbReference.child("users")
+                .child(getCurrentUser().getUid()).child(USER_PROFILE_EMAIL);
+        ref.setValue(profile.email);
+
+        ref = mDbReference.child("users")
+                .child(getCurrentUser().getUid()).child(USER_PROFILE_MOTORCYCLE);
+        ref.setValue(profile.motorcycle);
+
+        ref = mDbReference.child("users")
+                .child(getCurrentUser().getUid()).child(USER_PROFILE_NAME);
+        ref.setValue(profile.name);
+
+        ref = mDbReference.child("users")
+                .child(getCurrentUser().getUid()).child(USER_PROFILE_NICK);
+        ref.setValue(profile.nickName);
+
     }
 
     public void setCurrentUserAvatar(@NonNull String avatarUrl){

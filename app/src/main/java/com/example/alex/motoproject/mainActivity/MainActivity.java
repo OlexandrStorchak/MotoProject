@@ -293,8 +293,8 @@ public class MainActivity extends AppCompatActivity implements
             }
 
         });
-        mFirebaseDatabaseHelper.getFriends();
-        mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
+        //mFirebaseDatabaseHelper.getFriends();
+
     }
 
     private void startRideService() {
@@ -511,6 +511,8 @@ public class MainActivity extends AppCompatActivity implements
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
+
+
         replaceFragment(screenLoginFragment);
         mNavigationBtnSignOut.setVisibility(View.GONE);
         mNavigationBtnMap.setVisibility(View.GONE);
