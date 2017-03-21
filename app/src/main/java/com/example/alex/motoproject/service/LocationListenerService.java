@@ -131,6 +131,7 @@ public class LocationListenerService extends Service implements Runnable, Google
         unregisterReceiver(mNetworkStateReceiver);
         cleanupNotifications();
 
+        ((App) getApplication()).setLocationListenerServiceOn(false);
 
 //        ((App) getApplication()).setLocationListenerServiceOn(false);
 //        if (((App) getApplication()).isMainActivityDestroyed()) {
@@ -138,7 +139,6 @@ public class LocationListenerService extends Service implements Runnable, Google
 //
 //        }
         super.onDestroy();
-
     }
 
     //The service is not designed for binding

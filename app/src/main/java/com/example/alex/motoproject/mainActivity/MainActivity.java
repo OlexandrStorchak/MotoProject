@@ -548,6 +548,11 @@ public class MainActivity extends AppCompatActivity implements
         dialogFragment.show(fm, tag);
     }
 
+    public void showDialogFragment(DialogFragment fragment, String tag, Bundle args) {
+        fragment.setArguments(args);
+        fragment.show(fm, tag);
+    }
+
     @Override
     public void onBackStackChanged() {
         Log.d("log", "onBackStackChanged: " + fm.getBackStackEntryCount());
