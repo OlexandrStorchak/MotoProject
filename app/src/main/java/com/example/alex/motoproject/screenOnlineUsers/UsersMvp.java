@@ -57,7 +57,9 @@ public interface UsersMvp {
 
         void clearUsers();
 
-        void changeUserRelation(String uid, String relation);
+        void setRelationToUser(String uid, String relation);
+
+        void setUserRelation(String uid, String relation);
 
         Map<String, List<User>> filterUsers(String query);
     }

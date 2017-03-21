@@ -148,7 +148,12 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     }
 
     @Override
-    public void changeUserRelation(String uid, String relation) {
-        mFirebaseDatabaseHelper.changeUserRelation(uid, relation);
+    public void setRelationToUser(String uid, String relation) {
+        mFirebaseDatabaseHelper.setRelationToUser(uid, relation);
+    }
+
+    @Override
+    public void setUserRelation(String uid, String relation) {
+        mFirebaseDatabaseHelper.setUserRelation(uid, relation);
     }
 }
