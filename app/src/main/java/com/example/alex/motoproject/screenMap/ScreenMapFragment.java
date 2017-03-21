@@ -23,6 +23,7 @@ import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.dialog.MapUserDetailsDialogFragment;
+import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.MapMarkerEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
@@ -274,9 +275,9 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             }
         }
 
-        if (checkLocationPermission()) {
-            mMap.setMyLocationEnabled(true);
-        }
+//        if (checkLocationPermission()) {
+//            mMap.setMyLocationEnabled(true);
+//        }
     }
 
     //changes CameraUpdate so the map will be showing a chosen user location after gets ready
@@ -326,6 +327,18 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 //            mMap.setOnCameraMoveListener(this);
 //        }
 //    }
+
+    @Subscribe
+    public void onGpsStatusChanged(GpsStatusChangedEvent event) {
+        if (!checkLocationPermission()) {
+            return;
+        }
+        if (event.isGpsOn() && mApp.isLocationListenerServiceOn()) {
+            mMap.setMyLocationEnabled(true);
+        } else {
+            mMap.setMyLocationEnabled(false);
+        }
+    }
 
     //TODO a better interface name
     public interface MapFragmentListener {
