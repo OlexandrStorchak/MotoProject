@@ -61,13 +61,13 @@ import static com.example.alex.motoproject.R.id.map;
 
 public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
-    private static final int MARKER_DIMENSIONS = 45;
+    private static final int MARKER_DIMENS_DP = 45;
+    private static final int MARKER_DIMENS_PX = DipToPixels.toPx(MARKER_DIMENS_DP);
     private static final LatLng CHERKASY = new LatLng(49.443, 32.0727);
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-    private int mMarkerDimensPx = DipToPixels.toPx(MARKER_DIMENSIONS);
     private App mApp;
     private FloatingActionButton sosToggleButton;
     private List<Target> mTargetStrongRef = new ArrayList<>();
@@ -255,7 +255,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             }
         };
         mTargetStrongRef.add(iconTarget);
-        Picasso.with(getContext()).load(avatarRef).resize(mMarkerDimensPx, mMarkerDimensPx)
+        Picasso.with(getContext()).load(avatarRef).resize(MARKER_DIMENS_PX, MARKER_DIMENS_PX)
                 .centerCrop().transform(new CircleTransform()).into(iconTarget);
     }
 

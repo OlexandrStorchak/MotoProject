@@ -301,12 +301,12 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
         } else if (checkLocationPermission()) {
             screenMapFragment.getMap().setMyLocationEnabled(false);
+            chatFragment.disableShareLocationButton();
             getApplication().stopService(
                     new Intent(getApplicationContext(), LocationListenerService.class));
             mGpsStatus.setVisibility(View.GONE);
             screenMapFragment.setSosVisibility(View.GONE);
             mNavigationStartRide.setText("Поїхали");
-
         }
     }
 

@@ -17,6 +17,10 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_MAP = 1;
     private static final int TYPE_MESSAGE_OWN = 20;
     private static final int TYPE_MAP_OWN = 21;
+
+    private static final int STATIC_MAP_WIDTH = 500;
+    private static final int STATIC_MAP_HEIGHT = 310;
+    // TODO: 22.03.2017 change map quality depending on device dpi
     private List<ChatMessage> mMessages;
     private Context mContext;
 
@@ -97,7 +101,8 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 break;
             case TYPE_MAP:
                 ChatMapHolder mapHolder = (ChatMapHolder) holder;
-                mapHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location), mContext);
+                mapHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location,
+                        STATIC_MAP_WIDTH, STATIC_MAP_HEIGHT), mContext);
                 mapHolder.setStaticMapOnClickListener(location);
                 break;
         }
@@ -119,7 +124,8 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 break;
             case TYPE_MAP_OWN:
                 ChatMapHolder mapHolder = (ChatMapHolder) holder;
-                mapHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location), mContext);
+                mapHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location,
+                        STATIC_MAP_WIDTH, STATIC_MAP_HEIGHT), mContext);
                 mapHolder.setStaticMapOnClickListener(location);
                 break;
         }

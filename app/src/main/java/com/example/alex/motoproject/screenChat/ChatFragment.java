@@ -98,6 +98,9 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_chat);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.container_chat_swipe);
 
+        disableSendButton();
+        disableShareLocationButton();
+
         EventBus.getDefault().register(mPresenter);
 
         setHasOptionsMenu(true);
@@ -120,8 +123,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     private void setupSwipeRefreshLayout() {
-        mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
+        mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -133,7 +135,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     private void setupLocationSharing() {
-        disableShareLocationButton();
+//        disableShareLocationButton();
         mShareLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
