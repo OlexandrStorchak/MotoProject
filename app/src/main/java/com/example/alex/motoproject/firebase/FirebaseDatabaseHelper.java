@@ -79,6 +79,18 @@ public class FirebaseDatabaseHelper {
 
     }
 
+    public void registerAuthLoadingListener(final AuthLoadingListener listener) {
+        new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser() != null) {
+                    firebaseAuth.removeAuthStateListener(this);
+                    listener.onLoadFinished();
+                }
+            }
+        };
+    }
+
     public FirebaseUser getCurrentUser() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         return auth.getCurrentUser();
@@ -226,6 +238,10 @@ public class FirebaseDatabaseHelper {
         return status != null && status.equals(Constants.STATUS_PUBLIC);
     }
 
+    private boolean isStatusNoGps(String status) {
+        return status != null && status.equals(Constants.STATUS_NO_GPS);
+    }
+
     private boolean isUserFriend(String relation) {
         return relation != null && relation.equals(Constants.RELATION_FRIEND);
     }
@@ -242,6 +258,10 @@ public class FirebaseDatabaseHelper {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final String relation = (String) dataSnapshot.getValue();
+
+                if (isStatusNoGps(status)) {
+                    return;
+                }
 
                 if (!isStatusPublic(status)) {
                     if (!isUserFriend(relation)) {
@@ -349,9 +369,16 @@ public class FirebaseDatabaseHelper {
         // TODO: 19.03.2017 might not be accurate when clicking add-remove friend multiple times
     }
 
-    public void changeUserRelation(String uid, String relation) {
+    public void setRelationToUser(String uid, String relation) {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("friendList").child(uid);
+        ref.removeValue();
+        ref.setValue(relation);
+    }
+
+    public void setUserRelation(String uid, String relation) {
+        DatabaseReference ref = mDbReference.child("users").child(uid)
+                .child("friendList").child(getCurrentUser().getUid());
         ref.removeValue();
         ref.setValue(relation);
     }
@@ -1012,15 +1039,19 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-    public void saveMyProfile(MyProfileFirebase profile){
+    public void saveMyProfile(MyProfileFirebase profile) {
         DatabaseReference ref = mDbReference.child("users").child(getCurrentUser().getUid());
         ref.setValue(profile);
     }
 
-    public void setCurrentUserAvatar(@NonNull String avatarUrl){
+    public void setCurrentUserAvatar(@NonNull String avatarUrl) {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("avatar");
         ref.setValue(avatarUrl);
+    }
+
+    public interface AuthLoadingListener {
+        void onLoadFinished();
     }
 
 

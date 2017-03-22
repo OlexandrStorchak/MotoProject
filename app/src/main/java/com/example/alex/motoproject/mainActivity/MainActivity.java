@@ -59,14 +59,14 @@ import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
 
 
-public class MainActivity extends AppCompatActivity implements
-        MainViewInterface, FragmentManager.OnBackStackChangedListener {
+public class MainActivity extends AppCompatActivity implements MainViewInterface,
+        FragmentManager.OnBackStackChangedListener, FirebaseDatabaseHelper.AuthLoadingListener {
 
 
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-   @Inject
+    @Inject
     NetworkStateReceiver mNetworkStateReceiver;
     AlertControl alertControl = new AlertControl(this);
     private UsersFragment onlineUsersFragment = new UsersFragment();
@@ -288,8 +288,7 @@ public class MainActivity extends AppCompatActivity implements
             }
 
         });
-        mFirebaseDatabaseHelper.getFriends();
-        mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
+        mFirebaseDatabaseHelper.registerAuthLoadingListener(this);
     }
 
     private void startRideService() {
@@ -572,5 +571,11 @@ public class MainActivity extends AppCompatActivity implements
         return ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @Override
+    public void onLoadFinished() {
+        mFirebaseDatabaseHelper.getFriends();
+        mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
     }
 }

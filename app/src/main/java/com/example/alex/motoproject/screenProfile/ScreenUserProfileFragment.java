@@ -131,7 +131,7 @@ public class ScreenUserProfileFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
                 removeFriend.setVisibility(View.GONE);
                 addToFriend.setVisibility(View.VISIBLE);
-                mFirebaseDatabaseHelper.changeUserRelation(user.getId(), null);
+                mFirebaseDatabaseHelper.setRelationToUser(user.getId(), null);
 
                 if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
                     removeFriend.setVisibility(View.GONE);
