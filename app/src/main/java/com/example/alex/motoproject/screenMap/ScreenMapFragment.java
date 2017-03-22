@@ -30,6 +30,7 @@ import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.service.LocationListenerService;
 import com.example.alex.motoproject.util.ArgumentKeys;
 import com.example.alex.motoproject.util.CircleTransform;
+import com.example.alex.motoproject.util.DipToPixels;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -60,14 +61,13 @@ import static com.example.alex.motoproject.R.id.map;
 
 public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
-
-    public static final LatLng CHERKASY = new LatLng(49.443, 32.0727);
-
+    private static final int MARKER_DIMENSIONS = 45;
+    private static final LatLng CHERKASY = new LatLng(49.443, 32.0727);
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-
+    private int mMarkerDimensPx = DipToPixels.toPx(MARKER_DIMENSIONS);
     private App mApp;
     private FloatingActionButton sosToggleButton;
     private List<Target> mTargetStrongRef = new ArrayList<>();
@@ -255,7 +255,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             }
         };
         mTargetStrongRef.add(iconTarget);
-        Picasso.with(getContext()).load(avatarRef).resize(80, 80)
+        Picasso.with(getContext()).load(avatarRef).resize(mMarkerDimensPx, mMarkerDimensPx)
                 .centerCrop().transform(new CircleTransform()).into(iconTarget);
     }
 
