@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements
         mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
+                mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
                 loginController.signOut();
                 stopService(new Intent(MainActivity.this, LocationListenerService.class));
 

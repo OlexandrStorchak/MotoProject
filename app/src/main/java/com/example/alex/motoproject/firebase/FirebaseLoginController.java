@@ -35,7 +35,7 @@ public class FirebaseLoginController extends MainActivity implements FirebaseAut
     }
 
     public void signOut() {
-        new FirebaseDatabaseHelper().setUserOfflineOnDisconnect();
+
         //For Firebase logout
         mFirebaseAuth.signOut();
         //For Facebook logout
