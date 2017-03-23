@@ -33,7 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import com.example.alex.motoproject.firebase.Constants;
+
 import dagger.Module;
 
 import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_ABOUTME;
@@ -65,6 +65,7 @@ public class FirebaseDatabaseHelper {
     private ChildEventListener mChatMessagesListener;
     private DatabaseReference mOnlineUsersRef;
 
+
     private HashMap<String, LatLng> mUsersLocation = new HashMap<>();
     private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
     private Map<String, String> mFriends = new HashMap<>();
@@ -86,20 +87,23 @@ public class FirebaseDatabaseHelper {
 
     }
 
+
+
     public FirebaseUser getCurrentUser() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
+
         return auth.getCurrentUser();
     }
 
     public void setUserOnline(String status) {
-        String uid = getCurrentUser().getUid();
-        DatabaseReference onlineUsers = mDbReference.child("onlineUsers").child(uid);
+
+        DatabaseReference onlineUsers = mDbReference.child("onlineUsers").child(getCurrentUser().getUid());
         onlineUsers.setValue(status);
     }
 
-    public void setUserOfflineOnDisconnect() {
-        String uid = getCurrentUser().getUid();
-        DatabaseReference onlineUsers = mDbReference.child("onlineUsers").child(uid);
+    void setUserOfflineOnDisconnect(String currentUser) {
+
+        DatabaseReference onlineUsers = mDbReference.child("onlineUsers").child(currentUser);
         onlineUsers.removeValue();
     }
 

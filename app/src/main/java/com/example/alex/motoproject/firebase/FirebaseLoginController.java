@@ -7,7 +7,10 @@ import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.mainActivity.MainActivityPresenter;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
+
+import javax.inject.Inject;
 
 public class FirebaseLoginController extends MainActivity implements FirebaseAuth.AuthStateListener {
     public static boolean loginWithEmail = false; // Flag for validate with email login method
@@ -16,6 +19,7 @@ public class FirebaseLoginController extends MainActivity implements FirebaseAut
     private FirebaseAuth mFirebaseAuth;
     private MainActivityPresenter mainActivityPresenter;
 
+    private String currentUserId;
 
     public FirebaseLoginController(MainActivityPresenter mainActivityPresenter) {
         this.mainActivityPresenter = mainActivityPresenter;
@@ -24,7 +28,7 @@ public class FirebaseLoginController extends MainActivity implements FirebaseAut
 
     public void start() {
         mFirebaseAuth = FirebaseAuth.getInstance();
-
+            currentUserId = mFirebaseAuth.getCurrentUser().getUid();
         mFirebaseAuth.addAuthStateListener(this);
 
 
@@ -36,6 +40,7 @@ public class FirebaseLoginController extends MainActivity implements FirebaseAut
 
     public void signOut() {
 
+        new FirebaseDatabaseHelper().setUserOfflineOnDisconnect(currentUserId);
         //For Firebase logout
         mFirebaseAuth.signOut();
         //For Facebook logout

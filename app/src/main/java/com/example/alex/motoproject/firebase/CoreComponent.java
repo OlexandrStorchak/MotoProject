@@ -26,6 +26,7 @@ public interface CoreComponent {
     void inject(ScreenUserProfileFragment userProfileFragment);
 
 
+
     void inject(MainActivity mainActivity);
 
     void inject(ScreenMyProfileFragment screenMyProfileFragment);
