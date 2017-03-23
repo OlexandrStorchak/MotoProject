@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -42,7 +43,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.inject.Inject;
 
@@ -63,6 +66,7 @@ public class ScreenMyProfileFragment extends Fragment {
     public static final String PROFILE_GPS_MODE_SOS = "sos";
     public static final String PROFILE_GPS_MODE_NOGPS = "noGps";
     private static final int PICK_IMAGE_REQUEST = 189;
+    private static final int MAX_BYTES_SIZE = 10000000;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     private TextView email;
@@ -300,20 +304,40 @@ public class ScreenMyProfileFragment extends Fragment {
         Uri filePath;
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             filePath = data.getData();
+
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), filePath);
-                avatar.setImageBitmap(bitmap);
-
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 10, baos);
-                byte[] dataBytes = baos.toByteArray();
-                uploadFile(dataBytes);
+                //if file not large for current device and can be load
+               getAvatarStream(2,filePath);
 
 
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException | OutOfMemoryError e) {
+
+
+                try {
+                    //if file to large for current device
+                    getAvatarStream(4,filePath);
+
+                } catch (FileNotFoundException e1) {
+                    e1.printStackTrace();
+                }
+
             }
         }
+    }
+
+    private void getAvatarStream(int size, Uri filePath) throws FileNotFoundException,OutOfMemoryError {
+        InputStream iStream = getApplicationContext().getContentResolver().openInputStream(filePath);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = size;
+
+        Bitmap bitmap = BitmapFactory.decodeStream(iStream,null,options);
+
+        avatar.setImageBitmap(bitmap);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 10, baos);
+        byte[] dataBytes = baos.toByteArray();
+        uploadFile(dataBytes);
     }
 
     //this method will upload the file
