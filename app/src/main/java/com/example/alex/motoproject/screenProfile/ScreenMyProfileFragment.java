@@ -12,6 +12,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -238,9 +239,15 @@ public class ScreenMyProfileFragment extends Fragment {
         myProfileFirebase = user.getMyProfileFirebase();
         currentUid = user.getMyProfileFirebase().getId();
         email.setText(user.getMyProfileFirebase().getEmail());
+        String ava = user.getMyProfileFirebase().getAvatar();
+
+        //Google avatars increase size
+        if (ava.contains(".googleusercontent.com/")) {
+            ava = ava.replace("/s96-c", "/s300-c");
+        }
 
         Picasso.with(getApplicationContext())
-                .load(user.getMyProfileFirebase().getAvatar())
+                .load(ava)
                 .resize(avatar.getMaxWidth(), avatar.getMaxHeight())
                 .centerCrop()
                 .into(avatar);

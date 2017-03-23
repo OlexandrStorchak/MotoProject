@@ -4,6 +4,7 @@ package com.example.alex.motoproject.screenProfile;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,8 +95,17 @@ public class ScreenUserProfileFragment extends Fragment {
         nickName.setText(user.getNickName());
         email.setText(user.getEmail());
         motorcycle.setText(user.getMotorcycle());
+
+        String ava = user.getAvatar();
+        Log.i("log", "onOnlineUserProfileReady: "+ava);
+        //Google avatars increase size
+        if (ava.contains(".googleusercontent.com/")) {
+            ava = ava.replace("/s96-c", "/s300-c");
+            Log.i("log", "onOnlineUserProfileReady: "+ava);
+        }
+
         Picasso.with(getContext())
-                .load(user.getAvatar())
+                .load(ava)
                 .resize(avatar.getMaxWidth(), avatar.getMaxHeight())
                 .centerCrop()
                 .into(avatar);
