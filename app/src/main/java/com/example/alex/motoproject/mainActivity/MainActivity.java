@@ -62,7 +62,7 @@ import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment
 public class MainActivity extends AppCompatActivity implements MainViewInterface,
         FragmentManager.OnBackStackChangedListener, FirebaseDatabaseHelper.AuthLoadingListener {
 
-
+    // TODO: 24.03.2017 fix crash in friends fragment when replacing fragment to it in user details fragment
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;

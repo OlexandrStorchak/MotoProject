@@ -30,7 +30,6 @@ public class ScreenUserProfileFragment extends Fragment {
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
 
-
     LinearLayout buttons;
     private TextView name;
     private TextView motorcycle;
@@ -100,7 +99,6 @@ public class ScreenUserProfileFragment extends Fragment {
                 .centerCrop()
                 .into(avatar);
 
-        //TODO add or remove person from friendList
         //If friend already added
         if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
             removeFriend.setVisibility(View.VISIBLE);
@@ -117,26 +115,27 @@ public class ScreenUserProfileFragment extends Fragment {
                 addToFriend.setVisibility(View.GONE);
                 mFirebaseDatabaseHelper.sendFriendRequest(user.getId());
 
-                if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
-                    removeFriend.setVisibility(View.VISIBLE);
-                    addToFriend.setVisibility(View.GONE);
-                }
+//                if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
+//                    removeFriend.setVisibility(View.VISIBLE);
+//                    addToFriend.setVisibility(View.GONE);
+//                }
             }
         });
         removeFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getContext(),
-                        "send message " + user.getName(),
+                        "remove friend " + user.getName(),
                         Toast.LENGTH_SHORT).show();
                 removeFriend.setVisibility(View.GONE);
                 addToFriend.setVisibility(View.VISIBLE);
                 mFirebaseDatabaseHelper.setRelationToUser(user.getId(), null);
+                mFirebaseDatabaseHelper.setUserRelation(user.getId(), null);
 
-                if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
-                    removeFriend.setVisibility(View.GONE);
-                    addToFriend.setVisibility(View.VISIBLE);
-                }
+//                if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
+//                    removeFriend.setVisibility(View.GONE);
+//                    addToFriend.setVisibility(View.VISIBLE);
+//                }
             }
         });
     }
