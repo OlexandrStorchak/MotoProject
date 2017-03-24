@@ -7,7 +7,7 @@ import java.util.List;
 public interface ChatMvp {
 
     interface ViewToPresenter {
-        void onEditTextTextChanged(CharSequence charSequence);
+        void onEditTextChanged(CharSequence charSequence);
 
         void onClickSendButton(String msg);
 

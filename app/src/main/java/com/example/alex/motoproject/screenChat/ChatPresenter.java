@@ -18,11 +18,12 @@ import javax.inject.Inject;
 public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPresenter {
 
     private WeakReference<ChatMvp.PresenterToView> mView;
-    private ChatMvp.PresenterToModel mModel = new ChatModel(this);
+    private ChatMvp.PresenterToModel mModel;
 
     @Inject
     public ChatPresenter(ChatMvp.PresenterToView view) {
         mView = new WeakReference<>(view);
+        mModel = new ChatModel(this);
     }
 
     private ChatMvp.PresenterToView getView() throws NullPointerException {
@@ -34,7 +35,7 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
     }
 
     @Override
-    public void onEditTextTextChanged(CharSequence charSequence) {
+    public void onEditTextChanged(CharSequence charSequence) {
         if (charSequence.length() > 0 && !charSequence.toString().matches("\\s+")) {
             getView().enableSendButton();
         } else {

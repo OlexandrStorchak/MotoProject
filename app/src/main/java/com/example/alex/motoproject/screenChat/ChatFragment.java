@@ -154,7 +154,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                mPresenter.onEditTextTextChanged(charSequence);
+                mPresenter.onEditTextChanged(charSequence);
             }
 
             @Override

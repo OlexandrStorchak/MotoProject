@@ -71,6 +71,7 @@ dependencies {
     compile 'io.github.luizgrp.sectionedrecyclerviewadapter:sectionedrecyclerviewadapter:1.0.4'
 //    compile 'com.squareup.okhttp:okhttp:2.4.0'
     testCompile 'junit:junit:4.12'
+    testCompile "org.mockito:mockito-core:2.7.19"
     annotationProcessor 'com.google.dagger:dagger-compiler:2.9'
 }
 apply plugin: 'com.google.gms.google-services'

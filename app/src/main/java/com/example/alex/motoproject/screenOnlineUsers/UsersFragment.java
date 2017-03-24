@@ -244,6 +244,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void addNewSection(String relation) {
+        // TODO: 23.03.2017 fix context returning null when changing fragments with high frequency
         Resources res = getContext().getResources();
         String title;
         switch (relation) {
