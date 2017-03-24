@@ -28,7 +28,7 @@ public class FirebaseLoginController extends MainActivity implements FirebaseAut
 
     public void start() {
         mFirebaseAuth = FirebaseAuth.getInstance();
-            currentUserId = mFirebaseAuth.getCurrentUser().getUid();
+
         mFirebaseAuth.addAuthStateListener(this);
 
 
@@ -59,6 +59,7 @@ public class FirebaseLoginController extends MainActivity implements FirebaseAut
                 if (mFirebaseCurrentUser.isEmailVerified()) {
                     // User is signed in with email
                     mainActivityPresenter.onLogin(mFirebaseCurrentUser);
+                    currentUserId = mFirebaseCurrentUser.getUid();
 
                 } else {
                     //User is login with email. Must confirm by email
@@ -78,7 +79,7 @@ public class FirebaseLoginController extends MainActivity implements FirebaseAut
             if (mFirebaseCurrentUser != null) {
                 //Sign in with Google account
                 mainActivityPresenter.onLogin(mFirebaseCurrentUser);
-
+                currentUserId = mFirebaseCurrentUser.getUid();
 
             } else {
                 // User is signed out with Google account

@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -180,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements
         mNavigationStartRide = (Button) mNavigationView.findViewById(R.id.navigation_btn_ride);
 
         mNavigationStartRide.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
 
@@ -261,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements
                                             PROFILE_GPS_MODE_PUBLIC).apply();
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_PUBLIC);
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_green);
-
+                            mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_start));
                             break;
                         case 1:
                             preferences.edit()
@@ -269,6 +272,7 @@ public class MainActivity extends AppCompatActivity implements
                                             PROFILE_GPS_MODE_FRIENDS).apply();
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_FRIENDS);
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_yellow);
+                            mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_ready));
                             break;
                         case 2:
                             preferences.edit()
@@ -276,6 +280,7 @@ public class MainActivity extends AppCompatActivity implements
                                             PROFILE_GPS_MODE_SOS).apply();
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_SOS);
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
+                            mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_stop));
                             break;
                         case 3:
                             preferences.edit()
@@ -283,6 +288,7 @@ public class MainActivity extends AppCompatActivity implements
                                             PROFILE_GPS_MODE_NOGPS).apply();
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_NOGPS);
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
+                            mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_stop));
                             break;
                     }
                 }
@@ -304,6 +310,8 @@ public class MainActivity extends AppCompatActivity implements
             alertControl.handleLocation();
             mGpsStatus.setVisibility(View.VISIBLE);
             mNavigationStartRide.setText("Приїхали");
+            mNavigationStartRide.setTextColor(getResources().getColor(R.color.red800));
+            mNavigationStartRide.setBackground(getResources().getDrawable(R.drawable.button_stop));
             screenMapFragment.setSosVisibility(View.VISIBLE);
 
         } else if (checkLocationPermission()) {
@@ -312,7 +320,10 @@ public class MainActivity extends AppCompatActivity implements
                     new Intent(getApplicationContext(), LocationListenerService.class));
             mGpsStatus.setVisibility(View.GONE);
             screenMapFragment.setSosVisibility(View.GONE);
+
             mNavigationStartRide.setText("Поїхали");
+            mNavigationStartRide.setTextColor(getResources().getColor(R.color.green800));
+            mNavigationStartRide.setBackground(getResources().getDrawable(R.drawable.button_start));
 
         }
     }
@@ -429,6 +440,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
+
     @Override
     public void login(FirebaseUser user) {
 
@@ -457,18 +469,22 @@ public class MainActivity extends AppCompatActivity implements
         }
         switch (gpsMode) {
             case PROFILE_GPS_MODE_NOGPS:
+                mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_stop));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
                 mapVisibility.setSelection(3);
                 break;
             case PROFILE_GPS_MODE_SOS:
+                mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_stop));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
                 mapVisibility.setSelection(2);
                 break;
             case PROFILE_GPS_MODE_FRIENDS:
+                mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_ready));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_yellow);
                 mapVisibility.setSelection(1);
                 break;
             case PROFILE_GPS_MODE_PUBLIC:
+                mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_start));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_green);
                 mapVisibility.setSelection(0);
                 break;
@@ -494,14 +510,17 @@ public class MainActivity extends AppCompatActivity implements
 
             mGpsStatus.setVisibility(View.VISIBLE);
             mNavigationStartRide.setText("Приїхали");
+
+           // mNavigationStartRide.refreshDrawableState();
             // screenMapFragment.setSosVisibility(View.VISIBLE);
 
         } else if (checkLocationPermission()) {
 
             mGpsStatus.setVisibility(View.GONE);
 //            screenMapFragment.setSosVisibility(View.GONE);
-            mNavigationStartRide.setText("Поїхали");
 
+            mNavigationStartRide.setText("Поїхали");
+            //mNavigationStartRide.refreshDrawableState();
         }
 
     }

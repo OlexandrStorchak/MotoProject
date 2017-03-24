@@ -27,6 +27,7 @@
         <item name="android:height">50dp</item>
         <item name="android:textAlignment" tools:targetApi="jelly_bean_mr1">center</item>
     </style>
+
     <style name="Navigation">
         <item name="android:background">@drawable/navigation</item>
         <item name="android:textAlignment" tools:targetApi="jelly_bean_mr1">center</item>
@@ -37,9 +38,11 @@
         <item name="android:textColor">@color/blue900</item>
         <item name="android:textColorHint">@color/greenA400</item>
     </style>
+
     <style name="MyButtonCustomProfile">
 
     </style>
+
     <style name="AvatarUserProfile">
         <item name="android:background">@drawable/avatar_user_profile_background</item>
 
@@ -52,6 +55,29 @@
         <item name="android:textStyle">bold</item>
         <item name="android:background">@drawable/button_background</item>
         <item name="android:textColor">@color/blue900</item>
+        <item name="android:textColorHint">@color/greenA400</item>
+    </style>
+
+    <style name="MyButtonStart">
+
+        <item name="android:background">@drawable/button_start</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:textStyle">bold</item>
+
+        <item name="android:textColor">@color/green800</item>
+        <item name="android:textColorHint">@color/greenA400</item>
+    </style>
+
+    <style name="MyButtonStop">
+        <item name="android:background">@drawable/button_start</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:textStyle">bold</item>
+
+        <item name="android:textColor">@color/red800</item>
         <item name="android:textColorHint">@color/greenA400</item>
     </style>
 
