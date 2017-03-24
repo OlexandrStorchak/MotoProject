@@ -172,7 +172,8 @@ public class FirebaseDatabaseHelper {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//                postChangeMarkerEvent(dataSnapshot);
+                postDeleteMarkerEvent(dataSnapshot);
+                postChangeMarkerEvent(dataSnapshot);
             }
 
             @Override

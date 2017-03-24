@@ -41,7 +41,7 @@ public interface ChatMvp {
 
         void notifyItemRangeInserted(int mitPos, int lastPos);
 
-        void setListToAdapter(List<ChatMessage> messages);
+        void setAdapter(List<ChatMessage> messages);
 
         void disableRefreshingSwipeLayout();
 

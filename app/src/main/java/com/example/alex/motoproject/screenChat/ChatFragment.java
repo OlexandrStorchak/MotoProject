@@ -30,6 +30,7 @@ import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.dialog.ChatLocLimitDialogFragment;
 import com.example.alex.motoproject.mainActivity.MainActivity;
+import com.example.alex.motoproject.util.DimensHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -259,8 +260,10 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     @Override
-    public void setListToAdapter(List<ChatMessage> messages) {
-        mAdapter = new ChatAdapter(messages);
+    public void setAdapter(List<ChatMessage> messages) {
+        int maxImageWidth = DimensHelper.getScreenWidth(getContext());
+        int maxImageHeight = (int) Math.round(maxImageWidth * 0.6);
+        mAdapter = new ChatAdapter(messages, maxImageWidth, maxImageHeight);
     }
 
     @Override

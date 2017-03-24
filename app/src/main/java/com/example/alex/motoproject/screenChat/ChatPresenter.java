@@ -71,7 +71,7 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
     }
 
     private void registerAdapter() {
-        getView().setListToAdapter(mModel.getMessages());
+        getView().setAdapter(mModel.getMessages());
     }
 
     @Override

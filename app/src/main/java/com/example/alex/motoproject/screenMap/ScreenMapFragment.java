@@ -30,7 +30,6 @@ import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.service.LocationListenerService;
 import com.example.alex.motoproject.util.ArgumentKeys;
 import com.example.alex.motoproject.util.CircleTransform;
-import com.example.alex.motoproject.util.DipToPixels;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -61,8 +60,8 @@ import static com.example.alex.motoproject.R.id.map;
 
 public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
-    private static final int MARKER_DIMENS_DP = 45;
-    private static final int MARKER_DIMENS_PX = DipToPixels.toPx(MARKER_DIMENS_DP);
+    private static final int MARKER_DIMENS_DP = 90;
+    //    private static final int MARKER_DIMENS_PX = DipToPixels.dpToPx(MARKER_DIMENS_DP);
     private static final LatLng CHERKASY = new LatLng(49.443, 32.0727);
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
@@ -255,7 +254,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             }
         };
         mTargetStrongRef.add(iconTarget);
-        Picasso.with(getContext()).load(avatarRef).resize(MARKER_DIMENS_PX, MARKER_DIMENS_PX)
+        Picasso.with(getContext()).load(avatarRef).resize(MARKER_DIMENS_DP, MARKER_DIMENS_DP)
                 .centerCrop().transform(new CircleTransform()).into(iconTarget);
     }
 

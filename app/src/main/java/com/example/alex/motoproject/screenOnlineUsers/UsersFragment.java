@@ -21,14 +21,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.DaggerPresenterComponent;
 import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.Constants;
-import com.example.alex.motoproject.util.CircleTransform;
-import com.squareup.picasso.Picasso;
+import com.example.alex.motoproject.util.CropCircleTransformation;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -392,13 +392,21 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             User user = mUsers.get(position);
 
             userViewHolder.name.setText(user.getName());
-            Picasso.with(userViewHolder.avatar.getContext())
+
+            Glide.with(userViewHolder.avatar.getContext())
                     .load(user.getAvatar())
-                    .resize(userViewHolder.avatar.getMaxWidth(),
+                    .override(userViewHolder.avatar.getMaxWidth(),
                             userViewHolder.avatar.getMaxHeight())
-                    .centerCrop()
-                    .transform(new CircleTransform())
+                    .transform(new CropCircleTransformation(getContext()))
                     .into(userViewHolder.avatar);
+
+//            Picasso.with(userViewHolder.avatar.getContext())
+//                    .load(user.getAvatar())
+//                    .resize(userViewHolder.avatar.getMaxWidth(),
+//                            userViewHolder.avatar.getMaxHeight())
+//                    .centerCrop()
+//                    .transform(new CircleTransform())
+//                    .into(userViewHolder.avatar);
             if (user.getStatus() != null && user.getStatus().equals(Constants.STATUS_PUBLIC)) {
                 userViewHolder.mapCur.setVisibility(View.VISIBLE);
             } else {
