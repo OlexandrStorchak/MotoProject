@@ -32,7 +32,7 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-public class AlertControl implements ScreenMapFragment.MapFragmentListener,
+public class AlertControl implements ScreenMapFragment.MapFragmentHolder,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     public static final int ALERT_GPS_OFF = 20;
@@ -100,7 +100,6 @@ public class AlertControl implements ScreenMapFragment.MapFragmentListener,
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         Intent callWirelessSettingIntent = new Intent(
-// TODO: 05.02.2017 make this button start mobile internet settings
                                                 Settings.ACTION_WIRELESS_SETTINGS);
                                         mainActivity.startActivity(callWirelessSettingIntent);
                                     }
@@ -109,8 +108,7 @@ public class AlertControl implements ScreenMapFragment.MapFragmentListener,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent callWifiSettingIntent = new Intent(
-                                        Settings
-                                                .ACTION_WIFI_SETTINGS);
+                                        Settings.ACTION_WIFI_SETTINGS);
                                 mainActivity.startActivity(callWifiSettingIntent);
                             }
                         });

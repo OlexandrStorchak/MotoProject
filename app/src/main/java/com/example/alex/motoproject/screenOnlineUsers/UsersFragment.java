@@ -54,10 +54,46 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     UsersMvp.ViewToPresenter mPresenter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SearchView mSearchView;
+    private RecyclerView mRecyclerView;
 
     public UsersFragment() {
 
     }
+
+    //    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        outState.putParcelable(RECYCLER_VIEW_SCROLL,
+//                layoutManager.onSaveInstanceState());
+//    }
+
+//    @Override
+//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+//        super.onViewStateRestored(savedInstanceState);
+//        if (savedInstanceState == null) {
+//            return;
+//        }
+//        layoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_VIEW_SCROLL));
+//    }
+
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        LinearLayoutManager manager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+//        outState.putInt(RECYCLER_VIEW_SCROLL, manager.findFirstVisibleItemPosition());
+//    }
+//
+//    @Override
+//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+//        super.onViewStateRestored(savedInstanceState);
+//        if (savedInstanceState == null) {
+//            return;
+//        }
+//        LinearLayoutManager manager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+//        manager.scrollToPosition(savedInstanceState.getInt(RECYCLER_VIEW_SCROLL));
+//        // TODO: 27.03.2017 split methods for loading and setting the listener to users and do not
+//        // TODO: 27.03.2017 load users twice after onViewStateRestored so it was be possible to scroll
+//    }
 
     private void setupSwipeRefreshLayout() {
         mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
@@ -151,7 +187,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             mAdapter.setHasStableIds(true);
         }
 
-        RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext()) {
             @Override
             public boolean supportsPredictiveItemAnimations() {
@@ -159,8 +195,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             }
         };
 
-        rv.setLayoutManager(layoutManager);
-        rv.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override

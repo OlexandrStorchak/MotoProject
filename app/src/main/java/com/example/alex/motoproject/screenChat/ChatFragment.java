@@ -3,7 +3,6 @@ package com.example.alex.motoproject.screenChat;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
@@ -38,6 +37,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import static com.example.alex.motoproject.util.ArgKeys.MESSAGE_TEXT;
+
 public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     private static final int MESSAGE_MAX_CHARS = 200;
     @Inject
@@ -47,7 +48,6 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     private ImageButton mSendButton;
     private ImageButton mShareLocationButton;
     private ChatAdapter mAdapter;
-    private Parcelable savedInstanceStateRecycler;
     private LinearLayoutManager mLayoutManager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -68,17 +68,33 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     @Override
-    public void onStart() {
-        if (savedInstanceStateRecycler != null) {
-            mRecyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceStateRecycler);
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState == null) {
+            return;
         }
+        mEditText.setText(savedInstanceState.getString(MESSAGE_TEXT));
+//        mRecyclerView.getLayoutManager()
+//                .onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_VIEW_SCROLL));
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(MESSAGE_TEXT, mEditText.getText().toString());
+//        outState.putParcelable(RECYCLER_VIEW_SCROLL,
+//                mRecyclerView.getLayoutManager().onSaveInstanceState());
+        // TODO: 27.03.2017 call to Linear Layout Manager (!) does not help,
+    }
+
+
+    @Override
+    public void onStart() {
         super.onStart();
     }
 
     @Override
     public void onStop() {
-        savedInstanceStateRecycler = mRecyclerView.getLayoutManager().onSaveInstanceState();
-        hideKeyboard(getView());
         super.onStop();
     }
 
@@ -292,6 +308,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
 
     @Override
     public void disableShareLocationButton() {
+        // TODO: 27.03.2017 fix crash on "Prijihaly" button click
         mShareLocationButton.setEnabled(false);
         mShareLocationButton.setColorFilter(ResourcesCompat
                 .getColor(getResources(), R.color.grey500, null));

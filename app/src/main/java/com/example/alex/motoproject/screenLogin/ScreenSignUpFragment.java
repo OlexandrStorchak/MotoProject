@@ -20,6 +20,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import static com.example.alex.motoproject.util.ArgKeys.EMAIL;
+import static com.example.alex.motoproject.util.ArgKeys.PASSWORD;
+import static com.example.alex.motoproject.util.ArgKeys.REPEAT_PASSWORD;
+
 
 public class ScreenSignUpFragment extends Fragment {
 
@@ -31,6 +35,24 @@ public class ScreenSignUpFragment extends Fragment {
         // Required empty public constructor
     }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState == null) {
+            return;
+        }
+        mEmail.setText(savedInstanceState.getString(EMAIL));
+        mPassword.setText(savedInstanceState.getString(PASSWORD));
+        mRepeatPassword.setText(savedInstanceState.getString(REPEAT_PASSWORD));
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(EMAIL, mEmail.getText().toString());
+        outState.putString(PASSWORD, mPassword.getText().toString());
+        outState.putString(REPEAT_PASSWORD, mRepeatPassword.getText().toString());
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

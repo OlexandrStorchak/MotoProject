@@ -164,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             @Override
             public void onClick(View view) {
                 fm.beginTransaction()
-                        .addToBackStack("profile")
+                        .addToBackStack(null)
                         .replace(R.id.main_activity_frame, screenProfileFragment)
                         .commit();
 
@@ -331,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         } else {
             super.onBackPressed();
         }
-        fm.popBackStack();
+//        fm.popBackStack();
     }
 
 
@@ -388,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
         ScreenUserProfileFragment userProfile = new ScreenUserProfileFragment();
 
-        fm.beginTransaction().addToBackStack("online")
+        fm.beginTransaction().addToBackStack(null)
                 .replace(R.id.main_activity_frame, userProfile)
                 .commit();
         mFirebaseDatabaseHelper.getUserModel(model.getUserId());
