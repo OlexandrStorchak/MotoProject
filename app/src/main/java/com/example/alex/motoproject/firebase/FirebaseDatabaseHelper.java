@@ -2,6 +2,7 @@ package com.example.alex.motoproject.firebase;
 
 import android.location.Location;
 import android.support.annotation.NonNull;
+import android.text.format.Time;
 import android.util.Log;
 
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
@@ -10,6 +11,7 @@ import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.screenChat.ChatMessage;
 import com.example.alex.motoproject.screenChat.ChatMessageSendable;
 import com.example.alex.motoproject.screenOnlineUsers.User;
+import com.example.alex.motoproject.service.MainServiceSosModel;
 import com.example.alex.motoproject.util.DistanceUtil;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -1074,6 +1076,21 @@ public class FirebaseDatabaseHelper {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("avatar");
         ref.setValue(avatarUrl);
+    }
+
+    public void sendSosMessage() {
+        Time time = new Time();
+        time.setToNow();
+        DatabaseReference ref = mDbReference.child("sos").child(getCurrentUser().getUid());
+        MainServiceSosModel sosModel = new MainServiceSosModel();
+        sosModel.setUserId(getCurrentUser().getUid());
+        sosModel.setUserName(getCurrentUser().getDisplayName());
+        sosModel.setDescription("Test description");
+        sosModel.setTime(time.format2445());
+        sosModel.setLat("24.3242");
+        sosModel.setLng("43.234");
+        ref.setValue(sosModel);
+
     }
 
 

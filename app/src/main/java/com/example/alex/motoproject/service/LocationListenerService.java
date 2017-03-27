@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.service;
 
 import android.Manifest;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;

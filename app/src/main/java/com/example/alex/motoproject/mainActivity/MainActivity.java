@@ -44,6 +44,7 @@ import com.example.alex.motoproject.screenOnlineUsers.UsersFragment;
 import com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment;
 import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
 import com.example.alex.motoproject.service.LocationListenerService;
+import com.example.alex.motoproject.service.MainService;
 import com.example.alex.motoproject.util.CircleTransform;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseUser;
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
+    @Inject
 
 
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
@@ -113,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements
     private ImageView mapIndicator;
     private App mApp;
     private Button mNavigationStartRide;
+    private Intent mainServiceIntent;
 
 
     @Override
@@ -122,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements
         EventBus.getDefault().register(this);
         App.getCoreComponent().inject(this);
         App.getCoreComponent().inject(alertControl);
-
+        mainServiceIntent = new Intent(this, MainService.class);
         mApp = (App) getApplicationContext();
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
@@ -180,7 +183,11 @@ public class MainActivity extends AppCompatActivity implements
         });
         mGpsStatus = (LinearLayout) mNavigationView.findViewById(R.id.profile_gps_panel);
         mNavigationStartRide = (Button) mNavigationView.findViewById(R.id.navigation_btn_ride);
-
+        if (mApp.isLocationListenerServiceOn()){
+            mNavigationStartRide.setText("Приїхали");
+            mNavigationStartRide.setTextColor(getResources().getColor(R.color.red800));
+            mNavigationStartRide.setBackground(getResources().getDrawable(R.drawable.button_stop));
+        }
         mNavigationStartRide.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
@@ -440,9 +447,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-
     @Override
     public void login(FirebaseUser user) {
+        startService(mainServiceIntent);
 
         mFirebaseDatabaseHelper.addUserToFirebase(
                 user.getUid(),
@@ -511,7 +518,7 @@ public class MainActivity extends AppCompatActivity implements
             mGpsStatus.setVisibility(View.VISIBLE);
             mNavigationStartRide.setText("Приїхали");
 
-           // mNavigationStartRide.refreshDrawableState();
+            // mNavigationStartRide.refreshDrawableState();
             // screenMapFragment.setSosVisibility(View.VISIBLE);
 
         } else if (checkLocationPermission()) {
@@ -527,7 +534,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void logout() {
-
+        stopService(mainServiceIntent);
         fm.removeOnBackStackChangedListener(this);
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
