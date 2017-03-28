@@ -32,8 +32,7 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-public class AlertControl implements ScreenMapFragment.MapFragmentHolder,
-        ActivityCompat.OnRequestPermissionsResultCallback {
+public class AlertControl implements ScreenMapFragment.MapFragmentHolder {
 
     public static final int ALERT_GPS_OFF = 20;
     public static final int ALERT_INTERNET_OFF = 21;
@@ -193,7 +192,7 @@ public class AlertControl implements ScreenMapFragment.MapFragmentHolder,
         if (!mActiveAlerts.contains(alertType))
             mActiveAlerts.add(alertType);
     }
-    @Override
+
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[],
                                            @NonNull int[] grantResults) {

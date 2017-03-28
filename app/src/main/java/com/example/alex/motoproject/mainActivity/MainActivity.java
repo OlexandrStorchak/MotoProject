@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -60,7 +62,8 @@ import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment
 
 
 public class MainActivity extends AppCompatActivity implements MainViewInterface,
-        FragmentManager.OnBackStackChangedListener, FirebaseDatabaseHelper.AuthLoadingListener {
+        FragmentManager.OnBackStackChangedListener, FirebaseDatabaseHelper.AuthLoadingListener,
+        ActivityCompat.OnRequestPermissionsResultCallback {
 
     // TODO: 24.03.2017 fix crash in friends fragment when replacing fragment to it in user details fragment
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
@@ -421,6 +424,39 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        alertControl.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode,
+//                                           @NonNull String permissions[],
+//                                           @NonNull int[] grantResults) {
+//        if (requestCode == 10) {
+//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // permission was granted
+////                handleLocation();
+//                Log.v("yfg", "hfghfg");
+//
+//            } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+//                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                        Manifest.permission.ACCESS_FINE_LOCATION)) {
+//                    //user did not check never ask again, show rationale
+////                    showAlert(ALERT_PERMISSION_RATIONALE);
+//                    Log.v("yfg", "hfghfg");
+//                } else {
+//                    //user checked never ask again
+////                    showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
+//                    Log.v("yfg", "hfghfg");
+//
+//                }
+//            }
+//        }
+//
+//    }
 
     @Override
     public void login(FirebaseUser user) {
