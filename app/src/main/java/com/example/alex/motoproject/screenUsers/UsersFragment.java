@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.screenOnlineUsers;
+package com.example.alex.motoproject.screenUsers;
 
 
 import android.content.res.Resources;

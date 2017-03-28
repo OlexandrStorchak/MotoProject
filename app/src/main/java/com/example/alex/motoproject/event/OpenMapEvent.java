@@ -3,22 +3,22 @@ package com.example.alex.motoproject.event;
 import com.google.android.gms.maps.model.LatLng;
 
 public class OpenMapEvent {
-    private LatLng latLng;
-    private String uid;
+    private LatLng mLatLng;
+    private String mUserId;
 
     public OpenMapEvent(LatLng latLng) {
-        this.latLng = latLng;
+        this.mLatLng = latLng;
     }
 
     public OpenMapEvent(String uid) {
-        this.uid = uid;
+        this.mUserId = uid;
     }
 
     public LatLng getLatLng() {
-        return latLng;
+        return mLatLng;
     }
 
-    public String getUid() {
-        return uid;
+    public String getUserId() {
+        return mUserId;
     }
 }

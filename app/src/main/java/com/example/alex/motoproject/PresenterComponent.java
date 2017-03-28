@@ -1,7 +1,7 @@
 package com.example.alex.motoproject;
 
 import com.example.alex.motoproject.screenChat.ChatFragment;
-import com.example.alex.motoproject.screenOnlineUsers.UsersFragment;
+import com.example.alex.motoproject.screenUsers.UsersFragment;
 
 import javax.inject.Singleton;
 

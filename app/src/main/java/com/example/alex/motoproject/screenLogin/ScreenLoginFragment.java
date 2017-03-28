@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +20,6 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.google.android.gms.auth.api.Auth;
@@ -39,8 +36,6 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-import org.json.JSONObject;
-
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -52,11 +47,11 @@ import static com.example.alex.motoproject.firebase.FirebaseLoginController.logi
 public class ScreenLoginFragment extends Fragment {
 
     private final int GOOGLE_SIGN_IN = 13;
-    private String TAG = "log";
+
     private EditText mEmail, mPassword;
     private ProgressBar mProgressBar;
     private FirebaseAuth mFireBaseAuth;
-    private GoogleApiClient mGoogleApiClient = null;
+    private GoogleApiClient mGoogleApiClient;
     private boolean firstStart = true;
     private Button mButtonSignInGoogle;
     private Button mButtonSignUp;
@@ -82,21 +77,6 @@ public class ScreenLoginFragment extends Fragment {
         loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                // App code
-                Log.d(TAG, "onSuccess: FACEBOOK");
-                final GraphRequest request = GraphRequest.newMeRequest(
-                        loginResult.getAccessToken(),
-                        new GraphRequest.GraphJSONObjectCallback() {
-                            @Override
-                            public void onCompleted(
-                                    JSONObject object,
-                                    GraphResponse response) {
-                                // Application code
-
-                                Log.v("LoginActivity", response.toString());
-                            }
-                        });
-                Log.d(TAG, "onCompleted: " + request.toString());
 
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
@@ -108,7 +88,7 @@ public class ScreenLoginFragment extends Fragment {
                 mButtonSignInGoogle.setVisibility(View.VISIBLE);
                 mButtonSubmit.setVisibility(View.VISIBLE);
                 mButtonSignInFacebook.setVisibility(View.VISIBLE);
-                Log.d(TAG, "onCancel: FACEBOOK");
+
             }
 
             @Override
@@ -118,7 +98,7 @@ public class ScreenLoginFragment extends Fragment {
                 mButtonSignInGoogle.setVisibility(View.VISIBLE);
                 mButtonSubmit.setVisibility(View.VISIBLE);
                 mButtonSignInFacebook.setVisibility(View.VISIBLE);
-                Log.d(TAG, "onError: FACEBOOK");
+
             }
         });
 
@@ -140,7 +120,6 @@ public class ScreenLoginFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
 
-        Log.d(TAG, "onViewCreated: test");
         mEmail = (EditText) view.findViewById(R.id.auth_email);
         mPassword = (EditText) view.findViewById(R.id.auth_pass);
 
@@ -162,7 +141,7 @@ public class ScreenLoginFragment extends Fragment {
                 } else {
                     if (mEmail.getText().length() == 0) {
                         mEmail.setError(getResources().getString(R.string.email_is_empty));
-                        Log.d(TAG, "onClick: emaeil is empty");
+
                     }
                     if (mPassword.getText().length() == 0) {
                         mPassword.setError(getResources().getString(R.string.enter_password));
@@ -259,7 +238,7 @@ public class ScreenLoginFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy: ");
+
         mFireBaseAuth = null;
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             mGoogleApiClient.stopAutoManage(getActivity());
@@ -273,12 +252,12 @@ public class ScreenLoginFragment extends Fragment {
                 .addOnCompleteListener(((MainActivity) getContext()), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
+
                         // If sign in fails, display a message to the firebaseUser. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
                         // signed in firebaseUser can be handled in the listener.
                         if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithEmail", task.getException());
+
 
                             mProgressBar.setVisibility(View.GONE);
                             firstStart = true;
@@ -314,7 +293,6 @@ public class ScreenLoginFragment extends Fragment {
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
-        Log.d(TAG, "firebaseAuthWithGoogle:");
 
 
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
@@ -322,37 +300,30 @@ public class ScreenLoginFragment extends Fragment {
                 .addOnCompleteListener(((MainActivity) getContext()), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
+
 
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithCredential", task.getException());
 
-                        }
 
                     }
                 });
     }
 
     public void handleFacebookAccessToken(AccessToken token) {
-        Log.d(TAG, "handleFacebookAccessToken:" + token);
+
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mFireBaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener((MainActivity) getContext(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
+
 
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithCredential", task.getException());
-
-                        }
 
 
                     }
@@ -370,8 +341,6 @@ public class ScreenLoginFragment extends Fragment {
                     // Google Sign In was successful, authenticate with Firebase
                     GoogleSignInAccount account = result.getSignInAccount();
                     firebaseAuthWithGoogle(account);
-                } else {
-                    Log.d(TAG, "onActivityResult: ");
                 }
             } else if (resultCode == RESULT_CANCELED) {
 
@@ -401,7 +370,7 @@ public class ScreenLoginFragment extends Fragment {
                 }
             }
         } else {
-            Log.d(TAG, "onActivityResult: facebook");
+
             callbackManager.onActivityResult(requestCode, resultCode, data);
 
         }

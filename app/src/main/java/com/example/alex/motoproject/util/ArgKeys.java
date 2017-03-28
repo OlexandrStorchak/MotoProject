@@ -3,6 +3,8 @@ package com.example.alex.motoproject.util;
 public class ArgKeys {
     public static final String KEY_UID = "uid";
     public static final String KEY_NAME = "name";
+    public static final String KEY_LIST_TYPE = "listType";
+    public static final String KEY_USER_COORDS = "userCoords";
     public static final String KEY_AVATAR_REF = "avatarRef";
 
     public static final String CAMERA_POSITION = "cameraPosition";

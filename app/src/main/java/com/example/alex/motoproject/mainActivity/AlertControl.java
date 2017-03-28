@@ -14,7 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
@@ -49,7 +48,7 @@ public class AlertControl implements ScreenMapFragment.MapFragmentHolder {
     private MainActivity mainActivity;
 
 
-    public AlertControl(MainActivity mainActivity) {
+    AlertControl(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
 
     }
@@ -193,9 +192,9 @@ public class AlertControl implements ScreenMapFragment.MapFragmentHolder {
             mActiveAlerts.add(alertType);
     }
 
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
+    void onRequestPermissionsResult(int requestCode,
+                                    @NonNull String permissions[],
+                                    @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_LOCATION_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // permission was granted
@@ -218,8 +217,8 @@ public class AlertControl implements ScreenMapFragment.MapFragmentHolder {
     @Override
     public void handleLocation() {
 
-        if (checkLocationPermission()) { //permission granted
-
+        if (checkLocationPermission()) {
+            //permission granted
             mainActivity.screenMapFragment.onLocationAllowed();
 
         } else { //permission was not granted, show the permission prompt
@@ -278,7 +277,7 @@ public class AlertControl implements ScreenMapFragment.MapFragmentHolder {
             try {
                 mainActivity.unregisterReceiver(mNetworkStateReceiver);
             } catch (IllegalArgumentException e) {
-                Log.v("log", "receiver was unregistered before onStop");
+                //catch
             }
         }
     }

@@ -2,13 +2,13 @@ package com.example.alex.motoproject.event;
 
 public class GpsStatusChangedEvent {
 
-    private boolean isGpsOn;
+    private boolean mGpsOn;
 
     public GpsStatusChangedEvent(boolean isGpsOn) {
-        this.isGpsOn = isGpsOn;
+        this.mGpsOn = isGpsOn;
     }
 
     public boolean isGpsOn() {
-        return isGpsOn;
+        return mGpsOn;
     }
 }

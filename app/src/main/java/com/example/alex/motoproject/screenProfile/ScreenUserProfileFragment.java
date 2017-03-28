@@ -168,7 +168,7 @@ public class ScreenUserProfileFragment extends Fragment {
 
     @Subscribe
     public void onOnlineUserProfileReady(OnlineUserProfileReadyEvent event) {
-        mUserData = event.getUsersProfileFirebase();
+        mUserData = event.getUserProfileFirebase();
         displayUserData();
     }
 }

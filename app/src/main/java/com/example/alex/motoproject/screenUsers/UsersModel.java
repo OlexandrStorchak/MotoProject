@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.screenOnlineUsers;
+package com.example.alex.motoproject.screenUsers;
 
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;

@@ -2,18 +2,13 @@ package com.example.alex.motoproject.event;
 
 
 public class ShowUserProfileEvent {
-   String UserId;
+   private String mUserId;
 
     public String getUserId() {
-        return UserId;
-    }
-
-    public void setUserId(String userId) {
-        UserId = userId;
+        return mUserId;
     }
 
     public ShowUserProfileEvent(String userId) {
-
-        UserId = userId;
+        mUserId = userId;
     }
 }

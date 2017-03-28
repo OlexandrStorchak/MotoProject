@@ -4,17 +4,13 @@ package com.example.alex.motoproject.event;
 import com.example.alex.motoproject.firebase.UsersProfileFirebase;
 
 public class OnlineUserProfileReadyEvent {
-    private UsersProfileFirebase usersProfileFirebase;
+    private UsersProfileFirebase mUserProfileFirebase;
 
     public OnlineUserProfileReadyEvent(UsersProfileFirebase usersProfileFirebase) {
-        this.usersProfileFirebase = usersProfileFirebase;
+        this.mUserProfileFirebase = usersProfileFirebase;
     }
 
-    public UsersProfileFirebase getUsersProfileFirebase() {
-        return usersProfileFirebase;
-    }
-
-    public void setUsersProfileFirebase(UsersProfileFirebase usersProfileFirebase) {
-        this.usersProfileFirebase = usersProfileFirebase;
+    public UsersProfileFirebase getUserProfileFirebase() {
+        return mUserProfileFirebase;
     }
 }

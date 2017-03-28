@@ -3,31 +3,27 @@ package com.example.alex.motoproject;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiverComponent;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiverModule;
 import com.example.alex.motoproject.firebase.CoreComponent;
-
 import com.example.alex.motoproject.firebase.DaggerCoreComponent;
 import com.example.alex.motoproject.firebase.FirebaseUtilsModule;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.google.firebase.database.FirebaseDatabase;
 
 import io.fabric.sdk.android.Fabric;
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
-
 
 public class App extends Application
         implements Application.ActivityLifecycleCallbacks {
-    private static final String LOG_TAG = App.class.getSimpleName();
+
     private static CoreComponent coreComponent;
+
     private static NetworkStateReceiverComponent networkStateReceiverComponent;
+
     private boolean isMainActivityVisible;
     private boolean isLocationListenerServiceOn;
-    private boolean isMainActivityDestroyed;
 
     public static CoreComponent getCoreComponent() {
         return coreComponent;
@@ -36,16 +32,8 @@ public class App extends Application
     @Override
     public void onCreate() {
         super.onCreate();
-        Fabric.with(this, new Crashlytics());
 
-        Realm.init(getApplicationContext());
-        RealmConfiguration configuration =
-                new RealmConfiguration.Builder()
-                        .name("main_database.realm")
-                        .schemaVersion(1)
-                        .build();
-        Realm.setDefaultConfiguration(configuration);
-        Log.d(LOG_TAG, "realmInit: well done");
+        Fabric.with(this, new Crashlytics());
 
         registerActivityLifecycleCallbacks(this);
 
@@ -76,9 +64,6 @@ public class App extends Application
         return isMainActivityVisible;
     }
 
-    public boolean isMainActivityDestroyed() {
-        return isMainActivityDestroyed;
-    }
 
     @Override
     public void onActivityCreated(Activity activity, Bundle bundle) {
@@ -94,9 +79,7 @@ public class App extends Application
 
     @Override
     public void onActivityResumed(Activity activity) {
-        if (activity instanceof MainActivity) {
-            isMainActivityDestroyed = false;
-        }
+
     }
 
     @Override
@@ -118,9 +101,7 @@ public class App extends Application
 
     @Override
     public void onActivityDestroyed(Activity activity) {
-        if (activity instanceof MainActivity) {
-            isMainActivityDestroyed = true;
-        }
+
     }
 
     public CoreComponent buildCoreComponent() {

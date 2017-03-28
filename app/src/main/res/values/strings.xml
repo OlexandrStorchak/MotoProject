@@ -88,4 +88,6 @@
     <string name="chat_location_limit_preferences">ChatLimitPref</string>
     <integer name="chat_location_limit_default">0</integer>
     <string name="chat_location_no_current_user_location">Поділіться координатами, щоб фільтрація запрацювала</string>
+    <string name="stop_location_service_button_tittle">Приїхали</string>
+    <string name="start_location_service_button_title">Поїхали</string>
 </resources>

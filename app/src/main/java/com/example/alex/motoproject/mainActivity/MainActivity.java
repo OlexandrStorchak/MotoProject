@@ -21,7 +21,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -42,9 +41,9 @@ import com.example.alex.motoproject.firebase.FirebaseLoginController;
 import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
-import com.example.alex.motoproject.screenOnlineUsers.UsersFragment;
 import com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment;
 import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
+import com.example.alex.motoproject.screenUsers.UsersFragment;
 import com.example.alex.motoproject.service.LocationListenerService;
 import com.example.alex.motoproject.service.MainService;
 import com.example.alex.motoproject.util.CircleTransform;
@@ -62,6 +61,9 @@ import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_SOS;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
+import static com.example.alex.motoproject.util.ArgKeys.KEY_LIST_TYPE;
+import static com.example.alex.motoproject.util.ArgKeys.KEY_UID;
+import static com.example.alex.motoproject.util.ArgKeys.KEY_USER_COORDS;
 
 
 public class MainActivity extends AppCompatActivity implements MainViewInterface,
@@ -72,35 +74,38 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-
-
-
-    protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
-
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
-    AlertControl alertControl = new AlertControl(this);
-    private UsersFragment onlineUsersFragment = new UsersFragment();
-    private UsersFragment friendsFragment = new UsersFragment();
-    private ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
-    private ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
-    private ChatFragment chatFragment = new ChatFragment();
-    private LinearLayout mGpsStatus;
 
+    ScreenMapFragment screenMapFragment = new ScreenMapFragment();
+    UsersFragment onlineUsersFragment = new UsersFragment();
+    UsersFragment friendsFragment = new UsersFragment();
+    ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
+    ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
+    ChatFragment chatFragment = new ChatFragment();
+
+    AlertControl alertControl = new AlertControl(this);
+    FirebaseLoginController loginController;
+    private App mApp;
+
+    private Intent mainServiceIntent;
+
+    private FragmentManager mFragmentManager = getSupportFragmentManager();
+
+    private LinearLayout mGpsStatus;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mToggle;
+    private Toolbar mToolbar;
 
     private TextView mNameHeader;
     private TextView mEmailHeader;
     private ImageView mAvatarHeader;
     private Button mNavigationBtnMap;
     private Button mNavigationBtnSignOut;
-    private DrawerLayout mDrawerLayout;
 
-    private FragmentManager fm = getSupportFragmentManager();
-
-    private FirebaseLoginController loginController;
-    private ActionBarDrawerToggle toggle;
-    private Toolbar toolbar;
-
+    private Spinner mapVisibility;
+    private ImageView mapIndicator;
+    private Button mNavigationStartRide;
 
     private View.OnClickListener backButtonBack = new View.OnClickListener() {
         @Override
@@ -115,13 +120,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         }
     };
 
-    private Spinner mapVisibility;
-    private ImageView mapIndicator;
-    private App mApp;
-    private Button mNavigationStartRide;
-    private Intent mainServiceIntent;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -129,8 +127,11 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         EventBus.getDefault().register(this);
         App.getCoreComponent().inject(this);
         App.getCoreComponent().inject(alertControl);
+
         mainServiceIntent = new Intent(this, MainService.class);
+
         mApp = (App) getApplicationContext();
+
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
         loginController = new FirebaseLoginController(presenterImp);
@@ -139,13 +140,13 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
         setContentView(R.layout.activity_main);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        toggle = new ActionBarDrawerToggle(
-                this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+        mToggle = new ActionBarDrawerToggle(
+                this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
 
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
@@ -160,8 +161,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                 hideKeyboard();
             }
         };
-        mDrawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
+        mDrawerLayout.addDrawerListener(mToggle);
+        mToggle.syncState();
 
         //Define view of Navigation Drawer
         NavigationView mNavigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -177,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         mAvatarHeader.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fm.beginTransaction()
+                mFragmentManager.beginTransaction()
                         .addToBackStack(null)
                         .replace(R.id.main_activity_frame, screenProfileFragment)
                         .commit();
@@ -187,10 +188,10 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         });
         mGpsStatus = (LinearLayout) mNavigationView.findViewById(R.id.profile_gps_panel);
         mNavigationStartRide = (Button) mNavigationView.findViewById(R.id.navigation_btn_ride);
-        if (mApp.isLocationListenerServiceOn()){
-            mNavigationStartRide.setText("Приїхали");
-            mNavigationStartRide.setTextColor(getResources().getColor(R.color.red800));
-            mNavigationStartRide.setBackground(getResources().getDrawable(R.drawable.button_stop));
+        if (mApp.isLocationListenerServiceOn()) {
+            mNavigationStartRide.setText(R.string.stop_location_service_button_tittle);
+            mNavigationStartRide.setTextColor(ContextCompat.getColor(this,R.color.red800));
+            mNavigationStartRide.setBackground(ContextCompat.getDrawable(this,R.drawable.button_stop));
         }
         mNavigationStartRide.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
@@ -218,12 +219,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 loginController.signOut();
-
                 stopService(new Intent(MainActivity.this, LocationListenerService.class));
-
-
             }
         });
 
@@ -235,7 +232,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             public void onClick(View view) {
                 replaceFragment(onlineUsersFragment);
                 mDrawerLayout.closeDrawers();
-
             }
         });
 
@@ -254,12 +250,13 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         navigationBtnChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fm.beginTransaction()
+                mFragmentManager.beginTransaction()
                         .replace(R.id.main_activity_frame, chatFragment)
                         .commit();
                 mDrawerLayout.closeDrawers();
             }
         });
+
         mapVisibility = (Spinner) mNavigationView.findViewById(R.id.profile_set_gps_visibility);
         mapIndicator = (ImageView) mNavigationView.findViewById(R.id.profile_show_on_map_indicator);
         mapVisibility.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -275,7 +272,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                                             PROFILE_GPS_MODE_PUBLIC).apply();
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_PUBLIC);
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_green);
-                            mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_start));
+                            mGpsStatus.setBackground(ContextCompat
+                                    .getDrawable(MainActivity.this,R.drawable.button_start));
                             break;
                         case 1:
                             preferences.edit()
@@ -283,7 +281,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                                             PROFILE_GPS_MODE_FRIENDS).apply();
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_FRIENDS);
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_yellow);
-                            mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_ready));
+                            mGpsStatus.setBackground(ContextCompat
+                                    .getDrawable(MainActivity.this,R.drawable.button_ready));
                             break;
                         case 2:
                             preferences.edit()
@@ -291,7 +290,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                                             PROFILE_GPS_MODE_SOS).apply();
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_SOS);
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
-                            mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_stop));
+                            mGpsStatus.setBackground(ContextCompat
+                                    .getDrawable(MainActivity.this,R.drawable.button_stop));
                             break;
                         case 3:
                             preferences.edit()
@@ -299,7 +299,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                                             PROFILE_GPS_MODE_NOGPS).apply();
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_NOGPS);
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
-                            mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_stop));
+                            mGpsStatus.setBackground(ContextCompat
+                                    .getDrawable(MainActivity.this,R.drawable.button_stop));
                             break;
                     }
                 }
@@ -319,9 +320,9 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
             alertControl.handleLocation();
             mGpsStatus.setVisibility(View.VISIBLE);
-            mNavigationStartRide.setText("Приїхали");
-            mNavigationStartRide.setTextColor(getResources().getColor(R.color.red800));
-            mNavigationStartRide.setBackground(getResources().getDrawable(R.drawable.button_stop));
+            mNavigationStartRide.setText(R.string.stop_location_service_button_tittle);
+            mNavigationStartRide.setTextColor(ContextCompat.getColor(this,R.color.red800));
+            mNavigationStartRide.setBackground(ContextCompat.getDrawable(this,R.drawable.button_stop));
             screenMapFragment.setSosVisibility(View.VISIBLE);
 
         } else if (checkLocationPermission()) {
@@ -332,13 +333,12 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             mGpsStatus.setVisibility(View.GONE);
             screenMapFragment.setSosVisibility(View.GONE);
 
-            mNavigationStartRide.setText("Поїхали");
-            mNavigationStartRide.setTextColor(getResources().getColor(R.color.green800));
-            mNavigationStartRide.setBackground(getResources().getDrawable(R.drawable.button_start));
+            mNavigationStartRide.setText(R.string.start_location_service_button_title);
+            mNavigationStartRide.setTextColor(ContextCompat.getColor(this,R.color.green800));
+            mNavigationStartRide.setBackground(ContextCompat.getDrawable(this,R.drawable.button_start));
 
         }
     }
-
 
     private void hideKeyboard() {
         View view = getCurrentFocus();
@@ -360,13 +360,12 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         } else {
             super.onBackPressed();
         }
-//        fm.popBackStack();
+
     }
 
 
     @Override
     protected void onStart() {
-
         super.onStart();
         alertControl.plusNetworkStateReceiver();
         alertControl.registerNetworkStateReceiver();
@@ -404,9 +403,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             alertControl.mAlert.dismiss();
         }
 
-        if (!alertControl.isServiceOn()) {
-            Log.d("log", "onDestroy: service is Off");
-        }
         super.onDestroy();
         EventBus.getDefault().unregister(this);
     }
@@ -417,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
         ScreenUserProfileFragment userProfile = new ScreenUserProfileFragment();
 
-        fm.beginTransaction().addToBackStack(null)
+        mFragmentManager.beginTransaction().addToBackStack(null)
                 .replace(R.id.main_activity_frame, userProfile)
                 .commit();
         mFirebaseDatabaseHelper.getUserModel(model.getUserId());
@@ -440,9 +436,9 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
     @Subscribe
     public void onOpenMapEvent(OpenMapEvent event) {
-        String uid = event.getUid();
+        String uid = event.getUserId();
         LatLng userCoords = event.getLatLng();
-        if (event.getUid() != null) {
+        if (event.getUserId() != null) {
             replaceFragment(screenMapFragment, uid);
         } else if (userCoords != null) {
             replaceFragment(screenMapFragment, userCoords);
@@ -457,32 +453,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         alertControl.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode,
-//                                           @NonNull String permissions[],
-//                                           @NonNull int[] grantResults) {
-//        if (requestCode == 10) {
-//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                // permission was granted
-////                handleLocation();
-//                Log.v("yfg", "hfghfg");
-//
-//            } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-//                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                        Manifest.permission.ACCESS_FINE_LOCATION)) {
-//                    //user did not check never ask again, show rationale
-////                    showAlert(ALERT_PERMISSION_RATIONALE);
-//                    Log.v("yfg", "hfghfg");
-//                } else {
-//                    //user checked never ask again
-////                    showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
-//                    Log.v("yfg", "hfghfg");
-//
-//                }
-//            }
-//        }
-//
-//    }
 
     @Override
     public void login(FirebaseUser user) {
@@ -495,7 +465,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                 String.valueOf(user.getPhotoUrl()));
         mFirebaseDatabaseHelper.getCurrentUserModel();
 
-
         SharedPreferences sharedPreferences = getApplicationContext()
                 .getSharedPreferences(PROFSET, MODE_PRIVATE);
 
@@ -505,7 +474,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             editor.apply();
         }
 
-
         String gpsMode = sharedPreferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null);
 
         if (gpsMode == null) {
@@ -513,22 +481,22 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         }
         switch (gpsMode) {
             case PROFILE_GPS_MODE_NOGPS:
-                mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_stop));
+                mGpsStatus.setBackground(ContextCompat.getDrawable(this,R.drawable.button_stop));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
                 mapVisibility.setSelection(3);
                 break;
             case PROFILE_GPS_MODE_SOS:
-                mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_stop));
+                mGpsStatus.setBackground(ContextCompat.getDrawable(this,R.drawable.button_stop));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
                 mapVisibility.setSelection(2);
                 break;
             case PROFILE_GPS_MODE_FRIENDS:
-                mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_ready));
+                mGpsStatus.setBackground(ContextCompat.getDrawable(this,R.drawable.button_ready));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_yellow);
                 mapVisibility.setSelection(1);
                 break;
             case PROFILE_GPS_MODE_PUBLIC:
-                mGpsStatus.setBackground(getResources().getDrawable(R.drawable.button_start));
+                mGpsStatus.setBackground(ContextCompat.getDrawable(this,R.drawable.button_start));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_green);
                 mapVisibility.setSelection(0);
                 break;
@@ -548,23 +516,15 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                 .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
 
         mFirebaseDatabaseHelper.setUserOnline(preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
-        fm.addOnBackStackChangedListener(this);
+        mFragmentManager.addOnBackStackChangedListener(this);
 
         if (mApp.isLocationListenerServiceOn()) {
-
             mGpsStatus.setVisibility(View.VISIBLE);
-            mNavigationStartRide.setText("Приїхали");
-
-            // mNavigationStartRide.refreshDrawableState();
-            // screenMapFragment.setSosVisibility(View.VISIBLE);
+            mNavigationStartRide.setText(R.string.stop_location_service_button_tittle);
 
         } else if (checkLocationPermission()) {
-
             mGpsStatus.setVisibility(View.GONE);
-//            screenMapFragment.setSosVisibility(View.GONE);
-
-            mNavigationStartRide.setText("Поїхали");
-            //mNavigationStartRide.refreshDrawableState();
+            mNavigationStartRide.setText(R.string.start_location_service_button_title);
         }
 
     }
@@ -572,11 +532,10 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
     @Override
     public void logout() {
         stopService(mainServiceIntent);
-        fm.removeOnBackStackChangedListener(this);
+        mFragmentManager.removeOnBackStackChangedListener(this);
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
-
 
         replaceFragment(screenLoginFragment);
         mNavigationBtnSignOut.setVisibility(View.GONE);
@@ -590,53 +549,53 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
     @Override
     public void replaceFragment(Fragment fragment) {
-        fm.beginTransaction()
+        mFragmentManager.beginTransaction()
                 .replace(R.id.main_activity_frame, fragment)
                 .commit();
     }
 
     public void replaceFragment(Fragment fragment, String uid) {
         Bundle bundle = new Bundle();
-        bundle.putString("uid", uid);
+        bundle.putString(KEY_UID, uid);
         fragment.setArguments(bundle);
         replaceFragment(fragment);
     }
 
     public void replaceFragment(Fragment fragment, LatLng userCoords) {
         Bundle bundle = new Bundle();
-        bundle.putParcelable("userCoords", userCoords);
+        bundle.putParcelable(KEY_USER_COORDS, userCoords);
         fragment.setArguments(bundle);
         replaceFragment(fragment);
     }
 
     public void replaceFragment(Fragment fragment, int listType) {
         Bundle bundle = new Bundle();
-        bundle.putInt("listType", listType);
+        bundle.putInt(KEY_LIST_TYPE, listType);
         fragment.setArguments(bundle);
         replaceFragment(fragment);
     }
 
     public void showDialogFragment(DialogFragment dialogFragment, String tag) {
-        dialogFragment.show(fm, tag);
+        dialogFragment.show(mFragmentManager, tag);
     }
 
     public void showDialogFragment(DialogFragment fragment, String tag, Bundle args) {
         fragment.setArguments(args);
-        fragment.show(fm, tag);
+        fragment.show(mFragmentManager, tag);
     }
 
     @Override
     public void onBackStackChanged() {
-        Log.d("log", "onBackStackChanged: " + fm.getBackStackEntryCount());
-        if (fm.getBackStackEntryCount() > 0) {
-            toolbar.setNavigationIcon(R.mipmap.ic_back_button);
-            toolbar.setNavigationOnClickListener(backButtonBack);
+
+        if (mFragmentManager.getBackStackEntryCount() > 0) {
+            mToolbar.setNavigationIcon(R.mipmap.ic_back_button);
+            mToolbar.setNavigationOnClickListener(backButtonBack);
             mDrawerLayout.closeDrawers();
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         } else {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            toolbar.setNavigationOnClickListener(drawerMenu);
-            toggle.syncState();
+            mToolbar.setNavigationOnClickListener(drawerMenu);
+            mToggle.syncState();
         }
     }
 

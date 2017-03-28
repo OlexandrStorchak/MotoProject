@@ -4,8 +4,8 @@ import android.support.annotation.NonNull;
 
 import com.example.alex.motoproject.screenChat.ChatMvp;
 import com.example.alex.motoproject.screenChat.ChatPresenter;
-import com.example.alex.motoproject.screenOnlineUsers.UsersMvp;
-import com.example.alex.motoproject.screenOnlineUsers.UsersPresenter;
+import com.example.alex.motoproject.screenUsers.UsersMvp;
+import com.example.alex.motoproject.screenUsers.UsersPresenter;
 
 import javax.inject.Singleton;
 
@@ -14,27 +14,27 @@ import dagger.Provides;
 
 @Module
 public class PresenterModule {
-    private ChatMvp.PresenterToView chatView;
-    private UsersMvp.PresenterToView usersView;
+    private ChatMvp.PresenterToView mChatView;
+    private UsersMvp.PresenterToView mUserView;
 
     public PresenterModule(ChatMvp.PresenterToView view) {
-        chatView = view;
+        mChatView = view;
     }
     public PresenterModule(UsersMvp.PresenterToView view) {
-        usersView = view;
+        mUserView = view;
     }
 
     @Provides
     @NonNull
     @Singleton
     ChatMvp.ViewToPresenter provideChatPresenter() {
-        return new ChatPresenter(chatView);
+        return new ChatPresenter(mChatView);
     }
 
     @Provides
     @NonNull
     @Singleton
     UsersMvp.ViewToPresenter provideUsersPresenter() {
-        return new UsersPresenter(usersView);
+        return new UsersPresenter(mUserView);
     }
 }

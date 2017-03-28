@@ -14,7 +14,4 @@ public class CurrentUserProfileReadyEvent {
         return myProfileFirebase;
     }
 
-    public void setMyProfileFirebase(MyProfileFirebase myProfileFirebase) {
-        this.myProfileFirebase = myProfileFirebase;
-    }
 }

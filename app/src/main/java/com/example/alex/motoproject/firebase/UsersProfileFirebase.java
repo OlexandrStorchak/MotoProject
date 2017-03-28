@@ -16,18 +16,14 @@ public class UsersProfileFirebase implements Parcelable {
             return new UsersProfileFirebase[size];
         }
     };
-    String id;
-    String name;
-    String avatar;
-    String email;
-    String motorcycle;
-    String nickName;
+    private String id;
+    private String name;
+    private String avatar;
+    private String email;
+    private String motorcycle;
+    private String nickName;
 
-    public UsersProfileFirebase() {
-
-    }
-
-    protected UsersProfileFirebase(Parcel in) {
+    private UsersProfileFirebase(Parcel in) {
         id = in.readString();
         name = in.readString();
         avatar = in.readString();
@@ -38,10 +34,6 @@ public class UsersProfileFirebase implements Parcelable {
 
     public String getMotorcycle() {
         return motorcycle;
-    }
-
-    public void setMotorcycle(String motorcycle) {
-        this.motorcycle = motorcycle;
     }
 
     public String getId() {
@@ -72,17 +64,10 @@ public class UsersProfileFirebase implements Parcelable {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getNickName() {
         return nickName;
     }
 
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
-    }
 
     @Override
     public int describeContents() {

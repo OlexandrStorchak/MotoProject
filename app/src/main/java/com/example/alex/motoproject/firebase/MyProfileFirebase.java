@@ -2,7 +2,7 @@ package com.example.alex.motoproject.firebase;
 
 
 public class MyProfileFirebase {
-    String id;
+    private String id;
     String name;
     String avatar;
     String email;

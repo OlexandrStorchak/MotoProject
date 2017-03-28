@@ -11,25 +11,20 @@ import com.google.firebase.auth.FirebaseUser;
 import javax.inject.Inject;
 
 public class FirebaseLoginController implements FirebaseAuth.AuthStateListener {
-    public static boolean loginWithEmail = false; // Flag for validate with email login method
+    // Flag for validate with email login method
+    public static boolean loginWithEmail = false;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     private FirebaseAuth mFirebaseAuth;
     private MainActivityPresenter mainActivityPresenter;
-    private String currentUserId;
 
     public FirebaseLoginController(MainActivityPresenter mainActivityPresenter) {
         this.mainActivityPresenter = mainActivityPresenter;
-
     }
-
 
     public void start() {
         mFirebaseAuth = FirebaseAuth.getInstance();
-
         mFirebaseAuth.addAuthStateListener(this);
-
-
     }
 
     public void stop() {
@@ -41,13 +36,10 @@ public class FirebaseLoginController implements FirebaseAuth.AuthStateListener {
         mFirebaseAuth.signOut();
         //For Facebook logout
         LoginManager.getInstance().logOut();
-
     }
-
 
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-
         FirebaseUser mFirebaseCurrentUser = firebaseAuth.getCurrentUser();
         if (loginWithEmail) {
             //Sign in method by email
@@ -55,13 +47,11 @@ public class FirebaseLoginController implements FirebaseAuth.AuthStateListener {
                 if (mFirebaseCurrentUser.isEmailVerified()) {
                     // User is signed in with email
                     mainActivityPresenter.onLogin(mFirebaseCurrentUser);
-                    currentUserId = mFirebaseCurrentUser.getUid();
 
                 } else {
                     //User is login with email. Must confirm by email
                     mFirebaseCurrentUser.sendEmailVerification();
                     //TODO: alert to check email
-
                     mainActivityPresenter.onLogout();
                 }
 
@@ -75,7 +65,6 @@ public class FirebaseLoginController implements FirebaseAuth.AuthStateListener {
             if (mFirebaseCurrentUser != null) {
                 //Sign in with Google account
                 mainActivityPresenter.onLogin(mFirebaseCurrentUser);
-                currentUserId = mFirebaseCurrentUser.getUid();
 
             } else {
                 // User is signed out with Google account
@@ -83,7 +72,6 @@ public class FirebaseLoginController implements FirebaseAuth.AuthStateListener {
             }
         }
     }
-
 
 }
 

@@ -49,7 +49,6 @@ public class LocationListenerService extends Service implements Runnable, Google
     public static final String LOCATION_REQUEST_FREQUENCY_LOW = "low";
     public static final String GPS_RATE = "gpsRate";
     private static final String SHOULD_STOP_SERVICE_EXTRA = "isShouldStopService";
-    //TODO: where to store notification ids?
     int mNotificationId = 3;
 
     @Inject
@@ -112,9 +111,7 @@ public class LocationListenerService extends Service implements Runnable, Google
         mFirebaseDatabaseHelper.setUserOnline(preferences.getString(
                 mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
 
-
         ((App) getApplication()).setLocationListenerServiceOn(true);
-
 
         handler.postDelayed(this, 100);
 

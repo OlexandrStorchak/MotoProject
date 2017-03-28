@@ -26,18 +26,19 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
     public static final int INTERNET_NOTIFICATION_ID = 1;
     public static final int GPS_NOTIFICATION_ID = 2;
-    Context context;
+    Context mContext;
     NotificationManager mNotifyMgr;
-    App app;
+    App mApp;
 
     @Inject
     public NetworkStateReceiver() {
+
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        this.context = context;
-        app = (App) context.getApplicationContext();
+        this.mContext = context;
+        mApp = (App) context.getApplicationContext();
 
         if (isInternetEnabled()) {
             if (isMainActivityVisible()) {
@@ -74,13 +75,13 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
     private boolean isGpsEnabled() {
         LocationManager locationManager = (LocationManager)
-                context.getSystemService(Context.LOCATION_SERVICE);
+                mContext.getSystemService(Context.LOCATION_SERVICE);
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     private boolean isInternetEnabled() {
         ConnectivityManager cm = (ConnectivityManager)
-                context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null &&
                 activeNetwork.getState() == NetworkInfo.State.CONNECTED;
@@ -88,19 +89,19 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
     //if LocationListenerService is off, no need for location monitoring
     private boolean isGpsNeeded() {
-        return (app).isLocationListenerServiceOn();
+        return (mApp).isLocationListenerServiceOn();
     }
 
     private boolean isMainActivityVisible() {
-        return (app).isMainActivityVisible();
+        return (mApp).isMainActivityVisible();
     }
 
     private void showNotification(int notificationId) {
         Notification notification = NotificationBuilderUtil
-                .buildNotification(context, notificationId);
+                .buildNotification(mContext, notificationId);
         // get an instance of the NotificationManager service
         mNotifyMgr = (NotificationManager)
-                context.getSystemService(NOTIFICATION_SERVICE);
+                mContext.getSystemService(NOTIFICATION_SERVICE);
         // send notification
         mNotifyMgr.notify(notificationId, notification);
     }
@@ -139,6 +140,6 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     }
 
     private boolean isServiceOn() {
-        return ((App) context.getApplicationContext()).isLocationListenerServiceOn();
+        return ((App) mContext.getApplicationContext()).isLocationListenerServiceOn();
     }
 }

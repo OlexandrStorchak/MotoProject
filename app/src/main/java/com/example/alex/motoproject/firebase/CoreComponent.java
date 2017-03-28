@@ -6,7 +6,7 @@ import com.example.alex.motoproject.mainActivity.AlertControl;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.screenChat.ChatModel;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
-import com.example.alex.motoproject.screenOnlineUsers.UsersModel;
+import com.example.alex.motoproject.screenUsers.UsersModel;
 import com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment;
 import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
 import com.example.alex.motoproject.service.LocationListenerService;
