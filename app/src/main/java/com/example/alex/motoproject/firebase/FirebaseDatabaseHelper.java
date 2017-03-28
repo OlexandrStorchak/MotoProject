@@ -102,9 +102,7 @@ public class FirebaseDatabaseHelper {
     }
 
     public FirebaseUser getCurrentUser() {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-
-        return auth.getCurrentUser();
+        return FirebaseAuth.getInstance().getCurrentUser();
     }
 
     public void setUserOnline(String status) {

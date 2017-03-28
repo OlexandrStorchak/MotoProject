@@ -431,6 +431,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
             Glide.with(userViewHolder.avatar.getContext())
                     .load(user.getAvatar())
+//                    .dontAnimate()
                     .override(userViewHolder.avatar.getMaxWidth(),
                             userViewHolder.avatar.getMaxHeight())
                     .transform(new CropCircleTransformation(getContext()))

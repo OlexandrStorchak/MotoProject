@@ -110,6 +110,9 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        if (mMap == null) {
+            return;
+        }
         CameraPosition position = mMap.getCameraPosition();
 
         outState.putParcelable(CAMERA_POSITION,
