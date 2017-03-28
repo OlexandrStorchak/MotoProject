@@ -19,7 +19,9 @@ apply plugin: 'realm-android'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
+
     defaultConfig {
+
         applicationId "com.example.alex.motoproject"
         minSdkVersion 16
         targetSdkVersion 25
@@ -28,7 +30,13 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        signingConfigs {
+            debug {
+                storeFile file('key.keystore')
+            }}
+
         release {
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
