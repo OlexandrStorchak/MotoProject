@@ -3,7 +3,6 @@ package com.example.alex.motoproject.screenChat;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
@@ -30,12 +29,15 @@ import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.dialog.ChatLocLimitDialogFragment;
 import com.example.alex.motoproject.mainActivity.MainActivity;
+import com.example.alex.motoproject.util.DimensHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
 import javax.inject.Inject;
+
+import static com.example.alex.motoproject.util.ArgKeys.MESSAGE_TEXT;
 
 public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     private static final int MESSAGE_MAX_CHARS = 200;
@@ -46,7 +48,6 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     private ImageButton mSendButton;
     private ImageButton mShareLocationButton;
     private ChatAdapter mAdapter;
-    private Parcelable savedInstanceStateRecycler;
     private LinearLayoutManager mLayoutManager;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -67,17 +68,33 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     @Override
-    public void onStart() {
-        if (savedInstanceStateRecycler != null) {
-            mRecyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceStateRecycler);
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState == null) {
+            return;
         }
+        mEditText.setText(savedInstanceState.getString(MESSAGE_TEXT));
+//        mRecyclerView.getLayoutManager()
+//                .onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_VIEW_SCROLL));
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(MESSAGE_TEXT, mEditText.getText().toString());
+//        outState.putParcelable(RECYCLER_VIEW_SCROLL,
+//                mRecyclerView.getLayoutManager().onSaveInstanceState());
+        // TODO: 27.03.2017 call to Linear Layout Manager (!) does not help,
+    }
+
+
+    @Override
+    public void onStart() {
         super.onStart();
     }
 
     @Override
     public void onStop() {
-        savedInstanceStateRecycler = mRecyclerView.getLayoutManager().onSaveInstanceState();
-        hideKeyboard(getView());
         super.onStop();
     }
 
@@ -97,6 +114,9 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         mShareLocationButton = (ImageButton) view.findViewById(R.id.button_sharelocation_chat);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_chat);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.container_chat_swipe);
+
+        disableSendButton();
+        disableShareLocationButton();
 
         EventBus.getDefault().register(mPresenter);
 
@@ -120,8 +140,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     private void setupSwipeRefreshLayout() {
-        mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
+        mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -133,7 +152,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     private void setupLocationSharing() {
-        disableShareLocationButton();
+//        disableShareLocationButton();
         mShareLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -152,7 +171,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                mPresenter.onEditTextTextChanged(charSequence);
+                mPresenter.onEditTextChanged(charSequence);
             }
 
             @Override
@@ -257,8 +276,10 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     @Override
-    public void setListToAdapter(List<ChatMessage> messages) {
-        mAdapter = new ChatAdapter(messages);
+    public void setAdapter(List<ChatMessage> messages) {
+        int maxImageWidth = DimensHelper.getScreenWidth(getContext());
+        int maxImageHeight = (int) Math.round(maxImageWidth * 0.6);
+        mAdapter = new ChatAdapter(messages, maxImageWidth, maxImageHeight);
     }
 
     @Override
@@ -287,6 +308,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
 
     @Override
     public void disableShareLocationButton() {
+        // TODO: 27.03.2017 fix crash on "Prijihaly" button click
         mShareLocationButton.setEnabled(false);
         mShareLocationButton.setColorFilter(ResourcesCompat
                 .getColor(getResources(), R.color.grey500, null));

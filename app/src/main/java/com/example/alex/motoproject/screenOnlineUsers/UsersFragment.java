@@ -21,14 +21,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.DaggerPresenterComponent;
 import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.Constants;
-import com.example.alex.motoproject.util.CircleTransform;
-import com.squareup.picasso.Picasso;
+import com.example.alex.motoproject.util.CropCircleTransformation;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -54,10 +54,46 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     UsersMvp.ViewToPresenter mPresenter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SearchView mSearchView;
+    private RecyclerView mRecyclerView;
 
     public UsersFragment() {
 
     }
+
+    //    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        outState.putParcelable(RECYCLER_VIEW_SCROLL,
+//                layoutManager.onSaveInstanceState());
+//    }
+
+//    @Override
+//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+//        super.onViewStateRestored(savedInstanceState);
+//        if (savedInstanceState == null) {
+//            return;
+//        }
+//        layoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_VIEW_SCROLL));
+//    }
+
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        LinearLayoutManager manager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+//        outState.putInt(RECYCLER_VIEW_SCROLL, manager.findFirstVisibleItemPosition());
+//    }
+//
+//    @Override
+//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+//        super.onViewStateRestored(savedInstanceState);
+//        if (savedInstanceState == null) {
+//            return;
+//        }
+//        LinearLayoutManager manager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+//        manager.scrollToPosition(savedInstanceState.getInt(RECYCLER_VIEW_SCROLL));
+//        // TODO: 27.03.2017 split methods for loading and setting the listener to users and do not
+//        // TODO: 27.03.2017 load users twice after onViewStateRestored so it was be possible to scroll
+//    }
 
     private void setupSwipeRefreshLayout() {
         mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
@@ -151,7 +187,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             mAdapter.setHasStableIds(true);
         }
 
-        RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext()) {
             @Override
             public boolean supportsPredictiveItemAnimations() {
@@ -159,8 +195,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             }
         };
 
-        rv.setLayoutManager(layoutManager);
-        rv.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
@@ -244,6 +280,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void addNewSection(String relation) {
+        // TODO: 23.03.2017 fix context returning null when changing fragments with high frequency
         Resources res = getContext().getResources();
         String title;
         switch (relation) {
@@ -391,13 +428,21 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             User user = mUsers.get(position);
 
             userViewHolder.name.setText(user.getName());
-            Picasso.with(userViewHolder.avatar.getContext())
+
+            Glide.with(userViewHolder.avatar.getContext())
                     .load(user.getAvatar())
-                    .resize(userViewHolder.avatar.getMaxWidth(),
+                    .override(userViewHolder.avatar.getMaxWidth(),
                             userViewHolder.avatar.getMaxHeight())
-                    .centerCrop()
-                    .transform(new CircleTransform())
+                    .transform(new CropCircleTransformation(getContext()))
                     .into(userViewHolder.avatar);
+
+//            Picasso.with(userViewHolder.avatar.getContext())
+//                    .load(user.getAvatar())
+//                    .resize(userViewHolder.avatar.getMaxWidth(),
+//                            userViewHolder.avatar.getMaxHeight())
+//                    .centerCrop()
+//                    .transform(new CircleTransform())
+//                    .into(userViewHolder.avatar);
             if (user.getStatus() != null && user.getStatus().equals(Constants.STATUS_PUBLIC)) {
                 userViewHolder.mapCur.setVisibility(View.VISIBLE);
             } else {
