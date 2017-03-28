@@ -113,9 +113,9 @@ public class FirebaseDatabaseHelper {
         onlineUsers.setValue(status);
     }
 
-    void setUserOfflineOnDisconnect(String currentUser) {
+    public void setUserOfflineOnDisconnect() {
 
-        DatabaseReference onlineUsers = mDbReference.child("onlineUsers").child(currentUser);
+        DatabaseReference onlineUsers = mDbReference.child("onlineUsers").child(getCurrentUser().getUid());
         onlineUsers.removeValue();
     }
 
@@ -419,25 +419,7 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-    public void getFriends() {
-        DatabaseReference ref = mDbReference.child("users")
-                .child(getCurrentUser().getUid()).child("friendList");
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot entry : dataSnapshot.getChildren()) {
-                    final String uid = entry.getKey();
-                    final String relation = (String) entry.getValue();
-                    mFriends.put(uid, relation);
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
 
     public void getFriendsAndRegisterListener(final UsersUpdateReceiver receiver) {
         DatabaseReference ref = mDbReference.child("users")

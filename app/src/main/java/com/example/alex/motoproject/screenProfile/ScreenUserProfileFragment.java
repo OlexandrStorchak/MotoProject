@@ -102,18 +102,17 @@ public class ScreenUserProfileFragment extends Fragment {
         EventBus.getDefault().unregister(this);
     }
 
-    @Subscribe
-    public void onOnlineUserProfileReady(OnlineUserProfileReadyEvent event) {
+    private void displayUserData() {
 
-        final UsersProfileFirebase user = event.getUsersProfileFirebase();
 
-        getActivity().setTitle(user.getName());
-        name.setText(user.getName());
-        nickName.setText(user.getNickName());
-        email.setText(user.getEmail());
-        motorcycle.setText(user.getMotorcycle());
 
-        String ava = user.getAvatar();
+        getActivity().setTitle(mUserData.getName());
+        name.setText(mUserData.getName());
+        nickName.setText(mUserData.getNickName());
+        email.setText(mUserData.getEmail());
+        motorcycle.setText(mUserData.getMotorcycle());
+
+        String ava = mUserData.getAvatar();
         Log.i("log", "onOnlineUserProfileReady: "+ava);
         //Google avatars increase size
         if (ava.contains(".googleusercontent.com/")) {
@@ -121,7 +120,7 @@ public class ScreenUserProfileFragment extends Fragment {
             Log.i("log", "onOnlineUserProfileReady: "+ava);
         }
 
-    private void displayUserData() {
+
         getActivity().setTitle(mUserData.getName());
         name.setText(mUserData.getName());
         nickName.setText(mUserData.getNickName());
@@ -143,33 +142,26 @@ public class ScreenUserProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getContext(),
-                        "add to friend " + mUserData.getName(),
+                        "Add " + mUserData.getName(),
                         Toast.LENGTH_SHORT).show();
                 removeFriend.setVisibility(View.VISIBLE);
                 addToFriend.setVisibility(View.GONE);
                 mFirebaseDatabaseHelper.sendFriendRequest(mUserData.getId());
 
-//                if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
-//                    removeFriend.setVisibility(View.VISIBLE);
-//                    addToFriend.setVisibility(View.GONE);
-//                }
+
             }
         });
         removeFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getContext(),
-                        "Remove " + user.getName(),
+                        "Remove " + mUserData.getName(),
                         Toast.LENGTH_SHORT).show();
                 removeFriend.setVisibility(View.GONE);
                 addToFriend.setVisibility(View.VISIBLE);
                 mFirebaseDatabaseHelper.setRelationToUser(mUserData.getId(), null);
                 mFirebaseDatabaseHelper.setUserRelation(mUserData.getId(), null);
 
-//                if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
-//                    removeFriend.setVisibility(View.GONE);
-//                    addToFriend.setVisibility(View.VISIBLE);
-//                }
             }
         });
     }

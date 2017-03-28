@@ -23,9 +23,10 @@ public interface CoreComponent {
     void inject(ChatModel chatModel);
 
     void inject(UsersModel usersModel);
+
     void inject(ScreenUserProfileFragment userProfileFragment);
 
-
+    void inject(FirebaseLoginController firebaseLoginController);
 
     void inject(MainActivity mainActivity);
 

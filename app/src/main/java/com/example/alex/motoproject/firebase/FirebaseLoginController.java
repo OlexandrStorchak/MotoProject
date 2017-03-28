@@ -19,10 +19,17 @@ public class FirebaseLoginController extends MainActivity implements FirebaseAut
     private FirebaseAuth mFirebaseAuth;
     private MainActivityPresenter mainActivityPresenter;
 
+    @Inject
+    FirebaseDatabaseHelper mFirebaseDatabaseHelper;
+
+
+
+
     private String currentUserId;
 
     public FirebaseLoginController(MainActivityPresenter mainActivityPresenter) {
         this.mainActivityPresenter = mainActivityPresenter;
+
     }
 
 
@@ -40,7 +47,7 @@ public class FirebaseLoginController extends MainActivity implements FirebaseAut
 
     public void signOut() {
 
-        new FirebaseDatabaseHelper().setUserOfflineOnDisconnect(currentUserId);
+        mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
         //For Firebase logout
         mFirebaseAuth.signOut();
         //For Facebook logout

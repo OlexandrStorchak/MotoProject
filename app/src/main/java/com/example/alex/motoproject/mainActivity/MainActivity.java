@@ -8,8 +8,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
@@ -69,14 +69,14 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     // TODO: 24.03.2017 fix crash in friends fragment when replacing fragment to it in user details fragment
-    protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
+
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-    @Inject
+
 
 
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
-   @Inject
+
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
     AlertControl alertControl = new AlertControl(this);
@@ -311,8 +311,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             }
 
         });
-        mFirebaseDatabaseHelper.getFriends();
-        mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
+        mFirebaseDatabaseHelper.registerAuthLoadingListener(this);
     }
 
     private void startRideService() {
@@ -326,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             screenMapFragment.setSosVisibility(View.VISIBLE);
 
         } else if (checkLocationPermission()) {
-            screenMapFragment.getMap().setMyLocationEnabled(false);
+            screenMapFragment.getxMap().setMyLocationEnabled(false);
             chatFragment.disableShareLocationButton();
             getApplication().stopService(
                     new Intent(getApplicationContext(), LocationListenerService.class));
