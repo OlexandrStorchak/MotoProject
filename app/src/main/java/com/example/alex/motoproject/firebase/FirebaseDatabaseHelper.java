@@ -2,7 +2,6 @@ package com.example.alex.motoproject.firebase;
 
 import android.location.Location;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.event.MapMarkerEvent;
@@ -70,7 +69,7 @@ public class FirebaseDatabaseHelper {
 
     private static final String STANDART_AVATAR =
             "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
-                    "o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
+                    "o/avatar_defaultar_default.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
     private static final int FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT = 31;
     private static final int SHOWN_MESSAGES_MIN_COUNT_LIMIT =
             FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT - 1;
@@ -286,14 +285,13 @@ public class FirebaseDatabaseHelper {
         final DatabaseReference user = mDbReference.child(PATH_USERS).child(uid);
 
         //Fetch relations between this user and current user
-        DatabaseReference relationRef = user.child(USER_PROFILE_FRIEND_LIST).child(getCurrentUser().getUid());
+        DatabaseReference relationRef = user
+                .child(USER_PROFILE_FRIEND_LIST).child(getCurrentUser().getUid());
 
         relationRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.i("logi", "onDataChange: relation is  "+dataSnapshot);
                 final String relation = (String) dataSnapshot.getValue();
-                //Log.i("logi", "onDataChange: relation is  "+relation);
                 if (status==null) {
                     return;
                 }
@@ -652,7 +650,8 @@ public class FirebaseDatabaseHelper {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             String name = (String) dataSnapshot.child(USER_PROFILE_NAME).getValue();
                             String avatar = (String) dataSnapshot.child(USER_PROFILE_AVATAR).getValue();
-                            User user = new User(uid, name, avatar, userStatus, Constants.RELATION_UNKNOWN);
+                            User user = new User(
+                                    uid, name, avatar, userStatus, Constants.RELATION_UNKNOWN);
                             onlineUsers.add(user);
                             mReceivedUsersCount++;
                             //+1 is for not added to list current user
@@ -803,7 +802,9 @@ public class FirebaseDatabaseHelper {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 String name = (String) dataSnapshot.child(USER_PROFILE_NAME).getValue();
-                                String avatarRef = (String) dataSnapshot.child(USER_PROFILE_AVATAR).getValue();
+
+                                String avatarRef = (String) dataSnapshot
+                                        .child(USER_PROFILE_AVATAR).getValue();
                                 message.setName(name);
                                 message.setAvatarRef(avatarRef);
                                 mChatModel.onChatMessageNewData(message);

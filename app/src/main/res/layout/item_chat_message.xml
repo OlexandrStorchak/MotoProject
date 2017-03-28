@@ -13,7 +13,7 @@
         android:layout_height="45dp"
         android:layout_gravity="top"
         android:contentDescription="@string/avatar"
-        android:src="@drawable/ava4" />
+        android:src="@drawable/avatar_default" />
 
     <LinearLayout
         android:id="@+id/bubble_chat"

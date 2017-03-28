@@ -16,8 +16,7 @@ public final class NotificationBuilderUtil {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.drawable.ic_notification_v1)
-                        .setContentTitle("MotoProject")
-                        .setContentText("Інтернет вимкнено. Ввімкнути")
+                        .setContentTitle(context.getString(R.string.app_name))
                         .setPriority(Notification.PRIORITY_HIGH)
                         .setDefaults(Notification.DEFAULT_ALL)
                         .setAutoCancel(true);
@@ -25,11 +24,11 @@ public final class NotificationBuilderUtil {
         String settingsPath;
         switch (notificationId) {
             case NetworkStateReceiver.INTERNET_NOTIFICATION_ID:
-                mBuilder.setContentText("Інтернет вимкнено. Ввімкнути");
+                mBuilder.setContentText(context.getString(R.string.internet_is_off));
                 settingsPath = Settings.ACTION_SETTINGS;
                 break;
             case NetworkStateReceiver.GPS_NOTIFICATION_ID:
-                mBuilder.setContentText("GPS вимкнено. Ввімкнути");
+                mBuilder.setContentText(context.getString(R.string.gps_is_off));
                 settingsPath = Settings.ACTION_LOCATION_SOURCE_SETTINGS;
                 break;
             default:

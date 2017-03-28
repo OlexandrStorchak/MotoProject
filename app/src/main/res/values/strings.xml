@@ -18,6 +18,9 @@
     <string name="confirm_sharing_location_in_chat">Поділитися з усіма своїм теперішнім місцезнаходженням?</string>
     <string name="chat_location_limit">Максимальна відстань, на якій ви маєте перебувати від відправника, щоб бачити його повідомлення</string>
     <string name="chat_location_limit_title">Виберіть відстань</string>
+    <string name="location_service_notification">Місцезнаходження відстежується</string>
+    <string name="internet_is_off">Інтернет вимкнено. Ввімкнути?</string>
+    <string name="gps_is_off">GPS вимкнено. Ввімкнути?</string>
     <string name="ok">Гаразд</string>
     <string name="close">Закрити</string>
 

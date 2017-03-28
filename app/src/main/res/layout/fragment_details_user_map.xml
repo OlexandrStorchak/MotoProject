@@ -14,7 +14,7 @@
         android:contentDescription="@string/avatar_description"
         android:maxHeight="70dp"
         android:maxWidth="70dp"
-        tools:src="@drawable/ava4" />
+        tools:src="@drawable/avatar_default" />
 
     <TextView
         android:id="@+id/name"

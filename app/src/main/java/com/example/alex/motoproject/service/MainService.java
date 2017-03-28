@@ -1,6 +1,5 @@
 package com.example.alex.motoproject.service;
 
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Color;
@@ -19,10 +18,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
-
 
 public class MainService extends Service {
     @Nullable
@@ -33,7 +28,6 @@ public class MainService extends Service {
 
     @Override
     public void onCreate() {
-        Log.i("logi", "onCreate: MainService");
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         final DatabaseReference ref = mFirebaseDatabase.getReference().child("sos");
 
@@ -42,11 +36,9 @@ public class MainService extends Service {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot != null) {
-                    Log.i("logi", "on DataChange" + dataSnapshot.getChildrenCount());
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
 
                         MainServiceSosModel model = postSnapshot.getValue(MainServiceSosModel.class);
-                        Log.i("logi", "onDataChange: " + model.getTime());
                         if (!(model.getUserId().equals(new FirebaseDatabaseHelper().getCurrentUser().getUid()))) {
                             showNotification(dataSnapshot.getChildrenCount(), model.getUserName(), model.getDescription());
                             ref.keepSynced(false);
