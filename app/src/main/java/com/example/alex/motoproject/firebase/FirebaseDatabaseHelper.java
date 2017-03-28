@@ -89,7 +89,17 @@ public class FirebaseDatabaseHelper {
 
     }
 
-
+    public void registerAuthLoadingListener(final AuthLoadingListener listener) {
+        new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser() != null) {
+                    firebaseAuth.removeAuthStateListener(this);
+                    listener.onLoadFinished();
+                }
+            }
+        };
+    }
 
     public FirebaseUser getCurrentUser() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -174,7 +184,8 @@ public class FirebaseDatabaseHelper {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//                postChangeMarkerEvent(dataSnapshot);
+                postDeleteMarkerEvent(dataSnapshot);
+                postChangeMarkerEvent(dataSnapshot);
             }
 
             @Override
@@ -239,6 +250,10 @@ public class FirebaseDatabaseHelper {
         return status != null && status.equals(Constants.STATUS_PUBLIC);
     }
 
+    private boolean isStatusNoGps(String status) {
+        return status != null && status.equals(Constants.STATUS_NO_GPS);
+    }
+
     private boolean isUserFriend(String relation) {
         return relation != null && relation.equals(Constants.RELATION_FRIEND);
     }
@@ -256,45 +271,50 @@ public class FirebaseDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final String relation = (String) dataSnapshot.getValue();
 
+                if (isStatusNoGps(status)) {
+                    return;
+                }
+
                 if (!isStatusPublic(status)) {
                     if (!isUserFriend(relation)) {
                         return;
                     }
                 }
 
-                //fetch location
-                DatabaseReference location =
-                        mDbReference.child("location").child(uid);
-                ValueEventListener listener = new ValueEventListener() {
+                //fetch name
+                DatabaseReference nameRef = user.child("name");
+                nameRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        Number lat = (Number) dataSnapshot.child("lat").getValue();
-                        Number lng = (Number) dataSnapshot.child("lng").getValue();
-                        if (lat == null || lng == null) {
-                            return;
-                        }
+                        final String name = (String) dataSnapshot.getValue();
 
-                        final LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
-
-                        mUsersLocation.put(uid, latLng);
-
-                        if (uid.equals(getCurrentUser().getUid())) {
-                            return;
-                        }
-
-                        //fetch name
-                        DatabaseReference nameRef = user.child("name");
-                        nameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        //fetch user avatar
+                        DatabaseReference avatarRef = user.child("avatar");
+                        avatarRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                final String name = (String) dataSnapshot.getValue();
+                                final String avatarRef = (String) dataSnapshot.getValue();
 
-                                //fetch user avatar
-                                DatabaseReference avatarRef = user.child("avatar");
-                                avatarRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                //fetch location
+                                DatabaseReference location =
+                                        mDbReference.child("location").child(uid);
+                                ValueEventListener listener = new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
-                                        String avatarRef = (String) dataSnapshot.getValue();
+                                        Number lat = (Number) dataSnapshot.child("lat").getValue();
+                                        Number lng = (Number) dataSnapshot.child("lng").getValue();
+                                        if (lat == null || lng == null) {
+                                            return;
+                                        }
+
+                                        final LatLng latLng = new LatLng(lat.doubleValue(), lng.doubleValue());
+
+                                        mUsersLocation.put(uid, latLng);
+
+                                        if (uid.equals(getCurrentUser().getUid())) {
+                                            return;
+                                        }
+
                                         EventBus.getDefault().post(new MapMarkerEvent(
                                                 latLng, uid, name, avatarRef, relation));
                                     }
@@ -303,7 +323,10 @@ public class FirebaseDatabaseHelper {
                                     public void onCancelled(DatabaseError databaseError) {
 
                                     }
-                                });
+                                };
+                                location.addValueEventListener(listener);
+                                mLocationListeners.put(location, listener);
+
                             }
 
                             @Override
@@ -311,16 +334,15 @@ public class FirebaseDatabaseHelper {
 
                             }
                         });
-
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
 
                     }
-                };
-                location.addValueEventListener(listener);
-                mLocationListeners.put(location, listener);
+                });
+
+
             }
 
             @Override
@@ -361,9 +383,18 @@ public class FirebaseDatabaseHelper {
         return friendRelation != null && friendRelation.equals(relation);
     }
 
-    public void changeUserRelation(String uid, String relation) {
+    //set relation to a given user in current user friend list
+    public void setRelationToUser(String uid, String relation) {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("friendList").child(uid);
+        ref.removeValue();
+        ref.setValue(relation);
+    }
+
+    //set relation to current user in a given user friend list
+    public void setUserRelation(String uid, String relation) {
+        DatabaseReference ref = mDbReference.child("users").child(uid)
+                .child("friendList").child(getCurrentUser().getUid());
         ref.removeValue();
         ref.setValue(relation);
     }
@@ -928,6 +959,7 @@ public class FirebaseDatabaseHelper {
 
     public void getCurrentUserLocation(final UsersLocationReceiver receiver) {
         if (mCurrentUserLocation != null) {
+            receiver.onCurrentUserLocationReady(mCurrentUserLocation);
             return;
         }
         mDbReference.child("location").child(getCurrentUser().getUid())
@@ -1072,7 +1104,7 @@ public class FirebaseDatabaseHelper {
 
     }
 
-    public void setCurrentUserAvatar(@NonNull String avatarUrl){
+    public void setCurrentUserAvatar(@NonNull String avatarUrl) {
         DatabaseReference ref = mDbReference.child("users")
                 .child(getCurrentUser().getUid()).child("avatar");
         ref.setValue(avatarUrl);
@@ -1091,6 +1123,10 @@ public class FirebaseDatabaseHelper {
         sosModel.setLng("43.234");
         ref.setValue(sosModel);
 
+    }
+
+    public interface AuthLoadingListener {
+        void onLoadFinished();
     }
 
 

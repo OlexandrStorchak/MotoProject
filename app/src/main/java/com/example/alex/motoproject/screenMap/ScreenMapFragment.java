@@ -4,6 +4,7 @@ package com.example.alex.motoproject.screenMap;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -28,7 +29,7 @@ import com.example.alex.motoproject.event.MapMarkerEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.service.LocationListenerService;
-import com.example.alex.motoproject.util.ArgumentKeys;
+import com.example.alex.motoproject.util.ArgKeys;
 import com.example.alex.motoproject.util.CircleTransform;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -36,6 +37,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -52,6 +54,13 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.example.alex.motoproject.R.id.map;
+import static com.example.alex.motoproject.util.ArgKeys.BEARING;
+import static com.example.alex.motoproject.util.ArgKeys.CAMERA_POSITION;
+import static com.example.alex.motoproject.util.ArgKeys.LATITUDE;
+import static com.example.alex.motoproject.util.ArgKeys.LONGITUDE;
+import static com.example.alex.motoproject.util.ArgKeys.MAP_TYPE;
+import static com.example.alex.motoproject.util.ArgKeys.TILT;
+import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
 
 
 /**
@@ -60,14 +69,13 @@ import static com.example.alex.motoproject.R.id.map;
 
 public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
-
-    public static final LatLng CHERKASY = new LatLng(49.443, 32.0727);
-
+    private static final int MARKER_DIMENS_DP = 90;
+    //    private static final int MARKER_DIMENS_PX = DipToPixels.dpToPx(MARKER_DIMENS_DP);
+    private static final LatLng CHERKASY = new LatLng(49.443, 32.0727);
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-
     private App mApp;
     private FloatingActionButton sosToggleButton;
     private List<Target> mTargetStrongRef = new ArrayList<>();
@@ -78,6 +86,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     //stores created markers
     private HashMap<String, Marker> mMarkerHashMap;
     private CameraUpdate mCameraUpdate;
+    private int mMapType;
 
     public ScreenMapFragment() {
         // Required empty public constructor
@@ -88,9 +97,28 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState == null) {
+            return;
+        }
+        mCameraUpdate = CameraUpdateFactory.newCameraPosition(
+                (CameraPosition) savedInstanceState.getParcelable(CAMERA_POSITION));
+        mMapType = savedInstanceState.getInt(MAP_TYPE);
+    }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        CameraPosition position = mMap.getCameraPosition();
+
+        outState.putParcelable(CAMERA_POSITION,
+                new CameraPosition(new LatLng((float) position.target.latitude,
+                        (float) position.target.longitude),
+                        position.zoom,
+                        position.tilt,
+                        position.bearing));
+        outState.putInt(MAP_TYPE, mMap.getMapType());
     }
 
     @Override
@@ -107,7 +135,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         //add Google map
         mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);
-        mMapView.getMapAsync(this);
+        mMapView.getMapAsync(this); // TODO: 25.03.2017 do not call this if map is not null
 
         Bundle arguments = getArguments();
         if (arguments != null) {
@@ -147,10 +175,20 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             setSosVisibility(View.VISIBLE);
         }
         if (mCameraUpdate == null) {
-            int zoom = 11;
-            mCameraUpdate = CameraUpdateFactory.newLatLngZoom(CHERKASY, zoom);
+            SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+            mMapType = prefs.getInt(MAP_TYPE, 1);
+
+            CameraPosition position = new CameraPosition(new LatLng(prefs.getFloat(LATITUDE, 49),
+                    prefs.getFloat(LONGITUDE, 32)),
+                    prefs.getFloat(ZOOM, 11),
+                    prefs.getFloat(TILT, 0),
+                    prefs.getFloat(BEARING, 0));
+
+            mCameraUpdate = CameraUpdateFactory.newCameraPosition(position);
         }
         map.moveCamera(mCameraUpdate);
+        mMap.setMapType(mMapType);
 
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -166,9 +204,9 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void onMapCk() {
-        int zoom = 11;
-        mCameraUpdate = CameraUpdateFactory.newLatLngZoom(CHERKASY, zoom);
-        mMap.moveCamera(mCameraUpdate);
+//        int zoom = 11;
+//        mCameraUpdate = CameraUpdateFactory.newLatLngZoom(CHERKASY, zoom);
+//        mMap.moveCamera(mCameraUpdate);
     }
 
     @Override
@@ -189,6 +227,26 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         super.onStop();
         EventBus.getDefault().unregister(this);
         mFirebaseDatabaseHelper.unregisterOnlineUsersLocationListener();
+
+
+        CameraPosition position = mMap.getCameraPosition();
+        mCameraUpdate = CameraUpdateFactory.newCameraPosition(position);
+
+        SharedPreferences.Editor editor = getActivity().getPreferences(Context.MODE_PRIVATE).edit();
+
+        editor.putFloat(LATITUDE, (float) position.target.latitude);
+        editor.putFloat(LONGITUDE, (float) position.target.longitude);
+        editor.putFloat(ZOOM, position.zoom);
+        editor.putFloat(TILT, position.tilt);
+        editor.putFloat(BEARING, position.bearing);
+        editor.putInt(MAP_TYPE, mMap.getMapType());
+
+        editor.apply();
+
+//        if (getArguments() != null) {
+//            getArguments().clear();
+//        }
+
     }
 
     @Override
@@ -223,15 +281,18 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             marker.setPosition(event.latLng);
             return;
         }
+        if (event.latLng == null) {
+            return;
+        }
         Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(event.latLng)
                 .anchor(0.5f, 0.5f));
         marker.setVisible(false);
 
         Bundle markerData = new Bundle();
-        markerData.putString(ArgumentKeys.KEY_UID, event.uid);
-        markerData.putString(ArgumentKeys.KEY_NAME, event.userName);
-        markerData.putString(ArgumentKeys.KEY_AVATAR_REF, event.avatarRef);
+        markerData.putString(ArgKeys.KEY_UID, event.uid);
+        markerData.putString(ArgKeys.KEY_NAME, event.userName);
+        markerData.putString(ArgKeys.KEY_AVATAR_REF, event.avatarRef);
         marker.setTag(markerData);
 
         mMarkerHashMap.put(event.uid, marker);
@@ -249,6 +310,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
             @Override
             public void onBitmapFailed(Drawable errorDrawable) {
+
             }
 
             @Override
@@ -257,8 +319,19 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             }
         };
         mTargetStrongRef.add(iconTarget);
-        Picasso.with(getContext()).load(avatarRef).resize(80, 80)
+        Picasso.with(getContext()).load(avatarRef).resize(MARKER_DIMENS_DP, MARKER_DIMENS_DP)
                 .centerCrop().transform(new CircleTransform()).into(iconTarget);
+//              Glide.with(getContext()).load(avatarRef)
+//                .asBitmap()
+//                .override(MARKER_DIMENS_DP, MARKER_DIMENS_DP)
+//                .transform(new CropCircleTransformation(getContext()))
+//                .into(new SimpleTarget<Bitmap>() {
+//                    @Override
+//                    public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
+//                        mMarkerHashMap.get(uid).setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
+//                        marker.setVisible(true);
+//                    }
+//                });
     }
 
     private boolean checkLocationPermission() {
@@ -343,7 +416,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     //TODO a better interface name
-    public interface MapFragmentListener {
+    public interface MapFragmentHolder {
         void showAlert(int alertType);
 
         void handleLocation();

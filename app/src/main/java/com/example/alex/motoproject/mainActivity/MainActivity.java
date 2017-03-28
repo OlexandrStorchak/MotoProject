@@ -9,7 +9,9 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -62,10 +64,11 @@ import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
 
 
-public class MainActivity extends AppCompatActivity implements
-        MainViewInterface, FragmentManager.OnBackStackChangedListener {
+public class MainActivity extends AppCompatActivity implements MainViewInterface,
+        FragmentManager.OnBackStackChangedListener, FirebaseDatabaseHelper.AuthLoadingListener,
+        ActivityCompat.OnRequestPermissionsResultCallback {
 
-
+    // TODO: 24.03.2017 fix crash in friends fragment when replacing fragment to it in user details fragment
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
@@ -74,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements
 
     protected ScreenMapFragment screenMapFragment = new ScreenMapFragment();
    @Inject
+    @Inject
     NetworkStateReceiver mNetworkStateReceiver;
     AlertControl alertControl = new AlertControl(this);
     private UsersFragment onlineUsersFragment = new UsersFragment();
@@ -174,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 fm.beginTransaction()
-                        .addToBackStack("profile")
+                        .addToBackStack(null)
                         .replace(R.id.main_activity_frame, screenProfileFragment)
                         .commit();
 
@@ -307,8 +311,8 @@ public class MainActivity extends AppCompatActivity implements
             }
 
         });
-        //mFirebaseDatabaseHelper.getFriends();
-
+        mFirebaseDatabaseHelper.getFriends();
+        mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
     }
 
     private void startRideService() {
@@ -323,6 +327,7 @@ public class MainActivity extends AppCompatActivity implements
 
         } else if (checkLocationPermission()) {
             screenMapFragment.getMap().setMyLocationEnabled(false);
+            chatFragment.disableShareLocationButton();
             getApplication().stopService(
                     new Intent(getApplicationContext(), LocationListenerService.class));
             mGpsStatus.setVisibility(View.GONE);
@@ -356,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements
         } else {
             super.onBackPressed();
         }
-        fm.popBackStack();
+//        fm.popBackStack();
     }
 
 
@@ -413,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements
 
         ScreenUserProfileFragment userProfile = new ScreenUserProfileFragment();
 
-        fm.beginTransaction().addToBackStack("online")
+        fm.beginTransaction().addToBackStack(null)
                 .replace(R.id.main_activity_frame, userProfile)
                 .commit();
         mFirebaseDatabaseHelper.getUserModel(model.getUserId());
@@ -446,6 +451,39 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        alertControl.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode,
+//                                           @NonNull String permissions[],
+//                                           @NonNull int[] grantResults) {
+//        if (requestCode == 10) {
+//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // permission was granted
+////                handleLocation();
+//                Log.v("yfg", "hfghfg");
+//
+//            } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+//                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                        Manifest.permission.ACCESS_FINE_LOCATION)) {
+//                    //user did not check never ask again, show rationale
+////                    showAlert(ALERT_PERMISSION_RATIONALE);
+//                    Log.v("yfg", "hfghfg");
+//                } else {
+//                    //user checked never ask again
+////                    showAlert(ALERT_PERMISSION_NEVER_ASK_AGAIN);
+//                    Log.v("yfg", "hfghfg");
+//
+//                }
+//            }
+//        }
+//
+//    }
 
     @Override
     public void login(FirebaseUser user) {
@@ -607,5 +645,11 @@ public class MainActivity extends AppCompatActivity implements
         return ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @Override
+    public void onLoadFinished() {
+        mFirebaseDatabaseHelper.getFriends();
+        mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
     }
 }

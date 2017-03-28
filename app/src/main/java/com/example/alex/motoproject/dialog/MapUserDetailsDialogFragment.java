@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
-import com.example.alex.motoproject.util.ArgumentKeys;
+import com.example.alex.motoproject.util.ArgKeys;
 import com.example.alex.motoproject.util.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -31,9 +31,9 @@ public class MapUserDetailsDialogFragment extends DialogFragment {
 
         Bundle args = getArguments();
 
-        mUid = args.getString(ArgumentKeys.KEY_UID);
-        String name = args.getString(ArgumentKeys.KEY_NAME);
-        String avatarRef = args.getString(ArgumentKeys.KEY_AVATAR_REF);
+        mUid = args.getString(ArgKeys.KEY_UID);
+        String name = args.getString(ArgKeys.KEY_NAME);
+        String avatarRef = args.getString(ArgKeys.KEY_AVATAR_REF);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 

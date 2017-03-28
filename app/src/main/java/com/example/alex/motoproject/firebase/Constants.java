@@ -15,4 +15,5 @@ public class Constants {
     public static final String USER_PROFILE_MOTORCYCLE="motorcycle";
     public static final String USER_PROFILE_NAME="name";
     public static final String USER_PROFILE_NICK="nickName";
+    public static final String STATUS_NO_GPS = "noGps";
 }

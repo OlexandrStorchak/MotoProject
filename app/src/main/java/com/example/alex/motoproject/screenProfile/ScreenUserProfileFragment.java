@@ -26,11 +26,12 @@ import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
+import static com.example.alex.motoproject.util.ArgKeys.USER_DATA;
+
 public class ScreenUserProfileFragment extends Fragment {
 
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-
 
     LinearLayout buttons;
     private TextView name;
@@ -40,6 +41,8 @@ public class ScreenUserProfileFragment extends Fragment {
     private ImageView avatar;
     private ImageView removeFriend;
     private ImageView addToFriend;
+
+    private UsersProfileFirebase mUserData;
 
 
     public ScreenUserProfileFragment() {
@@ -58,6 +61,20 @@ public class ScreenUserProfileFragment extends Fragment {
 
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(USER_DATA, mUserData);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null) {
+            mUserData = savedInstanceState.getParcelable(USER_DATA);
+            displayUserData();
+        }
+    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -104,15 +121,20 @@ public class ScreenUserProfileFragment extends Fragment {
             Log.i("log", "onOnlineUserProfileReady: "+ava);
         }
 
+    private void displayUserData() {
+        getActivity().setTitle(mUserData.getName());
+        name.setText(mUserData.getName());
+        nickName.setText(mUserData.getNickName());
+        email.setText(mUserData.getEmail());
+        motorcycle.setText(mUserData.getMotorcycle());
         Picasso.with(getContext())
                 .load(ava)
                 .resize(avatar.getMaxWidth(), avatar.getMaxHeight())
                 .centerCrop()
                 .into(avatar);
 
-        //TODO add or remove person from friendList
         //If friend already added
-        if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
+        if (mFirebaseDatabaseHelper.isInFriendList(mUserData.getId(), Constants.RELATION_FRIEND)) {
             removeFriend.setVisibility(View.VISIBLE);
             addToFriend.setVisibility(View.GONE);
         }
@@ -121,16 +143,16 @@ public class ScreenUserProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getContext(),
-                        "add to friend " + user.getName(),
+                        "add to friend " + mUserData.getName(),
                         Toast.LENGTH_SHORT).show();
                 removeFriend.setVisibility(View.VISIBLE);
                 addToFriend.setVisibility(View.GONE);
-                mFirebaseDatabaseHelper.sendFriendRequest(user.getId());
+                mFirebaseDatabaseHelper.sendFriendRequest(mUserData.getId());
 
-                if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
-                    removeFriend.setVisibility(View.VISIBLE);
-                    addToFriend.setVisibility(View.GONE);
-                }
+//                if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
+//                    removeFriend.setVisibility(View.VISIBLE);
+//                    addToFriend.setVisibility(View.GONE);
+//                }
             }
         });
         removeFriend.setOnClickListener(new View.OnClickListener() {
@@ -141,13 +163,20 @@ public class ScreenUserProfileFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
                 removeFriend.setVisibility(View.GONE);
                 addToFriend.setVisibility(View.VISIBLE);
-                mFirebaseDatabaseHelper.changeUserRelation(user.getId(), null);
+                mFirebaseDatabaseHelper.setRelationToUser(mUserData.getId(), null);
+                mFirebaseDatabaseHelper.setUserRelation(mUserData.getId(), null);
 
-                if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
-                    removeFriend.setVisibility(View.GONE);
-                    addToFriend.setVisibility(View.VISIBLE);
-                }
+//                if (mFirebaseDatabaseHelper.isInFriendList(user.getId(), Constants.RELATION_FRIEND)) {
+//                    removeFriend.setVisibility(View.GONE);
+//                    addToFriend.setVisibility(View.VISIBLE);
+//                }
             }
         });
+    }
+
+    @Subscribe
+    public void onOnlineUserProfileReady(OnlineUserProfileReadyEvent event) {
+        mUserData = event.getUsersProfileFirebase();
+        displayUserData();
     }
 }
