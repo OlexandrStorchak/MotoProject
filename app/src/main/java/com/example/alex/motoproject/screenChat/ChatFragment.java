@@ -24,7 +24,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-
 import com.example.alex.motoproject.DaggerPresenterComponent;
 import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
@@ -309,7 +308,9 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
 
     @Override
     public void disableShareLocationButton() {
-        // TODO: 27.03.2017 fix crash on "Prijihaly" button click
+        if (mShareLocationButton == null) {
+            return; //fragment might not be created and not have a layout inflated
+        }
         mShareLocationButton.setEnabled(false);
         mShareLocationButton.setColorFilter(ResourcesCompat
                 .getColor(getResources(), R.color.grey500, null));
