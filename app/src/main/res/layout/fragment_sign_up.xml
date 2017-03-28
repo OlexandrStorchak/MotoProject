@@ -2,11 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gray500a2"
+    android:background="@color/grey500a2"
     android:gravity="bottom"
 
     android:orientation="vertical"
-    tools:context="com.example.alex.motoproject.screenLogin.SignUpFragment">
+    tools:context="com.example.alex.motoproject.screenLogin.ScreenSignUpFragment">
 
     <FrameLayout
         android:layout_width="match_parent"

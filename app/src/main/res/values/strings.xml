@@ -8,7 +8,6 @@
 
     <string name="facebook_app_id">1738320186485515</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="location_rationale">Без дозволу на використання GPS ви не зможете ділитися своїм місцезнаходженням з іншими користувачами. Дозволити використання GPS?</string>
     <string name="gps_turned_off_alert">GPS вимкнено. Увімкнути?</string>
     <string name="internet_turned_off_alert">Інтернет-з\'єднання вимкнено. Увімкнути?</string>
@@ -16,11 +15,12 @@
     <string name="turn_on_wifi">Увімкнути WIFI</string>
     <string name="to_settings">В налаштування</string>
     <string name="how_to_change_location_setting">Ви можете змінити свій вибір у налаштуваннях. Дозволи —> Ваше місцезнаходження</string>
+    <string name="confirm_sharing_location_in_chat">Поділитися з усіма своїм теперішнім місцезнаходженням?</string>
+    <string name="chat_location_limit">Максимальна відстань, на якій ви маєте перебувати від відправника, щоб бачити його повідомлення</string>
+    <string name="chat_location_limit_title">Виберіть відстань</string>
     <string name="ok">Гаразд</string>
     <string name="close">Закрити</string>
 
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="auth_sign_out">Вихід</string>
     <string name="hint_e_mail">Імейл</string>
     <string name="hint_pass">Пароль</string>
@@ -32,10 +32,62 @@
     <string name="email_is_empty">Введіть імейл адресу</string>
     <string name="enter_password">Введіть пароль</string>
     <string name="less_6_chars">Пароль коротший за 6 символів</string>
-    <string name="avatar">avatar</string>
-    <string name="pass_not_mutch">mPassword not mutch</string>
+    <string name="avatar">Аватар</string>
+    <string name="pass_not_match">mPassword mismatch</string>
     <string name="who_is_online">Хто онлайн</string>
+    <string name="hint_chat">Введіть повідомлення…</string>
 
     <string name="facebook">Facebook</string>
 
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="button_send_description">Наділати повідомлення</string>
+    <string name="button_share_location_description">Надіслати місцезнаходження</string>
+    <string name="map_cur_description">Місцезнаходження</string>
+    <string name="avatar_description">Аватар</string>
+    <string name="navigation_drawer_btn_chat">Чат</string>
+    <string name="me">Я</string>
+    <string name="add_friend">add friend</string>
+    <string name="remove_from_friends">send message</string>
+    <string name="chat_message_map">Місцезнаходження</string>
+    <string name="save_changes">Зберегти зміни</string>
+    <string name="text_show_me_on_map">Видимість : </string>
+    <string name="edit_changes">edit_changes</string>
+    <string name="your_name">Ваше ім\'я</string>
+    <string name="your_nick_name">Ваш нік-нейм</string>
+    <string name="motorcycle_model">Модель мотоцикла</string>
+    <string name="about_myself">Розкажіть про себе</string>
+    <string name="time_rate_gps">Частота оновлення GPS :</string>
+    <string name="go_ride">Поїхали</string>
+    <string name="stop_ride">Приїхали</string>
+    <string name="drawer_btn_friends">Друзі</string>
+    <string name="search_title_users">Пошук</string>
+    <string name="accept">Прийняти</string>
+    <string name="decline">Відхилити</string>
+    <string name="switch_off">Вимкнути</string>
+    <string name="to_profile">До профілю</string>
+
+    <string-array name="profile_spinner_set_gps_visibility">
+        <item>Всім</item>
+        <item>Друзям</item>
+        <item>SOS</item>
+        <item>Нікому</item>
+    </string-array>
+    <string name="title_pending_friends">Пропозиції</string>
+    <string name="title_friends">Друзі</string>
+    <string name="filter_title_chat">Фільтр</string>
+    <string name="km">км</string>
+    <string name="km10">10 кілометрів</string>
+    <string name="km20">20 км</string>
+    <string name="off">Вимкнено</string>
+
+    <string-array name="profile_spinner_set_gps_rate">
+        <item>Висока</item>
+        <item>Середня</item>
+        <item>Низька</item>
+    </string-array>
+    <string name="chat_location_limit_preferences">ChatLimitPref</string>
+    <integer name="chat_location_limit_default">0</integer>
+    <string name="chat_location_no_current_user_location">Поділіться координатами, щоб фільтрація запрацювала</string>
+    <string name="stop_location_service_button_tittle">Приїхали</string>
+    <string name="start_location_service_button_title">Поїхали</string>
 </resources>

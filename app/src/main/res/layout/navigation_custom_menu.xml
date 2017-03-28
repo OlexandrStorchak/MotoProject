@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="@dimen/nav_header_height">
@@ -8,29 +7,92 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="5dp">
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/profile_gps_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:background="@drawable/button_start"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Spinner
+                android:id="@+id/profile_set_gps_visibility"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+
+                android:entries="@array/profile_spinner_set_gps_visibility"
+                android:textAlignment="center"
+                android:textColor="@color/blue900" />
+
+            <ImageView
+                android:id="@+id/profile_show_on_map_indicator"
+
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/navigation_btn_ride"
+            style="@style/MyButtonStart"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+
+            android:text="@string/go_ride" />
+
+        <Button
+            android:id="@+id/navigation_btn_stop_ride"
+            style="@style/MyButtonCustomMenu"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/stop_ride"
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/navigation_btn_map"
             style="@style/MyButtonCustomMenu"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="38dp"
             android:layout_marginTop="5dp"
             android:text="@string/menu_navi_tittle_maps" />
+
         <Button
             android:id="@+id/navigation_btn_users_online"
             style="@style/MyButtonCustomMenu"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="38dp"
             android:layout_marginTop="5dp"
             android:text="@string/who_is_online" />
+
+        <Button
+            android:id="@+id/navigation_btn_friends"
+            style="@style/MyButtonCustomMenu"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/drawer_btn_friends" />
+
+        <Button
+            android:id="@+id/navigation_btn_chat"
+            style="@style/MyButtonCustomMenu"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/navigation_drawer_btn_chat" />
 
         <Button
             android:id="@+id/navigation_btn_signout"
             style="@style/MyButtonCustomMenu"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="38dp"
             android:layout_marginTop="5dp"
             android:text="@string/auth_sign_out" />
 

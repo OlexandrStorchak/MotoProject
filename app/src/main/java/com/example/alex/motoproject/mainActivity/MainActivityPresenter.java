@@ -6,12 +6,9 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivityPresenter implements MainPresenterInterface {
     private MainViewInterface mainView;
 
-
     MainActivityPresenter(MainViewInterface mainView) {
-
         this.mainView = mainView;
     }
-
 
     @Override
     public void onLogout() {
@@ -22,6 +19,5 @@ public class MainActivityPresenter implements MainPresenterInterface {
     public void onLogin(FirebaseUser user) {
         mainView.login(user);
     }
-
 
 }

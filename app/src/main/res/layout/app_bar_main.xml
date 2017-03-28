@@ -8,11 +8,16 @@
     android:fitsSystemWindows="true"
 
     tools:context="com.example.alex.motoproject.mainActivity.MainActivity">
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/Blue900"
+        android:background="@color/blue900"
         android:keepScreenOn="true"
         android:theme="@style/AppTheme.AppBarOverlay">
 
@@ -20,7 +25,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/Blue900"
+            android:background="@color/blue900"
 
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
@@ -28,4 +33,5 @@
 
     <include layout="@layout/content_main" />
 
+</android.support.design.widget.CoordinatorLayout>
 </android.support.design.widget.CoordinatorLayout>

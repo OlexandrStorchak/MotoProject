@@ -10,32 +10,35 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import com.example.alex.motoproject.App;
-import com.example.alex.motoproject.events.CancelAlertEvent;
-import com.example.alex.motoproject.events.ShowAlertEvent;
-import com.example.alex.motoproject.mainActivity.MainActivity;
-import com.example.alex.motoproject.utils.NotificationBuilderUtil;
+import com.example.alex.motoproject.event.CancelAlertEvent;
+import com.example.alex.motoproject.event.GpsStatusChangedEvent;
+import com.example.alex.motoproject.event.ShowAlertEvent;
+import com.example.alex.motoproject.mainActivity.AlertControl;
+import com.example.alex.motoproject.util.NotificationBuilderUtil;
 
 import org.greenrobot.eventbus.EventBus;
+
+import javax.inject.Inject;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class NetworkStateReceiver extends BroadcastReceiver {
 
-    // TODO: 11.02.2017 make only one instance of this class
-
     public static final int INTERNET_NOTIFICATION_ID = 1;
     public static final int GPS_NOTIFICATION_ID = 2;
-    Context context;
+    Context mContext;
     NotificationManager mNotifyMgr;
-    App app;
+    App mApp;
 
+    @Inject
     public NetworkStateReceiver() {
+
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        this.context = context;
-        app = (App) context.getApplicationContext();
+        this.mContext = context;
+        mApp = (App) context.getApplicationContext();
 
         if (isInternetEnabled()) {
             if (isMainActivityVisible()) {
@@ -55,12 +58,14 @@ public class NetworkStateReceiver extends BroadcastReceiver {
             if (isGpsEnabled()) {
                 if (isMainActivityVisible()) {
                     postCancelAlertEvent(GPS_NOTIFICATION_ID);
+                    postGpsStatusChangedEvent(true);
                 } else {
                     cancelNotificationIfExists(GPS_NOTIFICATION_ID);
                 }
             } else {
                 if (isMainActivityVisible()) {
                     postShowAlertEvent(GPS_NOTIFICATION_ID);
+                    postGpsStatusChangedEvent(false);
                 } else {
                     showNotification(GPS_NOTIFICATION_ID);
                 }
@@ -70,13 +75,13 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
     private boolean isGpsEnabled() {
         LocationManager locationManager = (LocationManager)
-                context.getSystemService(Context.LOCATION_SERVICE);
+                mContext.getSystemService(Context.LOCATION_SERVICE);
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     private boolean isInternetEnabled() {
         ConnectivityManager cm = (ConnectivityManager)
-                context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null &&
                 activeNetwork.getState() == NetworkInfo.State.CONNECTED;
@@ -84,19 +89,19 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
     //if LocationListenerService is off, no need for location monitoring
     private boolean isGpsNeeded() {
-        return (app).isLocationListenerServiceOn();
+        return (mApp).isLocationListenerServiceOn();
     }
 
     private boolean isMainActivityVisible() {
-        return (app).isMainActivityVisible();
+        return (mApp).isMainActivityVisible();
     }
 
     private void showNotification(int notificationId) {
         Notification notification = NotificationBuilderUtil
-                .buildNotification(context, notificationId);
+                .buildNotification(mContext, notificationId);
         // get an instance of the NotificationManager service
         mNotifyMgr = (NotificationManager)
-                context.getSystemService(NOTIFICATION_SERVICE);
+                mContext.getSystemService(NOTIFICATION_SERVICE);
         // send notification
         mNotifyMgr.notify(notificationId, notification);
     }
@@ -110,10 +115,10 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     private void postShowAlertEvent(int notificationId) {
         switch (notificationId) {
             case INTERNET_NOTIFICATION_ID:
-                EventBus.getDefault().post(new ShowAlertEvent(MainActivity.ALERT_INTERNET_OFF));
+                EventBus.getDefault().post(new ShowAlertEvent(AlertControl.ALERT_INTERNET_OFF));
                 break;
             case GPS_NOTIFICATION_ID:
-                EventBus.getDefault().post(new ShowAlertEvent(MainActivity.ALERT_GPS_OFF));
+                EventBus.getDefault().post(new ShowAlertEvent(AlertControl.ALERT_GPS_OFF));
                 break;
         }
     }
@@ -121,10 +126,20 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     private void postCancelAlertEvent(int notificationId) {
         switch (notificationId) {
             case INTERNET_NOTIFICATION_ID:
-                EventBus.getDefault().post(new CancelAlertEvent(MainActivity.ALERT_INTERNET_OFF));
+                EventBus.getDefault().post(new CancelAlertEvent(AlertControl.ALERT_INTERNET_OFF));
                 break;
             case GPS_NOTIFICATION_ID:
-                EventBus.getDefault().post(new CancelAlertEvent(MainActivity.ALERT_GPS_OFF));
+                EventBus.getDefault().post(new CancelAlertEvent(AlertControl.ALERT_GPS_OFF));
         }
+    }
+
+    private void postGpsStatusChangedEvent(boolean isGpsOn) {
+        if (isServiceOn()) {
+            EventBus.getDefault().postSticky(new GpsStatusChangedEvent(isGpsOn));
+        }
+    }
+
+    private boolean isServiceOn() {
+        return ((App) mContext.getApplicationContext()).isLocationListenerServiceOn();
     }
 }
