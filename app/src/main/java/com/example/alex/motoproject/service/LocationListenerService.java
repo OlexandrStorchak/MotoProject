@@ -1,7 +1,6 @@
 package com.example.alex.motoproject.service;
 
 import android.Manifest;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -41,7 +40,8 @@ import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment
 /**
  * The Service that listens for location changes and sends them to Firebase
  */
-public class LocationListenerService extends Service implements Runnable, GoogleApiClient.ConnectionCallbacks,
+public class LocationListenerService extends Service implements Runnable,
+        GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener {
     public static final String LOCATION_REQUEST_FREQUENCY_HIGH = "high";
@@ -161,9 +161,8 @@ public class LocationListenerService extends Service implements Runnable, Google
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_notification_v1)
-                        .setContentTitle("MotoProject")
-                        .setContentText("Місцезнаходження відстежується.")
-
+                        .setContentTitle(getString(R.string.app_name))
+                        .setContentText(getString(R.string.location_service_notification))
                         .setShowWhen(false);
 
         //create pending intent used when tapping on the app notification
@@ -218,7 +217,6 @@ public class LocationListenerService extends Service implements Runnable, Google
 
     @Override
     public void run() {
-
         handler.postDelayed(this, updateTime);
         startLocationUpdates();
         if (myLocation != null) {
@@ -243,7 +241,6 @@ public class LocationListenerService extends Service implements Runnable, Google
             if (checkLocationPermission()) {
                 LocationServices.FusedLocationApi.requestLocationUpdates(
                         mGoogleApiClient, createLocationRequest(), this);
-
             }
         } else {
             mGoogleApiClient.connect();
@@ -271,7 +268,6 @@ public class LocationListenerService extends Service implements Runnable, Google
         }
     }
 
-
     @Override
     public void onLocationChanged(Location location) {
         mFirebaseDatabaseHelper.updateUserLocation(location);
@@ -279,7 +275,6 @@ public class LocationListenerService extends Service implements Runnable, Google
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-
         Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
         if (checkLocationPermission()) {
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(

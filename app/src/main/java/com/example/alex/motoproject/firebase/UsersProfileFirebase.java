@@ -16,6 +16,11 @@ public class UsersProfileFirebase implements Parcelable {
             return new UsersProfileFirebase[size];
         }
     };
+
+    public UsersProfileFirebase() {
+
+    }
+
     private String id;
     private String name;
     private String avatar;
