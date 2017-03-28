@@ -3,6 +3,7 @@ package com.example.alex.motoproject.firebase;
 import android.location.Location;
 import android.support.annotation.NonNull;
 
+import com.example.alex.motoproject.LocationModel;
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.event.MapMarkerEvent;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
@@ -139,8 +140,8 @@ public class FirebaseDatabaseHelper {
         double lat = location.getLatitude();
         double lng = location.getLongitude();
         DatabaseReference myRef = mDbReference.child(PATH_LOCATION).child(uid);
-        myRef.child(PATH_LOCATION_LAT).setValue(lat);
-        myRef.child(PATH_LOCATION_LNG).setValue(lng);
+        //Set values to two children at the same time
+        myRef.setValue(new LocationModel(lat, lng));
     }
 
     //When the user firstly started app - pushes user data to Firebase
@@ -335,7 +336,6 @@ public class FirebaseDatabaseHelper {
 
                                         final LatLng latLng =
                                                 new LatLng(lat.doubleValue(), lng.doubleValue());
-
                                         mUsersLocation.put(uid, latLng);
 
                                         if (uid.equals(getCurrentUser().getUid())) {
