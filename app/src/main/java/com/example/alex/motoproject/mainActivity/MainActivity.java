@@ -70,8 +70,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         FragmentManager.OnBackStackChangedListener, FirebaseDatabaseHelper.AuthLoadingListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
-    // TODO: 24.03.2017 fix crash in friends fragment when replacing fragment to it in user details fragment
-
     private static final int USER_LIST_TYPE_FRIENDS = 10;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;

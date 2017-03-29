@@ -108,7 +108,7 @@ public class FirebaseDatabaseHelper {
     }
 
     public void registerAuthLoadingListener(final AuthLoadingListener listener) {
-        new FirebaseAuth.AuthStateListener() {
+        FirebaseAuth.getInstance().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null) {
@@ -116,7 +116,7 @@ public class FirebaseDatabaseHelper {
                     listener.onLoadFinished();
                 }
             }
-        };
+        });
     }
 
     public FirebaseUser getCurrentUser() {
@@ -132,7 +132,7 @@ public class FirebaseDatabaseHelper {
     public void setUserOfflineOnDisconnect() {
         DatabaseReference onlineUsers = mDbReference.child(PATH_ONLINE_USERS)
                 .child(getCurrentUser().getUid());
-        onlineUsers.removeValue();
+        onlineUsers.onDisconnect().removeValue();
     }
 
     public void updateUserLocation(Location location) {
