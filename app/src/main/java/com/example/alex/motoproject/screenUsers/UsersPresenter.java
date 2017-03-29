@@ -86,6 +86,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     @Override
     public void onUserAdded(User user) {
         getView().addUser(user);
+        onUserListUpdate();
     }
 
     @Override

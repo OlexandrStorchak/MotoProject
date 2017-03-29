@@ -10,11 +10,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.util.ArgKeys;
-import com.example.alex.motoproject.util.CircleTransform;
-import com.squareup.picasso.Picasso;
+import com.example.alex.motoproject.util.CropCircleTransformation;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -46,10 +46,15 @@ public class MapUserDetailsDialogFragment extends DialogFragment {
         });
 
         nameView.setText(name);
-        Picasso.with(getContext()).load(avatarRef)
-                .resize(avatarView.getMaxWidth(), avatarView.getMaxHeight())
+//        Picasso.with(getContext()).load(avatarRef)
+//                .resize(avatarView.getMaxWidth(), avatarView.getMaxHeight())
+//                .centerCrop()
+//                .transform(new CircleTransform())
+//                .into(avatarView);
+        Glide.with(getContext()).load(avatarRef)
+                .override(avatarView.getMaxWidth(), avatarView.getMaxHeight())
                 .centerCrop()
-                .transform(new CircleTransform())
+                .transform(new CropCircleTransformation(getContext()))
                 .into(avatarView);
 
         return builder.create();

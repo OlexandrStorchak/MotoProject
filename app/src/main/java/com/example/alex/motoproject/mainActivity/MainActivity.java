@@ -56,6 +56,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
+import static com.example.alex.motoproject.firebase.Constants.STATUS_NO_GPS;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_FRIENDS;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_NOGPS;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
@@ -334,6 +335,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             mNavigationStartRide.setTextColor(ContextCompat.getColor(this,R.color.green800));
             mNavigationStartRide.setBackground(ContextCompat.getDrawable(this,R.drawable.button_start));
 
+            mFirebaseDatabaseHelper.setUserOnline(STATUS_NO_GPS);
         }
     }
 
@@ -407,7 +409,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
     @Subscribe
     public void onShowOnlineUserProfile(ShowUserProfileEvent model) {
-
         ScreenUserProfileFragment userProfile = new ScreenUserProfileFragment();
 
         mFragmentManager.beginTransaction().addToBackStack(null)
@@ -418,8 +419,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
     @Subscribe
     public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
-
-
         mNameHeader.setText(user.getMyProfileFirebase().getName());
         mEmailHeader.setText(user.getMyProfileFirebase().getEmail());
 
@@ -429,6 +428,11 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                 .centerCrop()
                 .transform(new CircleTransform())
                 .into(mAvatarHeader);
+//        Glide.with(this)
+//                .load(user.getMyProfileFirebase().getAvatar())
+//                .override(mAvatarHeader.getMaxWidth() * 2, mAvatarHeader.getMaxHeight() * 2)
+//                .transform(new CropCircleTransformation(this))
+//                .into(mAvatarHeader);
     }
 
     @Subscribe

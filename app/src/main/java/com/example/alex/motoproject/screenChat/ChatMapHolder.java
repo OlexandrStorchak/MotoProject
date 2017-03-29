@@ -44,6 +44,27 @@ class ChatMapHolder extends BaseChatItemHolder {
                 mProgressBar.setVisibility(View.GONE);
             }
         });
+//        Glide.with(ctx)
+//                .load(mapLink)
+//                .listener(new RequestListener<String, GlideDrawable>() {
+//                    @Override
+//                    public boolean onException(Exception e, String model,
+//                                               Target<GlideDrawable> target,
+//                                               boolean isFirstResource) {
+//                        mProgressBar.setVisibility(View.GONE);
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public boolean onResourceReady(GlideDrawable resource, String model,
+//                                                   Target<GlideDrawable> target,
+//                                                   boolean isFromMemoryCache,
+//                                                   boolean isFirstResource) {
+//                        mProgressBar.setVisibility(View.GONE);
+//                        return false;
+//                    }
+//                })
+//                .into(mStaticMap);
     }
 
     void setStaticMapOnClickListener(final LatLng latLng) {

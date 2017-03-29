@@ -42,7 +42,7 @@ import static com.example.alex.motoproject.firebase.Constants.CHAT_LATITUDE;
 import static com.example.alex.motoproject.firebase.Constants.CHAT_LONGITUDE;
 import static com.example.alex.motoproject.firebase.Constants.CHAT_SEND_TIME;
 import static com.example.alex.motoproject.firebase.Constants.CHAT_TEXT;
-import static com.example.alex.motoproject.firebase.Constants.ONE_KILOMETER;
+import static com.example.alex.motoproject.firebase.Constants.ONE_KILOMETER_IN_METERS;
 import static com.example.alex.motoproject.firebase.Constants.PATH_CHAT;
 import static com.example.alex.motoproject.firebase.Constants.PATH_LOCATION;
 import static com.example.alex.motoproject.firebase.Constants.PATH_LOCATION_LAT;
@@ -264,7 +264,7 @@ public class FirebaseDatabaseHelper {
     }
 
     private boolean isStatusPublic(String status) {
-        return status != null && status.equals(STATUS_PUBLIC);
+        return status.equals(STATUS_PUBLIC);
     }
 
     private boolean isStatusNoGps(String status) {
@@ -279,9 +279,9 @@ public class FirebaseDatabaseHelper {
         return relation.equals(RELATION_FRIEND);
     }
 
-    private void postChangeMarkerEvent(DataSnapshot dataSnapshot) {
-        final String status = (String) dataSnapshot.getValue();
-        final String uid = dataSnapshot.getKey();
+    private void postChangeMarkerEvent(final DataSnapshot firstDataSnapshot) {
+        final String status = (String) firstDataSnapshot.getValue();
+        final String uid = firstDataSnapshot.getKey();
 
         final DatabaseReference user = mDbReference.child(PATH_USERS).child(uid);
 
@@ -293,15 +293,17 @@ public class FirebaseDatabaseHelper {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final String relation = (String) dataSnapshot.getValue();
-                if (status==null) {
+
+                if (status == null) {
                     return;
                 }
+
                 if (isStatusNoGps(status) || isStatusSos(status)) {
                     return;
                 }
 
                 if (!isStatusPublic(status)) {
-                    if (relation==null || !isUserFriend(relation)) {
+                    if (relation == null || !isUserFriend(relation)) {
                         return;
                     }
                 }
@@ -744,7 +746,7 @@ public class FirebaseDatabaseHelper {
      */
 
     public void setCloseDistance(int closeDistance) {
-        mCloseDistance = closeDistance * ONE_KILOMETER; //kilometers to meters
+        mCloseDistance = closeDistance * ONE_KILOMETER_IN_METERS; //kilometers to meters
     }
 
     public void registerChatMessagesListener(final ChatUpdateReceiver receiver) {

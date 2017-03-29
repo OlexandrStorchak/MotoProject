@@ -2,15 +2,14 @@ package com.example.alex.motoproject.firebase;
 
 public class Constants {
 
-    public static final int ONE_KILOMETER=1000;
+    public static final int ONE_KILOMETER_IN_METERS = 1000;
 
     public static final String RELATION_FRIEND = "friend";
     public static final String RELATION_PENDING = "pending";
-    static final String RELATION_UNKNOWN = "unknown";
     public static final String STATUS_PUBLIC = "public";
+    public static final String STATUS_NO_GPS = "noGps";
+    static final String RELATION_UNKNOWN = "unknown";
     static final String STATUS_SOS = "sos";
-    static final String STATUS_NO_GPS = "noGps";
-
     static final String PATH_ONLINE_USERS="onlineUsers";
     static final String PATH_LOCATION="location";
     static final String PATH_LOCATION_LAT="lat";

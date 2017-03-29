@@ -13,13 +13,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.Constants;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UsersProfileFirebase;
-import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -126,9 +126,14 @@ public class ScreenUserProfileFragment extends Fragment {
         nickName.setText(mUserData.getNickName());
         email.setText(mUserData.getEmail());
         motorcycle.setText(mUserData.getMotorcycle());
-        Picasso.with(getContext())
+//        Picasso.with(getContext())
+//                .load(ava)
+//                .resize(avatar.getMaxWidth(), avatar.getMaxHeight())
+//                .centerCrop()
+//                .into(avatar);
+        Glide.with(getContext())
                 .load(ava)
-                .resize(avatar.getMaxWidth(), avatar.getMaxHeight())
+                .override(avatar.getMaxWidth(), avatar.getMaxHeight())
                 .centerCrop()
                 .into(avatar);
 

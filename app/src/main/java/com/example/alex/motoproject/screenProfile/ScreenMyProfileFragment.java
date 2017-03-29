@@ -24,6 +24,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
@@ -35,7 +36,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -247,11 +247,17 @@ public class ScreenMyProfileFragment extends Fragment {
             ava = ava.replace("/s96-c", "/s300-c");
         }
 
-        Picasso.with(getApplicationContext())
+//        Picasso.with(getApplicationContext())
+//                .load(ava)
+//                .resize(avatar.getMaxWidth(), avatar.getMaxHeight())
+//                .centerCrop()
+//                .into(avatar);
+        Glide.with(getApplicationContext())
                 .load(ava)
-                .resize(avatar.getMaxWidth(), avatar.getMaxHeight())
+                .override(avatar.getMaxWidth(), avatar.getMaxHeight())
                 .centerCrop()
                 .into(avatar);
+
         name.setText(user.getMyProfileFirebase().getName());
         nickName.setText(user.getMyProfileFirebase().getNickName());
         aboutMe.setText(user.getMyProfileFirebase().getAboutMe());
@@ -304,7 +310,7 @@ public class ScreenMyProfileFragment extends Fragment {
 
             try {
                 //if file not large for current device and can be load
-               getAvatarStream(2,filePath);
+                getAvatarStream(2, filePath);
 
 
             } catch (IOException | OutOfMemoryError e) {
@@ -312,7 +318,7 @@ public class ScreenMyProfileFragment extends Fragment {
 
                 try {
                     //if file to large for current device
-                    getAvatarStream(4,filePath);
+                    getAvatarStream(4, filePath);
 
                 } catch (FileNotFoundException e1) {
                     e1.printStackTrace();
@@ -322,12 +328,12 @@ public class ScreenMyProfileFragment extends Fragment {
         }
     }
 
-    private void getAvatarStream(int size, Uri filePath) throws FileNotFoundException,OutOfMemoryError {
+    private void getAvatarStream(int size, Uri filePath) throws FileNotFoundException, OutOfMemoryError {
         InputStream iStream = getApplicationContext().getContentResolver().openInputStream(filePath);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = size;
 
-        Bitmap bitmap = BitmapFactory.decodeStream(iStream,null,options);
+        Bitmap bitmap = BitmapFactory.decodeStream(iStream, null, options);
 
         avatar.setImageBitmap(bitmap);
 

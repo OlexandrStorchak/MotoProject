@@ -294,8 +294,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                 mAdapter.addSection(relation, new UsersSection(title));
                 break;
             default:
-                Section section = new UsersSection(null);
-                mAdapter.addSection(relation, section);
+                mAdapter.addSection(relation, new UsersSection(null));
                 break;
         }
     }
@@ -366,9 +365,11 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         }
 
         private void addUser(User user) {
+//            if (mPresenter == null) {
+//                return;
+//            }
             mUsers.add(user);
             // TODO: 29.03.2017 mPresenter is null if a user chaotically pushes all the buttons in drawer
-            mPresenter.onUserListUpdate();
         }
 
         private void addUsers(List<User> users) {

@@ -255,7 +255,6 @@ public class LocationListenerService extends Service implements Runnable,
     private void stopLocationUpdates() {
         if (mGoogleApiClient.isConnected()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-
         }
     }
 
