@@ -1,7 +1,6 @@
 package com.example.alex.motoproject.screenUsers;
 
 
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,6 +10,7 @@ import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,6 +41,8 @@ import javax.inject.Inject;
 import io.github.luizgrp.sectionedrecyclerviewadapter.Section;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
+
+import static com.facebook.login.widget.ProfilePictureView.TAG;
 
 public class UsersFragment extends Fragment implements UsersMvp.PresenterToView {
     private static final String LIST_TYPE_KEY = "listType";
@@ -254,8 +256,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     @Override
     public void setupFriendsList() {
         //Make pending friends section always show on top
-        Resources res = getContext().getResources();
-        String title = res.getString(R.string.title_pending_friends);
+        String title = getContext().getString(R.string.title_pending_friends);
         PendingFriendSection pfs = new PendingFriendSection(title);
         mAdapter.addSection(Constants.RELATION_PENDING, pfs);
     }
@@ -263,7 +264,14 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     @Override
     public void addUser(User user) {
         UsersSection section = (UsersSection) mAdapter.getSection(user.getRelation());
-        section.addUser(user);
+        if (hasUserRequiredData(user)) {
+            section.addUser(user);
+        }
+    }
+
+    private boolean hasUserRequiredData(User user) {
+        return user != null && user.getName() != null
+                && user.getUid() != null && user.getAvatar() != null;
     }
 
     @Override
@@ -280,15 +288,13 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void addNewSection(String relation) {
-        // TODO: 23.03.2017 fix context returning null when changing fragments with high frequency
-        Resources res = getContext().getResources();
         String title;
         switch (relation) {
             case Constants.RELATION_PENDING:
                 //Pending friends section was added earlier to appear on top
                 break;
             case Constants.RELATION_FRIEND:
-                title = res.getString(R.string.title_friends);
+                title = getContext().getString(R.string.title_friends);
                 mAdapter.addSection(relation, new UsersSection(title));
                 break;
             default:
@@ -365,6 +371,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         private void addUser(User user) {
             mUsers.add(user);
+            Log.d(TAG, "addUser: " + user.getName() + " " + user.getUid());
             mPresenter.onUserListUpdate();
         }
 

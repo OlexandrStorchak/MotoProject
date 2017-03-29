@@ -70,20 +70,17 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         FragmentManager.OnBackStackChangedListener, FirebaseDatabaseHelper.AuthLoadingListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
-    // TODO: 24.03.2017 fix crash in friends fragment when replacing fragment to it in user details fragment
-
+    private static final int USER_LIST_TYPE_FRIENDS = 10;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
-
     ScreenMapFragment screenMapFragment = new ScreenMapFragment();
     UsersFragment onlineUsersFragment = new UsersFragment();
     UsersFragment friendsFragment = new UsersFragment();
     ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
     ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
     ChatFragment chatFragment = new ChatFragment();
-
     AlertControl alertControl = new AlertControl(this);
     FirebaseLoginController loginController;
     private App mApp;
@@ -241,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         navigationBtnFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                replaceFragment(friendsFragment, 10);
+                replaceFragment(friendsFragment, USER_LIST_TYPE_FRIENDS);
                 mDrawerLayout.closeDrawers();
             }
         });
@@ -569,9 +566,13 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
     }
 
     public void replaceFragment(Fragment fragment, int listType) {
-        Bundle bundle = new Bundle();
-        bundle.putInt(KEY_LIST_TYPE, listType);
-        fragment.setArguments(bundle);
+        if (fragment.getArguments() == null) {
+            Bundle bundle = new Bundle();
+            bundle.putInt(KEY_LIST_TYPE, listType);
+            fragment.setArguments(bundle);
+        } else {
+            fragment.getArguments().putInt(KEY_LIST_TYPE, listType);
+        }
         replaceFragment(fragment);
     }
 
