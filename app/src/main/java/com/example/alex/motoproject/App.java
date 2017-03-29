@@ -22,8 +22,8 @@ public class App extends Application
 
     private static NetworkStateReceiverComponent networkStateReceiverComponent;
 
-    private boolean isMainActivityVisible;
-    private boolean isLocationListenerServiceOn;
+    private boolean mMainActivityVisible;
+    private boolean mLocationListenerServiceOn;
 
     public static CoreComponent getCoreComponent() {
         return coreComponent;
@@ -52,16 +52,16 @@ public class App extends Application
     }
 
     public boolean isLocationListenerServiceOn() {
-        return isLocationListenerServiceOn;
+        return mLocationListenerServiceOn;
     }
 
     public void setLocationListenerServiceOn(boolean locationListenerServiceOn) {
-        isLocationListenerServiceOn = locationListenerServiceOn;
+        this.mLocationListenerServiceOn = locationListenerServiceOn;
     }
 
     public boolean isMainActivityVisible() {
 
-        return isMainActivityVisible;
+        return mMainActivityVisible;
     }
 
 
@@ -73,7 +73,7 @@ public class App extends Application
     @Override
     public void onActivityStarted(Activity activity) {
         if (activity instanceof MainActivity) {
-            isMainActivityVisible = true;
+            mMainActivityVisible = true;
         }
     }
 
@@ -90,7 +90,7 @@ public class App extends Application
     @Override
     public void onActivityStopped(Activity activity) {
         if (activity instanceof MainActivity) {
-            isMainActivityVisible = false;
+            mMainActivityVisible = false;
         }
     }
 
