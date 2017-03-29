@@ -10,7 +10,6 @@ import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,8 +41,6 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.Section;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
-import static com.facebook.login.widget.ProfilePictureView.TAG;
-
 public class UsersFragment extends Fragment implements UsersMvp.PresenterToView {
     private static final String LIST_TYPE_KEY = "listType";
     public SectionedRecyclerViewAdapter mAdapter = new SectionedRecyclerViewAdapter() {
@@ -56,7 +53,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     UsersMvp.ViewToPresenter mPresenter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SearchView mSearchView;
-    private RecyclerView mRecyclerView;
 
     public UsersFragment() {
 
@@ -81,7 +77,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 //    @Override
 //    public void onSaveInstanceState(Bundle outState) {
 //        super.onSaveInstanceState(outState);
-//        LinearLayoutManager manager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+//        LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
 //        outState.putInt(RECYCLER_VIEW_SCROLL, manager.findFirstVisibleItemPosition());
 //    }
 //
@@ -91,7 +87,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 //        if (savedInstanceState == null) {
 //            return;
 //        }
-//        LinearLayoutManager manager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
+//        LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
 //        manager.scrollToPosition(savedInstanceState.getInt(RECYCLER_VIEW_SCROLL));
 //        // TODO: 27.03.2017 split methods for loading and setting the listener to users and do not
 //        // TODO: 27.03.2017 load users twice after onViewStateRestored so it was be possible to scroll
@@ -189,7 +185,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             mAdapter.setHasStableIds(true);
         }
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
+        RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext()) {
             @Override
             public boolean supportsPredictiveItemAnimations() {
@@ -197,8 +193,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             }
         };
 
-        mRecyclerView.setLayoutManager(layoutManager);
-        mRecyclerView.setAdapter(mAdapter);
+        rv.setLayoutManager(layoutManager);
+        rv.setAdapter(mAdapter);
     }
 
     @Override
@@ -371,7 +367,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         private void addUser(User user) {
             mUsers.add(user);
-            Log.d(TAG, "addUser: " + user.getName() + " " + user.getUid());
+            // TODO: 29.03.2017 mPresenter is null if a user chaotically pushes all the buttons in drawer
             mPresenter.onUserListUpdate();
         }
 

@@ -179,16 +179,7 @@ public class LocationListenerService extends Service implements Runnable,
         //create pending intent to finish this service
         Intent stopSelfIntent = new Intent(this, LocationListenerService.class);
         stopSelfIntent.putExtra(SHOULD_STOP_SERVICE_EXTRA, true);
-        PendingIntent StopSelfPendingIntent =
-                PendingIntent.getService(
-                        this,
-                        0,
-                        stopSelfIntent,
-                        PendingIntent.FLAG_CANCEL_CURRENT);
         //TODO : run sos from notification
-//        mBuilder.addAction(R.drawable.ic_clear_gray_24dp,
-//                "Прибрати мене з мапи",
-//                StopSelfPendingIntent);
 
         // send notification
         startForeground(mNotificationId, mBuilder.build());

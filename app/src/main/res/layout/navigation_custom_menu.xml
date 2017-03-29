@@ -25,14 +25,12 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-
                 android:entries="@array/profile_spinner_set_gps_visibility"
                 android:textAlignment="center"
                 android:textColor="@color/blue900" />
 
             <ImageView
                 android:id="@+id/profile_show_on_map_indicator"
-
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:layout_gravity="center" />
