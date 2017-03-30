@@ -2,6 +2,7 @@ package com.example.alex.motoproject.screenChat;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,6 +86,7 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private void bindMessage(RecyclerView.ViewHolder holder, int position) {
         ChatMessage message = mMessages.get(position);
+        Log.d("bindMessage", "bindMessage: " + message.getUid());
         String uid = message.getUid();
         String text = message.getText();
         String name = message.getName();

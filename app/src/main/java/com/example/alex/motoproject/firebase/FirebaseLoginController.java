@@ -13,18 +13,28 @@ import javax.inject.Inject;
 public class FirebaseLoginController implements FirebaseAuth.AuthStateListener {
     // Flag for validate with email login method
     public static boolean loginWithEmail = false;
+    private static MainActivityPresenter mainActivityPresenter;
+    private static FirebaseLoginController controller;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     private FirebaseAuth mFirebaseAuth;
-    private MainActivityPresenter mainActivityPresenter;
 
-    public FirebaseLoginController(MainActivityPresenter mainActivityPresenter) {
-        this.mainActivityPresenter = mainActivityPresenter;
+    public FirebaseLoginController(MainActivityPresenter presenter) {
+        mainActivityPresenter = presenter;
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseAuth.addAuthStateListener(this);
+    }
+
+    public static FirebaseLoginController getInstance(MainActivityPresenter presenter) {
+        mainActivityPresenter = presenter;
+        if (controller == null) {
+            controller = new FirebaseLoginController(presenter);
+        }
+        return controller;
     }
 
     public void start() {
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseAuth.addAuthStateListener(this);
+
     }
 
     public void stop() {

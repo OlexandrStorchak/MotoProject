@@ -28,6 +28,7 @@ import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.Constants;
 import com.example.alex.motoproject.util.CropCircleTransformation;
+import com.example.alex.motoproject.util.DimensHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -428,18 +429,22 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         @Override
         public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
-            UserViewHolder userViewHolder = (UserViewHolder) holder;
-            User user = mUsers.get(position);
+            final UserViewHolder userViewHolder = (UserViewHolder) holder;
+            final User user = mUsers.get(position);
 
             userViewHolder.name.setText(user.getName());
 
-            Glide.with(userViewHolder.avatar.getContext())
-                    .load(user.getAvatar())
+            DimensHelper.getScaledAvatar(user.getAvatar(),
+                    userViewHolder.avatar.getWidth(), new DimensHelper.AvatarRefReceiver() {
+                        @Override
+                        public void onRefReady(String ref) {
+                            Glide.with(userViewHolder.avatar.getContext())
+                                    .load(ref)
 //                    .dontAnimate()
-                    .override(userViewHolder.avatar.getMaxWidth(),
-                            userViewHolder.avatar.getMaxHeight())
-                    .transform(new CropCircleTransformation(getContext()))
-                    .into(userViewHolder.avatar);
+                                    .override(userViewHolder.avatar.getMaxWidth(),
+                                            userViewHolder.avatar.getMaxHeight())
+                                    .transform(new CropCircleTransformation(getContext()))
+                                    .into(userViewHolder.avatar);
 
 //            Picasso.with(userViewHolder.avatar.getContext())
 //                    .load(user.getAvatar())
@@ -448,6 +453,14 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 //                    .centerCrop()
 //                    .transform(new CircleTransform())
 //                    .into(userViewHolder.avatar);
+                        }
+
+                        @Override
+                        public void onError() {
+
+                        }
+                    });
+
             if (user.getStatus() != null && user.getStatus().equals(Constants.STATUS_PUBLIC)) {
                 userViewHolder.mapCur.setVisibility(View.VISIBLE);
             } else {

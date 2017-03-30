@@ -28,6 +28,9 @@ public class MainService extends Service {
 
     @Override
     public void onCreate() {
+        if (Boolean.TRUE) {
+            return;
+        }
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
         final DatabaseReference ref = mFirebaseDatabase.getReference().child("sos");
 

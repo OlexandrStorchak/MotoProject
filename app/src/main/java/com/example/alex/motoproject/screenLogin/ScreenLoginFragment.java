@@ -277,8 +277,8 @@ public class ScreenLoginFragment extends Fragment {
 
 
         mGoogleApiClient = new GoogleApiClient.Builder(getContext())
-                .enableAutoManage((FragmentActivity) getContext()
-                        , new GoogleApiClient.OnConnectionFailedListener() {
+                .enableAutoManage((FragmentActivity) getContext(),
+                        new GoogleApiClient.OnConnectionFailedListener() {
                             @Override
                             public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 

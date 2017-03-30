@@ -30,6 +30,7 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.MyProfileFirebase;
+import com.example.alex.motoproject.util.DimensHelper;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -240,23 +241,28 @@ public class ScreenMyProfileFragment extends Fragment {
         myProfileFirebase = user.getMyProfileFirebase();
         currentUid = user.getMyProfileFirebase().getId();
         email.setText(user.getMyProfileFirebase().getEmail());
-        String ava = user.getMyProfileFirebase().getAvatar();
+        final String ava = user.getMyProfileFirebase().getAvatar();
 
-        //Google avatars increase size
-        if (ava.contains(".googleusercontent.com/")) {
-            ava = ava.replace("/s96-c", "/s300-c");
-        }
-
-//        Picasso.with(getApplicationContext())
+        DimensHelper.getScaledAvatar(ava, avatar.getWidth(), new DimensHelper.AvatarRefReceiver() {
+            @Override
+            public void onRefReady(String ref) {
+                //        Picasso.with(getApplicationContext())
 //                .load(ava)
 //                .resize(avatar.getMaxWidth(), avatar.getMaxHeight())
 //                .centerCrop()
 //                .into(avatar);
-        Glide.with(getApplicationContext())
-                .load(ava)
-                .override(avatar.getMaxWidth(), avatar.getMaxHeight())
-                .centerCrop()
-                .into(avatar);
+                Glide.with(getApplicationContext())
+                        .load(ref)
+                        .override(avatar.getMaxWidth(), avatar.getMaxHeight())
+                        .centerCrop()
+                        .into(avatar);
+            }
+
+            @Override
+            public void onError() {
+
+            }
+        });
 
         name.setText(user.getMyProfileFirebase().getName());
         nickName.setText(user.getMyProfileFirebase().getNickName());

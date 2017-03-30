@@ -12,6 +12,7 @@ import com.example.alex.motoproject.screenChat.ChatMessageSendable;
 import com.example.alex.motoproject.screenUsers.User;
 import com.example.alex.motoproject.service.MainServiceSosModel;
 import com.example.alex.motoproject.util.DistanceUtil;
+import com.facebook.Profile;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -145,21 +146,9 @@ public class FirebaseDatabaseHelper {
     }
 
     //When the user firstly started app - pushes user data to Firebase
-    public void addUserToFirebase(
-            final String uid, final String email, final String name, final String avatar) {
+    public void addUserToFirebase(final String uid,
+                                  final String email, final String name, final String avatar) {
 
-        final String avatarUrl;
-        final String nameUrl;
-        if (avatar.equals("null")) {
-            avatarUrl = STANDART_AVATAR;
-        } else {
-            avatarUrl = avatar;
-        }
-        if (name == null) {
-            nameUrl = getCurrentUser().getEmail();
-        } else {
-            nameUrl = name;
-        }
         final DatabaseReference currentUserRef = mDbReference.child(PATH_USERS).child(uid);
 
         ValueEventListener userProfileListener = new ValueEventListener() {
@@ -169,6 +158,24 @@ public class FirebaseDatabaseHelper {
                     //Required data already exists
                     return;
                 }
+
+                final String avatarUrl;
+                final String nameUrl;
+                if (avatar.equals("null")) {
+                    avatarUrl = STANDART_AVATAR;
+                } else if (avatar.contains("://scontent.xx.fbcdn.net/")) { //Avatar from Facebook
+                    //As there is no easy way do scale up an image from Facebook, put users id
+                    //from Facebook to download his avatar later in needed size
+                    avatarUrl = Profile.getCurrentProfile().getId();
+                } else {
+                    avatarUrl = avatar;
+                }
+                if (name == null) {
+                    nameUrl = getCurrentUser().getEmail();
+                } else {
+                    nameUrl = name;
+                }
+
                 //No data found by the reference, add new data
                 currentUserRef.child(USER_PROFILE_EMAIL).setValue(email);
                 currentUserRef.child(USER_PROFILE_NAME).setValue(nameUrl);
@@ -184,7 +191,6 @@ public class FirebaseDatabaseHelper {
             }
         };
         currentUserRef.addValueEventListener(userProfileListener);
-
     }
 
     /**

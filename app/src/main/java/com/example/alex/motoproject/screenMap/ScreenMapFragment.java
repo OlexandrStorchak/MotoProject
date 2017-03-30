@@ -71,7 +71,7 @@ import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
 public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
     private static final int MARKER_DIMENS_DP = 90;
-    private static final int MARKER_DIMENS_PX = DimensHelper.dpToPx(MARKER_DIMENS_DP)/2;
+    private static final int MARKER_DIMENS_PX = DimensHelper.dpToPx(MARKER_DIMENS_DP) / 2;
 
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
@@ -232,7 +232,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         EventBus.getDefault().unregister(this);
         mFirebaseDatabaseHelper.unregisterOnlineUsersLocationListener();
 
-
         CameraPosition position = mMap.getCameraPosition();
         mCameraUpdate = CameraUpdateFactory.newCameraPosition(position);
 
@@ -274,7 +273,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Subscribe
-    public void updateMapPin(MapMarkerEvent event) {
+    public void updateMapPin(final MapMarkerEvent event) {
         if (mMarkerHashMap.containsKey(event.uid)) {
             Marker marker = mMarkerHashMap.get(event.uid);
             if (event.latLng == null) {
@@ -288,7 +287,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         if (event.latLng == null) {
             return;
         }
-        Marker marker = mMap.addMarker(new MarkerOptions()
+        final Marker marker = mMap.addMarker(new MarkerOptions()
                 .position(event.latLng)
                 .anchor(0.5f, 0.5f));
         marker.setVisible(false);
@@ -300,14 +299,26 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         marker.setTag(markerData);
 
         mMarkerHashMap.put(event.uid, marker);
-        fetchAndSetMarkerIcon(event.uid, event.avatarRef, marker);
+
+        DimensHelper.getScaledAvatar(event.avatarRef,
+                MARKER_DIMENS_PX, new DimensHelper.AvatarRefReceiver() {
+                    @Override
+                    public void onRefReady(String ref) {
+                        fetchAndSetMarkerIcon(ref, marker);
+                    }
+
+                    @Override
+                    public void onError() {
+
+                    }
+                });
     }
 
-    private void fetchAndSetMarkerIcon(final String uid, String avatarRef, final Marker marker) {
+    private void fetchAndSetMarkerIcon(String avatarRef, final Marker marker) {
         final Target iconTarget = new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                mMarkerHashMap.get(uid).setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
+                marker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
                 marker.setVisible(true);
                 mTargetStrongRef.remove(this);
             }

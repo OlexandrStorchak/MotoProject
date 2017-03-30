@@ -4,7 +4,6 @@ package com.example.alex.motoproject.screenProfile;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +19,7 @@ import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.Constants;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UsersProfileFirebase;
+import com.example.alex.motoproject.util.DimensHelper;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -93,7 +93,7 @@ public class ScreenUserProfileFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        getActivity().setTitle("MotoProject");
+        getActivity().setTitle(getContext().getString(R.string.app_name));
     }
 
     @Override
@@ -103,39 +103,46 @@ public class ScreenUserProfileFragment extends Fragment {
     }
 
     private void displayUserData() {
-
-
-
         getActivity().setTitle(mUserData.getName());
         name.setText(mUserData.getName());
         nickName.setText(mUserData.getNickName());
         email.setText(mUserData.getEmail());
         motorcycle.setText(mUserData.getMotorcycle());
 
-        String ava = mUserData.getAvatar();
-        Log.i("log", "onOnlineUserProfileReady: "+ava);
-        //Google avatars increase size
-        if (ava.contains(".googleusercontent.com/")) {
-            ava = ava.replace("/s96-c", "/s300-c");
-            Log.i("log", "onOnlineUserProfileReady: "+ava);
-        }
+        String avatarRef = mUserData.getAvatar();
 
-
-        getActivity().setTitle(mUserData.getName());
-        name.setText(mUserData.getName());
-        nickName.setText(mUserData.getNickName());
-        email.setText(mUserData.getEmail());
-        motorcycle.setText(mUserData.getMotorcycle());
-//        Picasso.with(getContext())
-//                .load(ava)
+//        if (avatarRef.contains(".googleusercontent.com/")) {
+//            int newSize = avatar.getWidth();
+//            avatarRef = avatarRef.replace("/s96-c", "/s" + newSize + "-c"); //Increase Google avatar size
+//            Log.i("log", "onOnlineUserProfileReady: "+ avatarRef);
+//        }
+        DimensHelper.getScaledAvatar(avatarRef,
+                avatar.getWidth(), new DimensHelper.AvatarRefReceiver() {
+                    @Override
+                    public void onRefReady(String ref) {
+                        //        Picasso.with(getContext())
+//                .load(avatarRef)
 //                .resize(avatar.getMaxWidth(), avatar.getMaxHeight())
 //                .centerCrop()
 //                .into(avatar);
-        Glide.with(getContext())
-                .load(ava)
-                .override(avatar.getMaxWidth(), avatar.getMaxHeight())
-                .centerCrop()
-                .into(avatar);
+                        Glide.with(getContext())
+                                .load(ref)
+                                .override(avatar.getWidth(), avatar.getHeight())
+                                .centerCrop()
+                                .into(avatar);
+                    }
+
+                    @Override
+                    public void onError() {
+
+                    }
+                });
+
+        getActivity().setTitle(mUserData.getName());
+        name.setText(mUserData.getName());
+        nickName.setText(mUserData.getNickName());
+        email.setText(mUserData.getEmail());
+        motorcycle.setText(mUserData.getMotorcycle());
 
         //If friend already added
         if (mFirebaseDatabaseHelper.isInFriendList(mUserData.getId(), Constants.RELATION_FRIEND)) {

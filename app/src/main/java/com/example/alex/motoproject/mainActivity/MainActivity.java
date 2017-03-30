@@ -47,6 +47,7 @@ import com.example.alex.motoproject.screenUsers.UsersFragment;
 import com.example.alex.motoproject.service.LocationListenerService;
 import com.example.alex.motoproject.service.MainService;
 import com.example.alex.motoproject.util.CircleTransform;
+import com.example.alex.motoproject.util.DimensHelper;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
@@ -62,7 +63,10 @@ import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_SOS;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
+import static com.example.alex.motoproject.util.ArgKeys.EMAIL;
+import static com.example.alex.motoproject.util.ArgKeys.KEY_AVATAR_REF;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_LIST_TYPE;
+import static com.example.alex.motoproject.util.ArgKeys.KEY_NAME;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_UID;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_USER_COORDS;
 
@@ -118,6 +122,10 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         }
     };
 
+    private String mName;
+    private String mEmail;
+    private String mAvatarRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,14 +141,13 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         MainActivityPresenter presenterImp = new MainActivityPresenter(this);
 
         loginController = new FirebaseLoginController(presenterImp);
-
         loginController.start();
 
         setContentView(R.layout.activity_main);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
-
         setSupportActionBar(mToolbar);
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         mToggle = new ActionBarDrawerToggle(
@@ -188,8 +195,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         mNavigationStartRide = (Button) mNavigationView.findViewById(R.id.navigation_btn_ride);
         if (mApp.isLocationListenerServiceOn()) {
             mNavigationStartRide.setText(R.string.stop_location_service_button_tittle);
-            mNavigationStartRide.setTextColor(ContextCompat.getColor(this,R.color.red800));
-            mNavigationStartRide.setBackground(ContextCompat.getDrawable(this,R.drawable.button_stop));
+            mNavigationStartRide.setTextColor(ContextCompat.getColor(this, R.color.red800));
+            mNavigationStartRide.setBackground(ContextCompat.getDrawable(this, R.drawable.button_stop));
         }
         mNavigationStartRide.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
@@ -271,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_PUBLIC);
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_green);
                             mGpsStatus.setBackground(ContextCompat
-                                    .getDrawable(MainActivity.this,R.drawable.button_start));
+                                    .getDrawable(MainActivity.this, R.drawable.button_start));
                             break;
                         case 1:
                             preferences.edit()
@@ -280,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_FRIENDS);
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_yellow);
                             mGpsStatus.setBackground(ContextCompat
-                                    .getDrawable(MainActivity.this,R.drawable.button_ready));
+                                    .getDrawable(MainActivity.this, R.drawable.button_ready));
                             break;
                         case 2:
                             preferences.edit()
@@ -289,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_SOS);
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
                             mGpsStatus.setBackground(ContextCompat
-                                    .getDrawable(MainActivity.this,R.drawable.button_stop));
+                                    .getDrawable(MainActivity.this, R.drawable.button_stop));
                             break;
                         case 3:
                             preferences.edit()
@@ -298,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_NOGPS);
                             mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
                             mGpsStatus.setBackground(ContextCompat
-                                    .getDrawable(MainActivity.this,R.drawable.button_stop));
+                                    .getDrawable(MainActivity.this, R.drawable.button_stop));
                             break;
                     }
                 }
@@ -319,8 +326,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             alertControl.handleLocation();
             mGpsStatus.setVisibility(View.VISIBLE);
             mNavigationStartRide.setText(R.string.stop_location_service_button_tittle);
-            mNavigationStartRide.setTextColor(ContextCompat.getColor(this,R.color.red800));
-            mNavigationStartRide.setBackground(ContextCompat.getDrawable(this,R.drawable.button_stop));
+            mNavigationStartRide.setTextColor(ContextCompat.getColor(this, R.color.red800));
+            mNavigationStartRide.setBackground(ContextCompat.getDrawable(this, R.drawable.button_stop));
             screenMapFragment.setSosVisibility(View.VISIBLE);
 
         } else if (checkLocationPermission()) {
@@ -332,8 +339,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             screenMapFragment.setSosVisibility(View.GONE);
 
             mNavigationStartRide.setText(R.string.start_location_service_button_title);
-            mNavigationStartRide.setTextColor(ContextCompat.getColor(this,R.color.green800));
-            mNavigationStartRide.setBackground(ContextCompat.getDrawable(this,R.drawable.button_start));
+            mNavigationStartRide.setTextColor(ContextCompat.getColor(this, R.color.green800));
+            mNavigationStartRide.setBackground(ContextCompat.getDrawable(this, R.drawable.button_start));
 
             mFirebaseDatabaseHelper.setUserOnline(STATUS_NO_GPS);
         }
@@ -417,22 +424,60 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         mFirebaseDatabaseHelper.getUserModel(model.getUserId());
     }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState == null) {
+            return;
+        }
+        mName = savedInstanceState.getString(KEY_NAME);
+        mEmail = savedInstanceState.getString(EMAIL);
+        mAvatarRef = savedInstanceState.getString(KEY_AVATAR_REF);
+        setCurrentUserData();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(KEY_NAME, mName);
+        outState.putString(EMAIL, mEmail);
+        outState.putString(KEY_AVATAR_REF, mAvatarRef);
+    }
+
     @Subscribe
     public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
-        mNameHeader.setText(user.getMyProfileFirebase().getName());
-        mEmailHeader.setText(user.getMyProfileFirebase().getEmail());
+        mName = user.getMyProfileFirebase().getName();
+        mEmail = user.getMyProfileFirebase().getEmail();
+        mAvatarRef = user.getMyProfileFirebase().getAvatar();
+        setCurrentUserData();
+    }
 
-        Picasso.with(getApplicationContext())
-                .load(user.getMyProfileFirebase().getAvatar())
-                .resize(mAvatarHeader.getMaxWidth(), mAvatarHeader.getMaxHeight())
-                .centerCrop()
-                .transform(new CircleTransform())
-                .into(mAvatarHeader);
+    private void setCurrentUserData() {
+        mNameHeader.setText(mName);
+        mEmailHeader.setText(mEmail);
+
+        DimensHelper.getScaledAvatar(mAvatarRef,
+                mAvatarHeader.getMaxWidth(), new DimensHelper.AvatarRefReceiver() {
+                    @Override
+                    public void onRefReady(String ref) {
+                        Picasso.with(getApplicationContext())
+                                .load(ref)
+                                .resize(mAvatarHeader.getMaxWidth(), mAvatarHeader.getMaxHeight())
+                                .centerCrop()
+                                .transform(new CircleTransform())
+                                .into(mAvatarHeader);
 //        Glide.with(this)
 //                .load(user.getMyProfileFirebase().getAvatar())
 //                .override(mAvatarHeader.getMaxWidth() * 2, mAvatarHeader.getMaxHeight() * 2)
 //                .transform(new CropCircleTransformation(this))
 //                .into(mAvatarHeader);
+                    }
+
+                    @Override
+                    public void onError() {
+
+                    }
+                });
     }
 
     @Subscribe
@@ -482,22 +527,22 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         }
         switch (gpsMode) {
             case PROFILE_GPS_MODE_NOGPS:
-                mGpsStatus.setBackground(ContextCompat.getDrawable(this,R.drawable.button_stop));
+                mGpsStatus.setBackground(ContextCompat.getDrawable(this, R.drawable.button_stop));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
                 mapVisibility.setSelection(3);
                 break;
             case PROFILE_GPS_MODE_SOS:
-                mGpsStatus.setBackground(ContextCompat.getDrawable(this,R.drawable.button_stop));
+                mGpsStatus.setBackground(ContextCompat.getDrawable(this, R.drawable.button_stop));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
                 mapVisibility.setSelection(2);
                 break;
             case PROFILE_GPS_MODE_FRIENDS:
-                mGpsStatus.setBackground(ContextCompat.getDrawable(this,R.drawable.button_ready));
+                mGpsStatus.setBackground(ContextCompat.getDrawable(this, R.drawable.button_ready));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_yellow);
                 mapVisibility.setSelection(1);
                 break;
             case PROFILE_GPS_MODE_PUBLIC:
-                mGpsStatus.setBackground(ContextCompat.getDrawable(this,R.drawable.button_start));
+                mGpsStatus.setBackground(ContextCompat.getDrawable(this, R.drawable.button_start));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_green);
                 mapVisibility.setSelection(0);
                 break;
