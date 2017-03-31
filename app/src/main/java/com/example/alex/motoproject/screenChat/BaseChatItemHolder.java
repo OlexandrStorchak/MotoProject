@@ -36,7 +36,10 @@ class BaseChatItemHolder extends RecyclerView.ViewHolder {
     }
 
     void setAvatar(final String avatarRef, final Context ctx) {
-//        if (avatarRef == null) return;
+        if (avatarRef == null) return;
+
+        Glide.with(ctx).load(avatarRef)
+                .transform(new CropCircleTransformation(ctx)).into(mUserAvatarView);
         DimensHelper.getScaledAvatar(avatarRef,
                 mUserAvatarView.getWidth(), new DimensHelper.AvatarRefReceiver() {
                     @Override
@@ -50,7 +53,6 @@ class BaseChatItemHolder extends RecyclerView.ViewHolder {
 
                     }
                 });
-
     }
 
     void setUserAvatarViewOnClickListener(final String uid) {

@@ -799,11 +799,13 @@ public class FirebaseDatabaseHelper {
                     return;
                 }
 
-                mChatModel.onNewChatMessage(message);
                 if (message.getUid().equals(getCurrentUser().getUid())) {
                     message.setCurrentUserMsg(true);
+                    mChatModel.onNewChatMessage(message);
                     return;
                 }
+
+                mChatModel.onNewChatMessage(message);
 
                 mDbReference.child(PATH_USERS).child(uid)
                         .addListenerForSingleValueEvent(new ValueEventListener() {

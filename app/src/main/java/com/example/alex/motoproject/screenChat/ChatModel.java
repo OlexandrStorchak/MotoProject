@@ -55,9 +55,16 @@ public class ChatModel implements ChatMvp.PresenterToModel,
 
     @Override
     public void onNewChatMessage(ChatMessage message) {
+//        if (!isMessageCorrect(message)) return;
+
         mMessages.add(message);
         mPresenter.showNewMessage();
     }
+
+//    private boolean isMessageCorrect(ChatMessage message) {
+//        return message.isCurrentUserMsg() ||
+//                message.getName() != null && message.getAvatarRef() != null;
+//    }
 
     @Override
     public void onOlderChatMessages(List<ChatMessage> olderMessages, int lastPos) {
