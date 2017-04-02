@@ -22,19 +22,18 @@ public class FirebaseLoginController implements FirebaseAuth.AuthStateListener {
     public FirebaseLoginController(MainActivityPresenter presenter) {
         mainActivityPresenter = presenter;
         mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseAuth.addAuthStateListener(this);
     }
 
-    public static FirebaseLoginController getInstance(MainActivityPresenter presenter) {
-        mainActivityPresenter = presenter;
-        if (controller == null) {
-            controller = new FirebaseLoginController(presenter);
-        }
-        return controller;
-    }
+//    public static FirebaseLoginController getInstance(MainActivityPresenter presenter) {
+//        mainActivityPresenter = presenter;
+//        if (controller == null) {
+//            controller = new FirebaseLoginController(presenter);
+//        }
+//        return controller;
+//    }
 
     public void start() {
-
+        mFirebaseAuth.addAuthStateListener(this);
     }
 
     public void stop() {

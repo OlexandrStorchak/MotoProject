@@ -62,6 +62,8 @@ public class ScreenLoginFragment extends Fragment {
     private CallbackManager callbackManager = CallbackManager.Factory.create();
     private Button mButtonSignInFacebook;
 
+    private boolean mEmailAndPasswordFieldsDisplayed;
+
     public ScreenLoginFragment() {
         // Required empty public constructor
     }
@@ -114,6 +116,7 @@ public class ScreenLoginFragment extends Fragment {
         mPassword.setText(savedInstanceState.getString(PASSWORD));
 
         if (savedInstanceState.getBoolean(EMAIL_AND_PASSWORD_DISPLAYED)) {
+            mEmailAndPasswordFieldsDisplayed = true;
             mEmail.setVisibility(View.VISIBLE);
             mPassword.setVisibility(View.VISIBLE);
         }
@@ -124,7 +127,7 @@ public class ScreenLoginFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putString(EMAIL, mEmail.getText().toString());
         outState.putString(PASSWORD, mPassword.getText().toString());
-        outState.putBoolean(EMAIL_AND_PASSWORD_DISPLAYED, firstStart);
+        outState.putBoolean(EMAIL_AND_PASSWORD_DISPLAYED, mEmailAndPasswordFieldsDisplayed);
     }
 
     @Override
@@ -151,13 +154,13 @@ public class ScreenLoginFragment extends Fragment {
             public void onClick(View view) {
                 loginWithEmail = true;
                 if (firstStart) {
-
+                    mEmailAndPasswordFieldsDisplayed = true;
                     mEmail.setVisibility(View.VISIBLE);
                     mPassword.setVisibility(View.VISIBLE);
                     setClearEditText();
                     firstStart = false;
-                    // TODO: 02.04.2017 doesnt change on first rotation
                 } else {
+                    mEmailAndPasswordFieldsDisplayed = false;
                     if (mEmail.getText().length() == 0) {
                         mEmail.setError(getResources().getString(R.string.email_is_empty));
 

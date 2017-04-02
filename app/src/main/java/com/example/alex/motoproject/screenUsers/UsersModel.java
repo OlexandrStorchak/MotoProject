@@ -51,6 +51,9 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     @Override
     public void onUsersAdded(List<User> users) {
         for (User user : users) {
+            if (!checkUserValid(user)) {
+                continue;
+            }
             List<User> list = mUsers.get(user.getRelation());
             if (list != null) {
                 list.add(user);
@@ -83,6 +86,9 @@ public class UsersModel implements UsersMvp.PresenterToModel,
 
     @Override
     public void onUserAdded(User user) {
+        if (!checkUserValid(user)) {
+            return;
+        }
         List<User> list = mUsers.get(user.getRelation());
         if (list != null) {
             list.add(user);
@@ -93,6 +99,10 @@ public class UsersModel implements UsersMvp.PresenterToModel,
             mPresenter.onAddNewSection(user.getRelation());
         }
         mPresenter.onUserAdded(user);
+    }
+
+    private boolean checkUserValid(User user) {
+        return user.getUid() != null && user.getName() != null && user.getAvatar() != null;
     }
 
     @Override

@@ -47,7 +47,6 @@ public class ScreenUserProfileFragment extends Fragment {
 
     public ScreenUserProfileFragment() {
         // Required empty public constructor
-
     }
 
     @Override

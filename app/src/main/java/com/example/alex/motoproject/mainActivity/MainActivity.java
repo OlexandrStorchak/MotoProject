@@ -513,10 +513,10 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         if (getSupportActionBar() != null) {
             switch (savedInstanceState.getInt(ACTIONBAR_STATUS)) {
                 case ACTIONBAR_SHOWED:
-                    getSupportActionBar().show();
+                    showActionBar();
                     break;
                 case ACTIONBAR_HIDDEN:
-                    getSupportActionBar().hide();
+                    hideActionBar();
                     break;
                 case ACTIONBAR_UP_BUTTON:
                     lockDrawerAndShowUpButton();
@@ -661,10 +661,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                 break;
         }
 
-        if (getSupportActionBar() != null) {
-            actionbarStatus = ACTIONBAR_SHOWED;
-            getSupportActionBar().show();
-        }
+        showActionBar();
 
         mNavigationBtnSignOut.setVisibility(View.VISIBLE);
         mNavigationBtnMap.setVisibility(View.VISIBLE);
@@ -694,14 +691,25 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
     }
 
-    @Override
-    public void logout() {
-        stopService(mainServiceIntent);
-//        mFragmentManager.removeOnBackStackChangedListener(this);
+    private void showActionBar() {
+        if (getSupportActionBar() != null) {
+            actionbarStatus = ACTIONBAR_SHOWED;
+            getSupportActionBar().show();
+        }
+    }
+
+    private void hideActionBar() {
         if (getSupportActionBar() != null) {
             actionbarStatus = ACTIONBAR_HIDDEN;
             getSupportActionBar().hide();
         }
+    }
+
+    @Override
+    public void logout() {
+        stopService(mainServiceIntent);
+//        mFragmentManager.removeOnBackStackChangedListener(this);
+        hideActionBar();
 
 //        replaceFragment(screenLoginFragment);
         getSupportFragmentManager().beginTransaction()
