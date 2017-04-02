@@ -31,6 +31,8 @@ public class ArgKeys {
     public static final String ABOUT_ME = "aboutMe";
 
     public static final String EDIT_MODE = "editMode";
+
+    public static final String RIDE_SERVICE_ON = "rideServiceOn";
 }
 
 

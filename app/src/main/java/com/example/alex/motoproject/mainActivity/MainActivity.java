@@ -69,6 +69,7 @@ import static com.example.alex.motoproject.util.ArgKeys.KEY_LIST_TYPE;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_NAME;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_UID;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_USER_COORDS;
+import static com.example.alex.motoproject.util.ArgKeys.RIDE_SERVICE_ON;
 
 
 public class MainActivity extends AppCompatActivity implements MainViewInterface,
@@ -76,16 +77,22 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final int USER_LIST_TYPE_FRIENDS = 10;
+    private static final String MAP_FRAGMENT_TAG = "mapFragment";
+    private static final String ONLINE_USERS_FRAGMENT_TAG = "onlineUsersFragment";
+    private static final String FRIENDS_FRAGMENT_TAG = "friendsFragment";
+    private static final String LOGIN_FRAGMENT_TAG = "loginFragment";
+    private static final String PROFILE_FRAGMENT_TAG = "profileFragment";
+    private static final String CHAT_FRAGMENT = "chatFragment";
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
-    ScreenMapFragment screenMapFragment = new ScreenMapFragment();
-    UsersFragment onlineUsersFragment = new UsersFragment();
-    UsersFragment friendsFragment = new UsersFragment();
-    ScreenLoginFragment screenLoginFragment = new ScreenLoginFragment();
-    ScreenMyProfileFragment screenProfileFragment = new ScreenMyProfileFragment();
-    ChatFragment chatFragment = new ChatFragment();
+    ScreenMapFragment screenMapFragment;
+    UsersFragment onlineUsersFragment;
+    UsersFragment friendsFragment;
+    ScreenLoginFragment screenLoginFragment;
+    ScreenMyProfileFragment screenProfileFragment;
+    ChatFragment chatFragment;
     AlertControl alertControl = new AlertControl(this);
     FirebaseLoginController loginController;
     private App mApp;
@@ -126,6 +133,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
     private String mEmail;
     private String mAvatarRef;
 
+    private boolean rideServiceOn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,6 +148,42 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         mApp = (App) getApplicationContext();
 
         MainActivityPresenter presenterImp = MainActivityPresenter.getInstance(this);
+
+        screenMapFragment = (ScreenMapFragment)
+                getSupportFragmentManager().findFragmentByTag(MAP_FRAGMENT_TAG);
+        if (screenMapFragment == null) {
+            screenMapFragment = new ScreenMapFragment();
+        }
+
+        onlineUsersFragment = (UsersFragment)
+                getSupportFragmentManager().findFragmentByTag(ONLINE_USERS_FRAGMENT_TAG);
+        if (onlineUsersFragment == null) {
+            onlineUsersFragment = new UsersFragment();
+        }
+
+        friendsFragment = (UsersFragment)
+                getSupportFragmentManager().findFragmentByTag(FRIENDS_FRAGMENT_TAG);
+        if (friendsFragment == null) {
+            friendsFragment = new UsersFragment();
+        }
+
+        screenLoginFragment = (ScreenLoginFragment)
+                getSupportFragmentManager().findFragmentByTag(LOGIN_FRAGMENT_TAG);
+        if (screenLoginFragment == null) {
+            screenLoginFragment = new ScreenLoginFragment();
+        }
+
+        screenProfileFragment = (ScreenMyProfileFragment)
+                getSupportFragmentManager().findFragmentByTag(PROFILE_FRAGMENT_TAG);
+        if (screenProfileFragment == null) {
+            chatFragment = new ChatFragment();
+        }
+
+        chatFragment = (ChatFragment)
+                getSupportFragmentManager().findFragmentByTag(CHAT_FRAGMENT);
+        if (chatFragment == null) {
+            chatFragment = new ChatFragment();
+        }
 
         loginController = new FirebaseLoginController(presenterImp);
         loginController.start();
@@ -202,7 +247,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
-
                 startRideService();
             }
         });
@@ -212,10 +256,13 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         mNavigationBtnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                replaceFragment(screenMapFragment);
+//                replaceFragment(screenMapFragment);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
+                        .commit();
+
                 screenMapFragment.onMapCk();
                 mDrawerLayout.closeDrawers();
-
             }
         });
 
@@ -235,7 +282,11 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         mNavigationBtnUsersOnline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                replaceFragment(onlineUsersFragment);
+//                replaceFragment(onlineUsersFragment);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.main_activity_frame,
+                                onlineUsersFragment,
+                                ONLINE_USERS_FRAGMENT_TAG).commit();
                 mDrawerLayout.closeDrawers();
             }
         });
@@ -246,7 +297,17 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         navigationBtnFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                replaceFragment(friendsFragment, USER_LIST_TYPE_FRIENDS);
+//                replaceFragment(friendsFragment, USER_LIST_TYPE_FRIENDS);
+                if (friendsFragment.getArguments() == null) {
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(KEY_LIST_TYPE, USER_LIST_TYPE_FRIENDS);
+                    friendsFragment.setArguments(bundle);
+                } else {
+                    friendsFragment.getArguments().putInt(KEY_LIST_TYPE, USER_LIST_TYPE_FRIENDS);
+                }
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.main_activity_frame, friendsFragment, FRIENDS_FRAGMENT_TAG)
+                        .commit();
                 mDrawerLayout.closeDrawers();
             }
         });
@@ -322,7 +383,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
     private void startRideService() {
         if (!mApp.isLocationListenerServiceOn()) {
-
+            rideServiceOn = true;
             alertControl.handleLocation();
             mGpsStatus.setVisibility(View.VISIBLE);
             mNavigationStartRide.setText(R.string.stop_location_service_button_tittle);
@@ -331,6 +392,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             screenMapFragment.setSosVisibility(View.VISIBLE);
 
         } else if (checkLocationPermission()) {
+            rideServiceOn = false;
             screenMapFragment.getxMap().setMyLocationEnabled(false);
             chatFragment.disableShareLocationButton();
             getApplication().stopService(
@@ -368,7 +430,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         }
 
     }
-
 
     @Override
     protected void onStart() {
@@ -418,8 +479,9 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
     public void onShowOnlineUserProfile(ShowUserProfileEvent model) {
         ScreenUserProfileFragment userProfile = new ScreenUserProfileFragment();
 
-        mFragmentManager.beginTransaction().addToBackStack(null)
-                .replace(R.id.main_activity_frame, userProfile)
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_activity_frame, userProfile, PROFILE_FRAGMENT_TAG)
+                .addToBackStack(null)
                 .commit();
         mFirebaseDatabaseHelper.getUserModel(model.getUserId());
     }
@@ -433,10 +495,15 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         mName = savedInstanceState.getString(KEY_NAME);
         mEmail = savedInstanceState.getString(EMAIL);
         mAvatarRef = savedInstanceState.getString(KEY_AVATAR_REF);
+        
         if (mName == null || mEmail == null || mAvatarRef == null) {
             return;
         }
         setCurrentUserData();
+
+        if (savedInstanceState.getBoolean(RIDE_SERVICE_ON)) {
+            mGpsStatus.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -445,6 +512,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         outState.putString(KEY_NAME, mName);
         outState.putString(EMAIL, mEmail);
         outState.putString(KEY_AVATAR_REF, mAvatarRef);
+        outState.putBoolean(RIDE_SERVICE_ON, rideServiceOn);
     }
 
     @Subscribe
@@ -488,9 +556,23 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         String uid = event.getUserId();
         LatLng userCoords = event.getLatLng();
         if (event.getUserId() != null) {
-            replaceFragment(screenMapFragment, uid);
+//            replaceFragment(screenMapFragment, uid);
+            Bundle bundle = new Bundle();
+            bundle.putString(KEY_UID, uid);
+            screenMapFragment.setArguments(bundle);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
+                    .commit();
         } else if (userCoords != null) {
-            replaceFragment(screenMapFragment, userCoords);
+//            replaceFragment(screenMapFragment, userCoords);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(KEY_USER_COORDS, userCoords);
+            screenMapFragment.setArguments(bundle);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
+                    .commit();
         }
 
     }
@@ -559,7 +641,12 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         mAvatarHeader.setVisibility(View.VISIBLE);
 
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-        replaceFragment(screenMapFragment);
+//        replaceFragment(screenMapFragment);
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
+                .commit();
+
         SharedPreferences preferences = getApplicationContext()
                 .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
 
@@ -585,7 +672,11 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             getSupportActionBar().hide();
         }
 
-        replaceFragment(screenLoginFragment);
+//        replaceFragment(screenLoginFragment);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.main_activity_frame, screenLoginFragment, LOGIN_FRAGMENT_TAG)
+                .commit();
+
         mNavigationBtnSignOut.setVisibility(View.GONE);
         mNavigationBtnMap.setVisibility(View.GONE);
         mNameHeader.setText("");
@@ -602,35 +693,35 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                 .commit();
     }
 
-    public void replaceFragment(Fragment fragment, String uid) {
-        Bundle bundle = new Bundle();
-        bundle.putString(KEY_UID, uid);
-        fragment.setArguments(bundle);
-        replaceFragment(fragment);
-    }
+//    public void replaceFragment(Fragment fragment, String uid) {
+//        Bundle bundle = new Bundle();
+//        bundle.putString(KEY_UID, uid);
+//        fragment.setArguments(bundle);
+//        replaceFragment(fragment);
+//    }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
     }
 
-    public void replaceFragment(Fragment fragment, LatLng userCoords) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(KEY_USER_COORDS, userCoords);
-        fragment.setArguments(bundle);
-        replaceFragment(fragment);
-    }
+//    public void replaceFragment(Fragment fragment, LatLng userCoords) {
+//        Bundle bundle = new Bundle();
+//        bundle.putParcelable(KEY_USER_COORDS, userCoords);
+//        fragment.setArguments(bundle);
+//        replaceFragment(fragment);
+//    }
 
-    public void replaceFragment(Fragment fragment, int listType) {
-        if (fragment.getArguments() == null) {
-            Bundle bundle = new Bundle();
-            bundle.putInt(KEY_LIST_TYPE, listType);
-            fragment.setArguments(bundle);
-        } else {
-            fragment.getArguments().putInt(KEY_LIST_TYPE, listType);
-        }
-        replaceFragment(fragment);
-    }
+//    public void replaceFragment(Fragment fragment, int listType) {
+//        if (fragment.getArguments() == null) {
+//            Bundle bundle = new Bundle();
+//            bundle.putInt(KEY_LIST_TYPE, listType);
+//            fragment.setArguments(bundle);
+//        } else {
+//            fragment.getArguments().putInt(KEY_LIST_TYPE, listType);
+//        }
+//        replaceFragment(fragment);
+//    }
 
     public void showDialogFragment(DialogFragment dialogFragment, String tag) {
         dialogFragment.show(mFragmentManager, tag);
