@@ -63,6 +63,7 @@ import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_SOS;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
+import static com.example.alex.motoproject.util.ArgKeys.ACTIONBAR_STATUS;
 import static com.example.alex.motoproject.util.ArgKeys.EMAIL;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_AVATAR_REF;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_LIST_TYPE;
@@ -77,21 +78,29 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final int USER_LIST_TYPE_FRIENDS = 10;
+
+    private static final int ACTIONBAR_HIDDEN = 0;
+    private static final int ACTIONBAR_SHOWED = 1;
+    private static final int ACTIONBAR_UP_BUTTON = 2;
+
     private static final String MAP_FRAGMENT_TAG = "mapFragment";
     private static final String ONLINE_USERS_FRAGMENT_TAG = "onlineUsersFragment";
     private static final String FRIENDS_FRAGMENT_TAG = "friendsFragment";
     private static final String LOGIN_FRAGMENT_TAG = "loginFragment";
-    private static final String PROFILE_FRAGMENT_TAG = "profileFragment";
+    private static final String MY_PROFILE_FRAGMENT_TAG = "myProfileFragment";
+    private static final String PROFILE_FRAGMENT_TAG = "profileFragmentTag";
     private static final String CHAT_FRAGMENT = "chatFragment";
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
+
     ScreenMapFragment screenMapFragment;
     UsersFragment onlineUsersFragment;
     UsersFragment friendsFragment;
     ScreenLoginFragment screenLoginFragment;
-    ScreenMyProfileFragment screenProfileFragment;
+    ScreenMyProfileFragment screenMyProfileFragment;
+    ScreenUserProfileFragment screenUserProfileFragment;
     ChatFragment chatFragment;
     AlertControl alertControl = new AlertControl(this);
     FirebaseLoginController loginController;
@@ -134,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
     private String mAvatarRef;
 
     private boolean rideServiceOn;
+    private int actionbarStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,10 +183,10 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             screenLoginFragment = new ScreenLoginFragment();
         }
 
-        screenProfileFragment = (ScreenMyProfileFragment)
-                getSupportFragmentManager().findFragmentByTag(PROFILE_FRAGMENT_TAG);
-        if (screenProfileFragment == null) {
-            chatFragment = new ChatFragment();
+        screenMyProfileFragment = (ScreenMyProfileFragment)
+                getSupportFragmentManager().findFragmentByTag(MY_PROFILE_FRAGMENT_TAG);
+        if (screenMyProfileFragment == null) {
+            screenMyProfileFragment = new ScreenMyProfileFragment();
         }
 
         chatFragment = (ChatFragment)
@@ -230,8 +240,9 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             public void onClick(View view) {
                 mFragmentManager.beginTransaction()
                         .addToBackStack(null)
-                        .replace(R.id.main_activity_frame, screenProfileFragment)
-                        .commit();
+                        .replace(R.id.main_activity_frame,
+                                screenMyProfileFragment,
+                                MY_PROFILE_FRAGMENT_TAG).commit();
 
                 mDrawerLayout.closeDrawers();
             }
@@ -428,7 +439,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         } else {
             super.onBackPressed();
         }
-
     }
 
     @Override
@@ -437,6 +447,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         alertControl.plusNetworkStateReceiver();
         alertControl.registerNetworkStateReceiver();
         alertControl.registerEventBus();
+
+        mFragmentManager.addOnBackStackChangedListener(this);
     }
 
     @Override
@@ -451,6 +463,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         alertControl.unregisterNetworkStateReceiver();
         alertControl.unregisterEventBus();
         loginController.stop();
+
+        mFragmentManager.removeOnBackStackChangedListener(this);
     }
 
 
@@ -495,7 +509,21 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         mName = savedInstanceState.getString(KEY_NAME);
         mEmail = savedInstanceState.getString(EMAIL);
         mAvatarRef = savedInstanceState.getString(KEY_AVATAR_REF);
-        
+
+        if (getSupportActionBar() != null) {
+            switch (savedInstanceState.getInt(ACTIONBAR_STATUS)) {
+                case ACTIONBAR_SHOWED:
+                    getSupportActionBar().show();
+                    break;
+                case ACTIONBAR_HIDDEN:
+                    getSupportActionBar().hide();
+                    break;
+                case ACTIONBAR_UP_BUTTON:
+                    lockDrawerAndShowUpButton();
+                    break;
+            }
+        }
+
         if (mName == null || mEmail == null || mAvatarRef == null) {
             return;
         }
@@ -513,6 +541,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         outState.putString(EMAIL, mEmail);
         outState.putString(KEY_AVATAR_REF, mAvatarRef);
         outState.putBoolean(RIDE_SERVICE_ON, rideServiceOn);
+        outState.putInt(ACTIONBAR_STATUS, actionbarStatus);
     }
 
     @Subscribe
@@ -633,6 +662,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         }
 
         if (getSupportActionBar() != null) {
+            actionbarStatus = ACTIONBAR_SHOWED;
             getSupportActionBar().show();
         }
 
@@ -651,7 +681,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                 .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
 
         mFirebaseDatabaseHelper.setUserOnline(preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
-        mFragmentManager.addOnBackStackChangedListener(this);
+//        mFragmentManager.addOnBackStackChangedListener(this);
 
         if (mApp.isLocationListenerServiceOn()) {
             mGpsStatus.setVisibility(View.VISIBLE);
@@ -667,8 +697,9 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
     @Override
     public void logout() {
         stopService(mainServiceIntent);
-        mFragmentManager.removeOnBackStackChangedListener(this);
+//        mFragmentManager.removeOnBackStackChangedListener(this);
         if (getSupportActionBar() != null) {
+            actionbarStatus = ACTIONBAR_HIDDEN;
             getSupportActionBar().hide();
         }
 
@@ -734,17 +765,26 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
     @Override
     public void onBackStackChanged() {
-
         if (mFragmentManager.getBackStackEntryCount() > 0) {
-            mToolbar.setNavigationIcon(R.mipmap.ic_back_button);
-            mToolbar.setNavigationOnClickListener(backButtonBack);
-            mDrawerLayout.closeDrawers();
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            lockDrawerAndShowUpButton();
         } else {
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            mToolbar.setNavigationOnClickListener(drawerMenu);
-            mToggle.syncState();
+            unlockDrawerAndShowActionbar();
         }
+    }
+
+    private void lockDrawerAndShowUpButton() {
+        actionbarStatus = ACTIONBAR_UP_BUTTON;
+        mToolbar.setNavigationIcon(R.mipmap.ic_back_button);
+        mToolbar.setNavigationOnClickListener(backButtonBack);
+        mDrawerLayout.closeDrawers();
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    private void unlockDrawerAndShowActionbar() {
+        actionbarStatus = ACTIONBAR_SHOWED;
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        mToolbar.setNavigationOnClickListener(drawerMenu);
+        mToggle.syncState();
     }
 
     private boolean checkLocationPermission() {
