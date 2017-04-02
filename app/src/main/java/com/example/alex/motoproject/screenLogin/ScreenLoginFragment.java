@@ -1,6 +1,5 @@
 package com.example.alex.motoproject.screenLogin;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -42,6 +41,9 @@ import java.util.Collection;
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static com.example.alex.motoproject.firebase.FirebaseLoginController.loginWithEmail;
+import static com.example.alex.motoproject.util.ArgKeys.EMAIL;
+import static com.example.alex.motoproject.util.ArgKeys.EMAIL_AND_PASSWORD_DISPLAYED;
+import static com.example.alex.motoproject.util.ArgKeys.PASSWORD;
 
 
 public class ScreenLoginFragment extends Fragment {
@@ -64,11 +66,9 @@ public class ScreenLoginFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     public CallbackManager getCallbackManager() {
         return callbackManager;
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,7 +77,6 @@ public class ScreenLoginFragment extends Fragment {
         loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-
                 handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
@@ -102,8 +101,30 @@ public class ScreenLoginFragment extends Fragment {
             }
         });
 
-
         mFireBaseAuth = FirebaseAuth.getInstance();
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState == null) {
+            return;
+        }
+        mEmail.setText(savedInstanceState.getString(EMAIL));
+        mPassword.setText(savedInstanceState.getString(PASSWORD));
+
+        if (savedInstanceState.getBoolean(EMAIL_AND_PASSWORD_DISPLAYED)) {
+            mEmail.setVisibility(View.VISIBLE);
+            mPassword.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(EMAIL, mEmail.getText().toString());
+        outState.putString(PASSWORD, mPassword.getText().toString());
+        outState.putBoolean(EMAIL_AND_PASSWORD_DISPLAYED, firstStart);
     }
 
     @Override
@@ -122,11 +143,8 @@ public class ScreenLoginFragment extends Fragment {
 
         mEmail = (EditText) view.findViewById(R.id.auth_email);
         mPassword = (EditText) view.findViewById(R.id.auth_pass);
-
         mProgressBar = (ProgressBar) view.findViewById(R.id.auth_progress_bar);
-
         mButtonSubmit = (Button) view.findViewById(R.id.auth_btn_ok);
-
 
         mButtonSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,6 +156,7 @@ public class ScreenLoginFragment extends Fragment {
                     mPassword.setVisibility(View.VISIBLE);
                     setClearEditText();
                     firstStart = false;
+                    // TODO: 02.04.2017 doesnt change on first rotation
                 } else {
                     if (mEmail.getText().length() == 0) {
                         mEmail.setError(getResources().getString(R.string.email_is_empty));
@@ -212,18 +231,10 @@ public class ScreenLoginFragment extends Fragment {
 
     }
 
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-    }
-
     @Override
     public void onResume() {
         super.onResume();
         firstStart = true;
-
     }
 
     @Override
@@ -289,12 +300,9 @@ public class ScreenLoginFragment extends Fragment {
 
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, GOOGLE_SIGN_IN);
-
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
-
-
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         mFireBaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(((MainActivity) getContext()), new OnCompleteListener<AuthResult>() {
@@ -312,8 +320,6 @@ public class ScreenLoginFragment extends Fragment {
     }
 
     public void handleFacebookAccessToken(AccessToken token) {
-
-
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mFireBaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener((MainActivity) getContext(), new OnCompleteListener<AuthResult>() {

@@ -29,9 +29,11 @@
             <ImageView
                 android:id="@+id/profile_user_avatar"
                 style="@style/AvatarUserProfile"
-                android:layout_width="match_parent"
+                android:layout_width="300dp"
                 android:layout_height="300dp"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:maxHeight="300dp"
+                android:maxWidth="300dp" />
 
             <TextView
                 android:id="@+id/profile_user_email"

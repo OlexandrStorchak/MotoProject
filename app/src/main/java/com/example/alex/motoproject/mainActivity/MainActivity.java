@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
         mApp = (App) getApplicationContext();
 
-        MainActivityPresenter presenterImp = new MainActivityPresenter(this);
+        MainActivityPresenter presenterImp = MainActivityPresenter.getInstance(this);
 
         loginController = new FirebaseLoginController(presenterImp);
         loginController.start();
@@ -433,6 +433,9 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         mName = savedInstanceState.getString(KEY_NAME);
         mEmail = savedInstanceState.getString(EMAIL);
         mAvatarRef = savedInstanceState.getString(KEY_AVATAR_REF);
+        if (mName == null || mEmail == null || mAvatarRef == null) {
+            return;
+        }
         setCurrentUserData();
     }
 
@@ -498,7 +501,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                                            @NonNull int[] grantResults) {
         alertControl.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
-
 
     @Override
     public void login(FirebaseUser user) {
@@ -605,6 +607,11 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         bundle.putString(KEY_UID, uid);
         fragment.setArguments(bundle);
         replaceFragment(fragment);
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
     }
 
     public void replaceFragment(Fragment fragment, LatLng userCoords) {

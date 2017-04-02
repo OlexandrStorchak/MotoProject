@@ -23,6 +23,14 @@ public class ArgKeys {
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
     public static final String REPEAT_PASSWORD = "repeatPassword";
+
+    public static final String EMAIL_AND_PASSWORD_DISPLAYED = "emailAndPasswordDisplayed";
+
+    public static final String NICKNAME = "nickname";
+    public static final String MOTORCYCLE = "motorcycle";
+    public static final String ABOUT_ME = "aboutMe";
+
+    public static final String EDIT_MODE = "editMode";
 }
 
 

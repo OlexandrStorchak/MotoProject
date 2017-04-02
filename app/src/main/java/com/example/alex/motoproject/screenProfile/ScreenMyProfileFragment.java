@@ -54,6 +54,12 @@ import static com.example.alex.motoproject.service.LocationListenerService.GPS_R
 import static com.example.alex.motoproject.service.LocationListenerService.LOCATION_REQUEST_FREQUENCY_DEFAULT;
 import static com.example.alex.motoproject.service.LocationListenerService.LOCATION_REQUEST_FREQUENCY_HIGH;
 import static com.example.alex.motoproject.service.LocationListenerService.LOCATION_REQUEST_FREQUENCY_LOW;
+import static com.example.alex.motoproject.util.ArgKeys.ABOUT_ME;
+import static com.example.alex.motoproject.util.ArgKeys.EDIT_MODE;
+import static com.example.alex.motoproject.util.ArgKeys.KEY_NAME;
+import static com.example.alex.motoproject.util.ArgKeys.MOTORCYCLE;
+import static com.example.alex.motoproject.util.ArgKeys.NICKNAME;
+import static com.example.alex.motoproject.util.ArgKeys.USER_DATA;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class ScreenMyProfileFragment extends Fragment {
@@ -88,6 +94,8 @@ public class ScreenMyProfileFragment extends Fragment {
 
     private SharedPreferences preferencesRate;
 
+    private boolean mEditMode;
+
     public ScreenMyProfileFragment() {
         // Required empty public constructor
     }
@@ -96,7 +104,40 @@ public class ScreenMyProfileFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EventBus.getDefault().register(this);
+    }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState == null) {
+            return;
+        }
+        myProfileFirebase = savedInstanceState.getParcelable(USER_DATA);
+        displayUserData();
+
+        mEditMode = savedInstanceState.getBoolean(EDIT_MODE);
+        if (mEditMode) {
+            nameEdit.setText(savedInstanceState.getString(KEY_NAME));
+            nickNameEdit.setText(savedInstanceState.getString(NICKNAME));
+            motorcycleEdit.setText(savedInstanceState.getString(MOTORCYCLE));
+            aboutMeEdit.setText(savedInstanceState.getString(ABOUT_ME));
+            setEditMode(true);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(EDIT_MODE, mEditMode);
+        outState.putParcelable(USER_DATA, myProfileFirebase);
+
+        if (mEditMode) {
+            outState.putString(KEY_NAME, nameEdit.getText().toString());
+            outState.putString(NICKNAME, nickNameEdit.getText().toString());
+            outState.putString(MOTORCYCLE, motorcycleEdit.getText().toString());
+            outState.putString(ABOUT_ME, aboutMeEdit.getText().toString());
+        }
     }
 
     @Override
@@ -119,7 +160,9 @@ public class ScreenMyProfileFragment extends Fragment {
         nickName = (TextView) view.findViewById(R.id.profile_nick_name);
         aboutMe = (TextView) view.findViewById(R.id.profile_about_me);
 
-        mFirebaseDatabaseHelper.getCurrentUserModel();
+        if (savedInstanceState == null) {
+            mFirebaseDatabaseHelper.getCurrentUserModel();
+        }
         nameEdit = (EditText) view.findViewById(R.id.profile_name_edit);
         nickNameEdit = (EditText) view.findViewById(R.id.profile_nick_name_edit);
         motorcycleEdit = (EditText) view.findViewById(R.id.profile_motorcycle_edit);
@@ -148,7 +191,7 @@ public class ScreenMyProfileFragment extends Fragment {
 
                 mFirebaseDatabaseHelper.saveMyProfile(myProfileFirebase);
 
-                mFirebaseDatabaseHelper.getCurrentUserModel();
+//                mFirebaseDatabaseHelper.getCurrentUserModel();
                 InputMethodManager inputMethodManager =
                         (InputMethodManager) getActivity()
                                 .getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -156,18 +199,17 @@ public class ScreenMyProfileFragment extends Fragment {
                 inputMethodManager.hideSoftInputFromWindow(getActivity()
                         .getCurrentFocus().getWindowToken(), 0);
 
+                setEditMode(false);
             }
         });
         editProfileData = (ImageView) view.findViewById(R.id.profile_btn_edit);
         editProfileData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                editMode(View.GONE, View.VISIBLE);
-
+                setEditMode(true);
+                putStandartDataEditTexts();
             }
         });
-
 
         mapRate = (Spinner) view.findViewById(R.id.profile_set_gps_rate);
         mapRate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -204,44 +246,58 @@ public class ScreenMyProfileFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-
-
     }
 
-    private void editMode(int textViews, int editViews) {
+    private void setEditMode(boolean editMode) {
+        mEditMode = editMode;
+
+        int textViews, editViews;
+        if (editMode) { //hide TextViews and show EditViews
+            textViews = View.GONE;
+            editViews = View.VISIBLE;
+        } else {
+            textViews = View.VISIBLE;
+            editViews = View.GONE;
+        }
 
         name.setVisibility(textViews);
         nameEdit.setVisibility(editViews);
-        nameEdit.setText(name.getText());
 
         email.setVisibility(textViews);
 
         nickName.setVisibility(textViews);
         nickNameEdit.setVisibility(editViews);
-        nickNameEdit.setText(nickName.getText());
 
         motorcycle.setVisibility(textViews);
         motorcycleEdit.setVisibility(editViews);
-        motorcycleEdit.setText(motorcycle.getText());
 
         aboutMe.setVisibility(textViews);
         aboutMeEdit.setVisibility(editViews);
-        aboutMeEdit.setText(aboutMe.getText());
 
         saveProfileData.setVisibility(editViews);
         editProfileData.setVisibility(textViews);
 
-
         gpsRatePanel.setVisibility(textViews);
+    }
+
+    private void putStandartDataEditTexts() {
+        nameEdit.setText(name.getText());
+        nickNameEdit.setText(nickName.getText());
+        motorcycleEdit.setText(motorcycle.getText());
+        aboutMeEdit.setText(aboutMe.getText());
     }
 
     @Subscribe
     public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
-        editMode(View.VISIBLE, View.GONE);
+        setEditMode(false);
         myProfileFirebase = user.getMyProfileFirebase();
-        currentUid = user.getMyProfileFirebase().getId();
-        email.setText(user.getMyProfileFirebase().getEmail());
-        final String ava = user.getMyProfileFirebase().getAvatar();
+        displayUserData();
+    }
+
+    private void displayUserData() {
+        currentUid = myProfileFirebase.getId();
+        email.setText(myProfileFirebase.getEmail());
+        final String ava = myProfileFirebase.getAvatar();
 
         DimensHelper.getScaledAvatar(ava, avatar.getWidth(), new DimensHelper.AvatarRefReceiver() {
             @Override
@@ -264,10 +320,10 @@ public class ScreenMyProfileFragment extends Fragment {
             }
         });
 
-        name.setText(user.getMyProfileFirebase().getName());
-        nickName.setText(user.getMyProfileFirebase().getNickName());
-        aboutMe.setText(user.getMyProfileFirebase().getAboutMe());
-        motorcycle.setText(user.getMyProfileFirebase().getMotorcycle());
+        name.setText(myProfileFirebase.getName());
+        nickName.setText(myProfileFirebase.getNickName());
+        aboutMe.setText(myProfileFirebase.getAboutMe());
+        motorcycle.setText(myProfileFirebase.getMotorcycle());
 
         String gpsRate = preferencesRate.getString(currentUid, null);
         if (gpsRate == null) {
@@ -288,9 +344,7 @@ public class ScreenMyProfileFragment extends Fragment {
                 mapRate.setSelection(0);
                 break;
         }
-
     }
-
 
     @Override
     public void onDestroy() {
@@ -366,7 +420,7 @@ public class ScreenMyProfileFragment extends Fragment {
                             progressDialog.dismiss();
                             mFirebaseDatabaseHelper.
                                     setCurrentUserAvatar(taskSnapshot.getDownloadUrl().toString());
-                            mFirebaseDatabaseHelper.getCurrentUserModel();
+                            // TODO: 02.04.2017       mFirebaseDatabaseHelper.getCurrentUserModel();
                             Toast.makeText(getApplicationContext(), "Завантажено ",
                                     Toast.LENGTH_LONG).show();
                         }

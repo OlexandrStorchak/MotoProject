@@ -117,7 +117,7 @@ public class ScreenUserProfileFragment extends Fragment {
 //            Log.i("log", "onOnlineUserProfileReady: "+ avatarRef);
 //        }
         DimensHelper.getScaledAvatar(avatarRef,
-                avatar.getWidth(), new DimensHelper.AvatarRefReceiver() {
+                avatar.getMaxWidth(), new DimensHelper.AvatarRefReceiver() {
                     @Override
                     public void onRefReady(String ref) {
                         //        Picasso.with(getContext())
@@ -127,7 +127,7 @@ public class ScreenUserProfileFragment extends Fragment {
 //                .into(avatar);
                         Glide.with(getContext())
                                 .load(ref)
-                                .override(avatar.getWidth(), avatar.getHeight())
+                                .override(avatar.getMaxWidth(), avatar.getMaxHeight())
                                 .centerCrop()
                                 .into(avatar);
                     }
