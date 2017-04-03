@@ -141,7 +141,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
     private String mEmail;
     private String mAvatarRef;
 
-    private boolean rideServiceOn;
     private int actionbarStatus;
 
     @Override
@@ -411,7 +410,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
     private void startRideService() {
         if (!mApp.isLocationListenerServiceOn()) {
-            rideServiceOn = true;
             alertControl.handleLocation();
             mGpsStatus.setVisibility(View.VISIBLE);
             mNavigationStartRide.setText(R.string.stop_location_service_button_tittle);
@@ -420,9 +418,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             screenMapFragment.setSosVisibility(View.VISIBLE);
 
         } else if (checkLocationPermission()) {
-            rideServiceOn = false;
             screenMapFragment.getxMap().setMyLocationEnabled(false);
-            chatFragment.disableShareLocationButton();
+            chatFragment.hideShareLocationButton();
             getApplication().stopService(
                     new Intent(getApplicationContext(), LocationListenerService.class));
             mGpsStatus.setVisibility(View.GONE);

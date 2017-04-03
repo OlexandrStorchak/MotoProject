@@ -116,7 +116,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.container_chat_swipe);
 
         disableSendButton();
-        disableShareLocationButton();
+        hideShareLocationButton();
 
         EventBus.getDefault().register(mPresenter);
 
@@ -152,7 +152,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     private void setupLocationSharing() {
-//        disableShareLocationButton();
+//        hideShareLocationButton();
         mShareLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -307,19 +307,21 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     @Override
-    public void disableShareLocationButton() {
+    public void hideShareLocationButton() {
         if (mShareLocationButton == null) {
             return; //fragment might not be created and not have a layout inflated
         }
-        mShareLocationButton.setEnabled(false);
-        mShareLocationButton.setColorFilter(ResourcesCompat
-                .getColor(getResources(), R.color.grey500, null));
+        mShareLocationButton.setVisibility(View.GONE);
+//        mShareLocationButton.setEnabled(false);
+//        mShareLocationButton.setColorFilter(ResourcesCompat
+//                .getColor(getResources(), R.color.grey500, null));
     }
 
     @Override
-    public void enableShareLocationButton() {
-        mShareLocationButton.setEnabled(true);
-        mShareLocationButton.setColorFilter(ResourcesCompat
-                .getColor(getResources(), R.color.blue900, null));
+    public void showShareLocationButton() {
+        mShareLocationButton.setVisibility(View.VISIBLE);
+//        mShareLocationButton.setEnabled(true);
+//        mShareLocationButton.setColorFilter(ResourcesCompat
+//                .getColor(getResources(), R.color.blue900, null));
     }
 }

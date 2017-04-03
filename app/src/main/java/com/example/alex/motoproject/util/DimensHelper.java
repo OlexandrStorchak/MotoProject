@@ -50,7 +50,7 @@ public class DimensHelper {
                     }
             ).executeAsync();
         } else {
-            receiver.onRefReady(ref); //Avatar from Firebase, do not change anything
+            receiver.onRefReady(ref); //Reference that can not be edited
         }
     }
 

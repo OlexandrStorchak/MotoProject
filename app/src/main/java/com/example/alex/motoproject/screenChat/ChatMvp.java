@@ -47,9 +47,9 @@ public interface ChatMvp {
 
         void enableSwipeLayout(boolean enable);
 
-        void disableShareLocationButton();
+        void hideShareLocationButton();
 
-        void enableShareLocationButton();
+        void showShareLocationButton();
 
         int getLastCompletelyVisibleItemPosition();
 

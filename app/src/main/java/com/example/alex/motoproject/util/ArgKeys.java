@@ -32,8 +32,6 @@ public class ArgKeys {
 
     public static final String EDIT_MODE = "editMode";
 
-    public static final String RIDE_SERVICE_ON = "rideServiceOn";
-
     public static final String ACTIONBAR_STATUS = "actionbarStatus";
 
     public static final String SHOW_MAP_FRAGMENT = "showMapFragment";
