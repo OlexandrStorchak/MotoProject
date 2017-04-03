@@ -35,6 +35,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import javax.inject.Inject;
 
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
+import static com.example.alex.motoproject.util.ArgKeys.SHOW_MAP_FRAGMENT;
 
 
 /**
@@ -48,7 +49,8 @@ public class LocationListenerService extends Service implements Runnable,
     public static final String LOCATION_REQUEST_FREQUENCY_DEFAULT = "default";
     public static final String LOCATION_REQUEST_FREQUENCY_LOW = "low";
     public static final String GPS_RATE = "gpsRate";
-    private static final String SHOULD_STOP_SERVICE_EXTRA = "isShouldStopService";
+    private static final String STOP_SERVICE_EXTRA = "stopService";
+
     int mNotificationId = 3;
 
     @Inject
@@ -149,7 +151,7 @@ public class LocationListenerService extends Service implements Runnable,
     public int onStartCommand(Intent intent, int flags, int startId) {
         //stop service if that was the purpose of intent
         if (intent.getExtras() != null &&
-                intent.getExtras().getBoolean(SHOULD_STOP_SERVICE_EXTRA)) {
+                intent.getExtras().getBoolean(STOP_SERVICE_EXTRA)) {
             stopSelf();
         }
 
@@ -168,17 +170,20 @@ public class LocationListenerService extends Service implements Runnable,
         //create pending intent used when tapping on the app notification
         //open up ScreenMapFragment
         Intent mapIntent = new Intent(this, MainActivity.class);
+        mapIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        mapIntent.putExtra(SHOW_MAP_FRAGMENT, true);
         PendingIntent mapPendingIntent =
                 PendingIntent.getActivity(
                         this,
                         0,
                         mapIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT);
+                        0);
         mBuilder.setContentIntent(mapPendingIntent);
 
         //create pending intent to finish this service
-        Intent stopSelfIntent = new Intent(this, LocationListenerService.class);
-        stopSelfIntent.putExtra(SHOULD_STOP_SERVICE_EXTRA, true);
+//        Intent stopSelfIntent = new Intent(this, LocationListenerService.class);
+//        stopSelfIntent.putExtra(STOP_SERVICE_EXTRA, true);
         //TODO : run sos from notification
 
         // send notification

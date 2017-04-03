@@ -1029,7 +1029,6 @@ public class FirebaseDatabaseHelper {
     //get current user from database
     public void getCurrentUserModel() {
         //get user name
-
         DatabaseReference ref = mDbReference.child(PATH_USERS).child(getCurrentUser().getUid());
 
         ref.addValueEventListener(new ValueEventListener() {

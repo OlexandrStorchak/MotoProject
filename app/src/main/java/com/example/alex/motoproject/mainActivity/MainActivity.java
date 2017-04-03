@@ -70,7 +70,7 @@ import static com.example.alex.motoproject.util.ArgKeys.KEY_LIST_TYPE;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_NAME;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_UID;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_USER_COORDS;
-import static com.example.alex.motoproject.util.ArgKeys.RIDE_SERVICE_ON;
+import static com.example.alex.motoproject.util.ArgKeys.SHOW_MAP_FRAGMENT;
 
 
 public class MainActivity extends AppCompatActivity implements MainViewInterface,
@@ -100,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
     UsersFragment friendsFragment;
     ScreenLoginFragment screenLoginFragment;
     ScreenMyProfileFragment screenMyProfileFragment;
-    ScreenUserProfileFragment screenUserProfileFragment;
     ChatFragment chatFragment;
     AlertControl alertControl = new AlertControl(this);
     FirebaseLoginController loginController;
@@ -390,6 +389,24 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
         });
         mFirebaseDatabaseHelper.registerAuthLoadingListener(this);
+
+        if (mApp.isLocationListenerServiceOn()) {
+            mGpsStatus.setVisibility(View.VISIBLE);
+            mNavigationStartRide.setText(R.string.stop_location_service_button_tittle);
+
+        } else if (checkLocationPermission()) {
+            mGpsStatus.setVisibility(View.GONE);
+            mNavigationStartRide.setText(R.string.start_location_service_button_title);
+        }
+
+        Intent openMapIntent = getIntent();
+        boolean openMap = openMapIntent.getBooleanExtra(SHOW_MAP_FRAGMENT, false);
+        if (openMap) {
+            mFirebaseDatabaseHelper.getCurrentUserModel();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main_activity_frame, screenMapFragment)
+                    .commit();
+        }
     }
 
     private void startRideService() {
@@ -529,9 +546,9 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         }
         setCurrentUserData();
 
-        if (savedInstanceState.getBoolean(RIDE_SERVICE_ON)) {
-            mGpsStatus.setVisibility(View.VISIBLE);
-        }
+//        if (savedInstanceState.getBoolean(RIDE_SERVICE_ON)) {
+//            mGpsStatus.setVisibility(View.VISIBLE);
+//        }
     }
 
     @Override
@@ -540,7 +557,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         outState.putString(KEY_NAME, mName);
         outState.putString(EMAIL, mEmail);
         outState.putString(KEY_AVATAR_REF, mAvatarRef);
-        outState.putBoolean(RIDE_SERVICE_ON, rideServiceOn);
+//        outState.putBoolean(RIDE_SERVICE_ON, rideServiceOn);
         outState.putInt(ACTIONBAR_STATUS, actionbarStatus);
     }
 
@@ -679,16 +696,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
         mFirebaseDatabaseHelper.setUserOnline(preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
 //        mFragmentManager.addOnBackStackChangedListener(this);
-
-        if (mApp.isLocationListenerServiceOn()) {
-            mGpsStatus.setVisibility(View.VISIBLE);
-            mNavigationStartRide.setText(R.string.stop_location_service_button_tittle);
-
-        } else if (checkLocationPermission()) {
-            mGpsStatus.setVisibility(View.GONE);
-            mNavigationStartRide.setText(R.string.start_location_service_button_title);
-        }
-
     }
 
     private void showActionBar() {
