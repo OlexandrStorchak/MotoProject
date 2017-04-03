@@ -68,6 +68,11 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     }
 
     @Override
+    public void onNoUsers() {
+        mPresenter.onNoUsers();
+    }
+
+    @Override
     public boolean hasUser(String uidToCheck, String relation) {
         List<User> list = mUsers.get(relation);
 

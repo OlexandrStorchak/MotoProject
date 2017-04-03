@@ -94,4 +94,5 @@
     <string name="description_avatar">Аватар</string>
     <string name="description_edit">Редагувати</string>
     <string name="description_save">Зберегти</string>
+    <string name="nobody_here">Тут нікого нема :(</string>
 </resources>

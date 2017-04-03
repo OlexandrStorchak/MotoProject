@@ -100,6 +100,11 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     }
 
     @Override
+    public void onNoUsers() {
+        getView().showEmptyView();
+    }
+
+    @Override
     public void onAddNewSection(String relation) {
         getView().addNewSection(relation);
     }

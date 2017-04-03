@@ -52,11 +52,36 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     };
     @Inject
     UsersMvp.ViewToPresenter mPresenter;
+
+    private RecyclerView mRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SearchView mSearchView;
 
+    private View mEmptyView;
+    private RecyclerView.AdapterDataObserver mDataObserver =
+            new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onChanged() { //Show custom View if no children in RecyclerView
+                    if (mAdapter.getItemCount() == 0) {
+                        showEmptyView();
+                    } else {
+                        hideEmptyView();
+                    }
+                }
+            };
+
     public UsersFragment() {
 
+    }
+
+    public void showEmptyView() {
+        mRecyclerView.setVisibility(View.GONE);
+        mEmptyView.setVisibility(View.VISIBLE);
+    }
+
+    void hideEmptyView() {
+        mRecyclerView.setVisibility(View.VISIBLE);
+        mEmptyView.setVisibility(View.GONE);
     }
 
     //    @Override
@@ -109,6 +134,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void onStop() {
+        mAdapter.unregisterAdapterDataObserver(mDataObserver);
         mPresenter.onStop();
         super.onStop();
     }
@@ -136,6 +162,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void onStart() {
+        mAdapter.registerAdapterDataObserver(mDataObserver);
+//        mDataObserver.onChanged();
         mPresenter.onStart();
         super.onStart();
     }
@@ -186,7 +214,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             mAdapter.setHasStableIds(true);
         }
 
-        RecyclerView rv = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
+        mEmptyView = view.findViewById(R.id.view_empty);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext()) {
             @Override
             public boolean supportsPredictiveItemAnimations() {
@@ -194,8 +223,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             }
         };
 
-        rv.setLayoutManager(layoutManager);
-        rv.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override

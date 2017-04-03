@@ -454,7 +454,6 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-
     public void getFriendsAndRegisterListener(final UsersUpdateReceiver receiver) {
         DatabaseReference ref = mDbReference.child(PATH_USERS)
                 .child(getCurrentUser().getUid()).child(USER_PROFILE_FRIEND_LIST);
@@ -464,6 +463,11 @@ public class FirebaseDatabaseHelper {
                 final List<User> friends = new ArrayList<>();
                 final int childrenCount = (int) dataSnapshot.getChildrenCount();
                 mReceivedUsersCount = 0;
+
+                if (!dataSnapshot.exists()) {
+                    receiver.onNoUsers();
+                }
+
                 for (DataSnapshot entry : dataSnapshot.getChildren()) {
                     final String uid = entry.getKey();
                     final String relation = (String) entry.getValue();
@@ -643,6 +647,10 @@ public class FirebaseDatabaseHelper {
                 final List<User> onlineUsers = new ArrayList<>();
                 final int childrenCount = (int) dataSnapshot.getChildrenCount();
                 mReceivedUsersCount = 0;
+
+                if (!dataSnapshot.exists()) {
+                    receiver.onNoUsers();
+                }
 
                 for (DataSnapshot entry : dataSnapshot.getChildren()) {
 
@@ -1129,6 +1137,8 @@ public class FirebaseDatabaseHelper {
         void onUserDeleted(User user);
 
         void onUsersAdded(List<User> users);
+
+        void onNoUsers();
 
         boolean hasUser(String uid, String relation);
     }

@@ -31,6 +31,8 @@ public interface UsersMvp {
 
         void removeUser(User user);
 
+        void showEmptyView();
+
         void clearUsers();
 
         void updateHeaders();
@@ -72,5 +74,7 @@ public interface UsersMvp {
         void onUserChanged(User user);
 
         void onUserRemoved(User user);
+
+        void onNoUsers();
     }
 }
