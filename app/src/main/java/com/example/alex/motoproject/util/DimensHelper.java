@@ -68,6 +68,20 @@ public class DimensHelper {
         }
     }
 
+//    public static int getScreenHeight(Context context) {
+//        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+//        Display display = wm.getDefaultDisplay();
+//        Point size = new Point();
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+//            display.getRealSize(size);
+//            return size.y;
+//        } else {
+//            display.getSize(size);
+//            return size.y;
+//        }
+//    }
+
     public interface AvatarRefReceiver {
         void onRefReady(String ref);
 

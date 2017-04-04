@@ -158,7 +158,7 @@ public class ScreenMyProfileFragment extends Fragment {
         name = (TextView) view.findViewById(R.id.profile_name);
         motorcycle = (TextView) view.findViewById(R.id.profile_motorcycle);
         nickName = (TextView) view.findViewById(R.id.profile_nick_name);
-        aboutMe = (TextView) view.findViewById(R.id.profile_about_me);
+        aboutMe = (TextView) view.findViewById(R.id.profile_about_user);
 
         if (savedInstanceState == null) {
             mFirebaseDatabaseHelper.getCurrentUserModel();
@@ -332,15 +332,12 @@ public class ScreenMyProfileFragment extends Fragment {
 
         switch (gpsRate) {
             case LOCATION_REQUEST_FREQUENCY_LOW:
-
                 mapRate.setSelection(2);
                 break;
             case LOCATION_REQUEST_FREQUENCY_DEFAULT:
-
                 mapRate.setSelection(1);
                 break;
             case LOCATION_REQUEST_FREQUENCY_HIGH:
-
                 mapRate.setSelection(0);
                 break;
         }

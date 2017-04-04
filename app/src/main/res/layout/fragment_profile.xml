@@ -24,8 +24,6 @@
                 android:maxHeight="@dimen/nav_header_height"
                 android:maxWidth="200dp" />
 
-
-
             <LinearLayout
                 android:id="@+id/profile_gps_rate_panel"
                 android:layout_width="match_parent"
@@ -77,6 +75,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:hint="@string/your_name"
+                android:inputType="textCapWords"
                 android:visibility="gone" />
 
             <TextView
@@ -94,6 +93,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:hint="@string/your_nick_name"
+                android:inputType="textCapWords"
                 android:visibility="gone" />
 
             <TextView
@@ -111,10 +111,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:hint="@string/motorcycle_model"
+                android:inputType="textCapSentences"
                 android:visibility="gone" />
 
             <TextView
-                android:id="@+id/profile_about_me"
+                android:id="@+id/profile_about_user"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
@@ -128,20 +129,18 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:hint="@string/about_myself"
+                android:inputType="textCapSentences"
                 android:visibility="gone" />
 
-
-
         </LinearLayout>
-
     </ScrollView>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_gravity="bottom"
         android:layout_margin="@dimen/activity_vertical_margin"
-        android:gravity="end"
-        >
+        android:gravity="end">
 
         <ImageView
             android:id="@+id/profile_btn_edit"

@@ -191,6 +191,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
             mCameraUpdate = CameraUpdateFactory.newCameraPosition(position);
         }
+
         map.moveCamera(mCameraUpdate);
         mMap.setMapType(mMapType);
 
@@ -232,6 +233,10 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         EventBus.getDefault().unregister(this);
         mFirebaseDatabaseHelper.unregisterOnlineUsersLocationListener();
 
+        //This situation might occur if changing orientation 20+ times in a short period of time
+        if (mMap == null) return;
+
+        //Save map position and other map preferences into SharedPreferences
         CameraPosition position = mMap.getCameraPosition();
         mCameraUpdate = CameraUpdateFactory.newCameraPosition(position);
 

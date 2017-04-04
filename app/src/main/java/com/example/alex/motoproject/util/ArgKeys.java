@@ -35,6 +35,8 @@ public class ArgKeys {
     public static final String ACTIONBAR_STATUS = "actionbarStatus";
 
     public static final String SHOW_MAP_FRAGMENT = "showMapFragment";
+
+    public static final String BUTTONS_TRANSLATION_Y = "viewTranslationY";
 }
 
 

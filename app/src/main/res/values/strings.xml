@@ -95,4 +95,10 @@
     <string name="description_edit">Редагувати</string>
     <string name="description_save">Зберегти</string>
     <string name="nobody_here">Тут нікого нема :(</string>
+
+    <string name="name">Ім\'я</string>
+    <string name="nick_name">Нікнейм</string>
+    <string name="email">Імейл</string>
+    <string name="motorcycle">Мотоцикл</string>
+    <string name="about">Про себе</string>
 </resources>
