@@ -778,7 +778,10 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
     @Override
     public void onBackStackChanged() {
         if (mFragmentManager.getBackStackEntryCount() > 0) {
-            lockDrawerAndShowUpButton();
+            if (mFirebaseDatabaseHelper.getCurrentUser() != null) {
+                //If the users is not logged in, do not show ActionBar
+                lockDrawerAndShowUpButton();
+            }
         } else {
             unlockDrawerAndShowActionbar();
         }

@@ -21,8 +21,6 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<ChatMessage> mMessages;
     private Context mContext;
 
-    //    private static final int STATIC_MAP_WIDTH = 500;
-//    private static final int STATIC_MAP_HEIGHT = 310;
     private int mStaticMapWidth;
     private int mStaticMapHeight;
 

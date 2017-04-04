@@ -346,8 +346,10 @@ public class FirebaseDatabaseHelper {
                                                 new LatLng(lat.doubleValue(), lng.doubleValue());
                                         mUsersLocation.put(uid, latLng);
 
-                                        if (uid.equals(getCurrentUser().getUid())) {
-                                            return;
+                                        if (getCurrentUser() != null) {
+                                            if (uid.equals(getCurrentUser().getUid())) {
+                                                return;
+                                            }
                                         }
 
                                         EventBus.getDefault().post(new MapMarkerEvent(

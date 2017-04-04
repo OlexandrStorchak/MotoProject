@@ -108,9 +108,6 @@ public class ScreenSignUpFragment extends Fragment {
                         & mPassword.getText().length() > 5) {
 
                     addNewUserToFireBase(mEmail.getText().toString(), mPassword.getText().toString());
-
-
-
                 }
             }
         });
@@ -131,12 +128,11 @@ public class ScreenSignUpFragment extends Fragment {
                             mFireBaseAuth.getCurrentUser().sendEmailVerification();
                             mFireBaseAuth.signOut();
                         } else {
-                            Log.d(TAG, "onComplete: addNewFirebase User: curent user is null");
+                            Log.d(TAG, "onComplete: addNewFirebase User: current user is null");
                         }
 
                         if (!task.isSuccessful()) {
                             Log.d(TAG, "onComplete: ");
-
                         }
 
                         // ...

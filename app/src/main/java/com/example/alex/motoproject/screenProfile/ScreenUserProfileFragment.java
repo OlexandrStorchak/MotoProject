@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.App;
@@ -152,27 +151,18 @@ public class ScreenUserProfileFragment extends Fragment {
         addToFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(),
-                        "Add " + mUserData.getName(),
-                        Toast.LENGTH_SHORT).show();
                 removeFriend.setVisibility(View.VISIBLE);
                 addToFriend.setVisibility(View.GONE);
                 mFirebaseDatabaseHelper.sendFriendRequest(mUserData.getId());
-
-
             }
         });
         removeFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(),
-                        "Remove " + mUserData.getName(),
-                        Toast.LENGTH_SHORT).show();
                 removeFriend.setVisibility(View.GONE);
                 addToFriend.setVisibility(View.VISIBLE);
                 mFirebaseDatabaseHelper.setRelationToUser(mUserData.getId(), null);
                 mFirebaseDatabaseHelper.setUserRelation(mUserData.getId(), null);
-
             }
         });
     }
