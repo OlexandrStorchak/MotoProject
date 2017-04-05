@@ -37,6 +37,8 @@ public class ArgKeys {
     public static final String SHOW_MAP_FRAGMENT = "showMapFragment";
 
     public static final String BUTTONS_TRANSLATION_Y = "viewTranslationY";
+
+    public static final String SIGN_OUT = "signOut";
 }
 
 

@@ -101,4 +101,10 @@
     <string name="email">Імейл</string>
     <string name="motorcycle">Мотоцикл</string>
     <string name="about">Про себе</string>
+
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
 </resources>

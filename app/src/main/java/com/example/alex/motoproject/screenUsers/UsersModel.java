@@ -25,6 +25,11 @@ public class UsersModel implements UsersMvp.PresenterToModel,
 
     @Override
     public void registerUsersListener() {
+        if (!mUsers.isEmpty()) {
+            for (List<User> list : mUsers.values()) {
+                onUsersAdded(list);
+            }
+        }
         mFirebaseDatabaseHelper.getOnlineUsersAndRegisterListener(this);
     }
 

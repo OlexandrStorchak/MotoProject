@@ -14,7 +14,6 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -188,9 +187,7 @@ public class ScreenLoginFragment extends Fragment {
         mButtonSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.main_activity_frame, new ScreenSignUpFragment())
-                        .addToBackStack("signUp").commit();
+                ((LoginActivity) getActivity()).onSignUpButtonClick();
             }
         });
 
@@ -263,7 +260,7 @@ public class ScreenLoginFragment extends Fragment {
     //Sign in firebaseAuthCurrentUser into FireBase Auth
     public void signInUserToFireBase(String email, String password) {
         mFireBaseAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(((MainActivity) getContext()), new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
 
@@ -308,7 +305,7 @@ public class ScreenLoginFragment extends Fragment {
     private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         mFireBaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener(((MainActivity) getContext()), new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
 
@@ -325,7 +322,7 @@ public class ScreenLoginFragment extends Fragment {
     public void handleFacebookAccessToken(AccessToken token) {
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mFireBaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener((MainActivity) getContext(), new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
 
@@ -339,7 +336,6 @@ public class ScreenLoginFragment extends Fragment {
                 });
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -352,7 +348,6 @@ public class ScreenLoginFragment extends Fragment {
                     firebaseAuthWithGoogle(account);
                 }
             } else if (resultCode == RESULT_CANCELED) {
-
                 mProgressBar.setVisibility(View.GONE);
                 firstStart = true;
                 if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
@@ -365,7 +360,6 @@ public class ScreenLoginFragment extends Fragment {
                     mButtonSignInGoogle.setClickable(true);
                 }
             } else {
-
                 mProgressBar.setVisibility(View.GONE);
                 firstStart = true;
                 if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
@@ -379,9 +373,7 @@ public class ScreenLoginFragment extends Fragment {
                 }
             }
         } else {
-
             callbackManager.onActivityResult(requestCode, resultCode, data);
-
         }
     }
 
@@ -389,5 +381,9 @@ public class ScreenLoginFragment extends Fragment {
     public void setClearEditText() {
         mEmail.setText("");
         mPassword.setText("");
+    }
+
+    public interface LoginActivity {
+        void onSignUpButtonClick();
     }
 }

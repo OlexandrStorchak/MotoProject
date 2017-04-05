@@ -15,4 +15,6 @@
     <color name="red800">#c62828</color>
 
     <color name="blue900">#1565c0</color>
+
+    <color name="black_overlay">#66000000</color>
 </resources>

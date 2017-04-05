@@ -24,10 +24,7 @@
         android:paddingTop="30dp"
         app:headerLayout="@layout/navigation_header">
 
-        <include layout="@layout/navigation_custom_menu"
-            />
-
-
+        <include layout="@layout/navigation_custom_menu" />
 
     </android.support.design.widget.NavigationView>
 

@@ -3,7 +3,7 @@ package com.example.alex.motoproject.firebase;
 
 import android.support.annotation.NonNull;
 
-import com.example.alex.motoproject.mainActivity.MainActivityPresenter;
+import com.example.alex.motoproject.mainActivity.LoginActivityPresenter;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -11,16 +11,16 @@ import com.google.firebase.auth.FirebaseUser;
 import javax.inject.Inject;
 
 public class FirebaseLoginController implements FirebaseAuth.AuthStateListener {
-    // Flag for validate with email login method
+    // Flag for validate with email handleUser method
     public static boolean loginWithEmail = false;
-    private static MainActivityPresenter mainActivityPresenter;
+    private static LoginActivityPresenter loginActivityPresenter;
     private static FirebaseLoginController controller;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     private FirebaseAuth mFirebaseAuth;
 
-    public FirebaseLoginController(MainActivityPresenter presenter) {
-        mainActivityPresenter = presenter;
+    public FirebaseLoginController(LoginActivityPresenter presenter) {
+        loginActivityPresenter = presenter;
         mFirebaseAuth = FirebaseAuth.getInstance();
     }
 
@@ -49,35 +49,31 @@ public class FirebaseLoginController implements FirebaseAuth.AuthStateListener {
 
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-        FirebaseUser mFirebaseCurrentUser = firebaseAuth.getCurrentUser();
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (loginWithEmail) {
             //Sign in method by email
-            if (mFirebaseCurrentUser != null) {
-                if (mFirebaseCurrentUser.isEmailVerified()) {
+            if (currentUser != null) {
+                if (currentUser.isEmailVerified()) {
                     // User is signed in with email
-                    mainActivityPresenter.onLogin(mFirebaseCurrentUser);
-
+                    loginActivityPresenter.onLogin(currentUser);
                 } else {
-                    //User is login with email. Must confirm by email
-                    mFirebaseCurrentUser.sendEmailVerification();
+                    //User is handleUser with email. Must confirm by email
+                    currentUser.sendEmailVerification();
                     //TODO: alert to check email
-                    mainActivityPresenter.onLogout();
+                    loginActivityPresenter.onLogout();
                 }
-
             } else {
                 // User is signed out with email
-                mainActivityPresenter.onLogout();
+                loginActivityPresenter.onLogout();
             }
         } else {
-
             //Sign in method by Google account
-            if (mFirebaseCurrentUser != null) {
+            if (currentUser != null) {
                 //Sign in with Google account
-                mainActivityPresenter.onLogin(mFirebaseCurrentUser);
-
+                loginActivityPresenter.onLogin(currentUser);
             } else {
                 // User is signed out with Google account
-                mainActivityPresenter.onLogout();
+                loginActivityPresenter.onLogout();
             }
         }
     }

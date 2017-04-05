@@ -13,7 +13,6 @@ import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -37,9 +36,8 @@ import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.firebase.FirebaseLoginController;
 import com.example.alex.motoproject.screenChat.ChatFragment;
-import com.example.alex.motoproject.screenLogin.ScreenLoginFragment;
+import com.example.alex.motoproject.screenLogin.LoginActivity;
 import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 import com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment;
 import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
@@ -71,9 +69,10 @@ import static com.example.alex.motoproject.util.ArgKeys.KEY_NAME;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_UID;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_USER_COORDS;
 import static com.example.alex.motoproject.util.ArgKeys.SHOW_MAP_FRAGMENT;
+import static com.example.alex.motoproject.util.ArgKeys.SIGN_OUT;
 
 
-public class MainActivity extends AppCompatActivity implements MainViewInterface,
+public class MainActivity extends AppCompatActivity implements
         FragmentManager.OnBackStackChangedListener, FirebaseDatabaseHelper.AuthLoadingListener,
         ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -81,15 +80,14 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
     private static final int ACTIONBAR_HIDDEN = 0;
     private static final int ACTIONBAR_SHOWED = 1;
-    private static final int ACTIONBAR_UP_BUTTON = 2;
 
     private static final String MAP_FRAGMENT_TAG = "mapFragment";
     private static final String ONLINE_USERS_FRAGMENT_TAG = "onlineUsersFragment";
     private static final String FRIENDS_FRAGMENT_TAG = "friendsFragment";
-    private static final String LOGIN_FRAGMENT_TAG = "loginFragment";
     private static final String MY_PROFILE_FRAGMENT_TAG = "myProfileFragment";
     private static final String PROFILE_FRAGMENT_TAG = "profileFragmentTag";
     private static final String CHAT_FRAGMENT = "chatFragment";
+
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     @Inject
@@ -98,11 +96,10 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
     ScreenMapFragment screenMapFragment;
     UsersFragment onlineUsersFragment;
     UsersFragment friendsFragment;
-    ScreenLoginFragment screenLoginFragment;
     ScreenMyProfileFragment screenMyProfileFragment;
     ChatFragment chatFragment;
     AlertControl alertControl = new AlertControl(this);
-    FirebaseLoginController loginController;
+
     private App mApp;
 
     private Intent mainServiceIntent;
@@ -117,8 +114,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
     private TextView mNameHeader;
     private TextView mEmailHeader;
     private ImageView mAvatarHeader;
-    private Button mNavigationBtnMap;
-    private Button mNavigationBtnSignOut;
 
     private Spinner mapVisibility;
     private ImageView mapIndicator;
@@ -148,14 +143,24 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         super.onCreate(savedInstanceState);
 
         EventBus.getDefault().register(this);
+
         App.getCoreComponent().inject(this);
         App.getCoreComponent().inject(alertControl);
+
+        if (mFirebaseDatabaseHelper.getCurrentUser() == null) {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+            finish();
+            return;
+        }
 
         mainServiceIntent = new Intent(this, MainService.class);
 
         mApp = (App) getApplicationContext();
 
-        MainActivityPresenter presenterImp = MainActivityPresenter.getInstance(this);
+//        MainActivityPresenter presenterImp = MainActivityPresenter.getInstance(this);
 
         screenMapFragment = (ScreenMapFragment)
                 getSupportFragmentManager().findFragmentByTag(MAP_FRAGMENT_TAG);
@@ -175,12 +180,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             friendsFragment = new UsersFragment();
         }
 
-        screenLoginFragment = (ScreenLoginFragment)
-                getSupportFragmentManager().findFragmentByTag(LOGIN_FRAGMENT_TAG);
-        if (screenLoginFragment == null) {
-            screenLoginFragment = new ScreenLoginFragment();
-        }
-
         screenMyProfileFragment = (ScreenMyProfileFragment)
                 getSupportFragmentManager().findFragmentByTag(MY_PROFILE_FRAGMENT_TAG);
         if (screenMyProfileFragment == null) {
@@ -193,8 +192,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             chatFragment = new ChatFragment();
         }
 
-        loginController = new FirebaseLoginController(presenterImp);
-        loginController.start();
+//        loginController = new FirebaseLoginController(presenterImp);
+//        loginController.start();
 
         setContentView(R.layout.activity_main);
 
@@ -214,7 +213,6 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
-
                 super.onDrawerOpened(drawerView);
                 hideKeyboard();
             }
@@ -261,8 +259,8 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         });
 
         //Button in Navigation Drawer for show the Map fragment
-        mNavigationBtnMap = (Button) mNavigationView.findViewById(R.id.navigation_btn_map);
-        mNavigationBtnMap.setOnClickListener(new View.OnClickListener() {
+        Button navigationBtnMap = (Button) mNavigationView.findViewById(R.id.navigation_btn_map);
+        navigationBtnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                replaceFragment(screenMapFragment);
@@ -276,12 +274,17 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         });
 
         //Button in Navigation Drawer for SignOut
-        mNavigationBtnSignOut = (Button) mNavigationView.findViewById(R.id.navigation_btn_signout);
-        mNavigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
+        Button navigationBtnSignOut = (Button) mNavigationView.findViewById(R.id.navigation_btn_signout);
+        navigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loginController.signOut();
                 stopService(new Intent(MainActivity.this, LocationListenerService.class));
+
+                startActivity(new Intent(MainActivity.this, LoginActivity.class)
+                        .putExtra(SIGN_OUT, true)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             }
         });
 
@@ -398,14 +401,14 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
             mNavigationStartRide.setText(R.string.start_location_service_button_title);
         }
 
-        Intent openMapIntent = getIntent();
-        boolean openMap = openMapIntent.getBooleanExtra(SHOW_MAP_FRAGMENT, false);
-        if (openMap) {
-            mFirebaseDatabaseHelper.getCurrentUserModel();
+        if (getIntent().getBooleanExtra(SHOW_MAP_FRAGMENT, false) || savedInstanceState == null) {
+            getIntent().removeExtra(SHOW_MAP_FRAGMENT);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.main_activity_frame, screenMapFragment)
                     .commit();
         }
+
+        handleUser(mFirebaseDatabaseHelper.getCurrentUser());
     }
 
     private void startRideService() {
@@ -476,32 +479,25 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
         alertControl.unregisterNetworkStateReceiver();
         alertControl.unregisterEventBus();
-        loginController.stop();
+//        loginController.stop();
 
         mFragmentManager.removeOnBackStackChangedListener(this);
     }
 
 
-    //Need for Facebook login
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        //Send result to ScreenLoginFragment for Facebook auth.manager
-        screenLoginFragment.getCallbackManager().onActivityResult(requestCode, resultCode, data);
-
-    }
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
+
         if (alertControl.mAlert != null) {
             alertControl.mAlert.dismiss();
         }
 
-        super.onDestroy();
         EventBus.getDefault().unregister(this);
+        stopService(mainServiceIntent);
     }
-
 
     @Subscribe
     public void onShowOnlineUserProfile(ShowUserProfileEvent model) {
@@ -532,9 +528,9 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                 case ACTIONBAR_HIDDEN:
                     hideActionBar();
                     break;
-                case ACTIONBAR_UP_BUTTON:
-                    lockDrawerAndShowUpButton();
-                    break;
+//                case ACTIONBAR_UP_BUTTON:
+//                    lockDrawerAndShowUpButton();
+//                    break;
             }
         }
 
@@ -627,8 +623,7 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         alertControl.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    @Override
-    public void login(FirebaseUser user) {
+    public void handleUser(FirebaseUser user) {
         startService(mainServiceIntent);
 
         mFirebaseDatabaseHelper.addUserToFirebase(
@@ -675,18 +670,16 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
                 break;
         }
 
-        showActionBar();
-
-        mNavigationBtnSignOut.setVisibility(View.VISIBLE);
-        mNavigationBtnMap.setVisibility(View.VISIBLE);
-        mAvatarHeader.setVisibility(View.VISIBLE);
+//        mNavigationBtnSignOut.setVisibility(View.VISIBLE);
+//        mNavigationBtnMap.setVisibility(View.VISIBLE);
+//        mAvatarHeader.setVisibility(View.VISIBLE);
 
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 //        replaceFragment(screenMapFragment);
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
-                .commit();
+//        getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
+//                .commit();
 
         SharedPreferences preferences = getApplicationContext()
                 .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
@@ -709,32 +702,31 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
         }
     }
 
-    @Override
-    public void logout() {
-        stopService(mainServiceIntent);
-//        mFragmentManager.removeOnBackStackChangedListener(this);
-        hideActionBar();
+//    @Override
+//    public void logout() {
+////        mFragmentManager.removeOnBackStackChangedListener(this);
+//        hideActionBar();
+//
+////        replaceFragment(screenLoginFragment);
+////        getSupportFragmentManager().beginTransaction()
+////                .replace(R.id.main_activity_frame, screenLoginFragment, LOGIN_FRAGMENT_TAG)
+////                .commit();
+//
+//        mNavigationBtnSignOut.setVisibility(View.GONE);
+//        mNavigationBtnMap.setVisibility(View.GONE);
+//        mNameHeader.setText("");
+//        mEmailHeader.setText("");
+//        mAvatarHeader.setVisibility(View.INVISIBLE);
+//        mDrawerLayout.closeDrawers();
+//        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+//    }
 
-//        replaceFragment(screenLoginFragment);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_activity_frame, screenLoginFragment, LOGIN_FRAGMENT_TAG)
-                .commit();
-
-        mNavigationBtnSignOut.setVisibility(View.GONE);
-        mNavigationBtnMap.setVisibility(View.GONE);
-        mNameHeader.setText("");
-        mEmailHeader.setText("");
-        mAvatarHeader.setVisibility(View.INVISIBLE);
-        mDrawerLayout.closeDrawers();
-        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-    }
-
-    @Override
-    public void replaceFragment(Fragment fragment) {
-        mFragmentManager.beginTransaction()
-                .replace(R.id.main_activity_frame, fragment)
-                .commit();
-    }
+//    @Override
+//    public void replaceFragment(Fragment fragment) {
+//        mFragmentManager.beginTransaction()
+//                .replace(R.id.main_activity_frame, fragment)
+//                .commit();
+//    }
 
 //    public void replaceFragment(Fragment fragment, String uid) {
 //        Bundle bundle = new Bundle();
@@ -777,23 +769,26 @@ public class MainActivity extends AppCompatActivity implements MainViewInterface
 
     @Override
     public void onBackStackChanged() {
-        if (mFragmentManager.getBackStackEntryCount() > 0) {
-            if (mFirebaseDatabaseHelper.getCurrentUser() != null) {
-                //If the users is not logged in, do not show ActionBar
-                lockDrawerAndShowUpButton();
-            }
-        } else {
+//        if (mFragmentManager.getBackStackEntryCount() > 0) {
+//            if (mFirebaseDatabaseHelper.getCurrentUser() != null) {
+//                //If the users is not logged in, do not show ActionBar
+//                lockDrawerAndShowUpButton();
+//            }
+//        } else {
+//            unlockDrawerAndShowActionbar();
+//        }
+        if (mFragmentManager.getBackStackEntryCount() < 1) {
             unlockDrawerAndShowActionbar();
         }
     }
 
-    private void lockDrawerAndShowUpButton() {
-        actionbarStatus = ACTIONBAR_UP_BUTTON;
-        mToolbar.setNavigationIcon(R.mipmap.ic_back_button);
-        mToolbar.setNavigationOnClickListener(backButtonBack);
-        mDrawerLayout.closeDrawers();
-        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-    }
+//    private void lockDrawerAndShowUpButton() {
+//        actionbarStatus = ACTIONBAR_UP_BUTTON;
+//        mToolbar.setNavigationIcon(R.mipmap.ic_back_button);
+//        mToolbar.setNavigationOnClickListener(backButtonBack);
+//        mDrawerLayout.closeDrawers();
+//        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+//    }
 
     private void unlockDrawerAndShowActionbar() {
         actionbarStatus = ACTIONBAR_SHOWED;

@@ -104,6 +104,8 @@ public class FirebaseDatabaseHelper {
 
     private boolean isOlderMessagesFirstIteration = true;
 
+    private String mCurrentUserId;
+
     public FirebaseDatabaseHelper() {
 
     }
@@ -112,8 +114,9 @@ public class FirebaseDatabaseHelper {
         FirebaseAuth.getInstance().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() != null) {
+                if (getCurrentUser() != null) {
                     firebaseAuth.removeAuthStateListener(this);
+                    mCurrentUserId = getCurrentUser().getUid();
                     listener.onLoadFinished();
                 }
             }
@@ -539,7 +542,7 @@ public class FirebaseDatabaseHelper {
 
     public void unregisterFriendsListener() {
         DatabaseReference ref = mDbReference.child(PATH_USERS)
-                .child(getCurrentUser().getUid()).child(USER_PROFILE_FRIEND_LIST);
+                .child(mCurrentUserId).child(USER_PROFILE_FRIEND_LIST);
         ref.removeEventListener(mFriendsListener);
     }
 
@@ -1045,10 +1048,8 @@ public class FirebaseDatabaseHelper {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
                 MyProfileFirebase profileFirebase = dataSnapshot.getValue(MyProfileFirebase.class);
                 EventBus.getDefault().post(new CurrentUserProfileReadyEvent(profileFirebase));
-
             }
 
             @Override
