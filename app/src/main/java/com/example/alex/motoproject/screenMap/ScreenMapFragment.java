@@ -192,10 +192,10 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             mCameraUpdate = CameraUpdateFactory.newCameraPosition(position);
         }
 
-        map.moveCamera(mCameraUpdate);
+        mMap.moveCamera(mCameraUpdate);
         mMap.setMapType(mMapType);
 
-        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 ((MainActivity) getActivity())

@@ -287,8 +287,8 @@ public class ScreenLoginFragment extends Fragment {
     }
 
     private void showErrorSnackbar() {
-        Snackbar.make(getActivity().getWindow().getDecorView().findViewById(R.id.content_login),
-                R.string.auth_error, Snackbar.LENGTH_LONG);
+        if (getView() == null) return;
+        Snackbar.make(getView(), R.string.auth_error, Snackbar.LENGTH_LONG).show();
     }
 
     private void handlePossibleAuthError(Task<AuthResult> task) {
@@ -396,6 +396,7 @@ public class ScreenLoginFragment extends Fragment {
                 if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
                     mGoogleApiClient.stopAutoManage(getActivity());
                     mGoogleApiClient.disconnect();
+                    showErrorSnackbar();
 //                    mButtonSignUp.setVisibility(View.VISIBLE);
 //                    mButtonSubmit.setVisibility(View.VISIBLE);
 //                    mButtonSignInFacebook.setVisibility(View.VISIBLE);

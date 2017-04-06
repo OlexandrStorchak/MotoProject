@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private static final int ACTIONBAR_HIDDEN = 0;
     private static final int ACTIONBAR_SHOWED = 1;
+    private static final int ACTIONBAR_UP_BUTTON = 2;
 
     private static final String MAP_FRAGMENT_TAG = "mapFragment";
     private static final String ONLINE_USERS_FRAGMENT_TAG = "onlineUsersFragment";
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements
     private String mEmail;
     private String mAvatarRef;
 
-    private int actionbarStatus;
+    private int actionbarStatus = ACTIONBAR_SHOWED;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -281,6 +282,7 @@ public class MainActivity extends AppCompatActivity implements
         navigationBtnSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mDrawerLayout.closeDrawers();
                 stopService(new Intent(MainActivity.this, LocationListenerService.class));
 
                 startActivity(new Intent(MainActivity.this, LoginActivity.class)
@@ -539,9 +541,9 @@ public class MainActivity extends AppCompatActivity implements
                 case ACTIONBAR_HIDDEN:
                     hideActionBar();
                     break;
-//                case ACTIONBAR_UP_BUTTON:
-//                    lockDrawerAndShowUpButton();
-//                    break;
+                case ACTIONBAR_UP_BUTTON:
+                    lockDrawerAndShowUpButton();
+                    break;
             }
         }
 
@@ -692,10 +694,8 @@ public class MainActivity extends AppCompatActivity implements
 //                .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
 //                .commit();
 
-        SharedPreferences preferences = getApplicationContext()
-                .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
-
-        mFirebaseDatabaseHelper.setUserOnline(preferences.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
+        mFirebaseDatabaseHelper.setUserOnline(sharedPreferences
+                .getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
 //        mFragmentManager.addOnBackStackChangedListener(this);
     }
 
@@ -780,26 +780,23 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBackStackChanged() {
-//        if (mFragmentManager.getBackStackEntryCount() > 0) {
-//            if (mFirebaseDatabaseHelper.getCurrentUser() != null) {
-//                //If the users is not logged in, do not show ActionBar
-//                lockDrawerAndShowUpButton();
-//            }
-//        } else {
-//            unlockDrawerAndShowActionbar();
-//        }
-        if (mFragmentManager.getBackStackEntryCount() < 1) {
+        if (mFragmentManager.getBackStackEntryCount() > 0) {
+            if (mFirebaseDatabaseHelper.getCurrentUser() != null) {
+                //If the users is not logged in, do not show ActionBar
+                lockDrawerAndShowUpButton();
+            }
+        } else {
             unlockDrawerAndShowActionbar();
         }
     }
 
-//    private void lockDrawerAndShowUpButton() {
-//        actionbarStatus = ACTIONBAR_UP_BUTTON;
-//        mToolbar.setNavigationIcon(R.mipmap.ic_back_button);
-//        mToolbar.setNavigationOnClickListener(backButtonBack);
-//        mDrawerLayout.closeDrawers();
-//        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-//    }
+    private void lockDrawerAndShowUpButton() {
+        actionbarStatus = ACTIONBAR_UP_BUTTON;
+        mToolbar.setNavigationIcon(R.mipmap.ic_back_button);
+        mToolbar.setNavigationOnClickListener(backButtonBack);
+        mDrawerLayout.closeDrawers();
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
 
     private void unlockDrawerAndShowActionbar() {
         actionbarStatus = ACTIONBAR_SHOWED;
