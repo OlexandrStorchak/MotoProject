@@ -1,14 +1,17 @@
 package com.example.alex.motoproject.screenLogin;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -37,7 +40,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static com.example.alex.motoproject.firebase.FirebaseLoginController.loginWithEmail;
 import static com.example.alex.motoproject.util.ArgKeys.EMAIL;
@@ -142,7 +144,6 @@ public class ScreenLoginFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
         mEmail = (EditText) view.findViewById(R.id.auth_email);
         mPassword = (EditText) view.findViewById(R.id.auth_pass);
         mProgressBar = (ProgressBar) view.findViewById(R.id.auth_progress_bar);
@@ -200,10 +201,11 @@ public class ScreenLoginFragment extends Fragment {
                 signInGoogle();
                 mEmail.setVisibility(View.GONE);
                 mPassword.setVisibility(View.GONE);
-                mButtonSignUp.setVisibility(View.GONE);
-                mButtonSubmit.setVisibility(View.GONE);
-                mButtonSignInGoogle.setVisibility(View.GONE);
-                mButtonSignInFacebook.setVisibility(View.GONE);
+                setButtonsVisible(false);
+//                mButtonSignUp.setVisibility(View.GONE);
+//                mButtonSubmit.setVisibility(View.GONE);
+//                mButtonSignInGoogle.setVisibility(View.GONE);
+//                mButtonSignInFacebook.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.VISIBLE);
             }
         });
@@ -215,12 +217,12 @@ public class ScreenLoginFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 loginWithEmail = false;
-                mButtonSignUp.setVisibility(View.INVISIBLE);
-                mButtonSignInGoogle.setVisibility(View.INVISIBLE);
-                mButtonSubmit.setVisibility(View.INVISIBLE);
-                mButtonSignInFacebook.setVisibility(View.INVISIBLE);
-                mEmail.setVisibility(View.GONE);
-                mPassword.setVisibility(View.GONE);
+//                mButtonSignUp.setVisibility(View.INVISIBLE);
+//                mButtonSignInGoogle.setVisibility(View.INVISIBLE);
+//                mButtonSubmit.setVisibility(View.INVISIBLE);
+//                mButtonSignInFacebook.setVisibility(View.INVISIBLE);
+//                mEmail.setVisibility(View.GONE);
+//                mPassword.setVisibility(View.GONE);
 
                 Collection<String> permissions = Arrays.asList("public_profile", "email");
 
@@ -257,24 +259,63 @@ public class ScreenLoginFragment extends Fragment {
         }
     }
 
+    private void setButtonsVisible(boolean visible) {
+        int visibility;
+        if (visible) {
+            visibility = View.VISIBLE;
+        } else {
+            visibility = View.GONE;
+        }
+
+//        mButtonSignInFacebook.setEnabled(enabled);
+//        mButtonSignInGoogle.setEnabled(enabled);
+//        mButtonSignUp.setEnabled(enabled);
+//        mButtonSubmit.setEnabled(enabled);
+        mButtonSignInGoogle.setVisibility(visibility);
+        mButtonSubmit.setVisibility(visibility);
+        mButtonSignUp.setVisibility(visibility);
+        mButtonSignInFacebook.setVisibility(visibility);
+    }
+
+    private void hideKeyboard() {
+        View view = getView();
+        if (view == null) return;
+
+        InputMethodManager inputMethodManager =
+                (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    private void showErrorSnackbar() {
+        Snackbar.make(getActivity().getWindow().getDecorView().findViewById(R.id.content_login),
+                R.string.auth_error, Snackbar.LENGTH_LONG);
+    }
+
+    private void handlePossibleAuthError(Task<AuthResult> task) {
+        if (!task.isSuccessful()) {
+            showErrorSnackbar();
+            mProgressBar.setVisibility(View.GONE);
+            setButtonsVisible(true);
+        }
+    }
+
     //Sign in firebaseAuthCurrentUser into FireBase Auth
     public void signInUserToFireBase(String email, String password) {
+        setButtonsVisible(false);
+        hideKeyboard();
         mFireBaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-
-                        // If sign in fails, display a message to the firebaseUser. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in firebaseUser can be handled in the listener.
+                        //If sign in fails, display a message to the firebaseUser. Else
+                        //the auth state listener will be notified and the AuthListener
+                        //will be notified
                         if (!task.isSuccessful()) {
-
-
+                            showErrorSnackbar();
                             mProgressBar.setVisibility(View.GONE);
+                            setButtonsVisible(true);
                             firstStart = true;
                         }
-
-                        // ...
                     }
                 });
     }
@@ -285,7 +326,6 @@ public class ScreenLoginFragment extends Fragment {
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-
 
         mGoogleApiClient = new GoogleApiClient.Builder(getContext())
                 .enableAutoManage((FragmentActivity) getContext(),
@@ -303,18 +343,13 @@ public class ScreenLoginFragment extends Fragment {
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
+        setButtonsVisible(false);
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         mFireBaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-
-
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-
-
+                        handlePossibleAuthError(task);
                     }
                 });
     }
@@ -325,16 +360,11 @@ public class ScreenLoginFragment extends Fragment {
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-
-
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-
-
+                        handlePossibleAuthError(task);
                     }
                 });
     }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -347,29 +377,30 @@ public class ScreenLoginFragment extends Fragment {
                     GoogleSignInAccount account = result.getSignInAccount();
                     firebaseAuthWithGoogle(account);
                 }
-            } else if (resultCode == RESULT_CANCELED) {
-                mProgressBar.setVisibility(View.GONE);
-                firstStart = true;
-                if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-                    mGoogleApiClient.stopAutoManage(getActivity());
-                    mGoogleApiClient.disconnect();
-                    mButtonSignUp.setVisibility(View.VISIBLE);
-                    mButtonSubmit.setVisibility(View.VISIBLE);
-                    mButtonSignInFacebook.setVisibility(View.VISIBLE);
-                    mButtonSignInGoogle.setVisibility(View.VISIBLE);
-                    mButtonSignInGoogle.setClickable(true);
-                }
+//            } else if (resultCode == RESULT_CANCELED) {
+//                mProgressBar.setVisibility(View.GONE);
+//                firstStart = true;
+//                if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+//                    mGoogleApiClient.stopAutoManage(getActivity());
+//                    mGoogleApiClient.disconnect();
+//                    mButtonSignUp.setVisibility(View.VISIBLE);
+//                    mButtonSubmit.setVisibility(View.VISIBLE);
+//                    mButtonSignInFacebook.setVisibility(View.VISIBLE);
+//                    mButtonSignInGoogle.setVisibility(View.VISIBLE);
+//                    mButtonSignInGoogle.setClickable(true);
+//                }
             } else {
                 mProgressBar.setVisibility(View.GONE);
+                setButtonsVisible(true);
                 firstStart = true;
                 if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
                     mGoogleApiClient.stopAutoManage(getActivity());
                     mGoogleApiClient.disconnect();
-                    mButtonSignUp.setVisibility(View.VISIBLE);
-                    mButtonSubmit.setVisibility(View.VISIBLE);
-                    mButtonSignInFacebook.setVisibility(View.VISIBLE);
-                    mButtonSignInGoogle.setVisibility(View.VISIBLE);
-                    mButtonSignInGoogle.setClickable(true);
+//                    mButtonSignUp.setVisibility(View.VISIBLE);
+//                    mButtonSubmit.setVisibility(View.VISIBLE);
+//                    mButtonSignInFacebook.setVisibility(View.VISIBLE);
+//                    mButtonSignInGoogle.setVisibility(View.VISIBLE);
+//                    mButtonSignInGoogle.setClickable(true);
                 }
             }
         } else {

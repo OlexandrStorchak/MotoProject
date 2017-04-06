@@ -659,7 +659,7 @@ public class FirebaseDatabaseHelper {
 
                 for (DataSnapshot entry : dataSnapshot.getChildren()) {
 
-                    if (entry.getKey().equals(getCurrentUser().getUid())) {
+                    if (entry.getKey().equals(mCurrentUserId)) {
                         continue;
                     }
 

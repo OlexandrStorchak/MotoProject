@@ -2,9 +2,9 @@ package com.example.alex.motoproject.screenLogin;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.firebase.FirebaseLoginController;
@@ -23,24 +23,25 @@ import static com.example.alex.motoproject.util.ArgKeys.SIGN_OUT;
 public class LoginActivity extends AppCompatActivity
         implements MainViewInterface, ScreenLoginFragment.LoginActivity {
 
+    private static final String TAG = "LoginActivity";
     private static final String LOGIN_FRAGMENT_TAG = "loginFragment";
-    private final Handler mHideHandler = new Handler();
-    private final Runnable mShowPart2Runnable = new Runnable() {
-        @Override
-        public void run() {
-            // Delayed display of UI elements
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.show();
-            }
-        }
-    };
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide();
-        }
-    };
+    //    private final Handler mHideHandler = new Handler();
+//    private final Runnable mShowPart2Runnable = new Runnable() {
+//        @Override
+//        public void run() {
+//            // Delayed display of UI elements
+//            ActionBar actionBar = getSupportActionBar();
+//            if (actionBar != null) {
+//                actionBar.show();
+//            }
+//        }
+//    };
+//    private final Runnable mHideRunnable = new Runnable() {
+//        @Override
+//        public void run() {
+//            hide();
+//        }
+//    };
     ScreenLoginFragment mLoginFragment;
     LoginActivityPresenter mPresenter = LoginActivityPresenter.getInstance(this);
     FirebaseLoginController mLoginController = new FirebaseLoginController(mPresenter);
@@ -49,12 +50,14 @@ public class LoginActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
         mLoginController.stop();
+        Log.d(TAG, "onStop: ");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         mLoginController.start();
+        Log.d(TAG, "onStart: ");
     }
 
     @Override
@@ -62,6 +65,11 @@ public class LoginActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_login);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
 
         if (getIntent().getBooleanExtra(SIGN_OUT, false)) {
             mLoginController.signOut();
@@ -76,37 +84,38 @@ public class LoginActivity extends AppCompatActivity
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content_login, mLoginFragment, LOGIN_FRAGMENT_TAG)
                 .commit();
+        Log.d(TAG, "onCreate: ");
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100);
-    }
-
-    private void hide() {
-        // Hide UI first
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
-
-        // Schedule a runnable to remove the status and navigation bar after a delay
-        mHideHandler.removeCallbacks(mShowPart2Runnable);
-    }
-
-    /**
-     * Schedules a call to hide() in [delay] milliseconds, canceling any
-     * previously scheduled calls.
-     */
-    private void delayedHide(int delayMillis) {
-        mHideHandler.removeCallbacks(mHideRunnable);
-        mHideHandler.postDelayed(mHideRunnable, delayMillis);
-    }
+//    @Override
+//    protected void onPostCreate(Bundle savedInstanceState) {
+//        super.onPostCreate(savedInstanceState);
+//
+//        // Trigger the initial hide() shortly after the activity has been
+//        // created, to briefly hint to the user that UI controls
+//        // are available.
+//        delayedHide(100);
+//    }
+//
+//    private void hide() {
+//        // Hide UI first
+//        ActionBar actionBar = getSupportActionBar();
+//        if (actionBar != null) {
+//            actionBar.hide();
+//        }
+//
+//        // Schedule a runnable to remove the status and navigation bar after a delay
+//        mHideHandler.removeCallbacks(mShowPart2Runnable);
+//    }
+//
+//    /**
+//     * Schedules a call to hide() in [delay] milliseconds, canceling any
+//     * previously scheduled calls.
+//     */
+//    private void delayedHide(int delayMillis) {
+//        mHideHandler.removeCallbacks(mHideRunnable);
+//        mHideHandler.postDelayed(mHideRunnable, delayMillis);
+//    }
 
     @Override
     public void login(FirebaseUser user) {
@@ -130,16 +139,6 @@ public class LoginActivity extends AppCompatActivity
 //            finish();
 //        }
 //    }
-
-    //Needed for Facebook handleUser
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        //Send result to ScreenLoginFragment for Facebook auth.manager
-//        screenLoginFragment.getCallbackManager().onActivityResult(requestCode, resultCode, data);
-
-    }
 
     @Override
     public void onSignUpButtonClick() {

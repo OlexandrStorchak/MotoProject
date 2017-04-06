@@ -67,6 +67,7 @@
     <string name="decline">Відхилити</string>
     <string name="switch_off">Вимкнути</string>
     <string name="to_profile">До профілю</string>
+    <string name="auth_error">Сталася неочікувана помилка. Спробуйте ще раз</string>
 
     <string-array name="profile_spinner_set_gps_visibility">
         <item>Всім</item>

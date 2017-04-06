@@ -30,7 +30,7 @@
             android:name=".screenLogin.LoginActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_login"
-            android:theme="@style/FullscreenTheme"></activity>
+            android:theme="@style/FullscreenTheme" />
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"

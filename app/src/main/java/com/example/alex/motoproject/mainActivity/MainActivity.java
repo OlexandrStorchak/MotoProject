@@ -20,6 +20,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -88,6 +89,8 @@ public class MainActivity extends AppCompatActivity implements
     private static final String PROFILE_FRAGMENT_TAG = "profileFragmentTag";
     private static final String CHAT_FRAGMENT = "chatFragment";
 
+    private static final String TAG = "MainActivity";
+
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     @Inject
@@ -147,6 +150,8 @@ public class MainActivity extends AppCompatActivity implements
         App.getCoreComponent().inject(this);
         App.getCoreComponent().inject(alertControl);
 
+        mainServiceIntent = new Intent(this, MainService.class);
+
         if (mFirebaseDatabaseHelper.getCurrentUser() == null) {
             startActivity(new Intent(MainActivity.this, LoginActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -155,8 +160,6 @@ public class MainActivity extends AppCompatActivity implements
             finish();
             return;
         }
-
-        mainServiceIntent = new Intent(this, MainService.class);
 
         mApp = (App) getApplicationContext();
 
@@ -409,6 +412,7 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         handleUser(mFirebaseDatabaseHelper.getCurrentUser());
+        Log.d(TAG, "onCreate: ");
     }
 
     private void startRideService() {
@@ -438,9 +442,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void hideKeyboard() {
         View view = getCurrentFocus();
-        if (view == null) {
-            return;
-        }
+        if (view == null) return;
 
         InputMethodManager inputMethodManager =
                 (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -482,10 +484,18 @@ public class MainActivity extends AppCompatActivity implements
 //        loginController.stop();
 
         mFragmentManager.removeOnBackStackChangedListener(this);
+        Log.d(TAG, "onStop: ");
     }
 
+    //Needed for Facebook handleUser
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        //Send result to ScreenLoginFragment for Facebook auth.manager
+//        screenLoginFragment.getCallbackManager().onActivityResult(requestCode, resultCode, data);
 
+    }
 
     @Override
     protected void onDestroy() {
@@ -497,6 +507,7 @@ public class MainActivity extends AppCompatActivity implements
 
         EventBus.getDefault().unregister(this);
         stopService(mainServiceIntent);
+        Log.d(TAG, "onDestroy: ");
     }
 
     @Subscribe
