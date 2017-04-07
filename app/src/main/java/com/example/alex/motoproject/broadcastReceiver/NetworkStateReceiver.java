@@ -12,6 +12,7 @@ import android.net.NetworkInfo;
 import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.event.CancelAlertEvent;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
+import com.example.alex.motoproject.event.InternetStatusChangedEvent;
 import com.example.alex.motoproject.event.ShowAlertEvent;
 import com.example.alex.motoproject.mainActivity.AlertControl;
 import com.example.alex.motoproject.util.NotificationBuilderUtil;
@@ -43,32 +44,34 @@ public class NetworkStateReceiver extends BroadcastReceiver {
         if (isInternetEnabled()) {
             if (isMainActivityVisible()) {
                 postCancelAlertEvent(INTERNET_NOTIFICATION_ID);
+                postInternetStatusChangedEvent(true);
             } else {
                 cancelNotificationIfExists(INTERNET_NOTIFICATION_ID);
             }
         } else {
             if (isMainActivityVisible()) {
                 postShowAlertEvent(INTERNET_NOTIFICATION_ID);
+                postInternetStatusChangedEvent(false);
             } else {
                 showNotification(INTERNET_NOTIFICATION_ID);
             }
         }
 
-        if (isGpsNeeded()) {
-            if (isGpsEnabled()) {
-                if (isMainActivityVisible()) {
-                    postCancelAlertEvent(GPS_NOTIFICATION_ID);
-                    postGpsStatusChangedEvent(true);
-                } else {
-                    cancelNotificationIfExists(GPS_NOTIFICATION_ID);
-                }
+        if (!isGpsNeeded()) return;
+
+        if (isGpsEnabled()) {
+            if (isMainActivityVisible()) {
+                postCancelAlertEvent(GPS_NOTIFICATION_ID);
+                postGpsStatusChangedEvent(true);
             } else {
-                if (isMainActivityVisible()) {
-                    postShowAlertEvent(GPS_NOTIFICATION_ID);
-                    postGpsStatusChangedEvent(false);
-                } else {
-                    showNotification(GPS_NOTIFICATION_ID);
-                }
+                cancelNotificationIfExists(GPS_NOTIFICATION_ID);
+            }
+        } else {
+            if (isMainActivityVisible()) {
+                postShowAlertEvent(GPS_NOTIFICATION_ID);
+                postGpsStatusChangedEvent(false);
+            } else {
+                showNotification(GPS_NOTIFICATION_ID);
             }
         }
     }
@@ -133,13 +136,17 @@ public class NetworkStateReceiver extends BroadcastReceiver {
         }
     }
 
-    private void postGpsStatusChangedEvent(boolean isGpsOn) {
-        if (isServiceOn()) {
-            EventBus.getDefault().postSticky(new GpsStatusChangedEvent(isGpsOn));
-        }
+    private void postGpsStatusChangedEvent(boolean gpsOn) {
+//        if (isServiceOn()) {
+        EventBus.getDefault().postSticky(new GpsStatusChangedEvent(gpsOn));
+//        }
     }
 
-    private boolean isServiceOn() {
-        return ((App) mContext.getApplicationContext()).isLocationListenerServiceOn();
+    private void postInternetStatusChangedEvent(boolean internetOn) {
+        EventBus.getDefault().postSticky(new InternetStatusChangedEvent(internetOn));
     }
+
+//    private boolean isServiceOn() {
+//        return ((App) mContext.getApplicationContext()).isLocationListenerServiceOn();
+//    }
 }

@@ -227,8 +227,6 @@ public class LocationListenerService extends Service implements Runnable,
         }, 2900);
 
         Log.i("time", "run: ");
-
-
     }
 
     private void startLocationUpdates() {
@@ -251,7 +249,6 @@ public class LocationListenerService extends Service implements Runnable,
         mLocationRequest.setInterval(1000); //1 secs
         mLocationRequest.setFastestInterval(100); //1 secs
         mLocationRequest.setSmallestDisplacement(1f); //1 m
-
 
         return mLocationRequest;
 

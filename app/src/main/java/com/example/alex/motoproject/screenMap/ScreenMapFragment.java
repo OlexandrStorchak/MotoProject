@@ -57,10 +57,12 @@ import javax.inject.Inject;
 import static com.example.alex.motoproject.R.id.map;
 import static com.example.alex.motoproject.util.ArgKeys.BEARING;
 import static com.example.alex.motoproject.util.ArgKeys.CAMERA_POSITION;
+import static com.example.alex.motoproject.util.ArgKeys.KEY_UID;
 import static com.example.alex.motoproject.util.ArgKeys.LATITUDE;
 import static com.example.alex.motoproject.util.ArgKeys.LONGITUDE;
 import static com.example.alex.motoproject.util.ArgKeys.MAP_TYPE;
 import static com.example.alex.motoproject.util.ArgKeys.TILT;
+import static com.example.alex.motoproject.util.ArgKeys.USER_COORDS;
 import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
 
 
@@ -93,7 +95,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         // Required empty public constructor
     }
 
-    public GoogleMap getxMap() {
+    public GoogleMap getGoogleMap() {
         return mMap;
     }
 
@@ -139,12 +141,12 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         //add Google map
         mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);
-        mMapView.getMapAsync(this); // TODO: 25.03.2017 do not call this if map is not null
+        mMapView.getMapAsync(this);
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            String uid = arguments.getString("uid");
-            LatLng userCoords = arguments.getParcelable("userCoords");
+            String uid = arguments.getString(KEY_UID);
+            LatLng userCoords = arguments.getParcelable(USER_COORDS);
             if (uid != null) {
                 setPosition(uid);
             } else if (userCoords != null) {
@@ -423,7 +425,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 //        }
 //    }
 
-    @Subscribe
+    @Subscribe(sticky = true)
     public void onGpsStatusChanged(GpsStatusChangedEvent event) {
         if (!checkLocationPermission()) {
             return;
@@ -435,7 +437,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    //TODO a better interface name
     public interface MapFragmentHolder {
         void showAlert(int alertType);
 

@@ -41,7 +41,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import static android.app.Activity.RESULT_OK;
-import static com.example.alex.motoproject.firebase.FirebaseLoginController.loginWithEmail;
+import static com.example.alex.motoproject.firebase.FirebaseLoginController.mLoginWithEmail;
 import static com.example.alex.motoproject.util.ArgKeys.EMAIL;
 import static com.example.alex.motoproject.util.ArgKeys.EMAIL_AND_PASSWORD_DISPLAYED;
 import static com.example.alex.motoproject.util.ArgKeys.PASSWORD;
@@ -67,10 +67,6 @@ public class ScreenLoginFragment extends Fragment {
 
     public ScreenLoginFragment() {
         // Required empty public constructor
-    }
-
-    public CallbackManager getCallbackManager() {
-        return callbackManager;
     }
 
     @Override
@@ -152,7 +148,7 @@ public class ScreenLoginFragment extends Fragment {
         mButtonSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loginWithEmail = true;
+                mLoginWithEmail = true;
                 if (firstStart) {
                     mEmailAndPasswordFieldsDisplayed = true;
                     mEmail.setVisibility(View.VISIBLE);
@@ -171,7 +167,7 @@ public class ScreenLoginFragment extends Fragment {
                         mPassword.setError(getResources().getString(R.string.less_6_chars));
                     }
                     if (mPassword.getText().length() > 5 & mEmail.getText().length() > 0) {
-                        loginWithEmail = true;
+                        mLoginWithEmail = true;
                         mEmail.setVisibility(View.GONE);
                         mProgressBar.setVisibility(View.VISIBLE);
                         mPassword.setVisibility(View.GONE);
@@ -188,7 +184,7 @@ public class ScreenLoginFragment extends Fragment {
         mButtonSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((LoginActivity) getActivity()).onSignUpButtonClick();
+                ((LoginActivityInterface) getActivity()).onSignUpButtonClick();
             }
         });
 
@@ -197,7 +193,7 @@ public class ScreenLoginFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 view.setVisibility(View.INVISIBLE);
-                loginWithEmail = false;
+                mLoginWithEmail = false;
                 signInGoogle();
                 mEmail.setVisibility(View.GONE);
                 mPassword.setVisibility(View.GONE);
@@ -216,7 +212,7 @@ public class ScreenLoginFragment extends Fragment {
         mButtonSignInFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loginWithEmail = false;
+                mLoginWithEmail = false;
 //                mButtonSignUp.setVisibility(View.INVISIBLE);
 //                mButtonSignInGoogle.setVisibility(View.INVISIBLE);
 //                mButtonSubmit.setVisibility(View.INVISIBLE);
@@ -229,8 +225,6 @@ public class ScreenLoginFragment extends Fragment {
                 loginManager.logInWithReadPermissions(getActivity(), permissions);
             }
         });
-
-
     }
 
     @Override
@@ -415,7 +409,7 @@ public class ScreenLoginFragment extends Fragment {
         mPassword.setText("");
     }
 
-    public interface LoginActivity {
+    public interface LoginActivityInterface {
         void onSignUpButtonClick();
     }
 }

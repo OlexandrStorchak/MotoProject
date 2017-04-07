@@ -417,7 +417,7 @@ public class ScreenMyProfileFragment extends Fragment {
                             progressDialog.dismiss();
                             mFirebaseDatabaseHelper.
                                     setCurrentUserAvatar(taskSnapshot.getDownloadUrl().toString());
-                            // TODO: 02.04.2017       mFirebaseDatabaseHelper.getCurrentUserModel();
+                            // mFirebaseDatabaseHelper.getCurrentUserModel();
                             Toast.makeText(getApplicationContext(), "Завантажено ",
                                     Toast.LENGTH_LONG).show();
                         }

@@ -60,10 +60,8 @@ public class App extends Application
     }
 
     public boolean isMainActivityVisible() {
-
         return mMainActivityVisible;
     }
-
 
     @Override
     public void onActivityCreated(Activity activity, Bundle bundle) {

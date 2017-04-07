@@ -84,9 +84,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         outState.putString(MESSAGE_TEXT, mEditText.getText().toString());
 //        outState.putParcelable(RECYCLER_VIEW_SCROLL,
 //                mRecyclerView.getLayoutManager().onSaveInstanceState());
-        // TODO: 27.03.2017 call to Linear Layout Manager (!) does not help,
     }
-
 
     @Override
     public void onStart() {
@@ -190,7 +188,6 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     @Override
     public void scrollToPosition(int position) {
         mRecyclerView.smoothScrollToPosition(position);
-
     }
 
     @Override

@@ -399,7 +399,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 //                return;
 //            }
             mUsers.add(user);
-            // TODO: 29.03.2017 mPresenter is null if a user chaotically pushes all the buttons in drawer
         }
 
         private void addUsers(List<User> users) {

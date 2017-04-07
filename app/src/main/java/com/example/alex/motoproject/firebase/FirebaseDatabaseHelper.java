@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import dagger.Module;
+import javax.inject.Inject;
 
 import static com.example.alex.motoproject.firebase.Constants.CHAT_ID;
 import static com.example.alex.motoproject.firebase.Constants.CHAT_LATITUDE;
@@ -66,13 +66,12 @@ import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_MOTOR
 import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_NAME;
 import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_NICK;
 
-@Module
 public class FirebaseDatabaseHelper {
 
     private static final String STANDART_AVATAR =
             "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
                     "o/avatar_defaultar_default.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
-    private static final int FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT = 31;
+    private static final int FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT = 51;
     private static final int SHOWN_MESSAGES_MIN_COUNT_LIMIT =
             FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT - 1;
 
@@ -106,6 +105,7 @@ public class FirebaseDatabaseHelper {
 
     private String mCurrentUserId;
 
+    @Inject
     public FirebaseDatabaseHelper() {
 
     }
@@ -117,6 +117,7 @@ public class FirebaseDatabaseHelper {
                 if (getCurrentUser() != null) {
                     firebaseAuth.removeAuthStateListener(this);
                     mCurrentUserId = getCurrentUser().getUid();
+
                     listener.onLoadFinished();
                 }
             }
@@ -157,6 +158,9 @@ public class FirebaseDatabaseHelper {
         ValueEventListener userProfileListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                //Remove event listener for current databaseReference only after new data fetched
+                currentUserRef.removeEventListener(this);
+
                 if (dataSnapshot.exists()) {
                     //Required data already exists
                     return;
@@ -184,8 +188,6 @@ public class FirebaseDatabaseHelper {
                 currentUserRef.child(USER_PROFILE_NAME).setValue(nameUrl);
                 currentUserRef.child(USER_PROFILE_AVATAR).setValue(avatarUrl);
                 currentUserRef.child(USER_PROFILE_ID).setValue(uid);
-                //Remove event listener for current databaseReference only after new data fetched
-                currentUserRef.removeEventListener(this);
             }
 
             @Override
@@ -541,6 +543,7 @@ public class FirebaseDatabaseHelper {
     }
 
     public void unregisterFriendsListener() {
+        if (mFriendsListener == null) return;
         DatabaseReference ref = mDbReference.child(PATH_USERS)
                 .child(mCurrentUserId).child(USER_PROFILE_FRIEND_LIST);
         ref.removeEventListener(mFriendsListener);
@@ -761,7 +764,7 @@ public class FirebaseDatabaseHelper {
     }
 
     /**
-     * Chat
+     * Chat methods
      */
 
     public void setCloseDistance(int closeDistance) {
@@ -774,6 +777,7 @@ public class FirebaseDatabaseHelper {
         if (mCloseDistance > 0 && mCurrentUserLocation == null) {
             mCloseDistance = 0;
             receiver.onNoCurrentUserLocation();
+            // TODO: 06.04.2017 if filtering is on, might be no messages shown, show empty view
         }
         mChatModel = receiver;
         mChatMessagesListener = new ChildEventListener() {
@@ -793,13 +797,10 @@ public class FirebaseDatabaseHelper {
                     return;
                 }
 
-                if (mCloseDistance > 0) {
-
-                    if (!DistanceUtil.isClose(mCurrentUserLocation,
-                            mUsersLocation.get(uid),
-                            mCloseDistance)) {
-                        return;
-                    }
+                if (mCloseDistance > 0 && !DistanceUtil.isClose(mCurrentUserLocation,
+                        mUsersLocation.get(uid),
+                        mCloseDistance)) {
+                    return;
                 }
 
                 final ChatMessage message = new ChatMessage(uid, convertUnixTimeToDate(sendTime));
@@ -862,7 +863,6 @@ public class FirebaseDatabaseHelper {
         };
         mDbReference.child(PATH_CHAT).limitToLast(FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT)
                 .addChildEventListener(mChatMessagesListener);
-
     }
 
     //Called every time users scrolls to the end of the list and swipes up, if there are more messages

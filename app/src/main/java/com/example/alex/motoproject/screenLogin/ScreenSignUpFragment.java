@@ -27,7 +27,7 @@ import static com.example.alex.motoproject.util.ArgKeys.REPEAT_PASSWORD;
 
 public class ScreenSignUpFragment extends Fragment {
 
-    private static final String TAG = "log";
+    private static final String TAG = ScreenSignUpFragment.class.getSimpleName();
     private EditText mEmail, mPassword, mRepeatPassword;
     private FirebaseAuth mFireBaseAuth;
 
@@ -76,12 +76,10 @@ public class ScreenSignUpFragment extends Fragment {
 
         Button mButtonSubmit = (Button) view.findViewById(R.id.sign_up_btn_ok);
 
-
         mButtonSubmit.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
-
 
                 if (mEmail.getText().length() == 0) {
                     mEmail.setError(getString(R.string.email_is_empty));
@@ -134,8 +132,6 @@ public class ScreenSignUpFragment extends Fragment {
                         if (!task.isSuccessful()) {
                             Log.d(TAG, "onComplete: ");
                         }
-
-                        // ...
                     }
                 });
     }
