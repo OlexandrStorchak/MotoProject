@@ -108,9 +108,7 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 break;
             case TYPE_MAP:
                 ChatMapHolder mapHolder = (ChatMapHolder) holder;
-                mapHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location,
-                        mStaticMapWidth, mStaticMapHeight), mContext);
-                mapHolder.setStaticMapOnClickListener(location);
+                mapHolder.setStaticMap(mContext, location, mStaticMapWidth, mStaticMapHeight);
                 break;
         }
     }
@@ -132,9 +130,7 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 break;
             case TYPE_MAP_OWN:
                 ChatMapHolder mapHolder = (ChatMapHolder) holder;
-                mapHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location,
-                        mStaticMapWidth, mStaticMapHeight), mContext);
-                mapHolder.setStaticMapOnClickListener(location);
+                mapHolder.setStaticMap(mContext, location, mStaticMapWidth, mStaticMapHeight);
                 break;
         }
     }

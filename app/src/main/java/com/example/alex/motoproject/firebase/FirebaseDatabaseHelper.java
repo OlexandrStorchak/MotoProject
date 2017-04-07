@@ -678,7 +678,7 @@ public class FirebaseDatabaseHelper {
                                     uid, name, avatar, userStatus, Constants.RELATION_UNKNOWN);
                             onlineUsers.add(user);
                             mReceivedUsersCount++;
-                            //+1 is for not added to list current user
+                            //+1 is for not added to the list current user
                             if (mReceivedUsersCount + 1 == childrenCount) {
                                 receiver.onUsersAdded(onlineUsers);
                             }
@@ -777,7 +777,6 @@ public class FirebaseDatabaseHelper {
         if (mCloseDistance > 0 && mCurrentUserLocation == null) {
             mCloseDistance = 0;
             receiver.onNoCurrentUserLocation();
-            // TODO: 06.04.2017 if filtering is on, might be no messages shown, show empty view
         }
         mChatModel = receiver;
         mChatMessagesListener = new ChildEventListener() {
@@ -1125,7 +1124,6 @@ public class FirebaseDatabaseHelper {
         sosModel.setLat("24.3242");
         sosModel.setLng("43.234");
         ref.setValue(sosModel);
-
     }
 
     public interface AuthLoadingListener {

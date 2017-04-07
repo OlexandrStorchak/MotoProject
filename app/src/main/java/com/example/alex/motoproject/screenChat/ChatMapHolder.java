@@ -32,42 +32,62 @@ class ChatMapHolder extends BaseChatItemHolder {
 //        super.setSendTime(dateTime);
 //    }
 
-    void setStaticMap(String mapLink, Context ctx) {
-        Picasso.with(ctx).load(mapLink).into(mStaticMap, new Callback() {
-            @Override
-            public void onSuccess() {
-                mProgressBar.setVisibility(View.GONE);
-            }
+    void setStaticMap(Context context, final LatLng location, int width, int height) {
+        mProgressBar.getLayoutParams().width = width;
+        mProgressBar.getLayoutParams().height = height;
 
-            @Override
-            public void onError() {
-                mProgressBar.setVisibility(View.GONE);
-            }
-        });
-//        Glide.with(ctx)
-//                .load(mapLink)
-//                .listener(new RequestListener<String, GlideDrawable>() {
-//                    @Override
-//                    public boolean onException(Exception e, String model,
-//                                               Target<GlideDrawable> target,
-//                                               boolean isFirstResource) {
-//                        mProgressBar.setVisibility(View.GONE);
-//                        return false;
-//                    }
-//
-//                    @Override
-//                    public boolean onResourceReady(GlideDrawable resource, String model,
-//                                                   Target<GlideDrawable> target,
-//                                                   boolean isFromMemoryCache,
-//                                                   boolean isFirstResource) {
-//                        mProgressBar.setVisibility(View.GONE);
-//                        return false;
-//                    }
-//                })
-//                .into(mStaticMap);
+        Picasso.with(context)
+                .load(StaticMapHelper.createStaticMapLink(location, width, height))
+                .into(mStaticMap, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        mProgressBar.setVisibility(View.GONE);
+                        setStaticMapOnClickListener(location);
+                    }
+
+                    @Override
+                    public void onError() {
+                        mProgressBar.setVisibility(View.GONE);
+                    }
+                });
     }
 
-    void setStaticMapOnClickListener(final LatLng latLng) {
+//    void setStaticMap(String mapLink, Context ctx) {
+//        Picasso.with(ctx).load(mapLink).into(mStaticMap, new Callback() {
+//            @Override
+//            public void onSuccess() {
+//                mProgressBar.setVisibility(View.GONE);
+//            }
+//
+//            @Override
+//            public void onError() {
+//                mProgressBar.setVisibility(View.GONE);
+//            }
+//        });
+////        Glide.with(ctx)
+////                .load(mapLink)
+////                .listener(new RequestListener<String, GlideDrawable>() {
+////                    @Override
+////                    public boolean onException(Exception e, String model,
+////                                               Target<GlideDrawable> target,
+////                                               boolean isFirstResource) {
+////                        mProgressBar.setVisibility(View.GONE);
+////                        return false;
+////                    }
+////
+////                    @Override
+////                    public boolean onResourceReady(GlideDrawable resource, String model,
+////                                                   Target<GlideDrawable> target,
+////                                                   boolean isFromMemoryCache,
+////                                                   boolean isFirstResource) {
+////                        mProgressBar.setVisibility(View.GONE);
+////                        return false;
+////                    }
+////                })
+////                .into(mStaticMap);
+//    }
+
+    private void setStaticMapOnClickListener(final LatLng latLng) {
         mStaticMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

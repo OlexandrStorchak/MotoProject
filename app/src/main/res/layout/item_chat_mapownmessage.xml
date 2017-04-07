@@ -10,6 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
+        android:layout_marginLeft="45dp"
         android:background="@drawable/bubble_chat_own"
         android:orientation="vertical">
 
@@ -30,6 +31,7 @@
             android:id="@+id/chat_message_progressbar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:indeterminate="true" />
 
     </LinearLayout>

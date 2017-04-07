@@ -85,12 +85,19 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
     @Override
     public void onUserAdded(User user) {
+        if (!hasUserRequiredData(user)) return;
         getView().addUser(user);
         onUserListUpdate();
     }
 
+    private boolean hasUserRequiredData(User user) {
+        return user != null && user.getName() != null
+                && user.getUid() != null && user.getAvatar() != null;
+    }
+
     @Override
     public void onUserChanged(User user) {
+        if (!hasUserRequiredData(user)) return;
         getView().changeUser(user);
     }
 

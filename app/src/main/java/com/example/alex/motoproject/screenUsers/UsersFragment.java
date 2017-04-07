@@ -290,14 +290,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     @Override
     public void addUser(User user) {
         UsersSection section = (UsersSection) mAdapter.getSection(user.getRelation());
-        if (hasUserRequiredData(user)) {
-            section.addUser(user);
-        }
-    }
-
-    private boolean hasUserRequiredData(User user) {
-        return user != null && user.getName() != null
-                && user.getUid() != null && user.getAvatar() != null;
+        section.addUser(user);
     }
 
     @Override
