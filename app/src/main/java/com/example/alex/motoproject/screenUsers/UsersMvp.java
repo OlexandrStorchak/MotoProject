@@ -19,7 +19,7 @@ public interface UsersMvp {
 
         void onUserListUpdate();
 
-        void onViewAttached(UsersMvp.PresenterToView view);
+        void onViewAttached(UsersMvp.PresenterToView presenterToView);
     }
 
     interface PresenterToView {

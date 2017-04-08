@@ -9,7 +9,6 @@ import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
 import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.lang.ref.WeakReference;
 
@@ -102,6 +101,11 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
         unregisterChatMessagesListener();
     }
 
+    @Override
+    public void onViewAttached(ChatMvp.PresenterToView presenterToView) {
+        mView = new WeakReference<>(presenterToView);
+    }
+
     private void setChatFiltering(int limit) {
         mModel.filterChatToDistance(limit);
     }
@@ -149,7 +153,7 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
         getView().showToast(R.string.chat_location_no_current_user_location);
     }
 
-    @Subscribe(sticky = true)
+    @Override
     public void onGpsStateChanged(GpsStatusChangedEvent event) {
         if (event.isGpsOn()) {
             getView().showShareLocationButton();
@@ -158,13 +162,13 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
         }
     }
 
-    @Subscribe
+    @Override
     public void onShareLocationInChatAllowed(ShareLocationInChatAllowedEvent event) {
         mModel.fetchDataForLocationShare();
     }
 
-    @Subscribe
-    public void OnClickChatDialogFragment(OnClickChatDialogFragmentEvent event) {
+    @Override
+    public void onClickChatDialogFragment(OnClickChatDialogFragmentEvent event) {
         setChatFiltering(event.getDistanceLimit());
         resetChat();
     }

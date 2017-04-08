@@ -25,15 +25,7 @@ public class UsersModel implements UsersMvp.PresenterToModel,
 
     @Override
     public void registerUsersListener() {
-        if (!mUsers.isEmpty()) {
-            //There already exists data for the RecyclerView, that was saved on orientation change
-            //with Presenter and Model instances
-            for (List<User> users : mUsers.values()) {
-                mPresenter.onAddNewSection(users.get(0).getRelation());
-                for (User user : users) {
-                    mPresenter.onUserAdded(user);
-                }
-            }
+        if (checkDataExistence()) {
             //No need to fetch the data we have, only set the listener for new data
             mFirebaseDatabaseHelper.registerOnlineUsersListener(this);
         } else {
@@ -49,7 +41,11 @@ public class UsersModel implements UsersMvp.PresenterToModel,
 
     @Override
     public void registerFriendsListener() {
-        mFirebaseDatabaseHelper.getFriendsAndRegisterListener(this);
+        if (checkDataExistence()) {
+            mFirebaseDatabaseHelper.registerFriendsListener(this);
+        } else {
+            mFirebaseDatabaseHelper.getFriendsAndRegisterListener(this);
+        }
     }
 
     @Override
@@ -57,10 +53,20 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         mFirebaseDatabaseHelper.unregisterFriendsListener();
     }
 
-//    @Override
-//    public void clearUsers() {
-//        mUsers.clear();
-//    }
+    private boolean checkDataExistence() {
+        if (!mUsers.isEmpty()) {
+            //There already exists data for the RecyclerView, that was saved on orientation change
+            //with Presenter and Model instances
+            for (List<User> users : mUsers.values()) {
+                mPresenter.onAddNewSection(users.get(0).getRelation());
+                for (User user : users) {
+                    mPresenter.onUserAdded(user);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public void onUsersAdded(List<User> users) {

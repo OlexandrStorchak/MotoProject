@@ -758,7 +758,6 @@ public class MainActivity extends AppCompatActivity implements
         } else {
             visibility = View.GONE;
         }
-
-        mButtonStartRide.setVisibility(visibility);
+        if (mButtonStartRide != null) mButtonStartRide.setVisibility(visibility);
     }
 }

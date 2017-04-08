@@ -2,6 +2,10 @@ package com.example.alex.motoproject.screenChat;
 
 import android.view.View;
 
+import com.example.alex.motoproject.event.GpsStatusChangedEvent;
+import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
+import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
+
 import java.util.List;
 
 public interface ChatMvp {
@@ -22,6 +26,14 @@ public interface ChatMvp {
         void onViewCreated();
 
         void onDestroyView();
+
+        void onViewAttached(PresenterToView presenterToView);
+
+        void onGpsStateChanged(GpsStatusChangedEvent event);
+
+        void onShareLocationInChatAllowed(ShareLocationInChatAllowedEvent event);
+
+        void onClickChatDialogFragment(OnClickChatDialogFragmentEvent event);
     }
 
     interface PresenterToView {

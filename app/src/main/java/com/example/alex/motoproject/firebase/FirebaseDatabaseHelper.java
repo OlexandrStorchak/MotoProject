@@ -510,7 +510,7 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-    private void registerFriendsListener(final UsersUpdateReceiver receiver) {
+    public void registerFriendsListener(final UsersUpdateReceiver receiver) {
         DatabaseReference ref = mDbReference.child(PATH_USERS)
                 .child(getCurrentUser().getUid()).child(USER_PROFILE_FRIEND_LIST);
         mFriendsListener = new ChildEventListener() {
