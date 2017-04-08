@@ -9,6 +9,7 @@ import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -60,7 +61,7 @@ public class UsersFragment extends FragmentWithRetainInstance
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SearchView mSearchView;
 
-    private CharSequence mSearchViewQuery;
+    private String mSearchViewQuery;
 
     private View mEmptyView;
     private RecyclerView.AdapterDataObserver mDataObserver =
@@ -85,14 +86,14 @@ public class UsersFragment extends FragmentWithRetainInstance
         if (savedInstanceState == null) return;
         mPresenter = (UsersMvp.ViewToPresenter) getRetainData();
         mPresenter.onViewAttached(UsersFragment.this);
-        mSearchViewQuery = savedInstanceState.getCharSequence(SEARCH);
+        mSearchViewQuery = savedInstanceState.getString(SEARCH);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         super.setRetainData(mPresenter);
-        outState.putCharSequence(SEARCH, mSearchView.getQuery());
+        if (mSearchView != null) outState.putString(SEARCH, mSearchView.getQuery().toString());
 //        outState.putString(SEARCH, mSearchView.getQuery().toString());
     }
 
@@ -110,41 +111,6 @@ public class UsersFragment extends FragmentWithRetainInstance
         mRecyclerView.setVisibility(View.VISIBLE);
         mEmptyView.setVisibility(View.GONE);
     }
-
-    //    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        outState.putParcelable(RECYCLER_VIEW_SCROLL,
-//                layoutManager.onSaveInstanceState());
-//    }
-
-//    @Override
-//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-//        super.onViewStateRestored(savedInstanceState);
-//        if (savedInstanceState == null) {
-//            return;
-//        }
-//        layoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_VIEW_SCROLL));
-//    }
-
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
-//        outState.putInt(RECYCLER_VIEW_SCROLL, manager.findFirstVisibleItemPosition());
-//    }
-//
-//    @Override
-//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-//        super.onViewStateRestored(savedInstanceState);
-//        if (savedInstanceState == null) {
-//            return;
-//        }
-//        LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
-//        manager.scrollToPosition(savedInstanceState.getInt(RECYCLER_VIEW_SCROLL));
-//        // TODO: 27.03.2017 split methods for loading and setting the listener to users and do not
-//        // TODO: 27.03.2017 load users twice after onViewStateRestored so it was be possible to scroll
-//    }
 
     private void setupSwipeRefreshLayout() {
         mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
@@ -227,6 +193,7 @@ public class UsersFragment extends FragmentWithRetainInstance
 
         final MenuItem searchItem = menu.findItem(R.id.search_users);
         mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        mSearchView.setInputType(InputType.TYPE_CLASS_TEXT);
 
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -240,9 +207,11 @@ public class UsersFragment extends FragmentWithRetainInstance
                 return false;
             }
         });
-        if (mSearchViewQuery != null) {
+        if (mSearchViewQuery != null && !mSearchViewQuery.equals("")) {
             mSearchView.setQuery(mSearchViewQuery, true);
             mSearchView.setIconified(false);
+        } else {
+            MenuItemCompat.collapseActionView(searchItem);
         }
     }
 
@@ -334,7 +303,9 @@ public class UsersFragment extends FragmentWithRetainInstance
 
     @Override
     public void setSearchViewIconified(boolean iconified) {
+        mSearchView.setQuery("", false);
         mSearchView.setIconified(iconified);
+//        mSearchView.clearFocus();
     }
 
 

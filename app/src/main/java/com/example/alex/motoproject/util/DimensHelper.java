@@ -42,10 +42,11 @@ public class DimensHelper {
                             try {
                                 receiver.onRefReady((String) response
                                         .getJSONObject().getJSONObject("data").get("url"));
-                            } catch (JSONException | NullPointerException e) {
+                            } catch (JSONException e) {
                                 e.printStackTrace();
                                 receiver.onError();
-                            } catch (IllegalStateException e) {
+                            } catch (IllegalStateException |
+                                    IllegalArgumentException | NullPointerException e) {
                                 e.printStackTrace();
                             }
                         }

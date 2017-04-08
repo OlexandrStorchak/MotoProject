@@ -194,6 +194,9 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             mCameraUpdate = CameraUpdateFactory.newCameraPosition(position);
         }
 
+        if (mCameraUpdate == null)
+            return; //Might occur if orientation changes too many times in a while
+
         mMap.moveCamera(mCameraUpdate);
         mMap.setMapType(mMapType);
 

@@ -61,9 +61,9 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     @Override
     public void onRefreshSwipeLayout() {
         onStop();
+        getView().setSearchViewIconified(true);
         getView().clearUsers();
         getView().disableRefreshingSwipeLayout();
-        getView().setSearchViewIconified(true);
         onStart();
     }
 
