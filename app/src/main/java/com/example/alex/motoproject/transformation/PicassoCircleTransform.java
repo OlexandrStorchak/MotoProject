@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.util;
+package com.example.alex.motoproject.transformation;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
@@ -7,7 +7,7 @@ import android.graphics.Paint;
 
 import com.squareup.picasso.Transformation;
 
-public class CircleTransform implements Transformation {
+public class PicassoCircleTransform implements Transformation {
 
     @Override
     public Bitmap transform(Bitmap source) {
@@ -29,7 +29,7 @@ public class CircleTransform implements Transformation {
         paint.setShader(shader);
         paint.setAntiAlias(true);
 
-        float r = size/2f;
+        float r = size / 2f;
         canvas.drawCircle(r, r, r, paint);
 
         squaredBitmap.recycle();
@@ -38,6 +38,6 @@ public class CircleTransform implements Transformation {
 
     @Override
     public String key() {
-        return "circle";
+        return getClass().getName();
     }
 }

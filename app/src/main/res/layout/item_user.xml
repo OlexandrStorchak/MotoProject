@@ -8,7 +8,7 @@
     android:paddingRight="@dimen/activity_vertical_margin">
 
     <ImageView
-        android:id="@+id/friends_list_ava"
+        android:id="@+id/users_avatar"
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_gravity="center_vertical"
@@ -18,7 +18,7 @@
         android:src="@drawable/avatar_default" />
 
     <TextView
-        android:id="@+id/userName"
+        android:id="@+id/users_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
@@ -29,7 +29,7 @@
         tools:text="User name" />
 
     <ImageView
-        android:id="@+id/friends_list_map_icon"
+        android:id="@+id/users_map_button"
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_gravity="center_vertical"

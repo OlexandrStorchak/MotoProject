@@ -1,6 +1,6 @@
 package com.example.alex.motoproject.screenUsers;
 
-import com.example.alex.motoproject.App;
+import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 
 import java.util.ArrayList;

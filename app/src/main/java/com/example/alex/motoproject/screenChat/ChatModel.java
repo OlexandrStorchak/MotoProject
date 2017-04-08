@@ -1,6 +1,6 @@
 package com.example.alex.motoproject.screenChat;
 
-import com.example.alex.motoproject.App;
+import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.google.android.gms.maps.model.LatLng;
 

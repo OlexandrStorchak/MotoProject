@@ -1,10 +1,10 @@
-package com.example.alex.motoproject;
+package com.example.alex.motoproject.firebase;
 
-public class LocationModel {
+class LocationModel {
     private double lat;
     private double lng;
 
-    public LocationModel(double lat, double lng) {
+    LocationModel(double lat, double lng) {
         this.lat = lat;
         this.lng = lng;
     }

@@ -13,8 +13,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
+import com.example.alex.motoproject.transformation.GlideCircleTransform;
 import com.example.alex.motoproject.util.ArgKeys;
-import com.example.alex.motoproject.util.CropCircleTransformation;
 import com.example.alex.motoproject.util.DimensHelper;
 
 import org.greenrobot.eventbus.EventBus;
@@ -45,7 +45,7 @@ public class MapUserDetailsDialogFragment extends DialogFragment {
                         Glide.with(getContext()).load(ref)
                                 .override(mAvatarView.getMaxWidth(), mAvatarView.getMaxHeight())
                                 .centerCrop()
-                                .transform(new CropCircleTransformation(getContext()))
+                                .transform(new GlideCircleTransform(getContext()))
                                 .into(mAvatarView);
                     }
 

@@ -1,4 +1,4 @@
-package com.example.alex.motoproject;
+package com.example.alex.motoproject.app;
 
 import android.app.Activity;
 import android.app.Application;

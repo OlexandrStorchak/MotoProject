@@ -1,4 +1,4 @@
-package com.example.alex.motoproject;
+package com.example.alex.motoproject.dagger;
 
 import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenUsers.UsersFragment;

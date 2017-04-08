@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.util;
+package com.example.alex.motoproject.retainFragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

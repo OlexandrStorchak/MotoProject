@@ -16,8 +16,8 @@ import android.widget.Space;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.Constants;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;

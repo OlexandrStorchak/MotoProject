@@ -21,15 +21,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.alex.motoproject.DaggerPresenterComponent;
-import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.dagger.DaggerPresenterComponent;
+import com.example.alex.motoproject.dagger.PresenterModule;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.Constants;
-import com.example.alex.motoproject.util.CropCircleTransformation;
+import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
+import com.example.alex.motoproject.transformation.GlideCircleTransform;
 import com.example.alex.motoproject.util.DimensHelper;
-import com.example.alex.motoproject.util.FragmentWithRetainInstance;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -494,7 +494,7 @@ public class UsersFragment extends FragmentWithRetainInstance
 //                    .dontAnimate()
                                     .override(userViewHolder.avatar.getMaxWidth(),
                                             userViewHolder.avatar.getMaxHeight())
-                                    .transform(new CropCircleTransformation(getContext()))
+                                    .transform(new GlideCircleTransform(getContext()))
                                     .into(userViewHolder.avatar);
 
 //            Picasso.with(userViewHolder.avatar.getContext())
@@ -529,9 +529,9 @@ public class UsersFragment extends FragmentWithRetainInstance
                 super(view);
                 rootView = view;
 
-                avatar = (ImageView) view.findViewById(R.id.friends_list_ava);
-                name = (TextView) view.findViewById(R.id.userName);
-                mapCur = (ImageView) view.findViewById(R.id.friends_list_map_icon);
+                avatar = (ImageView) view.findViewById(R.id.users_avatar);
+                name = (TextView) view.findViewById(R.id.users_name);
+                mapCur = (ImageView) view.findViewById(R.id.users_map_button);
 
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override

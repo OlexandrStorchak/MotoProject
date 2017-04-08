@@ -9,7 +9,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
-import com.example.alex.motoproject.util.CropCircleTransformation;
+import com.example.alex.motoproject.transformation.GlideCircleTransform;
 import com.example.alex.motoproject.util.DimensHelper;
 
 import org.greenrobot.eventbus.EventBus;
@@ -39,13 +39,13 @@ class BaseChatItemHolder extends RecyclerView.ViewHolder {
         if (avatarRef == null) return;
 
         Glide.with(ctx).load(avatarRef)
-                .transform(new CropCircleTransformation(ctx)).into(mUserAvatarView);
+                .transform(new GlideCircleTransform(ctx)).into(mUserAvatarView);
         DimensHelper.getScaledAvatar(avatarRef,
                 mUserAvatarView.getWidth(), new DimensHelper.AvatarRefReceiver() {
                     @Override
                     public void onRefReady(String ref) {
                         Glide.with(ctx).load(ref)
-                                .transform(new CropCircleTransformation(ctx)).into(mUserAvatarView);
+                                .transform(new GlideCircleTransform(ctx)).into(mUserAvatarView);
                     }
 
                     @Override

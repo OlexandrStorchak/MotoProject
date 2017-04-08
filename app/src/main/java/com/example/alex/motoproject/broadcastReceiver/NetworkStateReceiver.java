@@ -9,7 +9,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import com.example.alex.motoproject.App;
+import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.event.CancelAlertEvent;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.InternetStatusChangedEvent;

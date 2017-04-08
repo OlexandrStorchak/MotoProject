@@ -23,16 +23,16 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.alex.motoproject.DaggerPresenterComponent;
-import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.dagger.DaggerPresenterComponent;
+import com.example.alex.motoproject.dagger.PresenterModule;
 import com.example.alex.motoproject.dialog.ChatLocLimitDialogFragment;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
 import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
 import com.example.alex.motoproject.mainActivity.MainActivity;
+import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
 import com.example.alex.motoproject.util.DimensHelper;
-import com.example.alex.motoproject.util.FragmentWithRetainInstance;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

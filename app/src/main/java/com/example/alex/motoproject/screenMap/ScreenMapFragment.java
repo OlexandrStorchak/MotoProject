@@ -14,14 +14,13 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.dialog.MapUserDetailsDialogFragment;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
@@ -29,8 +28,8 @@ import com.example.alex.motoproject.event.MapMarkerEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.service.LocationListenerService;
+import com.example.alex.motoproject.transformation.PicassoCircleTransform;
 import com.example.alex.motoproject.util.ArgKeys;
-import com.example.alex.motoproject.util.CircleTransform;
 import com.example.alex.motoproject.util.DimensHelper;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -58,11 +57,11 @@ import static com.example.alex.motoproject.R.id.map;
 import static com.example.alex.motoproject.util.ArgKeys.BEARING;
 import static com.example.alex.motoproject.util.ArgKeys.CAMERA_POSITION;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_UID;
+import static com.example.alex.motoproject.util.ArgKeys.KEY_USER_COORDS;
 import static com.example.alex.motoproject.util.ArgKeys.LATITUDE;
 import static com.example.alex.motoproject.util.ArgKeys.LONGITUDE;
 import static com.example.alex.motoproject.util.ArgKeys.MAP_TYPE;
 import static com.example.alex.motoproject.util.ArgKeys.TILT;
-import static com.example.alex.motoproject.util.ArgKeys.USER_COORDS;
 import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
 
 
@@ -79,8 +78,8 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     NetworkStateReceiver mNetworkStateReceiver;
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-    private App mApp;
-    private FloatingActionButton sosToggleButton;
+
+    //Picasso has no strong references to its targets, create a custom strong reference
     private List<Target> mTargetStrongRef = new ArrayList<>();
     //for methods calling, like creating pins
     private GoogleMap mMap;
@@ -88,6 +87,9 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     private MapView mMapView;
     //stores created markers
     private HashMap<String, Marker> mMarkerHashMap;
+
+    private App mApp;
+    private FloatingActionButton sosToggleButton;
     private CameraUpdate mCameraUpdate;
     private int mMapType;
 
@@ -138,15 +140,16 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         mApp = (App) getContext().getApplicationContext();
-        //add Google map
+        //Init Google map
         mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
 
+        //Get given coordinates to go to if they exist
         Bundle arguments = getArguments();
         if (arguments != null) {
             String uid = arguments.getString(KEY_UID);
-            LatLng userCoords = arguments.getParcelable(USER_COORDS);
+            LatLng userCoords = arguments.getParcelable(KEY_USER_COORDS);
             if (uid != null) {
                 setPosition(uid);
             } else if (userCoords != null) {
@@ -154,7 +157,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             }
         }
 
-        //setup fab that starts or stops LocationListenerService
+        //Init fab that sends sos
         sosToggleButton = (FloatingActionButton) view.findViewById(R.id.button_drive_sos);
         sosToggleButton.setImageResource(R.mipmap.ic_sos);
         sosToggleButton.setOnClickListener(new View.OnClickListener() {
@@ -172,7 +175,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap map) {
-        //make map accessible from other methods
         mMap = map;
         mMap.getUiSettings().setMapToolbarEnabled(false);
 
@@ -194,8 +196,8 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             mCameraUpdate = CameraUpdateFactory.newCameraPosition(position);
         }
 
-        if (mCameraUpdate == null)
-            return; //Might occur if orientation changes too many times in a while
+        //Might occur if orientation changes too many times in a while
+        if (mCameraUpdate == null) return;
 
         mMap.moveCamera(mCameraUpdate);
         mMap.setMapType(mMapType);
@@ -211,12 +213,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
                 return true;
             }
         });
-    }
-
-    public void onMapCk() {
-//        int zoom = 11;
-//        mCameraUpdate = CameraUpdateFactory.newLatLngZoom(CHERKASY, zoom);
-//        mMap.moveCamera(mCameraUpdate);
     }
 
     @Override
@@ -255,11 +251,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         editor.putInt(MAP_TYPE, mMap.getMapType());
 
         editor.apply();
-
-//        if (getArguments() != null) {
-//            getArguments().clear();
-//        }
-
     }
 
     @Override
@@ -345,18 +336,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         };
         mTargetStrongRef.add(iconTarget);
         Picasso.with(getContext()).load(avatarRef).resize(MARKER_DIMENS_PX, MARKER_DIMENS_PX)
-                .centerCrop().transform(new CircleTransform()).into(iconTarget);
-//              Glide.with(getContext()).load(avatarRef)
-//                .asBitmap()
-//                .override(MARKER_DIMENS_DP, MARKER_DIMENS_DP)
-//                .transform(new CropCircleTransformation(getContext()))
-//                .into(new SimpleTarget<Bitmap>() {
-//                    @Override
-//                    public void onResourceReady(Bitmap bitmap, GlideAnimation anim) {
-//                        mMarkerHashMap.get(uid).setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
-//                        marker.setVisible(true);
-//                    }
-//                });
+                .centerCrop().transform(new PicassoCircleTransform()).into(iconTarget);
     }
 
     private boolean checkLocationPermission() {
@@ -371,13 +351,9 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             try {
                 mApp.unregisterReceiver(mNetworkStateReceiver);
             } catch (IllegalArgumentException e) {
-                Log.d("log", "onLocationAllowed: ");
+                e.printStackTrace();
             }
         }
-
-//        if (checkLocationPermission()) {
-//            mMap.setMyLocationEnabled(true);
-//        }
     }
 
     //changes CameraUpdate so the map will be showing a chosen user location after gets ready
@@ -395,38 +371,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     public void setSosVisibility(int visibility) {
         sosToggleButton.setVisibility(visibility);
     }
-
-//    @Override
-//    public void onCameraMove() {
-//        int iconZoom = (int) mMap.getCameraPosition().zoom * 10;
-//        for (String avatarRef : mTargetStrongRef.keySet()) {
-//            Picasso.with(getContext()).load(avatarRef).resize(iconZoom, iconZoom)
-//                    .centerCrop().transform(new CircleTransform()).into(mTargetStrongRef.get(avatarRef));
-//        }
-//        if (mMap.getCameraPosition().zoom > 14) {
-//            for (String avatarRef : mTargetStrongRef.keySet()) {
-//                Picasso.with(getContext()).load(avatarRef).resize(140, 140)
-//                        .centerCrop().transform(new CircleTransform()).into(mTargetStrongRef.get(avatarRef));
-//            }
-//        }
-//        if (mMap.getCameraPosition().zoom > 18) {
-//            for (String avatarRef : mTargetStrongRef.keySet()) {
-//                Picasso.with(getContext()).load(avatarRef).resize(180, 180)
-//                        .centerCrop().transform(new CircleTransform()).into(mTargetStrongRef.get(avatarRef));
-//            }
-//            Toast.makeText(mApp, "Camera update zoom > 18", Toast.LENGTH_SHORT).show();
-//            mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-//                @Override
-//                public void onCameraMove() {
-//                    if (mMap.getCameraPosition().zoom < 18){
-//                        mMap.setOnCameraMoveListener(ScreenMapFragment.this);
-//                    }
-//                }
-//            });
-//        } else {
-//            mMap.setOnCameraMoveListener(this);
-//        }
-//    }
 
     @Subscribe(sticky = true)
     public void onGpsStatusChanged(GpsStatusChangedEvent event) {

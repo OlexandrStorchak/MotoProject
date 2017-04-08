@@ -15,8 +15,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
-import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.event.CancelAlertEvent;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
@@ -282,7 +282,7 @@ public class AlertControl implements ScreenMapFragment.MapFragmentHolder {
         }
     }
 
-    boolean isServiceOn() {
+    private boolean isServiceOn() {
         return ((App) mainActivity.getApplication()).isLocationListenerServiceOn();
     }
 

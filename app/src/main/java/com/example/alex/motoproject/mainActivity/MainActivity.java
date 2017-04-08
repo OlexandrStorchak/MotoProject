@@ -30,8 +30,8 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.example.alex.motoproject.App;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.event.InternetStatusChangedEvent;
@@ -46,7 +46,7 @@ import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
 import com.example.alex.motoproject.screenUsers.UsersFragment;
 import com.example.alex.motoproject.service.LocationListenerService;
 import com.example.alex.motoproject.service.MainService;
-import com.example.alex.motoproject.util.CircleTransform;
+import com.example.alex.motoproject.transformation.PicassoCircleTransform;
 import com.example.alex.motoproject.util.DimensHelper;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseUser;
@@ -273,7 +273,6 @@ public class MainActivity extends AppCompatActivity implements
                         .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
                         .commit();
 
-                screenMapFragment.onMapCk();
                 mDrawerLayout.closeDrawers();
             }
         });
@@ -588,7 +587,7 @@ public class MainActivity extends AppCompatActivity implements
                                 .load(ref)
                                 .resize(mAvatarHeader.getMaxWidth(), mAvatarHeader.getMaxHeight())
                                 .centerCrop()
-                                .transform(new CircleTransform())
+                                .transform(new PicassoCircleTransform())
                                 .into(mAvatarHeader);
 //        Glide.with(this)
 //                .load(user.getMyProfileFirebase().getAvatar())

@@ -1,7 +1,10 @@
 package com.example.alex.motoproject.firebase;
 
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.view.View;
 
+import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.screenLogin.LoginActivity;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,12 +21,20 @@ public class FirebaseLoginController implements FirebaseAuth.AuthStateListener {
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
 
-    private WeakReference<LoginActivity> mLoginActivity;
+    private WeakReference<LoginActivity> mActivityWeakRef;
     private FirebaseAuth mFirebaseAuth;
 
     public FirebaseLoginController(LoginActivity loginActivity) {
-        mLoginActivity = new WeakReference<>(loginActivity);
+        mActivityWeakRef = new WeakReference<>(loginActivity);
         mFirebaseAuth = FirebaseAuth.getInstance();
+    }
+
+    private LoginActivity getLoginActivity() throws NullPointerException {
+        if (mActivityWeakRef != null) {
+            return mActivityWeakRef.get();
+        } else {
+            throw new NullPointerException("View is unavailable");
+        }
     }
 
     public void start() {
@@ -49,21 +60,26 @@ public class FirebaseLoginController implements FirebaseAuth.AuthStateListener {
             if (currentUser != null) {
                 if (currentUser.isEmailVerified()) {
                     // User is signed in with email
-                    LoginActivity loginActivity = mLoginActivity.get();
+                    LoginActivity loginActivity = mActivityWeakRef.get();
                     if (loginActivity != null) {
                         loginActivity.login();
                     }
                 } else {
-                    //User is handleUser with email. Must confirm by email
+                    //User logs in with email. Must confirm by email
                     currentUser.sendEmailVerification();
-                    //TODO: alert to check email
+                    View currentFocus = getLoginActivity().getCurrentFocus();
+                    if (currentFocus != null) {
+                        Snackbar.make(currentFocus,
+                                R.string.confirm_by_email,
+                                Snackbar.LENGTH_LONG).show();
+                    }
                 }
             }
         } else {
             //Sign in method by Google account
             if (currentUser != null) {
                 //Sign in with Google account
-                LoginActivity loginActivity = mLoginActivity.get();
+                LoginActivity loginActivity = mActivityWeakRef.get();
                 if (loginActivity != null) {
                     loginActivity.login();
                 }

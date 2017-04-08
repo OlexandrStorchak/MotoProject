@@ -104,6 +104,8 @@
     <string name="about">Про себе</string>
 
     <string name="title_activity_login">Логін</string>
+
+    <string name="confirm_by_email">Підтвердте реєстрацію по імейлу</string>
     <!--<string name="dummy_button">Dummy Button</string>-->
     <!--<string name="dummy_content">DUMMY\nCONTENT</string>-->
 

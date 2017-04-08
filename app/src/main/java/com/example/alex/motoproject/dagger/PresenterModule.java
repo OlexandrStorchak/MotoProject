@@ -1,4 +1,4 @@
-package com.example.alex.motoproject;
+package com.example.alex.motoproject.dagger;
 
 import android.support.annotation.NonNull;
 

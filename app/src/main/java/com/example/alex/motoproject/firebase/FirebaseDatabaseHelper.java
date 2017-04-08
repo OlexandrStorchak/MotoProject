@@ -3,7 +3,6 @@ package com.example.alex.motoproject.firebase;
 import android.location.Location;
 import android.support.annotation.NonNull;
 
-import com.example.alex.motoproject.LocationModel;
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.event.MapMarkerEvent;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
