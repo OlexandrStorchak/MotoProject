@@ -3,7 +3,7 @@ package com.example.alex.motoproject.screenChat;
 import com.google.android.gms.maps.model.LatLng;
 
 public class ChatMessage {
-    private String uid, text, name, avatarRef, sendTime;
+    private String uid, messageId, text, name, avatarRef, sendTime;
     private boolean currentUserMsg;
     private LatLng location;
 
@@ -43,6 +43,14 @@ public class ChatMessage {
 
     String getSendTime() {
         return sendTime;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     String getAvatarRef() {

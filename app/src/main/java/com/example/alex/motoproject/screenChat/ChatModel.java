@@ -91,6 +91,16 @@ public class ChatModel implements ChatMvp.PresenterToModel,
     }
 
     @Override
+    public boolean hasThisMessage(String messageId) {
+        for (ChatMessage message : mMessages) {
+            if (message.getMessageId().equals(messageId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public void fetchDataForLocationShare() {
         mFirebaseHelper.getCurrentUserLocation(this);
     }

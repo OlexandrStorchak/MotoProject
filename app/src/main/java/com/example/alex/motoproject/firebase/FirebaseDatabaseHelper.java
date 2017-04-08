@@ -782,11 +782,14 @@ public class FirebaseDatabaseHelper {
         mChatMessagesListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String messageId = dataSnapshot.getKey();
                 String uid = (String) dataSnapshot.child(CHAT_ID).getValue();
                 String text = (String) dataSnapshot.child(CHAT_TEXT).getValue();
                 Long sendTime = (Long) dataSnapshot.child(CHAT_SEND_TIME).getValue();
                 Number lat = (Number) dataSnapshot.child(PATH_LOCATION).child(CHAT_LATITUDE).getValue();
                 Number lng = (Number) dataSnapshot.child(PATH_LOCATION).child(CHAT_LONGITUDE).getValue();
+
+                if (receiver.hasThisMessage(messageId)) return;
 
                 mMessagesCountLimit++;
 
@@ -811,6 +814,8 @@ public class FirebaseDatabaseHelper {
                 } else {
                     return;
                 }
+
+                message.setMessageId(messageId);
 
                 if (message.getUid().equals(getCurrentUser().getUid())) {
                     message.setCurrentUserMsg(true);
@@ -914,6 +919,8 @@ public class FirebaseDatabaseHelper {
                             } else {
                                 continue;
                             }
+
+                            message.setMessageId(messageId);
 
                             if (message.getUid().equals(getCurrentUser().getUid())) {
                                 message.setCurrentUserMsg(true);
@@ -1154,6 +1161,8 @@ public class FirebaseDatabaseHelper {
         void onLastMessage();
 
         void onNoCurrentUserLocation();
+
+        boolean hasThisMessage(String messageId);
     }
 
     public interface UsersLocationReceiver {
