@@ -57,10 +57,10 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         mFirebaseDatabaseHelper.unregisterFriendsListener();
     }
 
-    @Override
-    public void clearUsers() {
-        mUsers.clear();
-    }
+//    @Override
+//    public void clearUsers() {
+//        mUsers.clear();
+//    }
 
     @Override
     public void onUsersAdded(List<User> users) {

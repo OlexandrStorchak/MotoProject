@@ -18,7 +18,6 @@ public class ArgKeys {
     public static final String USER_COORDS = "userCoords";
 
     public static final String MESSAGE_TEXT = "messageText";
-    public static final String RECYCLER_VIEW_SCROLL = "recyclerViewState";
 
     public static final String USER_DATA = "userData";
 
@@ -41,6 +40,8 @@ public class ArgKeys {
     public static final String BUTTONS_TRANSLATION_Y = "viewTranslationY";
 
     public static final String SIGN_OUT = "signOut";
+
+    public static final String SEARCH = "search";
 }
 
 

@@ -42,6 +42,8 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.Section;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
+import static com.example.alex.motoproject.util.ArgKeys.SEARCH;
+
 public class UsersFragment extends FragmentWithRetainInstance
         implements UsersMvp.PresenterToView {
     private static final String LIST_TYPE_KEY = "listType";
@@ -57,6 +59,8 @@ public class UsersFragment extends FragmentWithRetainInstance
     private RecyclerView mRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SearchView mSearchView;
+
+    private CharSequence mSearchViewQuery;
 
     private View mEmptyView;
     private RecyclerView.AdapterDataObserver mDataObserver =
@@ -81,12 +85,15 @@ public class UsersFragment extends FragmentWithRetainInstance
         if (savedInstanceState == null) return;
         mPresenter = (UsersMvp.ViewToPresenter) getRetainData();
         mPresenter.onViewAttached(UsersFragment.this);
+        mSearchViewQuery = savedInstanceState.getCharSequence(SEARCH);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         super.setRetainData(mPresenter);
+        outState.putCharSequence(SEARCH, mSearchView.getQuery());
+//        outState.putString(SEARCH, mSearchView.getQuery().toString());
     }
 
     @Override
@@ -233,6 +240,10 @@ public class UsersFragment extends FragmentWithRetainInstance
                 return false;
             }
         });
+        if (mSearchViewQuery != null) {
+            mSearchView.setQuery(mSearchViewQuery, true);
+            mSearchView.setIconified(false);
+        }
     }
 
     @Override

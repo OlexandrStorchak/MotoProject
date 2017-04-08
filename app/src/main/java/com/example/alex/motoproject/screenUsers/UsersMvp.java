@@ -59,8 +59,6 @@ public interface UsersMvp {
 
         void unregisterFriendsListener();
 
-        void clearUsers();
-
         void setRelationToUser(String uid, String relation);
 
         void setUserRelation(String uid, String relation);
