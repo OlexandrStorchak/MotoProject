@@ -18,6 +18,8 @@ public interface UsersMvp {
         void onUserFriendshipDeclined(String uid);
 
         void onUserListUpdate();
+
+        void onViewAttached(UsersMvp.PresenterToView view);
     }
 
     interface PresenterToView {

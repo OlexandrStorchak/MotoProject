@@ -25,6 +25,7 @@
             android:id="@+id/chat_message_map"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
             android:contentDescription="@string/chat_message_map" />
 
         <ProgressBar

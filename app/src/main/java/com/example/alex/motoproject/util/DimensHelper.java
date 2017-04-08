@@ -45,6 +45,8 @@ public class DimensHelper {
                             } catch (JSONException | NullPointerException e) {
                                 e.printStackTrace();
                                 receiver.onError();
+                            } catch (IllegalStateException e) {
+                                e.printStackTrace();
                             }
                         }
                     }

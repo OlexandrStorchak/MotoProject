@@ -26,11 +26,20 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     @Override
     public void registerUsersListener() {
         if (!mUsers.isEmpty()) {
-            for (List<User> list : mUsers.values()) {
-                onUsersAdded(list);
+            //There already exists data for the RecyclerView, that was saved on orientation change
+            //with Presenter and Model instances
+            for (List<User> users : mUsers.values()) {
+                mPresenter.onAddNewSection(users.get(0).getRelation());
+                for (User user : users) {
+                    mPresenter.onUserAdded(user);
+                }
             }
+            //No need to fetch the data we have, only set the listener for new data
+            mFirebaseDatabaseHelper.registerOnlineUsersListener(this);
+        } else {
+            //No data, need to fetch it and then set the listener for new data
+            mFirebaseDatabaseHelper.getOnlineUsersAndRegisterListener(this);
         }
-        mFirebaseDatabaseHelper.getOnlineUsersAndRegisterListener(this);
     }
 
     @Override
@@ -56,7 +65,7 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     @Override
     public void onUsersAdded(List<User> users) {
         for (User user : users) {
-            if (!checkUserValid(user)) {
+            if (!isUserValid(user)) {
                 continue;
             }
             List<User> list = mUsers.get(user.getRelation());
@@ -96,7 +105,7 @@ public class UsersModel implements UsersMvp.PresenterToModel,
 
     @Override
     public void onUserAdded(User user) {
-        if (!checkUserValid(user)) {
+        if (!isUserValid(user)) {
             return;
         }
         List<User> list = mUsers.get(user.getRelation());
@@ -111,7 +120,7 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         mPresenter.onUserAdded(user);
     }
 
-    private boolean checkUserValid(User user) {
+    private boolean isUserValid(User user) {
         return user.getUid() != null && user.getName() != null && user.getAvatar() != null;
     }
 

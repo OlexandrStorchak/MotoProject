@@ -50,7 +50,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
                 break;
         }
         getView().notifyDataSetChanged();
-        mModel.clearUsers();
+//        mModel.clearUsers();
     }
 
     @Override
@@ -84,20 +84,25 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     }
 
     @Override
+    public void onViewAttached(UsersMvp.PresenterToView view) {
+        mView = new WeakReference<>(view);
+    }
+
+    @Override
     public void onUserAdded(User user) {
-        if (!hasUserRequiredData(user)) return;
+//        if (!hasUserRequiredData(user)) return;
         getView().addUser(user);
         onUserListUpdate();
     }
 
-    private boolean hasUserRequiredData(User user) {
-        return user != null && user.getName() != null
-                && user.getUid() != null && user.getAvatar() != null;
-    }
+//    private boolean hasUserRequiredData(User user) {
+//        return user != null && user.getName() != null
+//                && user.getUid() != null && user.getAvatar() != null;
+//    }
 
     @Override
     public void onUserChanged(User user) {
-        if (!hasUserRequiredData(user)) return;
+//        if (!hasUserRequiredData(user)) return;
         getView().changeUser(user);
     }
 

@@ -3,7 +3,6 @@ package com.example.alex.motoproject.screenUsers;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.util.SortedList;
@@ -29,6 +28,7 @@ import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.Constants;
 import com.example.alex.motoproject.util.CropCircleTransformation;
 import com.example.alex.motoproject.util.DimensHelper;
+import com.example.alex.motoproject.util.FragmentWithRetainInstance;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -42,7 +42,8 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.Section;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
-public class UsersFragment extends Fragment implements UsersMvp.PresenterToView {
+public class UsersFragment extends FragmentWithRetainInstance
+        implements UsersMvp.PresenterToView {
     private static final String LIST_TYPE_KEY = "listType";
     public SectionedRecyclerViewAdapter mAdapter = new SectionedRecyclerViewAdapter() {
         @Override
@@ -72,6 +73,25 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     public UsersFragment() {
 
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState == null) return;
+        mPresenter = (UsersMvp.ViewToPresenter) getRetainData();
+        mPresenter.onViewAttached(UsersFragment.this);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        super.setRetainData(mPresenter);
+    }
+
+    @Override
+    public String getDataTag() {
+        return String.valueOf(getListType());
     }
 
     public void showEmptyView() {
@@ -144,6 +164,31 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
         mAdapter.notifyDataSetChanged();
     }
 
+//        Preserver.init(
+//                getActivity(), // activity instance
+//                23, // id of loader used
+//                new PreservedInstanceFactory<UsersMvp.ViewToPresenter>() { // factory for the instance that should be preserved
+//                    @Override
+//                    public UsersMvp.ViewToPresenter create() {
+//                        return mPresenter;
+//                    }
+//                },
+//                new Preserver.OnInstanceReloadedAction<UsersMvp.ViewToPresenter>() {
+//                    @Override
+//                    public void performAction(UsersMvp.ViewToPresenter viewToPresenter) {
+//                        mPresenter = viewToPresenter;
+//                        mPresenter.onViewAttached(UsersFragment.this);
+//                        mPresenter.onStart();
+//                    }
+//                },
+//                new Preserver.OnInstanceDestroyedAction() {
+//                    @Override
+//                    public void performAction() {
+//                        // do sth when instance is destroyed
+//                    }
+//                }
+//        );
+
     public void updateHeaders() {
         //Add or remove header
         for (Section section : mAdapter.getSectionsMap().values()) {
@@ -194,10 +239,13 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        DaggerPresenterComponent.builder()
-                .presenterModule(new PresenterModule(this))
-                .build()
-                .inject(this);
+
+        if (savedInstanceState == null) {
+            DaggerPresenterComponent.builder()
+                    .presenterModule(new PresenterModule(this))
+                    .build()
+                    .inject(this);
+        }
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_users_online, container, false);

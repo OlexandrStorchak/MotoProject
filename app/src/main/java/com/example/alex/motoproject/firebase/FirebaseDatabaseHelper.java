@@ -607,7 +607,7 @@ public class FirebaseDatabaseHelper {
         mFriends.remove(uid);
     }
 
-    private void registerOnlineUsersListener(final UsersUpdateReceiver receiver) {
+    public void registerOnlineUsersListener(final UsersUpdateReceiver receiver) {
         // Read from the mDatabase
         DatabaseReference myRef = mDbReference.child(USER_PROFILE_FRIEND_LIST);
         mOnlineUsersDataListener = new ChildEventListener() {
