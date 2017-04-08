@@ -101,6 +101,7 @@ public class FirebaseDatabaseHelper {
     private LatLng mCurrentUserLocation;
 
     private boolean isOlderMessagesFirstIteration = true;
+    private LatLng myLastKnownLocation;
 
     private String mCurrentUserId;
 
@@ -113,10 +114,8 @@ public class FirebaseDatabaseHelper {
         FirebaseAuth.getInstance().addAuthStateListener(new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (getCurrentUser() != null) {
+                if (firebaseAuth.getCurrentUser() != null) {
                     firebaseAuth.removeAuthStateListener(this);
-                    mCurrentUserId = getCurrentUser().getUid();
-
                     listener.onLoadFinished();
                 }
             }
@@ -544,7 +543,7 @@ public class FirebaseDatabaseHelper {
     public void unregisterFriendsListener() {
         if (mFriendsListener == null) return;
         DatabaseReference ref = mDbReference.child(PATH_USERS)
-                .child(mCurrentUserId).child(USER_PROFILE_FRIEND_LIST);
+                .child(getCurrentUser().getUid()).child(USER_PROFILE_FRIEND_LIST);
         ref.removeEventListener(mFriendsListener);
     }
 
@@ -1121,15 +1120,48 @@ public class FirebaseDatabaseHelper {
 
     // TODO: 28.03.2017 must do before release
     public void sendSosMessage() {
-        DatabaseReference ref = mDbReference.child(PATH_SOS).child(getCurrentUser().getUid());
+
+
+
+
+        long time = System.currentTimeMillis();
+
+
+        DatabaseReference ref = mDbReference.child(PATH_SOS)
+                .child(getCurrentUser().getUid());
+
         MainServiceSosModel sosModel = new MainServiceSosModel();
         sosModel.setUserId(getCurrentUser().getUid());
         sosModel.setUserName(getCurrentUser().getDisplayName());
-        sosModel.setDescription("Test description");
-        sosModel.setTime(String.valueOf(ServerValue.TIMESTAMP));
-        sosModel.setLat("24.3242");
-        sosModel.setLng("43.234");
+        sosModel.setDescription("Need help!");
+        sosModel.setTime(String.valueOf(time));
+        sosModel.setLat(String.valueOf(getMyLastKnownLocation().latitude));
+        sosModel.setLng(String.valueOf(getMyLastKnownLocation().longitude));
         ref.setValue(sosModel);
+
+    }
+
+    public LatLng getMyLastKnownLocation() {
+
+        DatabaseReference ref = mDbReference.child(PATH_LOCATION).child(getCurrentUser().getUid());
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                LocationModel locationModel = dataSnapshot.getValue(LocationModel.class);
+
+                setMyLastKnownLocation(new LatLng(locationModel.getLat(), locationModel.getLng()));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        return myLastKnownLocation;
+    }
+
+     private void setMyLastKnownLocation(LatLng myLastKnownLocation) {
+        this.myLastKnownLocation = myLastKnownLocation;
     }
 
     public interface AuthLoadingListener {

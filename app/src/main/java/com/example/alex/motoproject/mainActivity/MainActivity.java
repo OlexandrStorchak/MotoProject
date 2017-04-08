@@ -14,6 +14,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -63,6 +64,7 @@ import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_SOS;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
+import static com.example.alex.motoproject.service.MainService.CHAT_INTENT_KEY;
 import static com.example.alex.motoproject.util.ArgKeys.ACTIONBAR_STATUS;
 import static com.example.alex.motoproject.util.ArgKeys.EMAIL;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_AVATAR_REF;
@@ -107,8 +109,6 @@ public class MainActivity extends AppCompatActivity implements
 
     private App mApp;
 
-    private Intent mainServiceIntent;
-
     private FragmentManager mFragmentManager = getSupportFragmentManager();
 
     private LinearLayout mGpsStatus;
@@ -152,8 +152,6 @@ public class MainActivity extends AppCompatActivity implements
         App.getCoreComponent().inject(this);
         App.getCoreComponent().inject(alertControl);
 
-        mainServiceIntent = new Intent(this, MainService.class);
-
         if (mFirebaseDatabaseHelper.getCurrentUser() == null) {
             startActivity(new Intent(MainActivity.this, LoginActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -161,6 +159,8 @@ public class MainActivity extends AppCompatActivity implements
                     .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
             finish();
             return;
+        } else {
+            startService(new Intent(this, MainService.class));
         }
 
         mApp = (App) getApplicationContext();
@@ -290,6 +290,7 @@ public class MainActivity extends AppCompatActivity implements
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
+                stopService(new Intent(MainActivity.this,MainService.class));
             }
         });
 
@@ -406,15 +407,33 @@ public class MainActivity extends AppCompatActivity implements
             mButtonStartRide.setText(R.string.start_location_service_button_title);
         }
 
-        if (getIntent().getBooleanExtra(SHOW_MAP_FRAGMENT, false) || savedInstanceState == null) {
-            getIntent().removeExtra(SHOW_MAP_FRAGMENT);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.main_activity_frame, screenMapFragment)
-                    .commit();
+//        if (getIntent().getBooleanExtra(SHOW_MAP_FRAGMENT, false) || savedInstanceState == null) {
+//            getIntent().removeExtra(SHOW_MAP_FRAGMENT);
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.main_activity_frame, screenMapFragment)
+//                    .commit();
+//        }
+        //Show chat fragment on Sos notification clicked
+        if (getIntent() != null) {
+            if (getIntent().hasExtra(CHAT_INTENT_KEY) &&
+                    !getIntent().getStringExtra(CHAT_INTENT_KEY).isEmpty()) {
+
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.main_activity_frame, chatFragment)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        .commit();
+
+
+            } else if (getIntent().getBooleanExtra(SHOW_MAP_FRAGMENT, false) || savedInstanceState == null){
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.main_activity_frame, screenMapFragment)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                        .commit();
+            }
         }
 
         handleUser(mFirebaseDatabaseHelper.getCurrentUser());
-        Log.d(TAG, "onCreate: ");
+
     }
 
     private void startRideService() {
@@ -508,7 +527,7 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         EventBus.getDefault().unregister(this);
-        stopService(mainServiceIntent);
+
         Log.d(TAG, "onDestroy: ");
     }
 
@@ -635,7 +654,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void handleUser(FirebaseUser user) {
-        startService(mainServiceIntent);
+
 
         mFirebaseDatabaseHelper.addUserToFirebase(
                 user.getUid(),
