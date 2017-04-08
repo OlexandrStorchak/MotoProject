@@ -165,6 +165,8 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View view) {
                 Toast.makeText(getContext(), "Send SOS message!", Toast.LENGTH_SHORT).show();
                 mFirebaseDatabaseHelper.sendSosMessage();
+                mFirebaseDatabaseHelper.sendChatMessage(mFirebaseDatabaseHelper.getMyLastKnownLocation());
+                //mFirebaseDatabaseHelper.sendChatMessage("Потрібна допомога!");
             }
         });
 
