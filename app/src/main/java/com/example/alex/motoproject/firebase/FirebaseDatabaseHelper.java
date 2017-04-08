@@ -2,6 +2,7 @@ package com.example.alex.motoproject.firebase;
 
 import android.location.Location;
 import android.support.annotation.NonNull;
+import android.text.format.DateUtils;
 
 import com.example.alex.motoproject.LocationModel;
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
@@ -26,6 +27,7 @@ import com.google.firebase.database.ValueEventListener;
 import org.greenrobot.eventbus.EventBus;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -69,8 +71,8 @@ import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_NICK;
 public class FirebaseDatabaseHelper {
 
     private static final String STANDART_AVATAR =
-            "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
-                    "o/avatar_defaultar_default.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
+            "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot" +
+                    ".com/o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
     private static final int FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT = 31;
     private static final int SHOWN_MESSAGES_MIN_COUNT_LIMIT =
             FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT - 1;
@@ -102,6 +104,7 @@ public class FirebaseDatabaseHelper {
     private LatLng mCurrentUserLocation;
 
     private boolean isOlderMessagesFirstIteration = true;
+    private LatLng myLastKnownLocation;
 
     public FirebaseDatabaseHelper() {
 
@@ -1098,16 +1101,48 @@ public class FirebaseDatabaseHelper {
 
     // TODO: 28.03.2017 must do before release
     public void sendSosMessage() {
-        DatabaseReference ref = mDbReference.child(PATH_SOS).child(getCurrentUser().getUid());
+
+
+
+
+        long time = System.currentTimeMillis();
+
+
+        DatabaseReference ref = mDbReference.child(PATH_SOS)
+                .child(getCurrentUser().getUid());
+
         MainServiceSosModel sosModel = new MainServiceSosModel();
         sosModel.setUserId(getCurrentUser().getUid());
         sosModel.setUserName(getCurrentUser().getDisplayName());
-        sosModel.setDescription("Test description");
-        sosModel.setTime(String.valueOf(ServerValue.TIMESTAMP));
-        sosModel.setLat("24.3242");
-        sosModel.setLng("43.234");
+        sosModel.setDescription("Need help!");
+        sosModel.setTime(String.valueOf(time));
+        sosModel.setLat(null);
+        sosModel.setLng(null);
         ref.setValue(sosModel);
 
+    }
+
+    public LatLng getMyLastKnownLocation() {
+
+        DatabaseReference ref = mDbReference.child(PATH_LOCATION).child(getCurrentUser().getUid());
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                LocationModel locationModel = dataSnapshot.getValue(LocationModel.class);
+
+                setMyLastKnownLocation(new LatLng(locationModel.getLat(), locationModel.getLng()));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        return myLastKnownLocation;
+    }
+
+     private void setMyLastKnownLocation(LatLng myLastKnownLocation) {
+        this.myLastKnownLocation = myLastKnownLocation;
     }
 
     public interface AuthLoadingListener {
