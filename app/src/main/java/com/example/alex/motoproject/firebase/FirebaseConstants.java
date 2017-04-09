@@ -1,6 +1,6 @@
 package com.example.alex.motoproject.firebase;
 
-public class Constants {
+public class FirebaseConstants {
 
     public static final int ONE_KILOMETER_IN_METERS = 1000;
 

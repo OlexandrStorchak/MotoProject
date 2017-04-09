@@ -151,8 +151,8 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         List<User> list = mUsers.get(user.getRelation());
         for (User iteratedUser : list) {
             if (iteratedUser.getUid().equals(user.getUid())) {
-                mPresenter.onUserRemoved(iteratedUser);
                 list.remove(iteratedUser);
+                mPresenter.onUserRemoved(iteratedUser);
                 return;
             }
         }
@@ -180,6 +180,16 @@ public class UsersModel implements UsersMvp.PresenterToModel,
             iteration++;
         }
         return filteredUsers;
+    }
+
+    @Override
+    public boolean isUserListEmpty() {
+        for (List userGroup : mUsers.values()) {
+            if (!userGroup.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

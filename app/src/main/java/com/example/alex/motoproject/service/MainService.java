@@ -21,7 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import static com.example.alex.motoproject.firebase.Constants.PATH_SOS;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_SOS;
 import static com.example.alex.motoproject.util.ArgKeys.SHOW_CHAT_FRAGMENT;
 
 

@@ -20,6 +20,8 @@ public interface UsersMvp {
         void onUserListUpdate();
 
         void onViewAttached(UsersMvp.PresenterToView presenterToView);
+
+        void onItemCountChanged();
     }
 
     interface PresenterToView {
@@ -34,6 +36,8 @@ public interface UsersMvp {
         void removeUser(User user);
 
         void showEmptyView();
+
+        void hideEmptyView();
 
         void clearUsers();
 
@@ -64,6 +68,8 @@ public interface UsersMvp {
         void setUserRelation(String uid, String relation);
 
         Map<String, List<User>> filterUsers(String query);
+
+        boolean isUserListEmpty();
     }
 
     interface ModelToPresenter {

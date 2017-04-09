@@ -26,7 +26,7 @@ import com.example.alex.motoproject.dagger.DaggerPresenterComponent;
 import com.example.alex.motoproject.dagger.PresenterModule;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
-import com.example.alex.motoproject.firebase.Constants;
+import com.example.alex.motoproject.firebase.FirebaseConstants;
 import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
 import com.example.alex.motoproject.transformation.GlideCircleTransform;
 import com.example.alex.motoproject.util.DimensHelper;
@@ -68,11 +68,7 @@ public class UsersFragment extends FragmentWithRetainInstance
             new RecyclerView.AdapterDataObserver() {
                 @Override
                 public void onChanged() { //Show custom View if no children in RecyclerView
-                    if (mAdapter.getItemCount() == 0) {
-                        showEmptyView();
-                    } else {
-                        hideEmptyView();
-                    }
+                    mPresenter.onItemCountChanged();
                 }
             };
 
@@ -107,7 +103,7 @@ public class UsersFragment extends FragmentWithRetainInstance
         mEmptyView.setVisibility(View.VISIBLE);
     }
 
-    void hideEmptyView() {
+    public void hideEmptyView() {
         mRecyclerView.setVisibility(View.VISIBLE);
         mEmptyView.setVisibility(View.GONE);
     }
@@ -136,31 +132,6 @@ public class UsersFragment extends FragmentWithRetainInstance
     public void notifyDataSetChanged() {
         mAdapter.notifyDataSetChanged();
     }
-
-//        Preserver.init(
-//                getActivity(), // activity instance
-//                23, // id of loader used
-//                new PreservedInstanceFactory<UsersMvp.ViewToPresenter>() { // factory for the instance that should be preserved
-//                    @Override
-//                    public UsersMvp.ViewToPresenter create() {
-//                        return mPresenter;
-//                    }
-//                },
-//                new Preserver.OnInstanceReloadedAction<UsersMvp.ViewToPresenter>() {
-//                    @Override
-//                    public void performAction(UsersMvp.ViewToPresenter viewToPresenter) {
-//                        mPresenter = viewToPresenter;
-//                        mPresenter.onViewAttached(UsersFragment.this);
-//                        mPresenter.onStart();
-//                    }
-//                },
-//                new Preserver.OnInstanceDestroyedAction() {
-//                    @Override
-//                    public void performAction() {
-//                        // do sth when instance is destroyed
-//                    }
-//                }
-//        );
 
     public void updateHeaders() {
         //Add or remove header
@@ -314,7 +285,7 @@ public class UsersFragment extends FragmentWithRetainInstance
         //Make pending friends section always show on top
         String title = getContext().getString(R.string.title_pending_friends);
         PendingFriendSection pfs = new PendingFriendSection(title);
-        mAdapter.addSection(Constants.RELATION_PENDING, pfs);
+        mAdapter.addSection(FirebaseConstants.RELATION_PENDING, pfs);
     }
 
     @Override
@@ -339,10 +310,10 @@ public class UsersFragment extends FragmentWithRetainInstance
     public void addNewSection(String relation) {
         String title;
         switch (relation) {
-            case Constants.RELATION_PENDING:
+            case FirebaseConstants.RELATION_PENDING:
                 //Pending friends section was added earlier to appear on top
                 break;
-            case Constants.RELATION_FRIEND:
+            case FirebaseConstants.RELATION_FRIEND:
                 title = getContext().getString(R.string.title_friends);
                 mAdapter.addSection(relation, new UsersSection(title));
                 break;
@@ -512,7 +483,7 @@ public class UsersFragment extends FragmentWithRetainInstance
                         }
                     });
 
-            if (user.getStatus() != null && user.getStatus().equals(Constants.STATUS_PUBLIC)) {
+            if (user.getStatus() != null && user.getStatus().equals(FirebaseConstants.STATUS_PUBLIC)) {
                 userViewHolder.mapCur.setVisibility(View.VISIBLE);
             } else {
                 userViewHolder.mapCur.setVisibility(View.GONE);

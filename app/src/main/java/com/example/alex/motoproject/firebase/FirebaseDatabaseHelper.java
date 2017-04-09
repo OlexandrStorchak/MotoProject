@@ -2,6 +2,7 @@ package com.example.alex.motoproject.firebase;
 
 import android.location.Location;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.event.MapMarkerEvent;
@@ -37,33 +38,33 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import static com.example.alex.motoproject.firebase.Constants.CHAT_ID;
-import static com.example.alex.motoproject.firebase.Constants.CHAT_LATITUDE;
-import static com.example.alex.motoproject.firebase.Constants.CHAT_LONGITUDE;
-import static com.example.alex.motoproject.firebase.Constants.CHAT_SEND_TIME;
-import static com.example.alex.motoproject.firebase.Constants.CHAT_TEXT;
-import static com.example.alex.motoproject.firebase.Constants.ONE_KILOMETER_IN_METERS;
-import static com.example.alex.motoproject.firebase.Constants.PATH_CHAT;
-import static com.example.alex.motoproject.firebase.Constants.PATH_LOCATION;
-import static com.example.alex.motoproject.firebase.Constants.PATH_LOCATION_LAT;
-import static com.example.alex.motoproject.firebase.Constants.PATH_LOCATION_LNG;
-import static com.example.alex.motoproject.firebase.Constants.PATH_ONLINE_USERS;
-import static com.example.alex.motoproject.firebase.Constants.PATH_SOS;
-import static com.example.alex.motoproject.firebase.Constants.PATH_USERS;
-import static com.example.alex.motoproject.firebase.Constants.RELATION_FRIEND;
-import static com.example.alex.motoproject.firebase.Constants.RELATION_PENDING;
-import static com.example.alex.motoproject.firebase.Constants.RELATION_UNKNOWN;
-import static com.example.alex.motoproject.firebase.Constants.STATUS_NO_GPS;
-import static com.example.alex.motoproject.firebase.Constants.STATUS_PUBLIC;
-import static com.example.alex.motoproject.firebase.Constants.STATUS_SOS;
-import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_ABOUT_ME;
-import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_AVATAR;
-import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_EMAIL;
-import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_FRIEND_LIST;
-import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_ID;
-import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_MOTORCYCLE;
-import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_NAME;
-import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_NICK;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.CHAT_ID;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.CHAT_LATITUDE;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.CHAT_LONGITUDE;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.CHAT_SEND_TIME;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.CHAT_TEXT;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.ONE_KILOMETER_IN_METERS;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_CHAT;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_LOCATION;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_LOCATION_LAT;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_LOCATION_LNG;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_ONLINE_USERS;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_SOS;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_USERS;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.RELATION_FRIEND;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.RELATION_PENDING;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.RELATION_UNKNOWN;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.STATUS_NO_GPS;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.STATUS_PUBLIC;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.STATUS_SOS;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.USER_PROFILE_ABOUT_ME;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.USER_PROFILE_AVATAR;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.USER_PROFILE_EMAIL;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.USER_PROFILE_FRIEND_LIST;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.USER_PROFILE_ID;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.USER_PROFILE_MOTORCYCLE;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.USER_PROFILE_NAME;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.USER_PROFILE_NICK;
 
 public class FirebaseDatabaseHelper {
 
@@ -116,6 +117,7 @@ public class FirebaseDatabaseHelper {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null) {
                     firebaseAuth.removeAuthStateListener(this);
+                    mCurrentUserId = firebaseAuth.getCurrentUser().getUid();
                     listener.onLoadFinished();
                 }
             }
@@ -673,7 +675,7 @@ public class FirebaseDatabaseHelper {
                             String name = (String) dataSnapshot.child(USER_PROFILE_NAME).getValue();
                             String avatar = (String) dataSnapshot.child(USER_PROFILE_AVATAR).getValue();
                             User user = new User(
-                                    uid, name, avatar, userStatus, Constants.RELATION_UNKNOWN);
+                                    uid, name, avatar, userStatus, FirebaseConstants.RELATION_UNKNOWN);
                             onlineUsers.add(user);
                             mReceivedUsersCount++;
                             //+1 is for not added to the list current user
@@ -701,12 +703,13 @@ public class FirebaseDatabaseHelper {
     private void onOnlineUserAdded(DataSnapshot dataSnapshot,
                                    final UsersUpdateReceiver receiver) {
         if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
+            Log.d("gfddf", "fvdvdvd");
             return;
         }
 
         final String uid = dataSnapshot.getKey();
         final String userStatus = (String) dataSnapshot.getValue();
-        final String relation = Constants.RELATION_UNKNOWN;
+        final String relation = FirebaseConstants.RELATION_UNKNOWN;
 
         if (receiver.hasUser(uid, relation)) {
             return;
@@ -758,7 +761,7 @@ public class FirebaseDatabaseHelper {
     private void onOnlineUserRemoved(DataSnapshot dataSnapshot,
                                      final UsersUpdateReceiver receiver) {
         String uid = dataSnapshot.getKey();
-        receiver.onUserDeleted(new User(uid, Constants.RELATION_UNKNOWN));
+        receiver.onUserDeleted(new User(uid, FirebaseConstants.RELATION_UNKNOWN));
     }
 
     /**

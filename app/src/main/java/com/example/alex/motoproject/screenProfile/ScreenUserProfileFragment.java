@@ -19,7 +19,7 @@ import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
-import com.example.alex.motoproject.firebase.Constants;
+import com.example.alex.motoproject.firebase.FirebaseConstants;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UsersProfileFirebase;
 import com.example.alex.motoproject.util.DimensHelper;
@@ -61,7 +61,7 @@ public class ScreenUserProfileFragment extends Fragment {
         EventBus.getDefault().register(this);
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_screen_user_profile, container, false);
+        return inflater.inflate(R.layout.fragment_user_profile, container, false);
     }
 
     @Override
@@ -186,7 +186,7 @@ public class ScreenUserProfileFragment extends Fragment {
                 });
 
         //If friend already added
-        if (mFirebaseDatabaseHelper.isInFriendList(mUserData.getId(), Constants.RELATION_FRIEND)) {
+        if (mFirebaseDatabaseHelper.isInFriendList(mUserData.getId(), FirebaseConstants.RELATION_FRIEND)) {
             mRemoveFriend.setVisibility(View.VISIBLE);
             mAddFriend.setVisibility(View.GONE);
         }

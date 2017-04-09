@@ -58,7 +58,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
-import static com.example.alex.motoproject.firebase.Constants.STATUS_NO_GPS;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.STATUS_NO_GPS;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_FRIENDS;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_NOGPS;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;

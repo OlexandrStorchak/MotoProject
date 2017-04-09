@@ -1,6 +1,6 @@
 package com.example.alex.motoproject.screenUsers;
 
-import com.example.alex.motoproject.firebase.Constants;
+import com.example.alex.motoproject.firebase.FirebaseConstants;
 
 import java.lang.ref.WeakReference;
 
@@ -69,8 +69,8 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
     @Override
     public void onUserFriendshipAccepted(String uid) {
-        mModel.setRelationToUser(uid, Constants.RELATION_FRIEND);
-        mModel.setUserRelation(uid, Constants.RELATION_FRIEND);
+        mModel.setRelationToUser(uid, FirebaseConstants.RELATION_FRIEND);
+        mModel.setUserRelation(uid, FirebaseConstants.RELATION_FRIEND);
     }
 
     @Override
@@ -86,6 +86,15 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     @Override
     public void onViewAttached(UsersMvp.PresenterToView view) {
         mView = new WeakReference<>(view);
+    }
+
+    @Override
+    public void onItemCountChanged() {
+        if (mModel.isUserListEmpty()) {
+            getView().showEmptyView();
+        } else {
+            getView().hideEmptyView();
+        }
     }
 
     @Override
