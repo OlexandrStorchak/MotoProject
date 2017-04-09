@@ -1134,7 +1134,7 @@ public class FirebaseDatabaseHelper {
         sosModel.setUserId(getCurrentUser().getUid());
         sosModel.setUserName(getCurrentUser().getDisplayName());
         sosModel.setDescription(text);
-        sosModel.setTime(String.valueOf(time));
+        sosModel.setTime(ServerValue.TIMESTAMP);
 
         getCurrentUserLocation(new UsersLocationReceiver() {
             @Override

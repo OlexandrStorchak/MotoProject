@@ -9,11 +9,13 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +28,9 @@ import com.example.alex.motoproject.dialog.MapUserDetailsDialogFragment;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
+import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
 import com.example.alex.motoproject.service.LocationListenerService;
+import com.example.alex.motoproject.service.MainService;
 import com.example.alex.motoproject.transformation.PicassoCircleTransform;
 import com.example.alex.motoproject.util.ArgKeys;
 import com.example.alex.motoproject.util.DimensHelper;
@@ -52,6 +56,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.example.alex.motoproject.R.id.map;
 import static com.example.alex.motoproject.util.ArgKeys.BEARING;
 import static com.example.alex.motoproject.util.ArgKeys.CAMERA_POSITION;
@@ -68,8 +74,7 @@ import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
  * The fragment that contains a map from Google Play Services.
  */
 
-public class ScreenMapFragment extends Fragment implements
-        OnMapReadyCallback, FirebaseDatabaseHelper.MapMarkersUpdateReceiver {
+public class ScreenMapFragment extends FragmentWithRetainInstance implements OnMapReadyCallback {
 
     private static final int MARKER_DIMENS_DP = 90;
     private static final int MARKER_DIMENS_PX = DimensHelper.dpToPx(MARKER_DIMENS_DP) / 2;
@@ -92,10 +97,17 @@ public class ScreenMapFragment extends Fragment implements
     private FloatingActionButton sosToggleButton;
     private CameraUpdate mCameraUpdate;
     private int mMapType;
+    private boolean mSosVisiblity = true;
 
     public ScreenMapFragment() {
         // Required empty public constructor
     }
+
+    @Override
+    public String getDataTag() {
+        return ScreenMapFragment.class.getName();
+    }
+
 
     public GoogleMap getGoogleMap() {
         return mMap;
@@ -110,11 +122,14 @@ public class ScreenMapFragment extends Fragment implements
         mCameraUpdate = CameraUpdateFactory.newCameraPosition(
                 (CameraPosition) savedInstanceState.getParcelable(CAMERA_POSITION));
         mMapType = savedInstanceState.getInt(MAP_TYPE);
+
+
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
         if (mMap == null) {
             return;
         }
@@ -133,6 +148,7 @@ public class ScreenMapFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         App.getCoreComponent().inject(this);
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
@@ -144,6 +160,7 @@ public class ScreenMapFragment extends Fragment implements
         mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
+
 
         //Get given coordinates to go to if they exist
         Bundle arguments = getArguments();
@@ -166,22 +183,16 @@ public class ScreenMapFragment extends Fragment implements
                 Toast.makeText(getContext(), "Send SOS message!", Toast.LENGTH_SHORT).show();
                 mFirebaseDatabaseHelper.sendSosMessage(
                         getString(R.string.notification_tittle_need_help));
-//                mFirebaseDatabaseHelper.sendSosMessage(
-//                        getString(R.string.notification_tittle_need_help));
-//                mFirebaseDatabaseHelper.getCurrentUserLocation(
-//                        new FirebaseDatabaseHelper.UsersLocationReceiver() {
-//                            @Override
-//                            public void onCurrentUserLocationReady(LatLng latLng) {
-////                                mFirebaseDatabaseHelper.sendChatMessage(latLng);
-//                                mFirebaseDatabaseHelper.sendSosMessage(
-//                                        getString(R.string.notification_tittle_need_help), latLng);
-//                            }
-//                        });
+
+
+
             }
         });
 
         super.onViewCreated(view, savedInstanceState);
     }
+
+
 
     @Override
     public void onMapReady(GoogleMap map) {
@@ -385,6 +396,7 @@ public class ScreenMapFragment extends Fragment implements
 
     public void setSosVisibility(int visibility) {
         sosToggleButton.setVisibility(visibility);
+
     }
 
     @Subscribe(sticky = true)
@@ -404,5 +416,6 @@ public class ScreenMapFragment extends Fragment implements
 
         void handleLocation();
     }
+
 }
 

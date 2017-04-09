@@ -3,8 +3,10 @@ package com.example.alex.motoproject.service;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.RingtoneManager;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -15,13 +17,18 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
+import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
+import static android.view.View.VISIBLE;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_SOS;
+import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
+import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
 import static com.example.alex.motoproject.util.ArgKeys.SHOW_CHAT_FRAGMENT;
 
 
@@ -43,33 +50,22 @@ public class MainService extends Service {
                 .getCurrentUser().getUid();
         mApp = (App) getApplicationContext();
         final DatabaseReference ref = mFirebaseDatabase.getReference().child(PATH_SOS);
-//        ref.keepSynced(false);
+        ref.keepSynced(false);
+
         ref.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (true) return;
-                long sosCount = 0;
-                if (dataSnapshot.getChildrenCount() > sosCount) {
-                    long currentUserTime = System.currentTimeMillis();
-
-                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                        sosCount = dataSnapshot.getChildrenCount();
-
-                        MainServiceSosModel model = postSnapshot.getValue(MainServiceSosModel.class);
-                        if (!(model.getUserId().equals(currentUser)) && model.getTime() != null) {
-
-                            try {
-                                long userTime = Long.parseLong(model.getTime());
-                                if (userTime + FIVE_MINUTES > currentUserTime) {
-                                    showNotification(sosCount, model.getDescription());
-                                }
-                            } catch (NumberFormatException e) {
-                                e.printStackTrace();
-                            }
-                        }
+                ref.setValue(null);
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    String id = (String) postSnapshot.child("userId").getValue();
+                    if (!(id.equals(currentUser))) {
+                        showNotification();
+                    } else {
+                        startTimerSosButton();
                     }
                 }
+
             }
 
             @Override
@@ -79,7 +75,16 @@ public class MainService extends Service {
 
     }
 
-    private void showNotification(long sosCount, String description) {
+    private void startTimerSosButton() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.i("logi", "run: visible sos");
+            }
+        },5000);
+    }
+
+    private void showNotification() {
         Intent chatIntent = new Intent(this, MainActivity.class);
         chatIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -120,4 +125,5 @@ public class MainService extends Service {
 
         return super.onStartCommand(intent, flags, startId);
     }
+
 }
