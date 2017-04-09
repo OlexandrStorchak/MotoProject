@@ -84,7 +84,7 @@
             android:layout_height="60dp"
             android:background="@null"
             android:contentDescription="@string/add_friend"
-            android:src="@mipmap/ic_profile_add" />
+            android:src="@drawable/ic_profile_add" />
 
         <ImageButton
             android:id="@+id/profile_remove_from_friends"
@@ -92,7 +92,7 @@
             android:layout_height="60dp"
             android:background="@null"
             android:contentDescription="@string/remove_from_friends"
-            android:src="@mipmap/ic_remove_friend"
+            android:src="@drawable/ic_remove_friend"
             android:visibility="gone" />
 
     </LinearLayout>

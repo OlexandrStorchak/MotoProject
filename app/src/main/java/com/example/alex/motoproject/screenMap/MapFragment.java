@@ -3,7 +3,6 @@ package com.example.alex.motoproject.screenMap;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -27,7 +26,6 @@ import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
 import com.example.alex.motoproject.screenMain.MainActivity;
-import com.example.alex.motoproject.service.LocationListenerService;
 import com.example.alex.motoproject.transformation.PicassoCircleTransform;
 import com.example.alex.motoproject.util.ArgKeys;
 import com.example.alex.motoproject.util.DimensHelper;
@@ -173,7 +171,7 @@ public class MapFragment extends FragmentWithRetainInstance
 
         //Init fab that sends sos
         mSosToggleButton = (FloatingActionButton) view.findViewById(R.id.button_drive_sos);
-        mSosToggleButton.setImageResource(R.drawable.help);
+        mSosToggleButton.setImageResource(R.drawable.ic_help);
         mSosToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -377,12 +375,6 @@ public class MapFragment extends FragmentWithRetainInstance
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    public void onLocationAllowed() {
-        if (!mApp.isLocationListenerServiceOn()) {
-            mApp.startService(new Intent(mApp, LocationListenerService.class));
-        }
-    }
-
     //changes CameraUpdate so the map will be showing a chosen user location after gets ready
     public void setPosition(@NonNull String uid) {
         if (mMarkerHashMap.containsKey(uid)) {
@@ -396,7 +388,9 @@ public class MapFragment extends FragmentWithRetainInstance
     }
 
     public void setSosVisibility(int visibility) {
-        if (!mSosButtonCoolDown) mSosToggleButton.setVisibility(visibility);
+        if (!mSosButtonCoolDown && mSosToggleButton != null) {
+            mSosToggleButton.setVisibility(visibility);
+        }
     }
 
     @Subscribe(sticky = true)

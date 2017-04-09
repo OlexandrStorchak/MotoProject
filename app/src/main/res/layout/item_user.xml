@@ -36,7 +36,7 @@
         android:contentDescription="@string/map_cur_description"
         android:maxHeight="45dp"
         android:maxWidth="45dp"
-        android:src="@mipmap/ic_map_cur"
+        android:src="@drawable/ic_map_cur"
         android:visibility="gone" />
 
 </LinearLayout>

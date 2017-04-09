@@ -205,7 +205,7 @@ public class AlertControl implements MapFragment.MapFragmentHolder {
 
         if (checkLocationPermission()) {
             //permission granted
-            mainActivity.mapFragment.onLocationAllowed();
+            mainActivity.startLocationListenerService();
 
         } else { //permission was not granted, show the permission prompt
             requestLocationPermission();

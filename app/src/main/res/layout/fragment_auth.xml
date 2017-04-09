@@ -5,7 +5,7 @@
     android:background="@color/grey500a2"
     android:gravity="bottom"
     android:orientation="vertical"
-    tools:context="com.example.alex.motoproject.screenLogin.ScreenLoginFragment">
+    tools:context="com.example.alex.motoproject.screenLogin.LoginFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,7 +19,7 @@
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:layout_gravity="center"
-            android:background="@drawable/engine_icon3"
+            android:background="@drawable/app_logo"
             android:contentDescription="@string/description_logo" />
 
 

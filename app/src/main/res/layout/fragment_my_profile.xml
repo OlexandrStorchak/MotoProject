@@ -149,7 +149,7 @@
             android:layout_gravity="end"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:contentDescription="@string/description_edit"
-            android:src="@mipmap/ic_edit_profile"
+            android:src="@drawable/ic_edit_profile"
             android:text="@string/edit_changes" />
 
         <ImageView
@@ -159,7 +159,7 @@
             android:layout_gravity="end"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:contentDescription="@string/description_save"
-            android:src="@mipmap/ic_save_profile"
+            android:src="@drawable/ic_save_profile"
             android:text="@string/save_changes"
             android:visibility="gone" />
 

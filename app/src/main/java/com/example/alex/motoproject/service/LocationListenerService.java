@@ -143,7 +143,7 @@ public class LocationListenerService extends Service implements Runnable,
     private void showNotification() {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_notification_v1)
+                        .setSmallIcon(R.drawable.ic_notification_motorcycle)
                         .setContentTitle(getString(R.string.app_name))
                         .setContentText(getString(R.string.location_service_notification))
                         .setShowWhen(false);

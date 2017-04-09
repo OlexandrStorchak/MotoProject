@@ -14,7 +14,7 @@ import static com.example.alex.motoproject.util.ArgKeys.SHOW_MAP_FRAGMENT;
 import static com.example.alex.motoproject.util.ArgKeys.SIGN_OUT;
 
 public class LoginActivity extends AppCompatActivity
-        implements ScreenLoginFragment.LoginActivityInterface {
+        implements LoginFragment.LoginActivityInterface {
 
     FirebaseLoginController mLoginController = new FirebaseLoginController(this);
 
@@ -46,7 +46,7 @@ public class LoginActivity extends AppCompatActivity
         }
 
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_login, new ScreenLoginFragment())
+                .replace(R.id.content_login, new LoginFragment())
                 .commit();
     }
 
@@ -62,7 +62,7 @@ public class LoginActivity extends AppCompatActivity
     @Override
     public void onSignUpButtonClick() {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_login, new ScreenSignUpFragment())
+                .replace(R.id.content_login, new SignUpFragment())
                 .addToBackStack(null)
                 .commit();
     }

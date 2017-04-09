@@ -25,13 +25,13 @@ import static com.example.alex.motoproject.util.ArgKeys.PASSWORD;
 import static com.example.alex.motoproject.util.ArgKeys.REPEAT_PASSWORD;
 
 
-public class ScreenSignUpFragment extends Fragment {
+public class SignUpFragment extends Fragment {
 
-    private static final String TAG = ScreenSignUpFragment.class.getSimpleName();
+    private static final String TAG = SignUpFragment.class.getSimpleName();
     private EditText mEmail, mPassword, mRepeatPassword;
     private FirebaseAuth mFireBaseAuth;
 
-    public ScreenSignUpFragment() {
+    public SignUpFragment() {
         // Required empty public constructor
     }
 

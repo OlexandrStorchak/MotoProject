@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:background="@drawable/help"
+        android:background="@drawable/ic_help"
         android:visibility="gone"
         app:fabSize="normal"
         app:layout_anchorGravity="bottom|right|end" />

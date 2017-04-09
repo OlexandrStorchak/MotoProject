@@ -78,7 +78,7 @@ public class MainService extends Service {
                         PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext())
-                        .setSmallIcon(R.mipmap.ic_sos)
+                        .setSmallIcon(R.drawable.ic_sos)
 
                         .setContentTitle(getString(R.string.notification_tittle_need_help))
                         .setAutoCancel(true)

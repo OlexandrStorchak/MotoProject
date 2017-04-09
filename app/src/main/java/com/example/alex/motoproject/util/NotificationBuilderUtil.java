@@ -15,7 +15,7 @@ public final class NotificationBuilderUtil {
             Context context, int notificationId) {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.ic_notification_v1)
+                        .setSmallIcon(R.drawable.ic_notification_motorcycle)
                         .setContentTitle(context.getString(R.string.app_name))
                         .setPriority(Notification.PRIORITY_HIGH)
                         .setDefaults(Notification.DEFAULT_ALL)

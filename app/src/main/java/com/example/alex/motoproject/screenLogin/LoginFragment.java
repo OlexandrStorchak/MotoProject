@@ -47,7 +47,7 @@ import static com.example.alex.motoproject.util.ArgKeys.EMAIL_AND_PASSWORD_DISPL
 import static com.example.alex.motoproject.util.ArgKeys.PASSWORD;
 
 
-public class ScreenLoginFragment extends Fragment {
+public class LoginFragment extends Fragment {
 
     private final int GOOGLE_SIGN_IN = 13;
 
@@ -65,7 +65,7 @@ public class ScreenLoginFragment extends Fragment {
 
     private boolean mEmailAndPasswordFieldsDisplayed;
 
-    public ScreenLoginFragment() {
+    public LoginFragment() {
         // Required empty public constructor
     }
 

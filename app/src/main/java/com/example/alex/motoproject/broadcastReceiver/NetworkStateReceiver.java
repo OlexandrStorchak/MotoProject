@@ -25,7 +25,7 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
     public static final int INTERNET_NOTIFICATION_ID = 1;
     public static final int GPS_NOTIFICATION_ID = 2;
-    private Context mContext;
+
     private NotificationManager mNotifyMgr;
     private App mApp;
 
@@ -35,7 +35,7 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        mContext = context;
+
         mApp = (App) context.getApplicationContext();
 
         if (isInternetEnabled()) {
@@ -75,13 +75,13 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
     private boolean isGpsEnabled() {
         LocationManager locationManager = (LocationManager)
-                mContext.getSystemService(Context.LOCATION_SERVICE);
+                mApp.getSystemService(Context.LOCATION_SERVICE);
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     private boolean isInternetEnabled() {
         ConnectivityManager cm = (ConnectivityManager)
-                mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+                mApp.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null &&
                 activeNetwork.getState() == NetworkInfo.State.CONNECTED;
@@ -98,10 +98,10 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
     private void showNotification(int notificationId) {
         Notification notification = NotificationBuilderUtil
-                .buildNotification(mContext, notificationId);
+                .buildNotification(mApp, notificationId);
         // get an instance of the NotificationManager service
         mNotifyMgr = (NotificationManager)
-                mContext.getSystemService(NOTIFICATION_SERVICE);
+                mApp.getSystemService(NOTIFICATION_SERVICE);
         // send notification
         mNotifyMgr.notify(notificationId, notification);
     }

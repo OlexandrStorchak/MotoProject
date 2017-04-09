@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements
                                     .putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),
                                             PROFILE_GPS_MODE_PUBLIC).apply();
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_PUBLIC);
-                            mapIndicator.setImageResource(R.mipmap.ic_map_indicator_green);
+                            mapIndicator.setImageResource(R.drawable.ic_map_indicator_green);
                             mGpsStatus.setBackground(ContextCompat
                                     .getDrawable(MainActivity.this, R.drawable.button_start));
                             break;
@@ -351,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements
                                     .putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),
                                             PROFILE_GPS_MODE_FRIENDS).apply();
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_FRIENDS);
-                            mapIndicator.setImageResource(R.mipmap.ic_map_indicator_yellow);
+                            mapIndicator.setImageResource(R.drawable.ic_map_indicator_yellow);
                             mGpsStatus.setBackground(ContextCompat
                                     .getDrawable(MainActivity.this, R.drawable.button_ready));
                             break;
@@ -360,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements
                                     .putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),
                                             PROFILE_GPS_MODE_SOS).apply();
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_SOS);
-                            mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
+                            mapIndicator.setImageResource(R.drawable.ic_map_indicator_red);
                             mGpsStatus.setBackground(ContextCompat
                                     .getDrawable(MainActivity.this, R.drawable.button_stop));
                             break;
@@ -369,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements
                                     .putString(mFirebaseDatabaseHelper.getCurrentUser().getUid(),
                                             PROFILE_GPS_MODE_NOGPS).apply();
                             mFirebaseDatabaseHelper.setUserOnline(PROFILE_GPS_MODE_NOGPS);
-                            mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
+                            mapIndicator.setImageResource(R.drawable.ic_map_indicator_red);
                             mGpsStatus.setBackground(ContextCompat
                                     .getDrawable(MainActivity.this, R.drawable.button_stop));
                             break;
@@ -437,8 +437,9 @@ public class MainActivity extends AppCompatActivity implements
             mButtonStartRide.setBackground(ContextCompat.getDrawable(this, R.drawable.button_stop));
             mapFragment.setSosVisibility(View.VISIBLE);
 
-        } else if (checkLocationPermission()) { //Turn off
-            mapFragment.getGoogleMap().setMyLocationEnabled(false);
+        } else { //Turn off
+            if (checkLocationPermission()) mapFragment.getGoogleMap().setMyLocationEnabled(false);
+
             chatFragment.hideShareLocationButton();
             getApplication().stopService(
                     new Intent(getApplicationContext(), LocationListenerService.class));
@@ -451,6 +452,10 @@ public class MainActivity extends AppCompatActivity implements
 
             mFirebaseDatabaseHelper.setUserOnline(STATUS_NO_GPS);
         }
+    }
+
+    public void startLocationListenerService() {
+        mApp.startService(new Intent(this, LocationListenerService.class));
     }
 
     private void hideKeyboard() {
@@ -660,22 +665,22 @@ public class MainActivity extends AppCompatActivity implements
         switch (gpsMode) {
             case PROFILE_GPS_MODE_NOGPS:
                 mGpsStatus.setBackground(ContextCompat.getDrawable(this, R.drawable.button_stop));
-                mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
+                mapIndicator.setImageResource(R.drawable.ic_map_indicator_red);
                 mMapVisibility.setSelection(3);
                 break;
             case PROFILE_GPS_MODE_SOS:
                 mGpsStatus.setBackground(ContextCompat.getDrawable(this, R.drawable.button_stop));
-                mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
+                mapIndicator.setImageResource(R.drawable.ic_map_indicator_red);
                 mMapVisibility.setSelection(2);
                 break;
             case PROFILE_GPS_MODE_FRIENDS:
                 mGpsStatus.setBackground(ContextCompat.getDrawable(this, R.drawable.button_ready));
-                mapIndicator.setImageResource(R.mipmap.ic_map_indicator_yellow);
+                mapIndicator.setImageResource(R.drawable.ic_map_indicator_yellow);
                 mMapVisibility.setSelection(1);
                 break;
             case PROFILE_GPS_MODE_PUBLIC:
                 mGpsStatus.setBackground(ContextCompat.getDrawable(this, R.drawable.button_start));
-                mapIndicator.setImageResource(R.mipmap.ic_map_indicator_green);
+                mapIndicator.setImageResource(R.drawable.ic_map_indicator_green);
                 mMapVisibility.setSelection(0);
                 break;
         }
@@ -716,7 +721,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private void lockDrawerAndShowUpButton() {
         actionbarStatus = ACTIONBAR_UP_BUTTON;
-        mToolbar.setNavigationIcon(R.mipmap.ic_back_button);
+        mToolbar.setNavigationIcon(R.drawable.ic_up_button);
         mToolbar.setNavigationOnClickListener(mUpButton);
         mDrawerLayout.closeDrawers();
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
