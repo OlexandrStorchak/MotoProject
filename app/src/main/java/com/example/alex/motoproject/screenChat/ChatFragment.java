@@ -32,7 +32,6 @@ import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
 import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
-import com.example.alex.motoproject.util.DimensHelper;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -262,10 +261,8 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
 
     @Override
     public void showLocLimitDialog() {
-//        ((MainActivity) getActivity()).replaceFragment(new ChatLocLimitDialogFragment());
         ((MainActivity) getActivity()).showDialogFragment(new ChatLocLimitDialogFragment(),
                 ChatLocLimitDialogFragment.class.getSimpleName());
-//         ChatLocLimitDialogFragment dialogFragment = new ChatLocLimitDialogFragment();
     }
 
     @Override
@@ -291,9 +288,7 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
 
     @Override
     public void setAdapter(List<ChatMessage> messages) {
-        int maxImageWidth = DimensHelper.getScreenWidth(getContext());
-        int maxImageHeight = (int) Math.round(maxImageWidth * 0.6);
-        mAdapter = new ChatAdapter(messages, maxImageWidth, maxImageHeight);
+        mAdapter = new ChatAdapter(messages);
     }
 
     @Override
@@ -326,17 +321,11 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
             return; //fragment might not be created and not have a layout inflated
         }
         mShareLocationButton.setVisibility(View.GONE);
-//        mShareLocationButton.setEnabled(false);
-//        mShareLocationButton.setColorFilter(ResourcesCompat
-//                .getColor(getResources(), R.color.grey500, null));
     }
 
     @Override
     public void showShareLocationButton() {
         mShareLocationButton.setVisibility(View.VISIBLE);
-//        mShareLocationButton.setEnabled(true);
-//        mShareLocationButton.setColorFilter(ResourcesCompat
-//                .getColor(getResources(), R.color.blue900, null));
     }
 
     @Subscribe(sticky = true)

@@ -21,14 +21,9 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<ChatMessage> mMessages;
     private Context mContext;
 
-    private int mStaticMapWidth;
-    private int mStaticMapHeight;
 
-
-    ChatAdapter(List<ChatMessage> messages, int maxImageWidth, int maxImageHeight) {
+    ChatAdapter(List<ChatMessage> messages) {
         mMessages = messages;
-        mStaticMapWidth = maxImageWidth;
-        mStaticMapHeight = maxImageHeight;
     }
 
     @Override
@@ -108,7 +103,7 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 break;
             case TYPE_MAP:
                 ChatMapHolder mapHolder = (ChatMapHolder) holder;
-                mapHolder.setStaticMap(mContext, location, mStaticMapWidth, mStaticMapHeight);
+                mapHolder.setStaticMap(mContext, location);
                 break;
         }
     }
@@ -130,7 +125,7 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 break;
             case TYPE_MAP_OWN:
                 ChatMapHolder mapHolder = (ChatMapHolder) holder;
-                mapHolder.setStaticMap(mContext, location, mStaticMapWidth, mStaticMapHeight);
+                mapHolder.setStaticMap(mContext, location);
                 break;
         }
     }
