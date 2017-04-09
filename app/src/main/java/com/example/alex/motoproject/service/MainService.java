@@ -3,10 +3,8 @@ package com.example.alex.motoproject.service;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.RingtoneManager;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -17,18 +15,13 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
-import com.example.alex.motoproject.screenMap.ScreenMapFragment;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
-import static android.view.View.VISIBLE;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_SOS;
-import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
-import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
 import static com.example.alex.motoproject.util.ArgKeys.SHOW_CHAT_FRAGMENT;
 
 
@@ -61,11 +54,8 @@ public class MainService extends Service {
                     String id = (String) postSnapshot.child("userId").getValue();
                     if (!(id.equals(currentUser))) {
                         showNotification();
-                    } else {
-                        startTimerSosButton();
                     }
                 }
-
             }
 
             @Override
@@ -73,15 +63,6 @@ public class MainService extends Service {
             }
         });
 
-    }
-
-    private void startTimerSosButton() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.i("logi", "run: visible sos");
-            }
-        },5000);
     }
 
     private void showNotification() {

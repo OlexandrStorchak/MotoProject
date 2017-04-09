@@ -19,7 +19,7 @@ import org.json.JSONException;
 public class DimensHelper {
     public static int dpToPx(float dp) {
         return ((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                dp, Resources.getSystem().getDisplayMetrics()));
+                dp, Resources.getSystem().getDisplayMetrics()) / 2);
     }
 
     public static void getScaledAvatar(String ref, int size, final AvatarRefReceiver receiver) {

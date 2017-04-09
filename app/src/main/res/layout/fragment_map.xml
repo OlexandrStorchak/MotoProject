@@ -17,10 +17,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:background="@mipmap/ic_sos"
+        android:background="@drawable/help"
         android:visibility="gone"
         app:fabSize="normal"
         app:layout_anchorGravity="bottom|right|end" />
-
 
 </android.support.design.widget.CoordinatorLayout>

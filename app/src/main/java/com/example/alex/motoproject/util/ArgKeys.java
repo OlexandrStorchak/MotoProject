@@ -14,6 +14,7 @@ public class ArgKeys {
     public static final String TILT = "tilt";
     public static final String BEARING = "bearing";
     public static final String MAP_TYPE = "mapType";
+    public static final String SOS_COOLDOWN = "sosCoolDown";
 
     public static final String MESSAGE_TEXT = "messageText";
     public static final String SHOW_CHAT_FRAGMENT = "showChatFragment";

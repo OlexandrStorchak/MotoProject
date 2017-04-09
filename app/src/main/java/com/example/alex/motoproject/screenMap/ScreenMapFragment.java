@@ -13,9 +13,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +28,6 @@ import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
 import com.example.alex.motoproject.service.LocationListenerService;
-import com.example.alex.motoproject.service.MainService;
 import com.example.alex.motoproject.transformation.PicassoCircleTransform;
 import com.example.alex.motoproject.util.ArgKeys;
 import com.example.alex.motoproject.util.DimensHelper;
@@ -56,8 +53,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static com.example.alex.motoproject.R.id.map;
 import static com.example.alex.motoproject.util.ArgKeys.BEARING;
 import static com.example.alex.motoproject.util.ArgKeys.CAMERA_POSITION;
@@ -66,6 +61,7 @@ import static com.example.alex.motoproject.util.ArgKeys.KEY_USER_COORDS;
 import static com.example.alex.motoproject.util.ArgKeys.LATITUDE;
 import static com.example.alex.motoproject.util.ArgKeys.LONGITUDE;
 import static com.example.alex.motoproject.util.ArgKeys.MAP_TYPE;
+import static com.example.alex.motoproject.util.ArgKeys.SOS_COOLDOWN;
 import static com.example.alex.motoproject.util.ArgKeys.TILT;
 import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
 
@@ -74,10 +70,11 @@ import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
  * The fragment that contains a map from Google Play Services.
  */
 
-public class ScreenMapFragment extends FragmentWithRetainInstance implements OnMapReadyCallback {
+public class ScreenMapFragment extends FragmentWithRetainInstance
+        implements OnMapReadyCallback, FirebaseDatabaseHelper.MapMarkersUpdateReceiver {
 
     private static final int MARKER_DIMENS_DP = 90;
-    private static final int MARKER_DIMENS_PX = DimensHelper.dpToPx(MARKER_DIMENS_DP) / 2;
+    private static final int MARKER_DIMENS_PX = DimensHelper.dpToPx(MARKER_DIMENS_DP);
 
     @Inject
     NetworkStateReceiver mNetworkStateReceiver;
@@ -94,10 +91,11 @@ public class ScreenMapFragment extends FragmentWithRetainInstance implements OnM
     private HashMap<String, Marker> mMarkerHashMap = new HashMap<>();
 
     private App mApp;
-    private FloatingActionButton sosToggleButton;
+    private FloatingActionButton mSosToggleButton;
     private CameraUpdate mCameraUpdate;
     private int mMapType;
-    private boolean mSosVisiblity = true;
+
+    private boolean mSosButtonCoolDown;
 
     public ScreenMapFragment() {
         // Required empty public constructor
@@ -116,23 +114,22 @@ public class ScreenMapFragment extends FragmentWithRetainInstance implements OnM
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState == null) {
-            return;
-        }
+        if (savedInstanceState == null) return;
+
         mCameraUpdate = CameraUpdateFactory.newCameraPosition(
                 (CameraPosition) savedInstanceState.getParcelable(CAMERA_POSITION));
         mMapType = savedInstanceState.getInt(MAP_TYPE);
 
-
+        if (savedInstanceState.getBoolean(SOS_COOLDOWN, false)) {
+            startSosCoolDown();
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        if (mMap == null) return;
 
-        if (mMap == null) {
-            return;
-        }
         CameraPosition position = mMap.getCameraPosition();
 
         outState.putParcelable(CAMERA_POSITION,
@@ -142,6 +139,8 @@ public class ScreenMapFragment extends FragmentWithRetainInstance implements OnM
                         position.tilt,
                         position.bearing));
         outState.putInt(MAP_TYPE, mMap.getMapType());
+
+        outState.putBoolean(SOS_COOLDOWN, mSosButtonCoolDown);
     }
 
     @Override
@@ -175,24 +174,33 @@ public class ScreenMapFragment extends FragmentWithRetainInstance implements OnM
         }
 
         //Init fab that sends sos
-        sosToggleButton = (FloatingActionButton) view.findViewById(R.id.button_drive_sos);
-        sosToggleButton.setImageResource(R.mipmap.ic_sos);
-        sosToggleButton.setOnClickListener(new View.OnClickListener() {
+        mSosToggleButton = (FloatingActionButton) view.findViewById(R.id.button_drive_sos);
+        mSosToggleButton.setImageResource(R.mipmap.ic_sos);
+        mSosToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "Send SOS message!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.sos_sent, Toast.LENGTH_SHORT).show();
                 mFirebaseDatabaseHelper.sendSosMessage(
                         getString(R.string.notification_tittle_need_help));
 
-
-
+                startSosCoolDown();
             }
         });
 
         super.onViewCreated(view, savedInstanceState);
     }
 
-
+    private void startSosCoolDown() {
+        mSosToggleButton.setVisibility(View.GONE);
+        mSosButtonCoolDown = true;
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mSosToggleButton.setVisibility(View.VISIBLE);
+                mSosButtonCoolDown = false;
+            }
+        }, 10000);
+    }
 
     @Override
     public void onMapReady(GoogleMap map) {
@@ -395,8 +403,7 @@ public class ScreenMapFragment extends FragmentWithRetainInstance implements OnM
     }
 
     public void setSosVisibility(int visibility) {
-        sosToggleButton.setVisibility(visibility);
-
+        if (!mSosButtonCoolDown) mSosToggleButton.setVisibility(visibility);
     }
 
     @Subscribe(sticky = true)
