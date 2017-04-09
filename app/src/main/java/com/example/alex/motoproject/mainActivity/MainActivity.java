@@ -33,7 +33,6 @@ import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
-import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.event.InternetStatusChangedEvent;
 import com.example.alex.motoproject.event.OpenMapEvent;
@@ -94,13 +93,12 @@ public class MainActivity extends AppCompatActivity implements
 
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-    @Inject
-    NetworkStateReceiver mNetworkStateReceiver;
 
     ScreenMapFragment screenMapFragment;
     UsersFragment onlineUsersFragment;
     UsersFragment friendsFragment;
     ChatFragment chatFragment;
+
     AlertControl alertControl = new AlertControl(this);
 
     private App mApp;
@@ -116,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements
     private TextView mEmailHeader;
     private ImageView mAvatarHeader;
 
-    private Spinner mapVisibility;
+    private Spinner mMapVisibility;
     private ImageView mapIndicator;
     private Button mButtonStartRide;
 
@@ -330,9 +328,9 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-        mapVisibility = (Spinner) mNavigationView.findViewById(R.id.profile_set_gps_visibility);
+        mMapVisibility = (Spinner) mNavigationView.findViewById(R.id.profile_set_gps_visibility);
         mapIndicator = (ImageView) mNavigationView.findViewById(R.id.profile_show_on_map_indicator);
-        mapVisibility.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mMapVisibility.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if (mFirebaseDatabaseHelper.getCurrentUser() != null) {
@@ -399,7 +397,7 @@ public class MainActivity extends AppCompatActivity implements
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.main_activity_frame, screenMapFragment)
+                    .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
                     .commit();
         }
         if (getIntent() != null) {
@@ -425,7 +423,7 @@ public class MainActivity extends AppCompatActivity implements
         } else if (intent.getBooleanExtra(SHOW_MAP_FRAGMENT, false)) {
             intent.removeExtra(SHOW_MAP_FRAGMENT);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.main_activity_frame, screenMapFragment)
+                    .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
                     .commit();
         }
     }
@@ -478,8 +476,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        alertControl.plusNetworkStateReceiver();
-        alertControl.registerNetworkStateReceiver();
         alertControl.registerEventBus();
 
         mFragmentManager.addOnBackStackChangedListener(this);
@@ -493,13 +489,8 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onStop() {
         super.onStop();
-
-        alertControl.unregisterNetworkStateReceiver();
         alertControl.unregisterEventBus();
-//        loginController.stop();
-
         mFragmentManager.removeOnBackStackChangedListener(this);
-        Log.d(TAG, "onStop: ");
     }
 
     //Needed for Facebook handleUser
@@ -670,22 +661,22 @@ public class MainActivity extends AppCompatActivity implements
             case PROFILE_GPS_MODE_NOGPS:
                 mGpsStatus.setBackground(ContextCompat.getDrawable(this, R.drawable.button_stop));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
-                mapVisibility.setSelection(3);
+                mMapVisibility.setSelection(3);
                 break;
             case PROFILE_GPS_MODE_SOS:
                 mGpsStatus.setBackground(ContextCompat.getDrawable(this, R.drawable.button_stop));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_red);
-                mapVisibility.setSelection(2);
+                mMapVisibility.setSelection(2);
                 break;
             case PROFILE_GPS_MODE_FRIENDS:
                 mGpsStatus.setBackground(ContextCompat.getDrawable(this, R.drawable.button_ready));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_yellow);
-                mapVisibility.setSelection(1);
+                mMapVisibility.setSelection(1);
                 break;
             case PROFILE_GPS_MODE_PUBLIC:
                 mGpsStatus.setBackground(ContextCompat.getDrawable(this, R.drawable.button_start));
                 mapIndicator.setImageResource(R.mipmap.ic_map_indicator_green);
-                mapVisibility.setSelection(0);
+                mMapVisibility.setSelection(0);
                 break;
         }
 
@@ -758,6 +749,8 @@ public class MainActivity extends AppCompatActivity implements
         } else {
             visibility = View.GONE;
         }
-        if (mButtonStartRide != null) mButtonStartRide.setVisibility(visibility);
+//        if (mButtonStartRide != null)
+        mButtonStartRide.setVisibility(visibility);
+        mMapVisibility.setVisibility(visibility);
     }
 }

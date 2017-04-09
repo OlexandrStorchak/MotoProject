@@ -27,9 +27,9 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
     public static final int INTERNET_NOTIFICATION_ID = 1;
     public static final int GPS_NOTIFICATION_ID = 2;
-    Context mContext;
-    NotificationManager mNotifyMgr;
-    App mApp;
+    private Context mContext;
+    private NotificationManager mNotifyMgr;
+    private App mApp;
 
     @Inject
     public NetworkStateReceiver() {

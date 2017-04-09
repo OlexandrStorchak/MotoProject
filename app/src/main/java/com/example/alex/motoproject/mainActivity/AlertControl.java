@@ -4,10 +4,7 @@ package com.example.alex.motoproject.mainActivity;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.location.LocationManager;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -16,8 +13,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.app.App;
-import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.event.CancelAlertEvent;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
 import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
@@ -29,8 +24,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
-import javax.inject.Inject;
-
 public class AlertControl implements ScreenMapFragment.MapFragmentHolder {
 
     public static final int ALERT_GPS_OFF = 20;
@@ -40,9 +33,6 @@ public class AlertControl implements ScreenMapFragment.MapFragmentHolder {
     private static final int ALERT_SHARE_LOCATION_CONFIRMATION = 24;
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
 
-    @Inject
-    NetworkStateReceiver mNetworkStateReceiver;
-
     AlertDialog mAlert;
     private ArrayList<Integer> mActiveAlerts = new ArrayList<>();
     private MainActivity mainActivity;
@@ -51,10 +41,6 @@ public class AlertControl implements ScreenMapFragment.MapFragmentHolder {
     AlertControl(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
 
-    }
-
-    void plusNetworkStateReceiver() {
-        ((App) mainActivity.getApplicationContext()).plusNetworkStateReceiverComponent();
     }
 
     void registerEventBus() {
@@ -257,33 +243,6 @@ public class AlertControl implements ScreenMapFragment.MapFragmentHolder {
                 mAlert.dismiss();
             }
         }
-
-    }
-
-    void registerNetworkStateReceiver() {
-        //if LocationListenerService is on, this receiver has already been registered
-        if (!isServiceOn()) {
-            IntentFilter intentFilter = new IntentFilter(
-                    ConnectivityManager.CONNECTIVITY_ACTION);
-            intentFilter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
-
-            mainActivity.registerReceiver(
-                    mNetworkStateReceiver, intentFilter);
-        }
-    }
-
-    void unregisterNetworkStateReceiver() {
-        if (!isServiceOn()) {
-            try {
-                mainActivity.unregisterReceiver(mNetworkStateReceiver);
-            } catch (IllegalArgumentException e) {
-                //catch
-            }
-        }
-    }
-
-    private boolean isServiceOn() {
-        return ((App) mainActivity.getApplication()).isLocationListenerServiceOn();
     }
 
     @Subscribe

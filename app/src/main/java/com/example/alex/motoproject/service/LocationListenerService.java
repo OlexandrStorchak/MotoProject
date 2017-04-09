@@ -6,11 +6,9 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -18,12 +16,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
-import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
@@ -51,19 +47,15 @@ public class LocationListenerService extends Service implements Runnable,
     public static final String GPS_RATE = "gpsRate";
     private static final String STOP_SERVICE_EXTRA = "stopService";
 
-    int mNotificationId = 3;
-
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-    @Inject
-    NetworkStateReceiver mNetworkStateReceiver;
+
     FirebaseAuth mFirebaseAuth;
+    int mNotificationId = 3;
     private Handler handler = new Handler();
     private int updateTime = 10000;
-
     private GoogleApiClient mGoogleApiClient;
     private Location myLocation = null;
-
 
     public LocationListenerService() {
         // Required empty public constructor
@@ -72,8 +64,6 @@ public class LocationListenerService extends Service implements Runnable,
     @Override
     public void onCreate() {
         App.getCoreComponent().inject(this);
-        ((App) getApplication()).plusNetworkStateReceiverComponent();
-
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -86,7 +76,6 @@ public class LocationListenerService extends Service implements Runnable,
         mFirebaseAuth = FirebaseAuth.getInstance();
 
         showNotification();
-        registerReceiver();
 
         SharedPreferences preferences = getApplicationContext()
                 .getSharedPreferences(PROFSET, Context.MODE_PRIVATE);
@@ -94,7 +83,8 @@ public class LocationListenerService extends Service implements Runnable,
         SharedPreferences preferencesRate = getApplicationContext()
                 .getSharedPreferences(GPS_RATE, Context.MODE_PRIVATE);
 
-        String gpsRate = preferencesRate.getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null);
+        String gpsRate = preferencesRate.getString(
+                mFirebaseDatabaseHelper.getCurrentUser().getUid(), null);
         if (gpsRate == null) {
             gpsRate = LOCATION_REQUEST_FREQUENCY_DEFAULT;
         }
@@ -123,21 +113,10 @@ public class LocationListenerService extends Service implements Runnable,
 
     @Override
     public void onDestroy() {
-
         handler.removeCallbacks(this);
-
         mGoogleApiClient.disconnect();
-
-        unregisterReceiver(mNetworkStateReceiver);
         cleanupNotifications();
-
         ((App) getApplication()).setLocationListenerServiceOn(false);
-
-//        ((App) getApplication()).setLocationListenerServiceOn(false);
-//        if (((App) getApplication()).isMainActivityDestroyed()) {
-//            mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
-//
-//        }
         super.onDestroy();
     }
 
@@ -190,13 +169,6 @@ public class LocationListenerService extends Service implements Runnable,
         startForeground(mNotificationId, mBuilder.build());
     }
 
-    private void registerReceiver() {
-        IntentFilter intentFilterNetwork = new IntentFilter(
-                ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(
-                mNetworkStateReceiver, intentFilterNetwork);
-    }
-
     private void cleanupNotifications() {
         //cleanup notifications, no need of them if the app is off
         NotificationManager mNotifyMgr =
@@ -225,8 +197,6 @@ public class LocationListenerService extends Service implements Runnable,
 
             }
         }, 2900);
-
-        Log.i("time", "run: ");
     }
 
     private void startLocationUpdates() {

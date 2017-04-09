@@ -2,11 +2,13 @@ package com.example.alex.motoproject.app;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.IntentFilter;
+import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 
 import com.crashlytics.android.Crashlytics;
-import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiverComponent;
-import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiverModule;
+import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.firebase.CoreComponent;
 import com.example.alex.motoproject.firebase.DaggerCoreComponent;
 import com.example.alex.motoproject.firebase.FirebaseUtilsModule;
@@ -20,7 +22,7 @@ public class App extends Application
 
     private static CoreComponent coreComponent;
 
-    private static NetworkStateReceiverComponent networkStateReceiverComponent;
+//    private static NetworkStateReceiverComponent networkStateReceiverComponent;
 
     private boolean mMainActivityVisible;
     private boolean mLocationListenerServiceOn;
@@ -37,18 +39,15 @@ public class App extends Application
 
         registerActivityLifecycleCallbacks(this);
 
-        //Cache some data in gadget storage for offline usage
+        //Cache some data in the device storage for offline usage
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         coreComponent = buildCoreComponent();
-    }
 
-    public NetworkStateReceiverComponent plusNetworkStateReceiverComponent() {
-        if (networkStateReceiverComponent == null) {
-            networkStateReceiverComponent = coreComponent
-                    .plusNetworkStateReceiverComponent(new NetworkStateReceiverModule());
-        }
-        return networkStateReceiverComponent;
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
+        registerReceiver(new NetworkStateReceiver(), filter);
     }
 
     public boolean isLocationListenerServiceOn() {

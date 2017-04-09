@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,6 @@ import android.widget.Toast;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
-import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.dialog.MapUserDetailsDialogFragment;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
@@ -77,8 +77,6 @@ public class ScreenMapFragment extends FragmentWithRetainInstance
     private static final int MARKER_DIMENS_PX = DimensHelper.dpToPx(MARKER_DIMENS_DP);
 
     @Inject
-    NetworkStateReceiver mNetworkStateReceiver;
-    @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
 
     //Picasso has no strong references to its targets, create a custom strong reference
@@ -99,6 +97,7 @@ public class ScreenMapFragment extends FragmentWithRetainInstance
 
     public ScreenMapFragment() {
         // Required empty public constructor
+        Log.d("ddf", "fdf");
     }
 
     @Override
@@ -159,7 +158,6 @@ public class ScreenMapFragment extends FragmentWithRetainInstance
         mMapView = (MapView) view.findViewById(map);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
-
 
         //Get given coordinates to go to if they exist
         Bundle arguments = getArguments();
@@ -382,11 +380,6 @@ public class ScreenMapFragment extends FragmentWithRetainInstance
     public void onLocationAllowed() {
         if (!mApp.isLocationListenerServiceOn()) {
             mApp.startService(new Intent(mApp, LocationListenerService.class));
-            try {
-                mApp.unregisterReceiver(mNetworkStateReceiver);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-            }
         }
     }
 
