@@ -86,7 +86,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
     //for map lifecycle
     private MapView mMapView;
     //stores created markers
-    private HashMap<String, Marker> mMarkerHashMap;
+    private HashMap<String, Marker> mMarkerHashMap = new HashMap<>();
 
     private App mApp;
     private FloatingActionButton sosToggleButton;
@@ -179,8 +179,6 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 //                        });
             }
         });
-
-        mMarkerHashMap = new HashMap<>();
 
         super.onViewCreated(view, savedInstanceState);
     }

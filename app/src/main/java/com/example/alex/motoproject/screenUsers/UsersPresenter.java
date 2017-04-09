@@ -89,12 +89,13 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     }
 
     @Override
-    public void onItemCountChanged() {
-        if (mModel.isUserListEmpty()) {
-            getView().showEmptyView();
-        } else {
+    public void onItemCountChanged(int recyclerViewItems) {
+        if (recyclerViewItems > 0 && !mModel.isUserListEmpty()) {
             getView().hideEmptyView();
+        } else {
+            getView().showEmptyView();
         }
+
     }
 
     @Override

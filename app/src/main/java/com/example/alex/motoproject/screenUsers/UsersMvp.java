@@ -21,7 +21,7 @@ public interface UsersMvp {
 
         void onViewAttached(UsersMvp.PresenterToView presenterToView);
 
-        void onItemCountChanged();
+        void onItemCountChanged(int itemCount);
     }
 
     interface PresenterToView {

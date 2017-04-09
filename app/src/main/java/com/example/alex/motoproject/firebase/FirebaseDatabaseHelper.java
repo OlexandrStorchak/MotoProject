@@ -351,11 +351,12 @@ public class FirebaseDatabaseHelper {
                                                 new LatLng(lat.doubleValue(), lng.doubleValue());
                                         mUsersLocation.put(uid, latLng);
 
-                                        if (getCurrentUser() != null) {
-                                            if (uid.equals(getCurrentUser().getUid())) {
-                                                return;
-                                            }
+                                        if (getCurrentUser() != null &&
+                                                uid.equals(getCurrentUser().getUid())) {
+                                            return;
                                         }
+
+                                        if (name == null || avatarRef == null) return;
 
                                         EventBus.getDefault().post(new MapMarkerEvent(
                                                 latLng, uid, name, avatarRef, relation));

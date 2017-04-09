@@ -58,6 +58,7 @@ public class UsersModel implements UsersMvp.PresenterToModel,
             //There already exists data for the RecyclerView, that was saved on orientation change
             //with Presenter and Model instances
             for (List<User> users : mUsers.values()) {
+                if (users.isEmpty()) continue;
                 mPresenter.onAddNewSection(users.get(0).getRelation());
                 for (User user : users) {
                     mPresenter.onUserAdded(user);
