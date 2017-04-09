@@ -216,7 +216,7 @@ public class LoginFragment extends Fragment {
 
                 Collection<String> permissions = Arrays.asList("public_profile", "email");
 
-                loginManager.logInWithReadPermissions(ScreenLoginFragment.this, permissions);
+                loginManager.logInWithReadPermissions(LoginFragment.this, permissions);
 
             }
         });
