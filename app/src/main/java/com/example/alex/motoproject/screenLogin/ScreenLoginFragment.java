@@ -213,16 +213,11 @@ public class ScreenLoginFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 mLoginWithEmail = false;
-//                mButtonSignUp.setVisibility(View.INVISIBLE);
-//                mButtonSignInGoogle.setVisibility(View.INVISIBLE);
-//                mButtonSubmit.setVisibility(View.INVISIBLE);
-//                mButtonSignInFacebook.setVisibility(View.INVISIBLE);
-//                mEmail.setVisibility(View.GONE);
-//                mPassword.setVisibility(View.GONE);
 
                 Collection<String> permissions = Arrays.asList("public_profile", "email");
 
-                loginManager.logInWithReadPermissions(getActivity(), permissions);
+                loginManager.logInWithReadPermissions(ScreenLoginFragment.this, permissions);
+
             }
         });
     }
@@ -371,18 +366,8 @@ public class ScreenLoginFragment extends Fragment {
                     GoogleSignInAccount account = result.getSignInAccount();
                     firebaseAuthWithGoogle(account);
                 }
-//            } else if (resultCode == RESULT_CANCELED) {
-//                mProgressBar.setVisibility(View.GONE);
-//                firstStart = true;
-//                if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-//                    mGoogleApiClient.stopAutoManage(getActivity());
-//                    mGoogleApiClient.disconnect();
-//                    mButtonSignUp.setVisibility(View.VISIBLE);
-//                    mButtonSubmit.setVisibility(View.VISIBLE);
-//                    mButtonSignInFacebook.setVisibility(View.VISIBLE);
-//                    mButtonSignInGoogle.setVisibility(View.VISIBLE);
-//                    mButtonSignInGoogle.setClickable(true);
-//                }
+
+
             } else {
                 mProgressBar.setVisibility(View.GONE);
                 setButtonsVisible(true);
@@ -391,11 +376,7 @@ public class ScreenLoginFragment extends Fragment {
                     mGoogleApiClient.stopAutoManage(getActivity());
                     mGoogleApiClient.disconnect();
                     showErrorSnackbar();
-//                    mButtonSignUp.setVisibility(View.VISIBLE);
-//                    mButtonSubmit.setVisibility(View.VISIBLE);
-//                    mButtonSignInFacebook.setVisibility(View.VISIBLE);
-//                    mButtonSignInGoogle.setVisibility(View.VISIBLE);
-//                    mButtonSignInGoogle.setClickable(true);
+
                 }
             }
         } else {
