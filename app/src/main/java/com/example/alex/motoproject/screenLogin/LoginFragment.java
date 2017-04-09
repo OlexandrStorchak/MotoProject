@@ -198,14 +198,9 @@ public class LoginFragment extends Fragment {
                 mEmail.setVisibility(View.GONE);
                 mPassword.setVisibility(View.GONE);
                 setButtonsVisible(false);
-//                mButtonSignUp.setVisibility(View.GONE);
-//                mButtonSubmit.setVisibility(View.GONE);
-//                mButtonSignInGoogle.setVisibility(View.GONE);
-//                mButtonSignInFacebook.setVisibility(View.GONE);
                 mProgressBar.setVisibility(View.VISIBLE);
             }
         });
-
 
         mButtonSignInFacebook = (Button) view.findViewById(R.id.auth_btn_facebook_sign_in);
 
@@ -217,7 +212,6 @@ public class LoginFragment extends Fragment {
                 Collection<String> permissions = Arrays.asList("public_profile", "email");
 
                 loginManager.logInWithReadPermissions(LoginFragment.this, permissions);
-
             }
         });
     }
@@ -256,10 +250,6 @@ public class LoginFragment extends Fragment {
             visibility = View.GONE;
         }
 
-//        mButtonSignInFacebook.setEnabled(enabled);
-//        mButtonSignInGoogle.setEnabled(enabled);
-//        mButtonSignUp.setEnabled(enabled);
-//        mButtonSubmit.setEnabled(enabled);
         mButtonSignInGoogle.setVisibility(visibility);
         mButtonSubmit.setVisibility(visibility);
         mButtonSignUp.setVisibility(visibility);
@@ -390,7 +380,7 @@ public class LoginFragment extends Fragment {
         mPassword.setText("");
     }
 
-    public interface LoginActivityInterface {
+    interface LoginActivityInterface {
         void onSignUpButtonClick();
     }
 }
