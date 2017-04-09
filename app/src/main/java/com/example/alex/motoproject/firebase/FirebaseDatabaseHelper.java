@@ -56,7 +56,7 @@ import static com.example.alex.motoproject.firebase.Constants.RELATION_UNKNOWN;
 import static com.example.alex.motoproject.firebase.Constants.STATUS_NO_GPS;
 import static com.example.alex.motoproject.firebase.Constants.STATUS_PUBLIC;
 import static com.example.alex.motoproject.firebase.Constants.STATUS_SOS;
-import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_ABOUTME;
+import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_ABOUT_ME;
 import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_AVATAR;
 import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_EMAIL;
 import static com.example.alex.motoproject.firebase.Constants.USER_PROFILE_FRIEND_LIST;
@@ -1087,7 +1087,7 @@ public class FirebaseDatabaseHelper {
 
     public void saveMyProfile(MyProfileFirebase profile) {
         DatabaseReference ref = mDbReference.child(PATH_USERS)
-                .child(getCurrentUser().getUid()).child(USER_PROFILE_ABOUTME);
+                .child(getCurrentUser().getUid()).child(USER_PROFILE_ABOUT_ME);
         ref.setValue(profile.aboutMe);
 
         ref = mDbReference.child(PATH_USERS)
@@ -1118,51 +1118,53 @@ public class FirebaseDatabaseHelper {
         ref.setValue(avatarUrl);
     }
 
-    // TODO: 28.03.2017 must do before release
-    public void sendSosMessage() {
-
-
-
-
+    public void sendSosMessage(final String text) {
         long time = System.currentTimeMillis();
 
-
-        DatabaseReference ref = mDbReference.child(PATH_SOS)
+        final DatabaseReference ref = mDbReference.child(PATH_SOS)
                 .child(getCurrentUser().getUid());
 
-        MainServiceSosModel sosModel = new MainServiceSosModel();
+        final MainServiceSosModel sosModel = new MainServiceSosModel();
         sosModel.setUserId(getCurrentUser().getUid());
         sosModel.setUserName(getCurrentUser().getDisplayName());
-        sosModel.setDescription("Need help!");
+        sosModel.setDescription(text);
         sosModel.setTime(String.valueOf(time));
-        sosModel.setLat(String.valueOf(getMyLastKnownLocation().latitude));
-        sosModel.setLng(String.valueOf(getMyLastKnownLocation().longitude));
-        ref.setValue(sosModel);
 
-    }
-
-    public LatLng getMyLastKnownLocation() {
-
-        DatabaseReference ref = mDbReference.child(PATH_LOCATION).child(getCurrentUser().getUid());
-        ref.addValueEventListener(new ValueEventListener() {
+        getCurrentUserLocation(new UsersLocationReceiver() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                LocationModel locationModel = dataSnapshot.getValue(LocationModel.class);
+            public void onCurrentUserLocationReady(LatLng latLng) {
+                sosModel.setLat(String.valueOf(latLng.latitude));
+                sosModel.setLng(String.valueOf(latLng.longitude));
+                ref.setValue(sosModel);
 
-                setMyLastKnownLocation(new LatLng(locationModel.getLat(), locationModel.getLng()));
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
+                sendChatMessage(text);
+                sendChatMessage(latLng);
             }
         });
-        return myLastKnownLocation;
     }
 
-     private void setMyLastKnownLocation(LatLng myLastKnownLocation) {
-        this.myLastKnownLocation = myLastKnownLocation;
-    }
+//    public LatLng getMyLastKnownLocation() {
+//
+//        DatabaseReference ref = mDbReference.child(PATH_LOCATION).child(getCurrentUser().getUid());
+//        ref.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                LocationModel locationModel = dataSnapshot.getValue(LocationModel.class);
+//
+//                setMyLastKnownLocation(new LatLng(locationModel.getLat(), locationModel.getLng()));
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+//        return myLastKnownLocation;
+//    }
+
+//     private void setMyLastKnownLocation(LatLng myLastKnownLocation) {
+//        this.myLastKnownLocation = myLastKnownLocation;
+//    }
 
     public interface AuthLoadingListener {
         void onLoadFinished();

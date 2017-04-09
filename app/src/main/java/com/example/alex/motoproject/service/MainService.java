@@ -11,7 +11,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
-
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
@@ -22,14 +21,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import static com.example.alex.motoproject.firebase.Constants.PATH_SOS;
+import static com.example.alex.motoproject.util.ArgKeys.SHOW_CHAT_FRAGMENT;
+
 
 public class MainService extends Service {
     private static final int FIVE_MINUTES = 300000;
-    public static final String CHAT_INTENT_KEY = "chat";
-    private static final String CHAT_INTENT_VALUE = "showChat";
+
     App mApp;
-
-
 
     @Nullable
     @Override
@@ -43,15 +42,15 @@ public class MainService extends Service {
         final String currentUser = new FirebaseDatabaseHelper()
                 .getCurrentUser().getUid();
         mApp = (App) getApplicationContext();
-        final DatabaseReference ref = mFirebaseDatabase.getReference().child("sos");
-        ref.keepSynced(false);
+        final DatabaseReference ref = mFirebaseDatabase.getReference().child(PATH_SOS);
+//        ref.keepSynced(false);
         ref.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                long sosCount=0;
+                long sosCount = 0;
                 if (dataSnapshot.getChildrenCount() > sosCount) {
-                    long time = System.currentTimeMillis();
+                    long currentUserTime = System.currentTimeMillis();
 
                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                         sosCount = dataSnapshot.getChildrenCount();
@@ -61,11 +60,11 @@ public class MainService extends Service {
 
                             try {
                                 long userTime = Long.parseLong(model.getTime());
-                                if (userTime + FIVE_MINUTES > time) {
+                                if (userTime + FIVE_MINUTES > currentUserTime) {
                                     showNotification(sosCount, model.getDescription());
                                 }
-                            } catch (NumberFormatException error) {
-                                Log.i("error", "onDataChange: ");
+                            } catch (NumberFormatException e) {
+                                e.printStackTrace();
                             }
                         }
                     }
@@ -81,7 +80,9 @@ public class MainService extends Service {
 
     private void showNotification(long sosCount, String description) {
         Intent chatIntent = new Intent(this, MainActivity.class);
-        chatIntent.putExtra(CHAT_INTENT_KEY,CHAT_INTENT_VALUE);
+        chatIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        chatIntent.putExtra(SHOW_CHAT_FRAGMENT, true);
         PendingIntent chatFragment =
                 PendingIntent.getActivity(
                         this,
@@ -99,14 +100,12 @@ public class MainService extends Service {
                         .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                         .setLights(Color.RED, 1000, 1000);
 
-
         if (!mApp.isMainActivityVisible()) {
             mBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000});
         }
 
         NotificationManagerCompat manager = NotificationManagerCompat.from(this);
         manager.notify(4, mBuilder.build());
-
     }
 
     @Override

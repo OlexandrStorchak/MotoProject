@@ -64,7 +64,6 @@ import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_SOS;
 import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
-import static com.example.alex.motoproject.service.MainService.CHAT_INTENT_KEY;
 import static com.example.alex.motoproject.util.ArgKeys.ACTIONBAR_STATUS;
 import static com.example.alex.motoproject.util.ArgKeys.EMAIL;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_AVATAR_REF;
@@ -72,6 +71,7 @@ import static com.example.alex.motoproject.util.ArgKeys.KEY_LIST_TYPE;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_NAME;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_UID;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_USER_COORDS;
+import static com.example.alex.motoproject.util.ArgKeys.SHOW_CHAT_FRAGMENT;
 import static com.example.alex.motoproject.util.ArgKeys.SHOW_MAP_FRAGMENT;
 import static com.example.alex.motoproject.util.ArgKeys.SIGN_OUT;
 
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements
     private ImageView mapIndicator;
     private Button mButtonStartRide;
 
-    private View.OnClickListener backButtonBack = new View.OnClickListener() {
+    private View.OnClickListener mUpButton = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             onBackPressed();
@@ -290,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
-                stopService(new Intent(MainActivity.this,MainService.class));
+                stopService(new Intent(MainActivity.this, MainService.class));
             }
         });
 
@@ -408,33 +408,37 @@ public class MainActivity extends AppCompatActivity implements
             mButtonStartRide.setText(R.string.start_location_service_button_title);
         }
 
-//        if (getIntent().getBooleanExtra(SHOW_MAP_FRAGMENT, false) || savedInstanceState == null) {
-//            getIntent().removeExtra(SHOW_MAP_FRAGMENT);
-//            getSupportFragmentManager().beginTransaction()
-//                    .replace(R.id.main_activity_frame, screenMapFragment)
-//                    .commit();
-//        }
-        //Show chat fragment on Sos notification clicked
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main_activity_frame, screenMapFragment)
+                    .commit();
+        }
         if (getIntent() != null) {
-            if (getIntent().hasExtra(CHAT_INTENT_KEY) &&
-                    !getIntent().getStringExtra(CHAT_INTENT_KEY).isEmpty()) {
-
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.main_activity_frame, chatFragment)
-                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                        .commit();
-
-
-            } else if (getIntent().getBooleanExtra(SHOW_MAP_FRAGMENT, false) || savedInstanceState == null){
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.main_activity_frame, screenMapFragment)
-                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                        .commit();
-            }
+            handleIntent(getIntent());
         }
 
         handleUser(mFirebaseDatabaseHelper.getCurrentUser());
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (intent.getBooleanExtra(SHOW_CHAT_FRAGMENT, false)) {
+            intent.removeExtra(SHOW_CHAT_FRAGMENT);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main_activity_frame, chatFragment)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                    .commit();
+        } else if (intent.getBooleanExtra(SHOW_MAP_FRAGMENT, false)) {
+            intent.removeExtra(SHOW_MAP_FRAGMENT);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main_activity_frame, screenMapFragment)
+                    .commit();
+        }
     }
 
     private void startRideService() {
@@ -745,7 +749,7 @@ public class MainActivity extends AppCompatActivity implements
     private void lockDrawerAndShowUpButton() {
         actionbarStatus = ACTIONBAR_UP_BUTTON;
         mToolbar.setNavigationIcon(R.mipmap.ic_back_button);
-        mToolbar.setNavigationOnClickListener(backButtonBack);
+        mToolbar.setNavigationOnClickListener(mUpButton);
         mDrawerLayout.closeDrawers();
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }

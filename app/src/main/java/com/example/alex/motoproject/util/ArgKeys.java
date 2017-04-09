@@ -15,9 +15,8 @@ public class ArgKeys {
     public static final String BEARING = "bearing";
     public static final String MAP_TYPE = "mapType";
 
-    public static final String USER_COORDS = "userCoords";
-
     public static final String MESSAGE_TEXT = "messageText";
+    public static final String SHOW_CHAT_FRAGMENT = "showChatFragment";
 
     public static final String USER_DATA = "userData";
 
