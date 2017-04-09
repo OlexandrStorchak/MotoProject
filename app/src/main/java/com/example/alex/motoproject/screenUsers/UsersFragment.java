@@ -68,7 +68,7 @@ public class UsersFragment extends FragmentWithRetainInstance
             new RecyclerView.AdapterDataObserver() {
                 @Override
                 public void onChanged() { //Show custom View if no children in RecyclerView
-                    mPresenter.onItemCountChanged();
+                    mPresenter.onItemCountChanged(mAdapter.getItemCount());
                 }
             };
 

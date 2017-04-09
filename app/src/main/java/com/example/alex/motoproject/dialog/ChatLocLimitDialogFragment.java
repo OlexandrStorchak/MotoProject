@@ -19,7 +19,7 @@ import org.greenrobot.eventbus.EventBus;
 public class ChatLocLimitDialogFragment extends DialogFragment
         implements SeekBar.OnSeekBarChangeListener {
 
-    private static final int MAX_SEEKBAR_VALUE = 20;
+    private static final int MAX_SEEK_BAR_VALUE = 20;
 
     private TextView mLimitTextView;
     private int mLimit;
@@ -34,7 +34,7 @@ public class ChatLocLimitDialogFragment extends DialogFragment
         final SeekBar seekBar = (SeekBar) view.findViewById(R.id.seekbar_chat_limit);
         mLimitTextView = (TextView) view.findViewById(R.id.textview_value_chat_limit);
 
-        seekBar.setMax(MAX_SEEKBAR_VALUE);
+        seekBar.setMax(MAX_SEEK_BAR_VALUE);
         seekBar.setOnSeekBarChangeListener(this);
         seekBar.setProgress(mLimit);
 

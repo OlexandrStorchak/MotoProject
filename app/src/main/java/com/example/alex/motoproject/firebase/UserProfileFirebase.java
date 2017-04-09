@@ -3,17 +3,17 @@ package com.example.alex.motoproject.firebase;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class UsersProfileFirebase implements Parcelable {
+public class UserProfileFirebase implements Parcelable {
     @SuppressWarnings("unused")
-    public static final Parcelable.Creator<UsersProfileFirebase> CREATOR = new Parcelable.Creator<UsersProfileFirebase>() {
+    public static final Parcelable.Creator<UserProfileFirebase> CREATOR = new Parcelable.Creator<UserProfileFirebase>() {
         @Override
-        public UsersProfileFirebase createFromParcel(Parcel in) {
-            return new UsersProfileFirebase(in);
+        public UserProfileFirebase createFromParcel(Parcel in) {
+            return new UserProfileFirebase(in);
         }
 
         @Override
-        public UsersProfileFirebase[] newArray(int size) {
-            return new UsersProfileFirebase[size];
+        public UserProfileFirebase[] newArray(int size) {
+            return new UserProfileFirebase[size];
         }
     };
     private String id;
@@ -24,11 +24,11 @@ public class UsersProfileFirebase implements Parcelable {
     private String nickName;
     private String aboutMe;
 
-    public UsersProfileFirebase() {
+    public UserProfileFirebase() {
 
     }
 
-    private UsersProfileFirebase(Parcel in) {
+    private UserProfileFirebase(Parcel in) {
         id = in.readString();
         name = in.readString();
         avatar = in.readString();
@@ -40,6 +40,10 @@ public class UsersProfileFirebase implements Parcelable {
 
     public String getMotorcycle() {
         return motorcycle;
+    }
+
+    public void setMotorcycle(String motorcycle) {
+        this.motorcycle = motorcycle;
     }
 
     public String getId() {
@@ -70,14 +74,25 @@ public class UsersProfileFirebase implements Parcelable {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getNickName() {
         return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
     }
 
     public String getAboutMe() {
         return aboutMe;
     }
 
+    public void setAboutMe(String aboutMe) {
+        this.aboutMe = aboutMe;
+    }
 
     @Override
     public int describeContents() {

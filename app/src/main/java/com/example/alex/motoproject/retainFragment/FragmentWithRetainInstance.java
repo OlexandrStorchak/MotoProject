@@ -6,10 +6,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
 
-public abstract class FragmentWithRetainInstance<T> extends Fragment {
+public abstract class FragmentWithRetainInstance extends Fragment {
     // Keeps track if this Fragment is being destroy by System or User
     protected boolean mDestroyedBySystem;
-    private RetainFragment<T> mRetainFragment;
+    private RetainFragment mRetainFragment;
 
     public FragmentWithRetainInstance() {
 
@@ -18,12 +18,12 @@ public abstract class FragmentWithRetainInstance<T> extends Fragment {
     public abstract String getDataTag();
 
     // Convenience method to get data.
-    public T getRetainData() {
+    public Object getRetainData() {
         return mRetainFragment.data;
     }
 
     // Convenience method to set data.
-    public void setRetainData(T data) {
+    public void setRetainData(Object data) {
         mRetainFragment.data = data;
     }
 

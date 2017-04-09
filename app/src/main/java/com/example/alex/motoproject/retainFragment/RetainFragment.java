@@ -4,15 +4,15 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
-public class RetainFragment<T> extends Fragment {
-    public T data;
+public class RetainFragment extends Fragment {
+    public Object data;
 
     // Find/Create in FragmentManager
-    public static <T> RetainFragment<T> findOrCreate(FragmentManager fm, String tag) {
-        RetainFragment<T> retainFragment = (RetainFragment<T>) fm.findFragmentByTag(tag);
+    public static RetainFragment findOrCreate(FragmentManager fm, String tag) {
+        RetainFragment retainFragment = (RetainFragment) fm.findFragmentByTag(tag);
 
         if (retainFragment == null) {
-            retainFragment = new RetainFragment<>();
+            retainFragment = new RetainFragment();
             fm.beginTransaction()
                     .add(retainFragment, tag)
                     .commitAllowingStateLoss();

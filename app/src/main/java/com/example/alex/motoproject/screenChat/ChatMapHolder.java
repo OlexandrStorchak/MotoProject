@@ -23,14 +23,6 @@ class ChatMapHolder extends BaseChatItemHolder {
         mStaticMap = (ImageView) itemView.findViewById(R.id.chat_message_map);
         mProgressBar = (ProgressBar) itemView.findViewById(R.id.chat_message_progressbar);
     }
-//
-//    public void setName(String name) {
-//        super.setName(name);
-//    }
-//
-//    void setSendTime(String dateTime) {
-//        super.setSendTime(dateTime);
-//    }
 
     void setStaticMap(Context context, final LatLng location, int width, int height) {
         mProgressBar.getLayoutParams().width = width;

@@ -26,7 +26,6 @@ import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.dialog.MapUserDetailsDialogFragment;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
-import com.example.alex.motoproject.event.MapMarkerEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
@@ -92,7 +91,7 @@ public class ScreenMapFragment extends FragmentWithRetainInstance implements OnM
     //for map lifecycle
     private MapView mMapView;
     //stores created markers
-    private HashMap<String, Marker> mMarkerHashMap;
+    private HashMap<String, Marker> mMarkerHashMap = new HashMap<>();
 
     private App mApp;
     private FloatingActionButton sosToggleButton;
@@ -190,8 +189,6 @@ public class ScreenMapFragment extends FragmentWithRetainInstance implements OnM
             }
         });
 
-        mMarkerHashMap = new HashMap<>();
-
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -220,10 +217,11 @@ public class ScreenMapFragment extends FragmentWithRetainInstance implements OnM
             mCameraUpdate = CameraUpdateFactory.newCameraPosition(position);
         }
 
-        //Might occur if orientation changes too many times in a while
-        if (mCameraUpdate == null) return;
-
-        mMap.moveCamera(mCameraUpdate);
+        try { //Might occur if orientation changes too many times in a while
+            mMap.moveCamera(mCameraUpdate);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
         mMap.setMapType(mMapType);
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -241,6 +239,7 @@ public class ScreenMapFragment extends FragmentWithRetainInstance implements OnM
 
     @Override
     public void onDestroyView() {
+        mMarkerHashMap.clear();
         mMapView.onDestroy();
         super.onDestroyView();
     }
@@ -288,7 +287,7 @@ public class ScreenMapFragment extends FragmentWithRetainInstance implements OnM
         mMapView.onStart();
         super.onStart();
         EventBus.getDefault().register(this);
-        mFirebaseDatabaseHelper.registerOnlineUsersLocationListener();
+        mFirebaseDatabaseHelper.registerOnlineUsersLocationListener(this);
     }
 
     @Override
@@ -297,35 +296,29 @@ public class ScreenMapFragment extends FragmentWithRetainInstance implements OnM
         super.onResume();
     }
 
-    @Subscribe
-    public void updateMapPin(final MapMarkerEvent event) {
-        if (mMarkerHashMap.containsKey(event.uid)) {
-            Marker marker = mMarkerHashMap.get(event.uid);
-            if (event.latLng == null) {
-                marker.remove();
-                mMarkerHashMap.remove(event.uid);
-                return;
-            }
-            marker.setPosition(event.latLng);
+    @Override
+    public void onMarkerChange(MapMarkerModel model) {
+        //The marker is already on the map, just need to change its coordinates
+        if (mMarkerHashMap.containsKey(model.uid)) {
+            Marker marker = mMarkerHashMap.get(model.uid);
+            marker.setPosition(model.latLng);
             return;
         }
-        if (event.latLng == null) {
-            return;
-        }
+        //There is no such marker on the map, so create a new one
         final Marker marker = mMap.addMarker(new MarkerOptions()
-                .position(event.latLng)
+                .position(model.latLng)
                 .anchor(0.5f, 0.5f));
         marker.setVisible(false);
 
         Bundle markerData = new Bundle();
-        markerData.putString(ArgKeys.KEY_UID, event.uid);
-        markerData.putString(ArgKeys.KEY_NAME, event.userName);
-        markerData.putString(ArgKeys.KEY_AVATAR_REF, event.avatarRef);
+        markerData.putString(ArgKeys.KEY_UID, model.uid);
+        markerData.putString(ArgKeys.KEY_NAME, model.userName);
+        markerData.putString(ArgKeys.KEY_AVATAR_REF, model.avatarRef);
         marker.setTag(markerData);
 
-        mMarkerHashMap.put(event.uid, marker);
+        mMarkerHashMap.put(model.uid, marker);
 
-        DimensHelper.getScaledAvatar(event.avatarRef,
+        DimensHelper.getScaledAvatar(model.avatarRef,
                 MARKER_DIMENS_PX, new DimensHelper.AvatarRefReceiver() {
                     @Override
                     public void onRefReady(String ref) {
@@ -337,6 +330,15 @@ public class ScreenMapFragment extends FragmentWithRetainInstance implements OnM
 
                     }
                 });
+    }
+
+    @Override
+    public void onMarkerDelete(String uid) {
+        if (mMarkerHashMap.containsKey(uid)) {
+            Marker marker = mMarkerHashMap.get(uid);
+            marker.remove();
+            mMarkerHashMap.remove(uid);
+        }
     }
 
     private void fetchAndSetMarkerIcon(String avatarRef, final Marker marker) {

@@ -137,16 +137,10 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     }
 
     private void postGpsStatusChangedEvent(boolean gpsOn) {
-//        if (isServiceOn()) {
         EventBus.getDefault().postSticky(new GpsStatusChangedEvent(gpsOn));
-//        }
     }
 
     private void postInternetStatusChangedEvent(boolean internetOn) {
         EventBus.getDefault().postSticky(new InternetStatusChangedEvent(internetOn));
     }
-
-//    private boolean isServiceOn() {
-//        return ((App) mContext.getApplicationContext()).isLocationListenerServiceOn();
-//    }
 }

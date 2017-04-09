@@ -16,9 +16,6 @@ import static com.example.alex.motoproject.util.ArgKeys.SIGN_OUT;
 public class LoginActivity extends AppCompatActivity
         implements ScreenLoginFragment.LoginActivityInterface {
 
-    private static final String LOGIN_FRAGMENT_TAG = "loginFragment";
-
-    ScreenLoginFragment mLoginFragment;
     FirebaseLoginController mLoginController = new FirebaseLoginController(this);
 
     @Override
@@ -48,14 +45,8 @@ public class LoginActivity extends AppCompatActivity
             mLoginController.signOut();
         }
 
-        mLoginFragment = (ScreenLoginFragment)
-                getSupportFragmentManager().findFragmentByTag(LOGIN_FRAGMENT_TAG);
-        if (mLoginFragment == null) {
-            mLoginFragment = new ScreenLoginFragment();
-        }
-
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content_login, mLoginFragment, LOGIN_FRAGMENT_TAG)
+                .replace(R.id.content_login, new ScreenLoginFragment())
                 .commit();
     }
 
