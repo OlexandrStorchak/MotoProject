@@ -64,7 +64,6 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class ScreenMyProfileFragment extends Fragment {
 
-    // TODO: 28.03.2017 do refector
     public static final String PROFSET = "profSett";
     public static final String PROFILE_GPS_MODE_PUBLIC = "public";
     public static final String PROFILE_GPS_MODE_FRIENDS = "friends";

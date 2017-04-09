@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
-import com.example.alex.motoproject.event.MapMarkerEvent;
+import com.example.alex.motoproject.event.MapMarkerModel;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.screenChat.ChatMessage;
 import com.example.alex.motoproject.screenChat.ChatMessageSendable;
@@ -202,23 +202,23 @@ public class FirebaseDatabaseHelper {
      * Location listeners
      */
 
-    public void registerOnlineUsersLocationListener() {
+    public void registerOnlineUsersLocationListener(final MapMarkersUpdateReceiver receiver) {
         mOnlineUsersRef = mDbReference.child(PATH_ONLINE_USERS);
         mOnlineUsersLocationListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                postChangeMarkerEvent(dataSnapshot);
+                postChangeMarkerEvent(dataSnapshot, receiver);
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                postDeleteMarkerEvent(dataSnapshot);
-                postChangeMarkerEvent(dataSnapshot);
+                postDeleteMarkerEvent(dataSnapshot, receiver);
+                postChangeMarkerEvent(dataSnapshot, receiver);
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                postDeleteMarkerEvent(dataSnapshot);
+                postDeleteMarkerEvent(dataSnapshot, receiver);
             }
 
             @Override
@@ -290,7 +290,8 @@ public class FirebaseDatabaseHelper {
         return relation.equals(RELATION_FRIEND);
     }
 
-    private void postChangeMarkerEvent(final DataSnapshot firstDataSnapshot) {
+    private void postChangeMarkerEvent(final DataSnapshot firstDataSnapshot,
+                                       final MapMarkersUpdateReceiver receiver) {
         final String status = (String) firstDataSnapshot.getValue();
         final String uid = firstDataSnapshot.getKey();
 
@@ -358,8 +359,10 @@ public class FirebaseDatabaseHelper {
 
                                         if (name == null || avatarRef == null) return;
 
-                                        EventBus.getDefault().post(new MapMarkerEvent(
+                                        receiver.onMarkerChange(new MapMarkerModel(
                                                 latLng, uid, name, avatarRef, relation));
+//                                        EventBus.getDefault().post(new MapMarkerEvent(
+//                                                latLng, uid, name, avatarRef, relation));
                                     }
 
                                     @Override
@@ -395,7 +398,8 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-    private void postDeleteMarkerEvent(DataSnapshot dataSnapshot) {
+    private void postDeleteMarkerEvent(DataSnapshot dataSnapshot,
+                                       final MapMarkersUpdateReceiver receiver) {
         DatabaseReference location =
                 mDbReference.child(PATH_LOCATION).child(dataSnapshot.getKey());
         location.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -406,7 +410,8 @@ public class FirebaseDatabaseHelper {
                 }
                 String uid = dataSnapshot.getKey();
                 if (!uid.equals(getCurrentUser().getUid())) {
-                    EventBus.getDefault().post(new MapMarkerEvent(uid));
+//                    EventBus.getDefault().post(new MapMarkerEvent(uid));
+                    receiver.onMarkerDelete(uid);
                 }
             }
 
@@ -1172,6 +1177,12 @@ public class FirebaseDatabaseHelper {
 
     public interface AuthLoadingListener {
         void onLoadFinished();
+    }
+
+    public interface MapMarkersUpdateReceiver {
+        void onMarkerChange(MapMarkerModel markerModel);
+
+        void onMarkerDelete(String uid);
     }
 
     public interface UsersUpdateReceiver {

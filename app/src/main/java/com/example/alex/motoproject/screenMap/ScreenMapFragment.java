@@ -24,7 +24,7 @@ import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.dialog.MapUserDetailsDialogFragment;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
-import com.example.alex.motoproject.event.MapMarkerEvent;
+import com.example.alex.motoproject.event.MapMarkerModel;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.service.LocationListenerService;
@@ -69,7 +69,8 @@ import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
  * The fragment that contains a map from Google Play Services.
  */
 
-public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
+public class ScreenMapFragment extends Fragment implements
+        OnMapReadyCallback, FirebaseDatabaseHelper.MapMarkersUpdateReceiver {
 
     private static final int MARKER_DIMENS_DP = 90;
     private static final int MARKER_DIMENS_PX = DimensHelper.dpToPx(MARKER_DIMENS_DP) / 2;
@@ -206,10 +207,11 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
             mCameraUpdate = CameraUpdateFactory.newCameraPosition(position);
         }
 
-        //Might occur if orientation changes too many times in a while
-        if (mCameraUpdate == null) return;
-
-        mMap.moveCamera(mCameraUpdate);
+        try { //Might occur if orientation changes too many times in a while
+            mMap.moveCamera(mCameraUpdate);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
         mMap.setMapType(mMapType);
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -275,7 +277,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         mMapView.onStart();
         super.onStart();
         EventBus.getDefault().register(this);
-        mFirebaseDatabaseHelper.registerOnlineUsersLocationListener();
+        mFirebaseDatabaseHelper.registerOnlineUsersLocationListener(this);
     }
 
     @Override
@@ -284,35 +286,29 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
         super.onResume();
     }
 
-    @Subscribe
-    public void updateMapPin(final MapMarkerEvent event) {
-        if (mMarkerHashMap.containsKey(event.uid)) {
-            Marker marker = mMarkerHashMap.get(event.uid);
-            if (event.latLng == null) {
-                marker.remove();
-                mMarkerHashMap.remove(event.uid);
-                return;
-            }
-            marker.setPosition(event.latLng);
+    @Override
+    public void onMarkerChange(MapMarkerModel model) {
+        //The marker is already on the map, just need to change its coordinates
+        if (mMarkerHashMap.containsKey(model.uid)) {
+            Marker marker = mMarkerHashMap.get(model.uid);
+            marker.setPosition(model.latLng);
             return;
         }
-        if (event.latLng == null) {
-            return;
-        }
+        //There is no such marker on the map, so create a new one
         final Marker marker = mMap.addMarker(new MarkerOptions()
-                .position(event.latLng)
+                .position(model.latLng)
                 .anchor(0.5f, 0.5f));
         marker.setVisible(false);
 
         Bundle markerData = new Bundle();
-        markerData.putString(ArgKeys.KEY_UID, event.uid);
-        markerData.putString(ArgKeys.KEY_NAME, event.userName);
-        markerData.putString(ArgKeys.KEY_AVATAR_REF, event.avatarRef);
+        markerData.putString(ArgKeys.KEY_UID, model.uid);
+        markerData.putString(ArgKeys.KEY_NAME, model.userName);
+        markerData.putString(ArgKeys.KEY_AVATAR_REF, model.avatarRef);
         marker.setTag(markerData);
 
-        mMarkerHashMap.put(event.uid, marker);
+        mMarkerHashMap.put(model.uid, marker);
 
-        DimensHelper.getScaledAvatar(event.avatarRef,
+        DimensHelper.getScaledAvatar(model.avatarRef,
                 MARKER_DIMENS_PX, new DimensHelper.AvatarRefReceiver() {
                     @Override
                     public void onRefReady(String ref) {
@@ -324,6 +320,15 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
                     }
                 });
+    }
+
+    @Override
+    public void onMarkerDelete(String uid) {
+        if (mMarkerHashMap.containsKey(uid)) {
+            Marker marker = mMarkerHashMap.get(uid);
+            marker.remove();
+            mMarkerHashMap.remove(uid);
+        }
     }
 
     private void fetchAndSetMarkerIcon(String avatarRef, final Marker marker) {
