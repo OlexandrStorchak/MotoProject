@@ -62,7 +62,7 @@ import static com.example.alex.motoproject.util.ArgKeys.NICKNAME;
 import static com.example.alex.motoproject.util.ArgKeys.USER_DATA;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
-public class ScreenMyProfileFragment extends Fragment {
+public class MyProfileFragment extends Fragment {
 
     public static final String PROFSET = "profSett";
     public static final String PROFILE_GPS_MODE_PUBLIC = "public";
@@ -95,7 +95,7 @@ public class ScreenMyProfileFragment extends Fragment {
 
     private boolean mEditMode;
 
-    public ScreenMyProfileFragment() {
+    public MyProfileFragment() {
         // Required empty public constructor
     }
 
@@ -214,7 +214,6 @@ public class ScreenMyProfileFragment extends Fragment {
         mapRate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                // TODO: 05.03.2017 add method contract to LocationListenerService
                 switch (i) {
                     case 0:
                         preferencesRate.edit()

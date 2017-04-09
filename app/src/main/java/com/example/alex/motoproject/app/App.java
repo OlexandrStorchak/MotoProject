@@ -2,6 +2,7 @@ package com.example.alex.motoproject.app;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -12,7 +13,7 @@ import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.firebase.CoreComponent;
 import com.example.alex.motoproject.firebase.DaggerCoreComponent;
 import com.example.alex.motoproject.firebase.FirebaseUtilsModule;
-import com.example.alex.motoproject.mainActivity.MainActivity;
+import com.example.alex.motoproject.screenMain.MainActivity;
 import com.google.firebase.database.FirebaseDatabase;
 
 import io.fabric.sdk.android.Fabric;
@@ -22,10 +23,10 @@ public class App extends Application
 
     private static CoreComponent coreComponent;
 
-//    private static NetworkStateReceiverComponent networkStateReceiverComponent;
-
     private boolean mMainActivityVisible;
     private boolean mLocationListenerServiceOn;
+
+    private BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
 
     public static CoreComponent getCoreComponent() {
         return coreComponent;
@@ -47,7 +48,11 @@ public class App extends Application
         IntentFilter filter = new IntentFilter();
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
-        registerReceiver(new NetworkStateReceiver(), filter);
+        registerReceiver(mNetworkStateReceiver, filter);
+    }
+
+    public void checkGpsState() {
+        mNetworkStateReceiver.onReceive(this, null);
     }
 
     public boolean isLocationListenerServiceOn() {

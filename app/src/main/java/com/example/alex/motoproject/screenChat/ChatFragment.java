@@ -30,8 +30,8 @@ import com.example.alex.motoproject.dialog.ChatLocLimitDialogFragment;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
 import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
-import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
+import com.example.alex.motoproject.screenMain.MainActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

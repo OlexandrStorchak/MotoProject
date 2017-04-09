@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.mainActivity;
+package com.example.alex.motoproject.screenMain;
 
 
 import android.Manifest;
@@ -17,14 +17,14 @@ import com.example.alex.motoproject.event.CancelAlertEvent;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
 import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
 import com.example.alex.motoproject.event.ShowAlertEvent;
-import com.example.alex.motoproject.screenMap.ScreenMapFragment;
+import com.example.alex.motoproject.screenMap.MapFragment;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
-public class AlertControl implements ScreenMapFragment.MapFragmentHolder {
+public class AlertControl implements MapFragment.MapFragmentHolder {
 
     public static final int ALERT_GPS_OFF = 20;
     public static final int ALERT_INTERNET_OFF = 21;
@@ -205,7 +205,7 @@ public class AlertControl implements ScreenMapFragment.MapFragmentHolder {
 
         if (checkLocationPermission()) {
             //permission granted
-            mainActivity.screenMapFragment.onLocationAllowed();
+            mainActivity.mapFragment.onLocationAllowed();
 
         } else { //permission was not granted, show the permission prompt
             requestLocationPermission();

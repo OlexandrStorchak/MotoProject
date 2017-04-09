@@ -32,7 +32,7 @@ import javax.inject.Inject;
 import static com.example.alex.motoproject.util.ArgKeys.BUTTONS_TRANSLATION_Y;
 import static com.example.alex.motoproject.util.ArgKeys.USER_DATA;
 
-public class ScreenUserProfileFragment extends Fragment {
+public class UserProfileFragment extends Fragment {
 
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
@@ -50,7 +50,7 @@ public class ScreenUserProfileFragment extends Fragment {
 
     private UserProfileFirebase mUserData;
 
-    public ScreenUserProfileFragment() {
+    public UserProfileFragment() {
         // Required empty public constructor
     }
 

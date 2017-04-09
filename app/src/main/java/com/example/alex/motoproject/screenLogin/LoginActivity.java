@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.firebase.FirebaseLoginController;
-import com.example.alex.motoproject.mainActivity.MainActivity;
+import com.example.alex.motoproject.screenMain.MainActivity;
 import com.example.alex.motoproject.service.MainService;
 
 import static com.example.alex.motoproject.util.ArgKeys.SHOW_MAP_FRAGMENT;

@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.mainActivity;
+package com.example.alex.motoproject.screenMain;
 
 import android.Manifest;
 import android.app.Activity;
@@ -40,9 +40,9 @@ import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenLogin.LoginActivity;
-import com.example.alex.motoproject.screenMap.ScreenMapFragment;
-import com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment;
-import com.example.alex.motoproject.screenProfile.ScreenUserProfileFragment;
+import com.example.alex.motoproject.screenMap.MapFragment;
+import com.example.alex.motoproject.screenProfile.MyProfileFragment;
+import com.example.alex.motoproject.screenProfile.UserProfileFragment;
 import com.example.alex.motoproject.screenUsers.UsersFragment;
 import com.example.alex.motoproject.service.LocationListenerService;
 import com.example.alex.motoproject.service.MainService;
@@ -58,11 +58,11 @@ import org.greenrobot.eventbus.Subscribe;
 import javax.inject.Inject;
 
 import static com.example.alex.motoproject.firebase.FirebaseConstants.STATUS_NO_GPS;
-import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_FRIENDS;
-import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_NOGPS;
-import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
-import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFILE_GPS_MODE_SOS;
-import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
+import static com.example.alex.motoproject.screenProfile.MyProfileFragment.PROFILE_GPS_MODE_FRIENDS;
+import static com.example.alex.motoproject.screenProfile.MyProfileFragment.PROFILE_GPS_MODE_NOGPS;
+import static com.example.alex.motoproject.screenProfile.MyProfileFragment.PROFILE_GPS_MODE_PUBLIC;
+import static com.example.alex.motoproject.screenProfile.MyProfileFragment.PROFILE_GPS_MODE_SOS;
+import static com.example.alex.motoproject.screenProfile.MyProfileFragment.PROFSET;
 import static com.example.alex.motoproject.util.ArgKeys.ACTIONBAR_STATUS;
 import static com.example.alex.motoproject.util.ArgKeys.EMAIL;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_AVATAR_REF;
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
 
-    ScreenMapFragment screenMapFragment;
+    MapFragment mapFragment;
     UsersFragment onlineUsersFragment;
     UsersFragment friendsFragment;
     ChatFragment chatFragment;
@@ -161,10 +161,10 @@ public class MainActivity extends AppCompatActivity implements
 
 //        MainActivityPresenter presenterImp = MainActivityPresenter.getInstance(this);
 
-        screenMapFragment = (ScreenMapFragment)
+        mapFragment = (MapFragment)
                 getSupportFragmentManager().findFragmentByTag(MAP_FRAGMENT_TAG);
-        if (screenMapFragment == null) {
-            screenMapFragment = new ScreenMapFragment();
+        if (mapFragment == null) {
+            mapFragment = new MapFragment();
         }
 
         onlineUsersFragment = (UsersFragment)
@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 mFragmentManager.beginTransaction()
-                        .replace(R.id.main_activity_frame, new ScreenMyProfileFragment())
+                        .replace(R.id.main_activity_frame, new MyProfileFragment())
                         .addToBackStack(null)
                         .commit();
 
@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
-                startRideService();
+                startOrStopRideService();
             }
         });
 
@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements
             public void onClick(View view) {
 //                replaceFragment(screenMapFragment);
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
+                        .replace(R.id.main_activity_frame, mapFragment, MAP_FRAGMENT_TAG)
                         .commit();
 
                 mDrawerLayout.closeDrawers();
@@ -397,7 +397,7 @@ public class MainActivity extends AppCompatActivity implements
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
+                    .replace(R.id.main_activity_frame, mapFragment, MAP_FRAGMENT_TAG)
                     .commit();
         }
         if (getIntent() != null) {
@@ -423,27 +423,27 @@ public class MainActivity extends AppCompatActivity implements
         } else if (intent.getBooleanExtra(SHOW_MAP_FRAGMENT, false)) {
             intent.removeExtra(SHOW_MAP_FRAGMENT);
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
+                    .replace(R.id.main_activity_frame, mapFragment, MAP_FRAGMENT_TAG)
                     .commit();
         }
     }
 
-    private void startRideService() {
-        if (!mApp.isLocationListenerServiceOn()) {
+    private void startOrStopRideService() {
+        if (!mApp.isLocationListenerServiceOn()) { //Turn on
             alertControl.handleLocation();
             mGpsStatus.setVisibility(View.VISIBLE);
             mButtonStartRide.setText(R.string.stop_location_service_button_tittle);
             mButtonStartRide.setTextColor(ContextCompat.getColor(this, R.color.red800));
             mButtonStartRide.setBackground(ContextCompat.getDrawable(this, R.drawable.button_stop));
-            screenMapFragment.setSosVisibility(View.VISIBLE);
+            mapFragment.setSosVisibility(View.VISIBLE);
 
-        } else if (checkLocationPermission()) {
-            screenMapFragment.getGoogleMap().setMyLocationEnabled(false);
+        } else if (checkLocationPermission()) { //Turn off
+            mapFragment.getGoogleMap().setMyLocationEnabled(false);
             chatFragment.hideShareLocationButton();
             getApplication().stopService(
                     new Intent(getApplicationContext(), LocationListenerService.class));
             mGpsStatus.setVisibility(View.GONE);
-            screenMapFragment.setSosVisibility(View.GONE);
+            mapFragment.setSosVisibility(View.GONE);
 
             mButtonStartRide.setText(R.string.start_location_service_button_title);
             mButtonStartRide.setTextColor(ContextCompat.getColor(this, R.color.green800));
@@ -519,7 +519,7 @@ public class MainActivity extends AppCompatActivity implements
     @Subscribe
     public void onShowOnlineUserProfile(ShowUserProfileEvent model) {
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_activity_frame, new ScreenUserProfileFragment())
+                .replace(R.id.main_activity_frame, new UserProfileFragment())
                 .addToBackStack(null)
                 .commit();
         mFirebaseDatabaseHelper.getUserModel(model.getUserId());
@@ -609,18 +609,18 @@ public class MainActivity extends AppCompatActivity implements
         if (event.getUserId() != null) {
             Bundle bundle = new Bundle();
             bundle.putString(KEY_UID, uid);
-            screenMapFragment.setArguments(bundle);
+            mapFragment.setArguments(bundle);
 
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
+                    .replace(R.id.main_activity_frame, mapFragment, MAP_FRAGMENT_TAG)
                     .commit();
         } else if (userCoords != null) {
             Bundle bundle = new Bundle();
             bundle.putParcelable(KEY_USER_COORDS, userCoords);
-            screenMapFragment.setArguments(bundle);
+            mapFragment.setArguments(bundle);
 
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.main_activity_frame, screenMapFragment, MAP_FRAGMENT_TAG)
+                    .replace(R.id.main_activity_frame, mapFragment, MAP_FRAGMENT_TAG)
                     .commit();
         }
 
@@ -749,8 +749,7 @@ public class MainActivity extends AppCompatActivity implements
         } else {
             visibility = View.GONE;
         }
-//        if (mButtonStartRide != null)
-        mButtonStartRide.setVisibility(visibility);
-        mMapVisibility.setVisibility(visibility);
+        if (mButtonStartRide != null) mButtonStartRide.setVisibility(visibility);
+        if (mMapVisibility != null) mMapVisibility.setVisibility(visibility);
     }
 }

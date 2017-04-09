@@ -25,8 +25,8 @@ import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.dialog.MapUserDetailsDialogFragment;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.mainActivity.MainActivity;
 import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
+import com.example.alex.motoproject.screenMain.MainActivity;
 import com.example.alex.motoproject.service.LocationListenerService;
 import com.example.alex.motoproject.transformation.PicassoCircleTransform;
 import com.example.alex.motoproject.util.ArgKeys;
@@ -70,7 +70,7 @@ import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
  * The fragment that contains a map from Google Play Services.
  */
 
-public class ScreenMapFragment extends FragmentWithRetainInstance
+public class MapFragment extends FragmentWithRetainInstance
         implements OnMapReadyCallback, FirebaseDatabaseHelper.MapMarkersUpdateReceiver {
 
     private static final int MARKER_DIMENS_DP = 90;
@@ -95,14 +95,14 @@ public class ScreenMapFragment extends FragmentWithRetainInstance
 
     private boolean mSosButtonCoolDown;
 
-    public ScreenMapFragment() {
+    public MapFragment() {
         // Required empty public constructor
         Log.d("ddf", "fdf");
     }
 
     @Override
     public String getDataTag() {
-        return ScreenMapFragment.class.getName();
+        return MapFragment.class.getName();
     }
 
 

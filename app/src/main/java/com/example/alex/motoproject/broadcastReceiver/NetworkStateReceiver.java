@@ -14,12 +14,10 @@ import com.example.alex.motoproject.event.CancelAlertEvent;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.InternetStatusChangedEvent;
 import com.example.alex.motoproject.event.ShowAlertEvent;
-import com.example.alex.motoproject.mainActivity.AlertControl;
+import com.example.alex.motoproject.screenMain.AlertControl;
 import com.example.alex.motoproject.util.NotificationBuilderUtil;
 
 import org.greenrobot.eventbus.EventBus;
-
-import javax.inject.Inject;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -31,14 +29,13 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     private NotificationManager mNotifyMgr;
     private App mApp;
 
-    @Inject
     public NetworkStateReceiver() {
 
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        this.mContext = context;
+        mContext = context;
         mApp = (App) context.getApplicationContext();
 
         if (isInternetEnabled()) {

@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.mainActivity.MainActivity;
+import com.example.alex.motoproject.screenMain.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -30,7 +30,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import javax.inject.Inject;
 
-import static com.example.alex.motoproject.screenProfile.ScreenMyProfileFragment.PROFSET;
+import static com.example.alex.motoproject.screenProfile.MyProfileFragment.PROFSET;
 import static com.example.alex.motoproject.util.ArgKeys.SHOW_MAP_FRAGMENT;
 
 
@@ -105,6 +105,8 @@ public class LocationListenerService extends Service implements Runnable,
 
         ((App) getApplication()).setLocationListenerServiceOn(true);
 
+        ((App) getApplication()).checkGpsState();
+
         handler.postDelayed(this, 100);
 
         super.onCreate();
@@ -159,11 +161,6 @@ public class LocationListenerService extends Service implements Runnable,
                         mapIntent,
                         0);
         mBuilder.setContentIntent(mapPendingIntent);
-
-        //create pending intent to finish this service
-//        Intent stopSelfIntent = new Intent(this, LocationListenerService.class);
-//        stopSelfIntent.putExtra(STOP_SERVICE_EXTRA, true);
-        //TODO : run sos from notification
 
         // send notification
         startForeground(mNotificationId, mBuilder.build());
