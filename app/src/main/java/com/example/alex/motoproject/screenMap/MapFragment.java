@@ -173,7 +173,7 @@ public class MapFragment extends FragmentWithRetainInstance
 
         //Init fab that sends sos
         mSosToggleButton = (FloatingActionButton) view.findViewById(R.id.button_drive_sos);
-        mSosToggleButton.setImageResource(R.mipmap.ic_sos);
+        mSosToggleButton.setImageResource(R.drawable.help);
         mSosToggleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
