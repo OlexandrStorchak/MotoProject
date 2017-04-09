@@ -82,15 +82,12 @@ public class MainActivity extends AppCompatActivity implements
 
     private static final int USER_LIST_TYPE_FRIENDS = 10;
 
-    private static final int ACTIONBAR_HIDDEN = 0;
     private static final int ACTIONBAR_SHOWED = 1;
     private static final int ACTIONBAR_UP_BUTTON = 2;
 
     private static final String MAP_FRAGMENT_TAG = "mapFragment";
     private static final String ONLINE_USERS_FRAGMENT_TAG = "onlineUsersFragment";
     private static final String FRIENDS_FRAGMENT_TAG = "friendsFragment";
-    private static final String MY_PROFILE_FRAGMENT_TAG = "myProfileFragment";
-    private static final String PROFILE_FRAGMENT_TAG = "profileFragmentTag";
     private static final String CHAT_FRAGMENT = "chatFragment";
 
     private static final String TAG = "MainActivity";
@@ -103,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements
     ScreenMapFragment screenMapFragment;
     UsersFragment onlineUsersFragment;
     UsersFragment friendsFragment;
-    ScreenMyProfileFragment screenMyProfileFragment;
     ChatFragment chatFragment;
     AlertControl alertControl = new AlertControl(this);
 
@@ -185,12 +181,6 @@ public class MainActivity extends AppCompatActivity implements
             friendsFragment = new UsersFragment();
         }
 
-        screenMyProfileFragment = (ScreenMyProfileFragment)
-                getSupportFragmentManager().findFragmentByTag(MY_PROFILE_FRAGMENT_TAG);
-        if (screenMyProfileFragment == null) {
-            screenMyProfileFragment = new ScreenMyProfileFragment();
-        }
-
         chatFragment = (ChatFragment)
                 getSupportFragmentManager().findFragmentByTag(CHAT_FRAGMENT);
         if (chatFragment == null) {
@@ -240,10 +230,9 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 mFragmentManager.beginTransaction()
+                        .replace(R.id.main_activity_frame, new ScreenMyProfileFragment())
                         .addToBackStack(null)
-                        .replace(R.id.main_activity_frame,
-                                screenMyProfileFragment,
-                                MY_PROFILE_FRAGMENT_TAG).commit();
+                        .commit();
 
                 mDrawerLayout.closeDrawers();
             }
@@ -538,10 +527,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Subscribe
     public void onShowOnlineUserProfile(ShowUserProfileEvent model) {
-        ScreenUserProfileFragment userProfile = new ScreenUserProfileFragment();
-
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_activity_frame, userProfile, PROFILE_FRAGMENT_TAG)
+                .replace(R.id.main_activity_frame, new ScreenUserProfileFragment())
                 .addToBackStack(null)
                 .commit();
         mFirebaseDatabaseHelper.getUserModel(model.getUserId());
@@ -561,9 +548,6 @@ public class MainActivity extends AppCompatActivity implements
             switch (savedInstanceState.getInt(ACTIONBAR_STATUS)) {
                 case ACTIONBAR_SHOWED:
                     showActionBar();
-                    break;
-                case ACTIONBAR_HIDDEN:
-                    hideActionBar();
                     break;
                 case ACTIONBAR_UP_BUTTON:
                     lockDrawerAndShowUpButton();
@@ -593,9 +577,9 @@ public class MainActivity extends AppCompatActivity implements
 
     @Subscribe
     public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
-        mName = user.getMyProfileFirebase().getName();
-        mEmail = user.getMyProfileFirebase().getEmail();
-        mAvatarRef = user.getMyProfileFirebase().getAvatar();
+        mName = user.getUserProfileFirebase().getName();
+        mEmail = user.getUserProfileFirebase().getEmail();
+        mAvatarRef = user.getUserProfileFirebase().getAvatar();
         setCurrentUserData();
     }
 
@@ -715,13 +699,6 @@ public class MainActivity extends AppCompatActivity implements
         if (getSupportActionBar() != null) {
             actionbarStatus = ACTIONBAR_SHOWED;
             getSupportActionBar().show();
-        }
-    }
-
-    private void hideActionBar() {
-        if (getSupportActionBar() != null) {
-            actionbarStatus = ACTIONBAR_HIDDEN;
-            getSupportActionBar().hide();
         }
     }
 

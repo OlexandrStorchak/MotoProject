@@ -10,8 +10,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class ChatModel implements ChatMvp.PresenterToModel,
-        FirebaseDatabaseHelper.ChatUpdateReceiver,
-        FirebaseDatabaseHelper.UsersLocationReceiver {
+        FirebaseDatabaseHelper.ChatUpdateReceiver {
     @Inject
     FirebaseDatabaseHelper mFirebaseHelper;
     private ChatMvp.ModelToPresenter mPresenter;
@@ -102,17 +101,17 @@ public class ChatModel implements ChatMvp.PresenterToModel,
 
     @Override
     public void fetchDataForLocationShare() {
-        mFirebaseHelper.getCurrentUserLocation(this);
+        mFirebaseHelper.getCurrentUserLocation(new FirebaseDatabaseHelper.UsersLocationReceiver() {
+            @Override
+            public void onCurrentUserLocationReady(LatLng latLng) {
+                mFirebaseHelper.sendChatMessage(latLng);
+            }
+        });
     }
 
     @Override
     public void filterChatToDistance(int meters) {
         mFirebaseHelper.fetchUsersLocations();
         mFirebaseHelper.setCloseDistance(meters);
-    }
-
-    @Override
-    public void onCurrentUserLocationReady(LatLng latLng) {
-        mFirebaseHelper.sendChatMessage(latLng);
     }
 }

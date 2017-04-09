@@ -5,10 +5,10 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
-import com.example.alex.motoproject.event.MapMarkerModel;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.screenChat.ChatMessage;
 import com.example.alex.motoproject.screenChat.ChatMessageSendable;
+import com.example.alex.motoproject.screenMap.MapMarkerModel;
 import com.example.alex.motoproject.screenUsers.User;
 import com.example.alex.motoproject.service.MainServiceSosModel;
 import com.example.alex.motoproject.util.DistanceUtil;
@@ -102,7 +102,6 @@ public class FirebaseDatabaseHelper {
     private LatLng mCurrentUserLocation;
 
     private boolean isOlderMessagesFirstIteration = true;
-    private LatLng myLastKnownLocation;
 
     private String mCurrentUserId;
 
@@ -199,7 +198,7 @@ public class FirebaseDatabaseHelper {
     }
 
     /**
-     * Location listeners
+     * Location methods
      */
 
     public void registerOnlineUsersLocationListener(final MapMarkersUpdateReceiver receiver) {
@@ -361,8 +360,6 @@ public class FirebaseDatabaseHelper {
 
                                         receiver.onMarkerChange(new MapMarkerModel(
                                                 latLng, uid, name, avatarRef, relation));
-//                                        EventBus.getDefault().post(new MapMarkerEvent(
-//                                                latLng, uid, name, avatarRef, relation));
                                     }
 
                                     @Override
@@ -1061,7 +1058,7 @@ public class FirebaseDatabaseHelper {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                MyProfileFirebase profileFirebase = dataSnapshot.getValue(MyProfileFirebase.class);
+                UserProfileFirebase profileFirebase = dataSnapshot.getValue(UserProfileFirebase.class);
                 EventBus.getDefault().post(new CurrentUserProfileReadyEvent(profileFirebase));
             }
 
@@ -1081,10 +1078,10 @@ public class FirebaseDatabaseHelper {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                UsersProfileFirebase usersProfileFirebase =
-                        dataSnapshot.getValue(UsersProfileFirebase.class);
-                usersProfileFirebase.setId(userId);
-                EventBus.getDefault().post(new OnlineUserProfileReadyEvent(usersProfileFirebase));
+                UserProfileFirebase userProfileFirebase =
+                        dataSnapshot.getValue(UserProfileFirebase.class);
+                userProfileFirebase.setId(userId);
+                EventBus.getDefault().post(new OnlineUserProfileReadyEvent(userProfileFirebase));
             }
 
             @Override
@@ -1094,30 +1091,30 @@ public class FirebaseDatabaseHelper {
         });
     }
 
-    public void saveMyProfile(MyProfileFirebase profile) {
+    public void saveMyProfile(UserProfileFirebase profile) {
         DatabaseReference ref = mDbReference.child(PATH_USERS)
                 .child(getCurrentUser().getUid()).child(USER_PROFILE_ABOUT_ME);
-        ref.setValue(profile.aboutMe);
+        ref.setValue(profile.getAboutMe());
 
         ref = mDbReference.child(PATH_USERS)
                 .child(getCurrentUser().getUid()).child(USER_PROFILE_AVATAR);
-        ref.setValue(profile.avatar);
+        ref.setValue(profile.getAvatar());
 
         ref = mDbReference.child(PATH_USERS)
                 .child(getCurrentUser().getUid()).child(USER_PROFILE_EMAIL);
-        ref.setValue(profile.email);
+        ref.setValue(profile.getEmail());
 
         ref = mDbReference.child(PATH_USERS)
                 .child(getCurrentUser().getUid()).child(USER_PROFILE_MOTORCYCLE);
-        ref.setValue(profile.motorcycle);
+        ref.setValue(profile.getMotorcycle());
 
         ref = mDbReference.child(PATH_USERS)
                 .child(getCurrentUser().getUid()).child(USER_PROFILE_NAME);
-        ref.setValue(profile.name);
+        ref.setValue(profile.getName());
 
         ref = mDbReference.child(PATH_USERS)
                 .child(getCurrentUser().getUid()).child(USER_PROFILE_NICK);
-        ref.setValue(profile.nickName);
+        ref.setValue(profile.getNickName());
 
     }
 
@@ -1151,29 +1148,6 @@ public class FirebaseDatabaseHelper {
             }
         });
     }
-
-//    public LatLng getMyLastKnownLocation() {
-//
-//        DatabaseReference ref = mDbReference.child(PATH_LOCATION).child(getCurrentUser().getUid());
-//        ref.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                LocationModel locationModel = dataSnapshot.getValue(LocationModel.class);
-//
-//                setMyLastKnownLocation(new LatLng(locationModel.getLat(), locationModel.getLng()));
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
-//        return myLastKnownLocation;
-//    }
-
-//     private void setMyLastKnownLocation(LatLng myLastKnownLocation) {
-//        this.myLastKnownLocation = myLastKnownLocation;
-//    }
 
     public interface AuthLoadingListener {
         void onLoadFinished();

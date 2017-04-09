@@ -21,7 +21,7 @@ import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseConstants;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.firebase.UsersProfileFirebase;
+import com.example.alex.motoproject.firebase.UserProfileFirebase;
 import com.example.alex.motoproject.util.DimensHelper;
 
 import org.greenrobot.eventbus.EventBus;
@@ -48,7 +48,7 @@ public class ScreenUserProfileFragment extends Fragment {
     private ImageButton mRemoveFriend;
     private ImageButton mAddFriend;
 
-    private UsersProfileFirebase mUserData;
+    private UserProfileFirebase mUserData;
 
     public ScreenUserProfileFragment() {
         // Required empty public constructor

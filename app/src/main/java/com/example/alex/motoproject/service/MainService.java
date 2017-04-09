@@ -48,6 +48,7 @@ public class MainService extends Service {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                if (true) return;
                 long sosCount = 0;
                 if (dataSnapshot.getChildrenCount() > sosCount) {
                     long currentUserTime = System.currentTimeMillis();

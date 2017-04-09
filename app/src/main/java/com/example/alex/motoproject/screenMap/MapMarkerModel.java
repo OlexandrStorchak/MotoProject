@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.event;
+package com.example.alex.motoproject.screenMap;
 
 import com.google.android.gms.maps.model.LatLng;
 

@@ -37,11 +37,6 @@ public class MapUserDetailsDialogFragment extends DialogFragment {
                 mAvatarView.getMaxWidth(), new DimensHelper.AvatarRefReceiver() {
                     @Override
                     public void onRefReady(String ref) {
-                        //        Picasso.with(getContext()).load(avatarRef)
-//                .resize(avatarView.getMaxWidth(), avatarView.getMaxHeight())
-//                .centerCrop()
-//                .transform(new CircleTransform())
-//                .into(avatarView);
                         Glide.with(getContext()).load(ref)
                                 .override(mAvatarView.getMaxWidth(), mAvatarView.getMaxHeight())
                                 .centerCrop()

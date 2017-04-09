@@ -1,17 +1,17 @@
 package com.example.alex.motoproject.event;
 
 
-import com.example.alex.motoproject.firebase.MyProfileFirebase;
+import com.example.alex.motoproject.firebase.UserProfileFirebase;
 
 public class CurrentUserProfileReadyEvent {
-    private MyProfileFirebase myProfileFirebase;
+    private UserProfileFirebase userProfileFirebase;
 
-    public CurrentUserProfileReadyEvent(MyProfileFirebase myProfileFirebase) {
-        this.myProfileFirebase = myProfileFirebase;
+    public CurrentUserProfileReadyEvent(UserProfileFirebase userProfileFirebase) {
+        this.userProfileFirebase = userProfileFirebase;
     }
 
-    public MyProfileFirebase getMyProfileFirebase() {
-        return myProfileFirebase;
+    public UserProfileFirebase getUserProfileFirebase() {
+        return userProfileFirebase;
     }
 
 }

@@ -29,7 +29,7 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.firebase.MyProfileFirebase;
+import com.example.alex.motoproject.firebase.UserProfileFirebase;
 import com.example.alex.motoproject.util.DimensHelper;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -88,7 +88,7 @@ public class ScreenMyProfileFragment extends Fragment {
     private ImageView editProfileData;
     private LinearLayout gpsRatePanel;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
-    private MyProfileFirebase myProfileFirebase;
+    private UserProfileFirebase userProfileFirebase;
     private String currentUid;
 
     private SharedPreferences preferencesRate;
@@ -111,7 +111,7 @@ public class ScreenMyProfileFragment extends Fragment {
         if (savedInstanceState == null) {
             return;
         }
-        myProfileFirebase = savedInstanceState.getParcelable(USER_DATA);
+        userProfileFirebase = savedInstanceState.getParcelable(USER_DATA);
         displayUserData();
 
         mEditMode = savedInstanceState.getBoolean(EDIT_MODE);
@@ -129,7 +129,7 @@ public class ScreenMyProfileFragment extends Fragment {
         super.onSaveInstanceState(outState);
 
         outState.putBoolean(EDIT_MODE, mEditMode);
-        outState.putParcelable(USER_DATA, myProfileFirebase);
+        outState.putParcelable(USER_DATA, userProfileFirebase);
 
         if (mEditMode) {
             outState.putString(KEY_NAME, nameEdit.getText().toString());
@@ -180,15 +180,15 @@ public class ScreenMyProfileFragment extends Fragment {
         saveProfileData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                myProfileFirebase.setId(mFirebaseDatabaseHelper.getCurrentUser().getUid());
-                myProfileFirebase.setEmail(mFirebaseDatabaseHelper.getCurrentUser().getEmail());
+                userProfileFirebase.setId(mFirebaseDatabaseHelper.getCurrentUser().getUid());
+                userProfileFirebase.setEmail(mFirebaseDatabaseHelper.getCurrentUser().getEmail());
 
-                myProfileFirebase.setMotorcycle(motorcycleEdit.getText().toString());
-                myProfileFirebase.setName(nameEdit.getText().toString());
-                myProfileFirebase.setAboutMe(aboutMeEdit.getText().toString());
-                myProfileFirebase.setNickName(nickNameEdit.getText().toString());
+                userProfileFirebase.setMotorcycle(motorcycleEdit.getText().toString());
+                userProfileFirebase.setName(nameEdit.getText().toString());
+                userProfileFirebase.setAboutMe(aboutMeEdit.getText().toString());
+                userProfileFirebase.setNickName(nickNameEdit.getText().toString());
 
-                mFirebaseDatabaseHelper.saveMyProfile(myProfileFirebase);
+                mFirebaseDatabaseHelper.saveMyProfile(userProfileFirebase);
 
 //                mFirebaseDatabaseHelper.getCurrentUserModel();
                 InputMethodManager inputMethodManager =
@@ -289,14 +289,14 @@ public class ScreenMyProfileFragment extends Fragment {
     @Subscribe
     public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
         setEditMode(false);
-        myProfileFirebase = user.getMyProfileFirebase();
+        userProfileFirebase = user.getUserProfileFirebase();
         displayUserData();
     }
 
     private void displayUserData() {
-        currentUid = myProfileFirebase.getId();
-        email.setText(myProfileFirebase.getEmail());
-        final String ava = myProfileFirebase.getAvatar();
+        currentUid = userProfileFirebase.getId();
+        email.setText(userProfileFirebase.getEmail());
+        final String ava = userProfileFirebase.getAvatar();
 
         DimensHelper.getScaledAvatar(ava, avatar.getWidth(), new DimensHelper.AvatarRefReceiver() {
             @Override
@@ -319,10 +319,10 @@ public class ScreenMyProfileFragment extends Fragment {
             }
         });
 
-        name.setText(myProfileFirebase.getName());
-        nickName.setText(myProfileFirebase.getNickName());
-        aboutMe.setText(myProfileFirebase.getAboutMe());
-        motorcycle.setText(myProfileFirebase.getMotorcycle());
+        name.setText(userProfileFirebase.getName());
+        nickName.setText(userProfileFirebase.getNickName());
+        aboutMe.setText(userProfileFirebase.getAboutMe());
+        motorcycle.setText(userProfileFirebase.getMotorcycle());
 
         String gpsRate = preferencesRate.getString(currentUid, null);
         if (gpsRate == null) {

@@ -9,6 +9,7 @@ public class FirebaseConstants {
     public static final String STATUS_PUBLIC = "public";
     public static final String STATUS_NO_GPS = "noGps";
     public static final String PATH_SOS = "sos";
+
     static final String RELATION_UNKNOWN = "unknown";
     static final String STATUS_SOS = "sos";
     static final String PATH_ONLINE_USERS = "onlineUsers";
@@ -17,6 +18,7 @@ public class FirebaseConstants {
     static final String PATH_LOCATION_LNG = "lng";
     static final String PATH_USERS = "users";
     static final String PATH_CHAT = "chat";
+
     //Chat fields
     static final String CHAT_ID = "uid";
     static final String CHAT_TEXT = "text";
