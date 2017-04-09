@@ -1,7 +1,6 @@
 package com.example.alex.motoproject.screenProfile;
 
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,7 +14,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -31,6 +29,7 @@ import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UserProfileFirebase;
 import com.example.alex.motoproject.util.DimensHelper;
+import com.example.alex.motoproject.util.KeyboardUtil;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -70,7 +69,7 @@ public class MyProfileFragment extends Fragment {
     public static final String PROFILE_GPS_MODE_SOS = "sos";
     public static final String PROFILE_GPS_MODE_NOGPS = "noGps";
     private static final int PICK_IMAGE_REQUEST = 189;
-    private static final int MAX_BYTES_SIZE = 10000000;
+
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     private TextView email;
@@ -190,13 +189,7 @@ public class MyProfileFragment extends Fragment {
 
                 mFirebaseDatabaseHelper.saveMyProfile(userProfileFirebase);
 
-//                mFirebaseDatabaseHelper.getCurrentUserModel();
-                InputMethodManager inputMethodManager =
-                        (InputMethodManager) getActivity()
-                                .getSystemService(Activity.INPUT_METHOD_SERVICE);
-
-                inputMethodManager.hideSoftInputFromWindow(getActivity()
-                        .getCurrentFocus().getWindowToken(), 0);
+                KeyboardUtil.hideKeyboard(getActivity());
 
                 setEditMode(false);
             }
@@ -237,8 +230,6 @@ public class MyProfileFragment extends Fragment {
 
             }
         });
-
-
     }
 
     @Override
@@ -300,11 +291,6 @@ public class MyProfileFragment extends Fragment {
         DimensHelper.getScaledAvatar(ava, avatar.getWidth(), new DimensHelper.AvatarRefReceiver() {
             @Override
             public void onRefReady(String ref) {
-                //        Picasso.with(getApplicationContext())
-//                .load(ava)
-//                .resize(avatar.getMaxWidth(), avatar.getMaxHeight())
-//                .centerCrop()
-//                .into(avatar);
                 Glide.with(getApplicationContext())
                         .load(ref)
                         .override(avatar.getMaxWidth(), avatar.getMaxHeight())
@@ -439,7 +425,6 @@ public class MyProfileFragment extends Fragment {
 
                             progressDialog.setMessage("Завантажено : " + ((int) progress) + " %");
                         }
-
                     });
         }
     }

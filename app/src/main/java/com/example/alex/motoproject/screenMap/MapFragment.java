@@ -59,7 +59,7 @@ import static com.example.alex.motoproject.util.ArgKeys.KEY_USER_COORDS;
 import static com.example.alex.motoproject.util.ArgKeys.LATITUDE;
 import static com.example.alex.motoproject.util.ArgKeys.LONGITUDE;
 import static com.example.alex.motoproject.util.ArgKeys.MAP_TYPE;
-import static com.example.alex.motoproject.util.ArgKeys.SOS_COOLDOWN;
+import static com.example.alex.motoproject.util.ArgKeys.SOS_COOL_DOWN;
 import static com.example.alex.motoproject.util.ArgKeys.TILT;
 import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
 
@@ -117,7 +117,7 @@ public class MapFragment extends FragmentWithRetainInstance
                 (CameraPosition) savedInstanceState.getParcelable(CAMERA_POSITION));
         mMapType = savedInstanceState.getInt(MAP_TYPE);
 
-        if (savedInstanceState.getBoolean(SOS_COOLDOWN, false)) {
+        if (savedInstanceState.getBoolean(SOS_COOL_DOWN, false)) {
             startSosCoolDown();
         }
     }
@@ -137,7 +137,7 @@ public class MapFragment extends FragmentWithRetainInstance
                         position.bearing));
         outState.putInt(MAP_TYPE, mMap.getMapType());
 
-        outState.putBoolean(SOS_COOLDOWN, mSosButtonCoolDown);
+        outState.putBoolean(SOS_COOL_DOWN, mSosButtonCoolDown);
     }
 
     @Override

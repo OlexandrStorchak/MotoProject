@@ -1,6 +1,5 @@
 package com.example.alex.motoproject.screenLogin;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,12 +10,12 @@ import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.util.KeyboardUtil;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -256,15 +255,6 @@ public class LoginFragment extends Fragment {
         mButtonSignInFacebook.setVisibility(visibility);
     }
 
-    private void hideKeyboard() {
-        View view = getView();
-        if (view == null) return;
-
-        InputMethodManager inputMethodManager =
-                (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-
     private void showErrorSnackbar() {
         if (getView() == null) return;
         Snackbar.make(getView(), R.string.auth_error, Snackbar.LENGTH_LONG).show();
@@ -281,7 +271,7 @@ public class LoginFragment extends Fragment {
     //Sign in firebaseAuthCurrentUser into FireBase Auth
     public void signInUserToFireBase(String email, String password) {
         setButtonsVisible(false);
-        hideKeyboard();
+        KeyboardUtil.hideKeyboard(getActivity());
         mFireBaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
