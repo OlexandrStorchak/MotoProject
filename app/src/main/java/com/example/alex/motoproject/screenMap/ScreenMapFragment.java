@@ -227,6 +227,7 @@ public class ScreenMapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onDestroyView() {
+        mMarkerHashMap.clear();
         mMapView.onDestroy();
         super.onDestroyView();
     }
