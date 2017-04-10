@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.LAT;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.LNG;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_SOS;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.RELATION_FRIEND;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.USER_ID;
 import static com.example.alex.motoproject.util.ArgKeys.SHOW_CHAT_FRAGMENT;
 
@@ -71,7 +72,8 @@ public class MainService extends Service {
                                     double lng = Double.parseDouble(
                                             (String) postSnapshot.child(LNG).getValue());
                                     LatLng sosCoords = new LatLng(lat, lng);
-                                    if (DistanceUtil.isClose(myCoords,
+                                    if (mFirebaseDatabaseHelper.isInFriendList(id, RELATION_FRIEND)
+                                            || DistanceUtil.isClose(myCoords,
                                             sosCoords,
                                             MAX_DISTANCE_METERS)) {
                                         showNotification();
