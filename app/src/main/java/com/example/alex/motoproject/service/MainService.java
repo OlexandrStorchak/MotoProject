@@ -9,7 +9,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
-import android.util.Log;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
@@ -28,6 +27,7 @@ import javax.inject.Inject;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.LAT;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.LNG;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_SOS;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.RELATION_FRIEND;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.USER_ID;
 import static com.example.alex.motoproject.util.ArgKeys.SHOW_CHAT_FRAGMENT;
 
@@ -60,40 +60,41 @@ public class MainService extends Service {
 
         final DatabaseReference ref = mFirebaseDatabase.getReference().child(PATH_SOS);
 
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(final DataSnapshot dataSnapshot) {
-                ref.setValue(null);
-                mFirebaseDatabaseHelper.getCurrentUserLocation(
-                        new FirebaseDatabaseHelper.UsersLocationReceiver() {
-                            @Override
-                            public void onCurrentUserLocationReady(LatLng myCoords) {
-                                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                                    String id = (String) postSnapshot.child(USER_ID).getValue();
-                                    if ((id.equals(currentUser))) return;
-                                    double lat = Double.parseDouble(
-                                            (String) postSnapshot.child(LAT).getValue());
-                                    double lng = Double.parseDouble(
-                                            (String) postSnapshot.child(LNG).getValue());
-                                    LatLng sosCoords = new LatLng(lat, lng);
-                                    if (DistanceUtil.isClose(myCoords,
-                                            sosCoords,
-                                            MAX_DISTANCE_METERS)) {
-                                        showNotification();
+            ref.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(final DataSnapshot dataSnapshot) {
+                    ref.setValue(null);
+                    mFirebaseDatabaseHelper.getCurrentUserLocation(
+                            new FirebaseDatabaseHelper.UsersLocationReceiver() {
+                                @Override
+                                public void onCurrentUserLocationReady(LatLng myCoords) {
+                                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                        String id = (String) postSnapshot.child(USER_ID).getValue();
+                                        if ((id.equals(currentUser))) return;
+                                        double lat = Double.parseDouble(
+                                                (String) postSnapshot.child(LAT).getValue());
+                                        double lng = Double.parseDouble(
+                                                (String) postSnapshot.child(LNG).getValue());
+                                        LatLng sosCoords = new LatLng(lat, lng);
+                                        if (mFirebaseDatabaseHelper.isInFriendList(id, RELATION_FRIEND)
+                                                || DistanceUtil.isClose(myCoords,
+                                                sosCoords,
+                                                MAX_DISTANCE_METERS)) {
+                                            showNotification();
+                                        }
+
                                     }
-
                                 }
-                            }
-                        });
-            }
+                            });
+                }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
-        } catch (NullPointerException e){
-            Log.d("logi", "onCreate: "+e);
+                }
+            });
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
     }
 

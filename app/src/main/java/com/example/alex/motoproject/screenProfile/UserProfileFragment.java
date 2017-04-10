@@ -19,7 +19,6 @@ import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
-import com.example.alex.motoproject.firebase.FirebaseConstants;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UserProfileFirebase;
 import com.example.alex.motoproject.util.DimensHelper;
@@ -29,6 +28,8 @@ import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
+import static com.example.alex.motoproject.firebase.FirebaseConstants.RELATION_FRIEND;
+import static com.example.alex.motoproject.firebase.FirebaseConstants.RELATION_PENDING;
 import static com.example.alex.motoproject.util.ArgKeys.BUTTONS_TRANSLATION_Y;
 import static com.example.alex.motoproject.util.ArgKeys.USER_DATA;
 
@@ -176,7 +177,8 @@ public class UserProfileFragment extends Fragment {
                 });
 
         //If friend already added
-        if (mFirebaseDatabaseHelper.isInFriendList(mUserData.getId(), FirebaseConstants.RELATION_FRIEND)) {
+        if (mFirebaseDatabaseHelper.isInFriendList(mUserData.getId(), RELATION_FRIEND) ||
+                mFirebaseDatabaseHelper.isInFriendList(mUserData.getId(), RELATION_PENDING)) {
             mRemoveFriend.setVisibility(View.VISIBLE);
             mAddFriend.setVisibility(View.GONE);
         }

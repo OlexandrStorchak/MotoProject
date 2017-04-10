@@ -80,9 +80,10 @@ public class UsersFragment extends FragmentWithRetainInstance
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState == null) return;
-        mPresenter = (UsersMvp.ViewToPresenter) getRetainData();
-        mPresenter.onViewAttached(UsersFragment.this);
         mSearchViewQuery = savedInstanceState.getString(SEARCH);
+
+        mPresenter = (UsersMvp.ViewToPresenter) getRetainData();
+        if (mPresenter != null) mPresenter.onViewAttached(UsersFragment.this);
     }
 
     @Override
