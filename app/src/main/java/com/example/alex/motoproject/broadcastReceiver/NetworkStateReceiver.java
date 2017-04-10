@@ -38,8 +38,9 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-
         mApp = (App) context.getApplicationContext();
+
+        if (mApp.isMainActivityDestroyed()) return;
 
         if (isInternetEnabled()) {
             if (isMainActivityVisible()) {

@@ -109,8 +109,9 @@
     <string name="notification_tittle_need_help">Потрібна допомога!</string>
 
     <string name="sos_sent">Запит про допомогу надіслано!</string>
-    <!--<string name="dummy_button">Dummy Button</string>-->
-    <!--<string name="dummy_content">DUMMY\nCONTENT</string>-->
 
-    <!--<string name="title_activity_fullscreen">FullscreenActivity</string>-->
+    <string name="downloading">Завантаження</string>
+    <string name="download_interrupted">Завантаження перервано</string>
+    <string name="downloaded">Завантажено</string>
+
 </resources>

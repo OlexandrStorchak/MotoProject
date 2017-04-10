@@ -3,8 +3,6 @@ package com.example.alex.motoproject.firebase;
 import android.location.Location;
 import android.support.annotation.NonNull;
 
-import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
-import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.screenChat.ChatMessage;
 import com.example.alex.motoproject.screenChat.ChatMessageSendable;
 import com.example.alex.motoproject.screenMap.MapMarkerModel;
@@ -22,8 +20,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -994,15 +990,19 @@ public class FirebaseDatabaseHelper {
         }
     }
 
-    public void getCurrentUserLocation(final UsersLocationReceiver receiver) {
+    public void getCurrentUserLocation(final CurrentUserLocationReceiver receiver) {
         mDbReference.child(PATH_LOCATION).child(getCurrentUser().getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Number lat = (Number) dataSnapshot.child(PATH_LOCATION_LAT).getValue();
                         Number lng = (Number) dataSnapshot.child(PATH_LOCATION_LNG).getValue();
+                        if (lat == null || lng == null) {
+                            //The user has no coordinates, do not call onReady
+                            return;
+                        }
                         mCurrentUserLocation = new LatLng(lat.doubleValue(), lng.doubleValue());
-                        receiver.onCurrentUserLocationReady(mCurrentUserLocation);
+                        receiver.onReady(mCurrentUserLocation);
                     }
 
                     @Override
@@ -1035,16 +1035,13 @@ public class FirebaseDatabaseHelper {
 
 
     //get current user from database
-    public void getCurrentUserModel() {
-        //get user name
+    public void getCurrentUserModel(final UserProfileReceiver receiver) {
+        //Get user profile
         DatabaseReference ref = mDbReference.child(PATH_USERS).child(getCurrentUser().getUid());
-
         ref.addValueEventListener(new ValueEventListener() {
-
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                UserProfileFirebase profileFirebase = dataSnapshot.getValue(UserProfileFirebase.class);
-                EventBus.getDefault().post(new CurrentUserProfileReadyEvent(profileFirebase));
+                receiver.onReady(dataSnapshot.getValue(UserProfileFirebase.class));
             }
 
             @Override
@@ -1056,17 +1053,15 @@ public class FirebaseDatabaseHelper {
     }
 
     //get user from database by userId
-    public void getUserModel(final String userId) {
+    public void getUserModel(final String userId, final UserProfileReceiver receiver) {
         //get user name
         DatabaseReference ref = mDbReference.child(PATH_USERS).child(userId);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
-
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 UserProfileFirebase userProfileFirebase =
                         dataSnapshot.getValue(UserProfileFirebase.class);
-                userProfileFirebase.setId(userId);
-                EventBus.getDefault().post(new OnlineUserProfileReadyEvent(userProfileFirebase));
+                receiver.onReady(userProfileFirebase);
             }
 
             @Override
@@ -1119,9 +1114,9 @@ public class FirebaseDatabaseHelper {
         sosModel.setDescription(text);
         sosModel.setTime(ServerValue.TIMESTAMP);
 
-        getCurrentUserLocation(new UsersLocationReceiver() {
+        getCurrentUserLocation(new CurrentUserLocationReceiver() {
             @Override
-            public void onCurrentUserLocationReady(LatLng latLng) {
+            public void onReady(LatLng latLng) {
                 sosModel.setLat(String.valueOf(latLng.latitude));
                 sosModel.setLng(String.valueOf(latLng.longitude));
                 ref.setValue(sosModel);
@@ -1170,7 +1165,11 @@ public class FirebaseDatabaseHelper {
         boolean hasThisMessage(String messageId);
     }
 
-    public interface UsersLocationReceiver {
-        void onCurrentUserLocationReady(LatLng latLng);
+    public interface CurrentUserLocationReceiver {
+        void onReady(LatLng latLng);
+    }
+
+    public interface UserProfileReceiver {
+        void onReady(UserProfileFirebase profile);
     }
 }

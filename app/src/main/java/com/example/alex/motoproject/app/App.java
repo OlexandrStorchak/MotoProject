@@ -25,6 +25,7 @@ public class App extends Application
 
     private boolean mMainActivityVisible;
     private boolean mLocationListenerServiceOn;
+    private boolean mMainActivityDestroyed;
 
     private BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
 
@@ -45,10 +46,7 @@ public class App extends Application
 
         coreComponent = buildCoreComponent();
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
-        registerReceiver(mNetworkStateReceiver, filter);
+        registerNetworkReceiver();
     }
 
     public void checkGpsState() {
@@ -67,9 +65,13 @@ public class App extends Application
         return mMainActivityVisible;
     }
 
+    public boolean isMainActivityDestroyed() {
+        return mMainActivityDestroyed;
+    }
+
     @Override
     public void onActivityCreated(Activity activity, Bundle bundle) {
-
+        if (activity instanceof MainActivity) mMainActivityDestroyed = false;
     }
 
     @Override
@@ -103,12 +105,19 @@ public class App extends Application
 
     @Override
     public void onActivityDestroyed(Activity activity) {
-
+        if (activity instanceof MainActivity) mMainActivityDestroyed = true;
     }
 
     public CoreComponent buildCoreComponent() {
         return DaggerCoreComponent.builder()
                 .firebaseUtilsModule(new FirebaseUtilsModule())
                 .build();
+    }
+
+    private void registerNetworkReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
+        registerReceiver(mNetworkStateReceiver, filter);
     }
 }

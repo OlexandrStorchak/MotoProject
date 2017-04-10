@@ -25,7 +25,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
-import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UserProfileFirebase;
 import com.example.alex.motoproject.util.DimensHelper;
@@ -36,9 +35,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -72,20 +68,24 @@ public class MyProfileFragment extends Fragment {
 
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
+
     private TextView email;
     private TextView name;
     private TextView nickName;
     private TextView motorcycle;
     private TextView aboutMe;
+
     private EditText nameEdit;
     private EditText nickNameEdit;
     private EditText motorcycleEdit;
     private EditText aboutMeEdit;
+
     private ImageView avatar;
     private Spinner mapRate;
     private ImageView saveProfileData;
     private ImageView editProfileData;
     private LinearLayout gpsRatePanel;
+
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private UserProfileFirebase userProfileFirebase;
     private String currentUid;
@@ -96,12 +96,6 @@ public class MyProfileFragment extends Fragment {
 
     public MyProfileFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -158,9 +152,6 @@ public class MyProfileFragment extends Fragment {
         nickName = (TextView) view.findViewById(R.id.profile_nick_name);
         aboutMe = (TextView) view.findViewById(R.id.profile_about_user);
 
-        if (savedInstanceState == null) {
-            mFirebaseDatabaseHelper.getCurrentUserModel();
-        }
         nameEdit = (EditText) view.findViewById(R.id.profile_name_edit);
         nickNameEdit = (EditText) view.findViewById(R.id.profile_nick_name_edit);
         motorcycleEdit = (EditText) view.findViewById(R.id.profile_motorcycle_edit);
@@ -230,6 +221,18 @@ public class MyProfileFragment extends Fragment {
 
             }
         });
+
+        if (savedInstanceState == null) {
+            mFirebaseDatabaseHelper.getCurrentUserModel(
+                    new FirebaseDatabaseHelper.UserProfileReceiver() {
+                        @Override
+                        public void onReady(UserProfileFirebase profile) {
+                            setEditMode(false);
+                            userProfileFirebase = profile;
+                            displayUserData();
+                        }
+                    });
+        }
     }
 
     @Override
@@ -276,17 +279,9 @@ public class MyProfileFragment extends Fragment {
         aboutMeEdit.setText(aboutMe.getText());
     }
 
-    @Subscribe
-    public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
-        setEditMode(false);
-        userProfileFirebase = user.getUserProfileFirebase();
-        displayUserData();
-    }
-
     private void displayUserData() {
         currentUid = userProfileFirebase.getId();
         email.setText(userProfileFirebase.getEmail());
-
 
         final String ava = userProfileFirebase.getAvatar();
 
@@ -327,12 +322,6 @@ public class MyProfileFragment extends Fragment {
                 mapRate.setSelection(0);
                 break;
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
     //method to show file chooser
@@ -383,7 +372,7 @@ public class MyProfileFragment extends Fragment {
     private void uploadFile(byte[] dataBytes) {
         if (dataBytes != null) {
             final ProgressDialog progressDialog = new ProgressDialog(getContext());
-            progressDialog.setTitle("Завантаження");
+            progressDialog.setTitle(getString(R.string.downloading));
             progressDialog.show();
             final StorageReference avatarRef =
                     storage.getReference().child("avatars/" + currentUid + ".jpeg");
@@ -395,8 +384,8 @@ public class MyProfileFragment extends Fragment {
                             progressDialog.dismiss();
                             mFirebaseDatabaseHelper.
                                     setCurrentUserAvatar(taskSnapshot.getDownloadUrl().toString());
-                            // mFirebaseDatabaseHelper.getCurrentUserModel();
-                            Toast.makeText(getApplicationContext(), "Завантажено ",
+                            Toast.makeText(getApplicationContext(),
+                                    getString(R.string.downloaded),
                                     Toast.LENGTH_LONG).show();
                         }
                     })
@@ -405,10 +394,9 @@ public class MyProfileFragment extends Fragment {
                         public void onFailure(@NonNull Exception e) {
                             //if the upload is not successful
                             progressDialog.dismiss();
-                            Toast.makeText(getApplicationContext(), "Завантаження перервалось",
+                            Toast.makeText(getApplicationContext(),
+                                    getString(R.string.download_interrupted),
                                     Toast.LENGTH_LONG).show();
-
-
                         }
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -417,7 +405,8 @@ public class MyProfileFragment extends Fragment {
                             double progress = (100.0 * taskSnapshot.getBytesTransferred())
                                     / taskSnapshot.getTotalByteCount();
 
-                            progressDialog.setMessage("Завантажено : " + ((int) progress) + " %");
+                            progressDialog.setMessage(getString(R.string.downloaded)
+                                    + ": " + ((int) progress) + " %");
                         }
                     });
         }

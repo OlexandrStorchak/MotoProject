@@ -20,7 +20,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -31,11 +30,11 @@ import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
-import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.event.InternetStatusChangedEvent;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+import com.example.alex.motoproject.firebase.UserProfileFirebase;
 import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenLogin.LoginActivity;
 import com.example.alex.motoproject.screenMap.MapFragment;
@@ -88,8 +87,6 @@ public class MainActivity extends AppCompatActivity implements
     private static final String ONLINE_USERS_FRAGMENT_TAG = "onlineUsersFragment";
     private static final String FRIENDS_FRAGMENT_TAG = "friendsFragment";
     private static final String CHAT_FRAGMENT = "chatFragment";
-
-    private static final String TAG = "MainActivity";
 
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
@@ -299,7 +296,6 @@ public class MainActivity extends AppCompatActivity implements
         navigationBtnFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                replaceFragment(friendsFragment, USER_LIST_TYPE_FRIENDS);
                 if (friendsFragment.getArguments() == null) {
                     Bundle bundle = new Bundle();
                     bundle.putInt(KEY_LIST_TYPE, USER_LIST_TYPE_FRIENDS);
@@ -509,17 +505,20 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         EventBus.getDefault().unregister(this);
-
-        Log.d(TAG, "onDestroy: ");
     }
 
     @Subscribe
     public void onShowOnlineUserProfile(ShowUserProfileEvent model) {
+        UserProfileFragment fragment = new UserProfileFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putString(KEY_UID, model.getUserId());
+        fragment.setArguments(bundle);
+
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_activity_frame, new UserProfileFragment())
+                .replace(R.id.main_activity_frame, fragment)
                 .addToBackStack(null)
                 .commit();
-        mFirebaseDatabaseHelper.getUserModel(model.getUserId());
     }
 
     @Override
@@ -547,10 +546,6 @@ public class MainActivity extends AppCompatActivity implements
             return;
         }
         setCurrentUserData();
-
-//        if (savedInstanceState.getBoolean(RIDE_SERVICE_ON)) {
-//            mGpsStatus.setVisibility(View.VISIBLE);
-//        }
     }
 
     @Override
@@ -559,17 +554,7 @@ public class MainActivity extends AppCompatActivity implements
         outState.putString(KEY_NAME, mName);
         outState.putString(EMAIL, mEmail);
         outState.putString(KEY_AVATAR_REF, mAvatarRef);
-//        outState.putBoolean(RIDE_SERVICE_ON, rideServiceOn);
         outState.putInt(ACTIONBAR_STATUS, actionbarStatus);
-    }
-
-    @Subscribe
-    public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
-        mName = user.getUserProfileFirebase().getName();
-        mEmail = user.getUserProfileFirebase().getEmail();
-        mAvatarRef = user.getUserProfileFirebase().getAvatar();
-        Log.i("logi", "onCurrentUserModelReadyEvent: "+mAvatarRef);
-        setCurrentUserData();
     }
 
     private void setCurrentUserData() {
@@ -627,14 +612,21 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void handleUser(FirebaseUser user) {
-
-
         mFirebaseDatabaseHelper.addUserToFirebase(
                 user.getUid(),
                 user.getEmail(),
                 user.getDisplayName(),
                 String.valueOf(user.getPhotoUrl()));
-        mFirebaseDatabaseHelper.getCurrentUserModel();
+        mFirebaseDatabaseHelper.getCurrentUserModel(
+                new FirebaseDatabaseHelper.UserProfileReceiver() {
+                    @Override
+                    public void onReady(UserProfileFirebase profile) {
+                        mName = profile.getName();
+                        mEmail = profile.getEmail();
+                        mAvatarRef = profile.getAvatar();
+                        setCurrentUserData();
+                    }
+                });
 
         SharedPreferences sharedPreferences = getApplicationContext()
                 .getSharedPreferences(PROFSET, MODE_PRIVATE);
@@ -743,6 +735,6 @@ public class MainActivity extends AppCompatActivity implements
             visibility = View.GONE;
         }
         if (mButtonStartRide != null) mButtonStartRide.setVisibility(visibility);
-        if (mMapVisibility != null) mMapVisibility.setVisibility(visibility);
+        if (mGpsStatus != null) mGpsStatus.setVisibility(visibility);
     }
 }

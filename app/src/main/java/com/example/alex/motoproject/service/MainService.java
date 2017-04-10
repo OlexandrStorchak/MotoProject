@@ -53,21 +53,21 @@ public class MainService extends Service {
 
         final String currentUser;
         try {
-             currentUser= mFirebaseDatabaseHelper
+            currentUser = mFirebaseDatabaseHelper
                     .getCurrentUser().getUid();
 
-        final FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+            final FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
 
-        final DatabaseReference ref = mFirebaseDatabase.getReference().child(PATH_SOS);
+            final DatabaseReference ref = mFirebaseDatabase.getReference().child(PATH_SOS);
 
             ref.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(final DataSnapshot dataSnapshot) {
                     ref.setValue(null);
                     mFirebaseDatabaseHelper.getCurrentUserLocation(
-                            new FirebaseDatabaseHelper.UsersLocationReceiver() {
+                            new FirebaseDatabaseHelper.CurrentUserLocationReceiver() {
                                 @Override
-                                public void onCurrentUserLocationReady(LatLng myCoords) {
+                                public void onReady(LatLng myCoords) {
                                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                                         String id = (String) postSnapshot.child(USER_ID).getValue();
                                         if ((id.equals(currentUser))) return;
