@@ -576,6 +576,7 @@ public class MainActivity extends AppCompatActivity implements
         mName = user.getUserProfileFirebase().getName();
         mEmail = user.getUserProfileFirebase().getEmail();
         mAvatarRef = user.getUserProfileFirebase().getAvatar();
+        Log.i("logi", "onCurrentUserModelReadyEvent: "+mAvatarRef);
         setCurrentUserData();
     }
 

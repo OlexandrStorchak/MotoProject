@@ -187,6 +187,7 @@ public class MapFragment extends FragmentWithRetainInstance
     }
 
     private void startSosCoolDown() {
+        //Invisible button for 5 minutes
         mSosToggleButton.setVisibility(View.GONE);
         mSosButtonCoolDown = true;
         new Handler().postDelayed(new Runnable() {
@@ -195,7 +196,7 @@ public class MapFragment extends FragmentWithRetainInstance
                 mSosToggleButton.setVisibility(View.VISIBLE);
                 mSosButtonCoolDown = false;
             }
-        }, 10000);
+        }, 300000);
     }
 
     @Override

@@ -69,8 +69,8 @@ import static com.example.alex.motoproject.firebase.FirebaseConstants.USER_PROFI
 public class FirebaseDatabaseHelper {
 
     private static final String STANDART_AVATAR =
-            "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot.com/" +
-                    "o/avatar_defaultar_default.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
+            "https://firebasestorage.googleapis.com/v0/b/profiletests-d3a61.appspot" +
+                    ".com/o/ava4.png?alt=media&token=96951c00-fd27-445c-85a6-b636bd0cb9f5";
     private static final int FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT = 51;
     private static final int SHOWN_MESSAGES_MIN_COUNT_LIMIT =
             FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT - 1;
@@ -169,7 +169,8 @@ public class FirebaseDatabaseHelper {
                 final String nameUrl;
                 if (avatar.equals("null")) {
                     avatarUrl = STANDART_AVATAR;
-                } else if (avatar.contains("://scontent.xx.fbcdn.net/")) { //Avatar from Facebook
+                } else if (avatar.contains("://scontent.xx.fbcdn.net/")) {
+                    //Avatar from Facebook
                     //As there is no easy way do scale up an image from Facebook, put users id
                     //from Facebook to download his avatar later in needed size
                     avatarUrl = Profile.getCurrentProfile().getId();

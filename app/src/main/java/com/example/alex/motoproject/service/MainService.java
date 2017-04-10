@@ -39,8 +39,12 @@ public class MainService extends Service {
     @Override
     public void onCreate() {
         FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
-        final String currentUser = new FirebaseDatabaseHelper()
-                .getCurrentUser().getUid();
+        final String currentUser;
+        try {
+             currentUser= new FirebaseDatabaseHelper()
+                    .getCurrentUser().getUid();
+
+
         mApp = (App) getApplicationContext();
         final DatabaseReference ref = mFirebaseDatabase.getReference().child(PATH_SOS);
         ref.keepSynced(false);
@@ -62,7 +66,9 @@ public class MainService extends Service {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-
+        } catch (NullPointerException e){
+            Log.d("logi", "onCreate: "+e);
+        }
     }
 
     private void showNotification() {

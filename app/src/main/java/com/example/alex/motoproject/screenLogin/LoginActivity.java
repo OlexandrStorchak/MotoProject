@@ -58,6 +58,9 @@ public class LoginActivity extends AppCompatActivity
                 .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
         startService(new Intent(this, MainService.class));
     }
+    public void stopMainService(){
+        stopService(new Intent(this,MainService.class));
+    }
 
     @Override
     public void onSignUpButtonClick() {

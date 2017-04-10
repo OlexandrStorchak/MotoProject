@@ -46,6 +46,7 @@ public class FirebaseLoginController implements FirebaseAuth.AuthStateListener {
     }
 
     public void signOut() {
+
         //For Firebase logout
         mFirebaseAuth.signOut();
         //For Facebook logout
@@ -72,6 +73,10 @@ public class FirebaseLoginController implements FirebaseAuth.AuthStateListener {
                         Snackbar.make(currentFocus,
                                 R.string.confirm_by_email,
                                 Snackbar.LENGTH_LONG).show();
+                        LoginActivity loginActivity = mActivityWeakRef.get();
+                        if (loginActivity != null) {
+                            loginActivity.stopMainService();
+                        }
                     }
                 }
             }
