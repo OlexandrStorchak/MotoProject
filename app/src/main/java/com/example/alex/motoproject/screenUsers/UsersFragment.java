@@ -83,7 +83,7 @@ public class UsersFragment extends FragmentWithRetainInstance
         mSearchViewQuery = savedInstanceState.getString(SEARCH);
 
         mPresenter = (UsersMvp.ViewToPresenter) getRetainData();
-        mPresenter.onViewAttached(UsersFragment.this);
+        if (mPresenter != null) mPresenter.onViewAttached(UsersFragment.this);
     }
 
     @Override
@@ -190,7 +190,7 @@ public class UsersFragment extends FragmentWithRetainInstance
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
 
-        if (getRetainData() == null) {
+        if (savedInstanceState == null) {
             DaggerPresenterComponent.builder()
                     .presenterModule(new PresenterModule(this))
                     .build()
