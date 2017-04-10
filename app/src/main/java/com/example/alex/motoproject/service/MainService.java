@@ -48,6 +48,13 @@ public class MainService extends Service {
 
     @Override
     public void onCreate() {
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        final String currentUser;
+        try {
+             currentUser= new FirebaseDatabaseHelper()
+                    .getCurrentUser().getUid();
+
+
         App.getCoreComponent().inject(this);
 
         final FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -89,6 +96,9 @@ public class MainService extends Service {
 
             }
         });
+        } catch (NullPointerException e){
+            Log.d("logi", "onCreate: "+e);
+        }
     }
 
     private void showNotification() {

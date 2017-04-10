@@ -136,6 +136,7 @@ public class LocationListenerService extends Service implements Runnable,
             stopSelf();
         }
 
+
         return super.onStartCommand(intent, flags, startId);
     }
 

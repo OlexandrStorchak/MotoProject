@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.example.alex.motoproject.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -27,9 +30,10 @@ import static com.example.alex.motoproject.util.ArgKeys.REPEAT_PASSWORD;
 
 public class SignUpFragment extends Fragment {
 
-    private static final String TAG = SignUpFragment.class.getSimpleName();
+    private static final String TAG = "log";
     private EditText mEmail, mPassword, mRepeatPassword;
     private FirebaseAuth mFireBaseAuth;
+    private View v;
 
     public SignUpFragment() {
         // Required empty public constructor
@@ -73,7 +77,7 @@ public class SignUpFragment extends Fragment {
         mEmail = (EditText) view.findViewById(R.id.sign_up_email);
         mPassword = (EditText) view.findViewById(R.id.sign_up_pass);
         mRepeatPassword = (EditText) view.findViewById(R.id.sign_up_repeat_pass);
-
+        v = view;
         Button mButtonSubmit = (Button) view.findViewById(R.id.sign_up_btn_ok);
 
         mButtonSubmit.setOnClickListener(new View.OnClickListener() {
@@ -125,15 +129,21 @@ public class SignUpFragment extends Fragment {
                         if (mFireBaseAuth.getCurrentUser() != null) {
                             mFireBaseAuth.getCurrentUser().sendEmailVerification();
                             mFireBaseAuth.signOut();
+                            Log.d(TAG, "onComplete: all done");
+                            Toast.makeText(getContext(), "Успішно!", Toast.LENGTH_LONG).show();
+
                         } else {
                             Log.d(TAG, "onComplete: addNewFirebase User: current user is null");
+                            Toast.makeText(getContext(), "Активуйте обліковий запис", Toast.LENGTH_LONG).show();
                         }
 
                         if (!task.isSuccessful()) {
                             Log.d(TAG, "onComplete: ");
+                            Toast.makeText(getContext(), "Спробуйте інший і-мейл", Toast.LENGTH_LONG).show();
                         }
                     }
                 });
+
     }
 
     @Override
