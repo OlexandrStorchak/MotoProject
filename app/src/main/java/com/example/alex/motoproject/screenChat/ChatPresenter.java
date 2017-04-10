@@ -1,7 +1,5 @@
 package com.example.alex.motoproject.screenChat;
 
-import android.view.View;
-
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
@@ -57,8 +55,8 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
     }
 
     @Override
-    public void onTouchRecyclerView(View view) {
-        getView().hideKeyboard(view);
+    public void onTouchRecyclerView() {
+        getView().hideKeyboard();
     }
 
     private void registerChatMessagesListener() {

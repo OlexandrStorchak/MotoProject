@@ -2,7 +2,6 @@ package com.example.alex.motoproject.firebase;
 
 import android.location.Location;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
@@ -360,7 +359,7 @@ public class FirebaseDatabaseHelper {
                                         if (name == null || avatarRef == null) return;
 
                                         receiver.onMarkerChange(new MapMarkerModel(
-                                                latLng, uid, name, avatarRef, relation));
+                                                latLng, uid, name, avatarRef));
                                     }
 
                                     @Override
@@ -385,8 +384,6 @@ public class FirebaseDatabaseHelper {
 
                     }
                 });
-
-
             }
 
             @Override
@@ -403,12 +400,10 @@ public class FirebaseDatabaseHelper {
         location.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (getCurrentUser() == null) {
-                    return;
-                }
+                if (getCurrentUser() == null) return;
+
                 String uid = dataSnapshot.getKey();
                 if (!uid.equals(getCurrentUser().getUid())) {
-//                    EventBus.getDefault().post(new MapMarkerEvent(uid));
                     receiver.onMarkerDelete(uid);
                 }
             }
@@ -665,7 +660,6 @@ public class FirebaseDatabaseHelper {
                 }
 
                 for (DataSnapshot entry : dataSnapshot.getChildren()) {
-
                     if (entry.getKey().equals(mCurrentUserId)) {
                         continue;
                     }
@@ -706,18 +700,13 @@ public class FirebaseDatabaseHelper {
 
     private void onOnlineUserAdded(DataSnapshot dataSnapshot,
                                    final UsersUpdateReceiver receiver) {
-        if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
-            Log.d("gfddf", "fvdvdvd");
-            return;
-        }
+        if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) return;
 
         final String uid = dataSnapshot.getKey();
         final String userStatus = (String) dataSnapshot.getValue();
         final String relation = FirebaseConstants.RELATION_UNKNOWN;
 
-        if (receiver.hasUser(uid, relation)) {
-            return;
-        }
+        if (receiver.hasUser(uid, relation)) return;
 
         DatabaseReference ref = mDbReference.child(PATH_USERS).child(uid);
         ValueEventListener userDataListener = new ValueEventListener() {
@@ -739,9 +728,8 @@ public class FirebaseDatabaseHelper {
 
     private void onOnlineUserChanged(DataSnapshot dataSnapshot,
                                      final UsersUpdateReceiver receiver) {
-        if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) {
-            return;
-        }
+        if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) return;
+
         final String uid = dataSnapshot.getKey();
         final String userStatus = (String) dataSnapshot.getValue();
         DatabaseReference ref = mDbReference.child(PATH_USERS).child(uid);
@@ -1007,11 +995,7 @@ public class FirebaseDatabaseHelper {
     }
 
     public void getCurrentUserLocation(final UsersLocationReceiver receiver) {
-        if (mCurrentUserLocation != null) {
-            receiver.onCurrentUserLocationReady(mCurrentUserLocation);
-            return;
-        }
-        mDbReference.child("location").child(getCurrentUser().getUid())
+        mDbReference.child(PATH_LOCATION).child(getCurrentUser().getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -1126,8 +1110,6 @@ public class FirebaseDatabaseHelper {
     }
 
     public void sendSosMessage(final String text) {
-        long time = System.currentTimeMillis();
-
         final DatabaseReference ref = mDbReference.child(PATH_SOS)
                 .child(getCurrentUser().getUid());
 

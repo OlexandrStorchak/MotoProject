@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -32,6 +31,7 @@ import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
 import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
 import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
 import com.example.alex.motoproject.screenMain.MainActivity;
+import com.example.alex.motoproject.util.KeyboardUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -79,21 +79,11 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
         return inflater.inflate(R.layout.fragment_chat, container, false);
     }
 
-//    @Override
-//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-//        super.onViewStateRestored(savedInstanceState);
-//
-////        mRecyclerView.getLayoutManager()
-////                .onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_VIEW_SCROLL));
-//    }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        super.setRetainData(mPresenter);
+        setRetainData(mPresenter);
         outState.putString(MESSAGE_TEXT, mEditText.getText().toString());
-//        outState.putParcelable(RECYCLER_VIEW_SCROLL,
-//                mRecyclerView.getLayoutManager().onSaveInstanceState());
     }
 
     @Override
@@ -131,7 +121,7 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
         setHasOptionsMenu(true);
 
         if (savedInstanceState != null) {
-            mPresenter = (ChatMvp.ViewToPresenter) super.getRetainData();
+            mPresenter = (ChatMvp.ViewToPresenter) getRetainData();
             mPresenter.onViewAttached(ChatFragment.this);
             mEditText.setText(savedInstanceState.getString(MESSAGE_TEXT));
         }
@@ -166,7 +156,6 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
     }
 
     private void setupLocationSharing() {
-//        hideShareLocationButton();
         mShareLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -235,17 +224,15 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
         mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                mPresenter.onTouchRecyclerView(view);
+                mPresenter.onTouchRecyclerView();
                 return false;
             }
         });
     }
 
     @Override
-    public void hideKeyboard(View view) {
-        InputMethodManager imm = (InputMethodManager)
-                getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    public void hideKeyboard() {
+        KeyboardUtil.hideKeyboard(getActivity());
     }
 
     @Override

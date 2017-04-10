@@ -12,8 +12,8 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +24,6 @@ import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.dialog.MapUserDetailsDialogFragment;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
 import com.example.alex.motoproject.screenMain.MainActivity;
 import com.example.alex.motoproject.transformation.PicassoCircleTransform;
 import com.example.alex.motoproject.util.ArgKeys;
@@ -59,7 +58,7 @@ import static com.example.alex.motoproject.util.ArgKeys.KEY_USER_COORDS;
 import static com.example.alex.motoproject.util.ArgKeys.LATITUDE;
 import static com.example.alex.motoproject.util.ArgKeys.LONGITUDE;
 import static com.example.alex.motoproject.util.ArgKeys.MAP_TYPE;
-import static com.example.alex.motoproject.util.ArgKeys.SOS_COOLDOWN;
+import static com.example.alex.motoproject.util.ArgKeys.SOS_COOL_DOWN;
 import static com.example.alex.motoproject.util.ArgKeys.TILT;
 import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
 
@@ -68,8 +67,8 @@ import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
  * The fragment that contains a map from Google Play Services.
  */
 
-public class MapFragment extends FragmentWithRetainInstance
-        implements OnMapReadyCallback, FirebaseDatabaseHelper.MapMarkersUpdateReceiver {
+public class MapFragment extends Fragment implements
+        OnMapReadyCallback, FirebaseDatabaseHelper.MapMarkersUpdateReceiver {
 
     private static final int MARKER_DIMENS_DP = 90;
     private static final int MARKER_DIMENS_PX = DimensHelper.dpToPx(MARKER_DIMENS_DP);
@@ -95,14 +94,7 @@ public class MapFragment extends FragmentWithRetainInstance
 
     public MapFragment() {
         // Required empty public constructor
-        Log.d("ddf", "fdf");
     }
-
-    @Override
-    public String getDataTag() {
-        return MapFragment.class.getName();
-    }
-
 
     public GoogleMap getGoogleMap() {
         return mMap;
@@ -117,7 +109,7 @@ public class MapFragment extends FragmentWithRetainInstance
                 (CameraPosition) savedInstanceState.getParcelable(CAMERA_POSITION));
         mMapType = savedInstanceState.getInt(MAP_TYPE);
 
-        if (savedInstanceState.getBoolean(SOS_COOLDOWN, false)) {
+        if (savedInstanceState.getBoolean(SOS_COOL_DOWN, false)) {
             startSosCoolDown();
         }
     }
@@ -137,7 +129,7 @@ public class MapFragment extends FragmentWithRetainInstance
                         position.bearing));
         outState.putInt(MAP_TYPE, mMap.getMapType());
 
-        outState.putBoolean(SOS_COOLDOWN, mSosButtonCoolDown);
+        outState.putBoolean(SOS_COOL_DOWN, mSosButtonCoolDown);
     }
 
     @Override

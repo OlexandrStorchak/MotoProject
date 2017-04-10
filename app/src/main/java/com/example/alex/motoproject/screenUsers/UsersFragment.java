@@ -88,9 +88,8 @@ public class UsersFragment extends FragmentWithRetainInstance
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        super.setRetainData(mPresenter);
+        setRetainData(mPresenter);
         if (mSearchView != null) outState.putString(SEARCH, mSearchView.getQuery().toString());
-//        outState.putString(SEARCH, mSearchView.getQuery().toString());
     }
 
     @Override
@@ -152,7 +151,6 @@ public class UsersFragment extends FragmentWithRetainInstance
     @Override
     public void onStart() {
         mAdapter.registerAdapterDataObserver(mDataObserver);
-//        mDataObserver.onChanged();
         mPresenter.onStart();
         super.onStart();
     }
@@ -276,7 +274,6 @@ public class UsersFragment extends FragmentWithRetainInstance
     public void setSearchViewIconified(boolean iconified) {
         mSearchView.setQuery("", false);
         mSearchView.setIconified(iconified);
-//        mSearchView.clearFocus();
     }
 
 
@@ -389,9 +386,6 @@ public class UsersFragment extends FragmentWithRetainInstance
         }
 
         private void addUser(User user) {
-//            if (mPresenter == null) {
-//                return;
-//            }
             mUsers.add(user);
         }
 
@@ -462,19 +456,11 @@ public class UsersFragment extends FragmentWithRetainInstance
                         public void onRefReady(String ref) {
                             Glide.with(userViewHolder.avatar.getContext())
                                     .load(ref)
-//                    .dontAnimate()
                                     .override(userViewHolder.avatar.getMaxWidth(),
                                             userViewHolder.avatar.getMaxHeight())
                                     .transform(new GlideCircleTransform(getContext()))
                                     .into(userViewHolder.avatar);
 
-//            Picasso.with(userViewHolder.avatar.getContext())
-//                    .load(user.getAvatar())
-//                    .resize(userViewHolder.avatar.getMaxWidth(),
-//                            userViewHolder.avatar.getMaxHeight())
-//                    .centerCrop()
-//                    .transform(new CircleTransform())
-//                    .into(userViewHolder.avatar);
                         }
 
                         @Override

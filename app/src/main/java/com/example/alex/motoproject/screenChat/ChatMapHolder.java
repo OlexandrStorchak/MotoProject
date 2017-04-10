@@ -23,6 +23,9 @@ class ChatMapHolder extends BaseChatItemHolder {
         super(itemView);
         mStaticMap = (ImageView) itemView.findViewById(R.id.chat_message_map);
         mProgressBar = (ProgressBar) itemView.findViewById(R.id.chat_message_progressbar);
+
+        mStaticMap.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
     }
 
     void setStaticMap(final Context context, final LatLng location) {
@@ -33,6 +36,9 @@ class ChatMapHolder extends BaseChatItemHolder {
                         mStaticMap.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
                         mProgressBar.getLayoutParams().height = mStaticMap.getWidth() / 2;
+
+                        mStaticMap.setVisibility(View.VISIBLE);
+                        mProgressBar.setVisibility(View.VISIBLE);
 
                         Picasso.with(context)
                                 .load(StaticMapHelper.createStaticMapLink(

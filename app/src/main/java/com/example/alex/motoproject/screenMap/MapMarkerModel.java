@@ -7,14 +7,12 @@ public class MapMarkerModel {
     public final String uid;
     public final String userName;
     public final String avatarRef;
-    public final String relation;
 
     public MapMarkerModel(LatLng latLng, String uid, String userName,
-                          String avatarRef, String relation) {
+                          String avatarRef) {
         this.latLng = latLng;
         this.uid = uid;
         this.userName = userName;
         this.avatarRef = avatarRef;
-        this.relation = relation;
     }
 }

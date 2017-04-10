@@ -1,7 +1,6 @@
 package com.example.alex.motoproject.screenMain;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,7 +22,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -48,6 +46,8 @@ import com.example.alex.motoproject.service.LocationListenerService;
 import com.example.alex.motoproject.service.MainService;
 import com.example.alex.motoproject.transformation.PicassoCircleTransform;
 import com.example.alex.motoproject.util.DimensHelper;
+import com.example.alex.motoproject.util.KeyboardUtil;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
@@ -185,9 +185,6 @@ public class MainActivity extends AppCompatActivity implements
             chatFragment = new ChatFragment();
         }
 
-//        loginController = new FirebaseLoginController(presenterImp);
-//        loginController.start();
-
         setContentView(R.layout.activity_main);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -207,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                hideKeyboard();
+                KeyboardUtil.hideKeyboard(MainActivity.this);
             }
         };
         mDrawerLayout.addDrawerListener(mToggle);
@@ -438,7 +435,12 @@ public class MainActivity extends AppCompatActivity implements
             mapFragment.setSosVisibility(View.VISIBLE);
 
         } else { //Turn off
-            if (checkLocationPermission()) mapFragment.getGoogleMap().setMyLocationEnabled(false);
+            if (checkLocationPermission()) {
+                GoogleMap googleMap = mapFragment.getGoogleMap();
+                if (googleMap != null) {
+                    googleMap.setMyLocationEnabled(false);
+                }
+            }
 
             chatFragment.hideShareLocationButton();
             getApplication().stopService(
@@ -457,16 +459,6 @@ public class MainActivity extends AppCompatActivity implements
     public void startLocationListenerService() {
         mApp.startService(new Intent(this, LocationListenerService.class));
     }
-
-    private void hideKeyboard() {
-        View view = getCurrentFocus();
-        if (view == null) return;
-
-        InputMethodManager inputMethodManager =
-                (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-
 
     @Override
     public void onBackPressed() {
@@ -594,11 +586,6 @@ public class MainActivity extends AppCompatActivity implements
                                 .centerCrop()
                                 .transform(new PicassoCircleTransform())
                                 .into(mAvatarHeader);
-//        Glide.with(this)
-//                .load(user.getMyProfileFirebase().getAvatar())
-//                .override(mAvatarHeader.getMaxWidth() * 2, mAvatarHeader.getMaxHeight() * 2)
-//                .transform(new CropCircleTransformation(this))
-//                .into(mAvatarHeader);
                     }
 
                     @Override

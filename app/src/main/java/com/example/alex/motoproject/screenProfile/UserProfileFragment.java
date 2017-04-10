@@ -158,20 +158,10 @@ public class UserProfileFragment extends Fragment {
 
         String avatarRef = mUserData.getAvatar();
 
-//        if (avatarRef.contains(".googleusercontent.com/")) {
-//            int newSize = mAvatar.getWidth();
-//            avatarRef = avatarRef.replace("/s96-c", "/s" + newSize + "-c"); //Increase Google mAvatar size
-//            Log.i("log", "onOnlineUserProfileReady: "+ avatarRef);
-//        }
         DimensHelper.getScaledAvatar(avatarRef,
                 mAvatar.getMaxWidth(), new DimensHelper.AvatarRefReceiver() {
                     @Override
                     public void onRefReady(String ref) {
-                        //        Picasso.with(getContext())
-//                .load(avatarRef)
-//                .resize(mAvatar.getMaxWidth(), mAvatar.getMaxHeight())
-//                .centerCrop()
-//                .into(mAvatar);
                         Glide.with(getContext())
                                 .load(ref)
                                 .override(mAvatar.getMaxWidth(), mAvatar.getMaxHeight())
