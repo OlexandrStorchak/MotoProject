@@ -319,6 +319,7 @@ public class MapFragment extends Fragment implements
                 MARKER_DIMENS_PX, new DimensHelper.AvatarRefReceiver() {
                     @Override
                     public void onRefReady(String ref) {
+                        if (marker.getTag() == null) return;
                         fetchAndSetMarkerIcon(ref, marker);
                     }
 
