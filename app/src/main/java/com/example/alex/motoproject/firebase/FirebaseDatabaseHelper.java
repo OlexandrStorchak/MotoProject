@@ -358,7 +358,7 @@ public class FirebaseDatabaseHelper {
                                         if (name == null || avatarRef == null) return;
 
                                         receiver.onMarkerChange(new MapMarkerModel(
-                                                latLng, uid, name, avatarRef, relation));
+                                                latLng, uid, name, avatarRef));
                                     }
 
                                     @Override

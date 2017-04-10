@@ -88,7 +88,7 @@ public class UsersFragment extends FragmentWithRetainInstance
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        super.setRetainData(mPresenter);
+        setRetainData(mPresenter);
         if (mSearchView != null) outState.putString(SEARCH, mSearchView.getQuery().toString());
     }
 

@@ -82,7 +82,7 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        super.setRetainData(mPresenter);
+        setRetainData(mPresenter);
         outState.putString(MESSAGE_TEXT, mEditText.getText().toString());
     }
 
@@ -121,7 +121,7 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
         setHasOptionsMenu(true);
 
         if (savedInstanceState != null) {
-            mPresenter = (ChatMvp.ViewToPresenter) super.getRetainData();
+            mPresenter = (ChatMvp.ViewToPresenter) getRetainData();
             mPresenter.onViewAttached(ChatFragment.this);
             mEditText.setText(savedInstanceState.getString(MESSAGE_TEXT));
         }

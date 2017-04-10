@@ -12,8 +12,8 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +24,6 @@ import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.dialog.MapUserDetailsDialogFragment;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
 import com.example.alex.motoproject.screenMain.MainActivity;
 import com.example.alex.motoproject.transformation.PicassoCircleTransform;
 import com.example.alex.motoproject.util.ArgKeys;
@@ -68,8 +67,8 @@ import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
  * The fragment that contains a map from Google Play Services.
  */
 
-public class MapFragment extends FragmentWithRetainInstance
-        implements OnMapReadyCallback, FirebaseDatabaseHelper.MapMarkersUpdateReceiver {
+public class MapFragment extends Fragment implements
+        OnMapReadyCallback, FirebaseDatabaseHelper.MapMarkersUpdateReceiver {
 
     private static final int MARKER_DIMENS_DP = 90;
     private static final int MARKER_DIMENS_PX = DimensHelper.dpToPx(MARKER_DIMENS_DP);
@@ -95,14 +94,7 @@ public class MapFragment extends FragmentWithRetainInstance
 
     public MapFragment() {
         // Required empty public constructor
-        Log.d("ddf", "fdf");
     }
-
-    @Override
-    public String getDataTag() {
-        return MapFragment.class.getName();
-    }
-
 
     public GoogleMap getGoogleMap() {
         return mMap;
