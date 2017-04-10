@@ -46,6 +46,10 @@ public class LocationListenerService extends Service implements Runnable,
     public static final String LOCATION_REQUEST_FREQUENCY_LOW = "low";
     public static final String GPS_RATE = "gpsRate";
     private static final String STOP_SERVICE_EXTRA = "stopService";
+    private static final int GET_LOCATION_TIME = 2900;
+    private static final int LOCATION_UPDATE_TIME_20_SEC = 20000;
+    private static final int LOCATION_UPDATE_TIME_10_SEC = 10000;
+    private static final int LOCATION_UPDATE_TIME_3_SEC = 3000;
 
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
@@ -90,13 +94,13 @@ public class LocationListenerService extends Service implements Runnable,
         }
         switch (gpsRate) {
             case LOCATION_REQUEST_FREQUENCY_LOW:
-                updateTime = 20000;
+                updateTime = LOCATION_UPDATE_TIME_20_SEC;
                 break;
             case LOCATION_REQUEST_FREQUENCY_DEFAULT:
-                updateTime = 10000;
+                updateTime = LOCATION_UPDATE_TIME_10_SEC;
                 break;
             case LOCATION_REQUEST_FREQUENCY_HIGH:
-                updateTime = 3000;
+                updateTime = LOCATION_UPDATE_TIME_3_SEC;
                 break;
         }
 
@@ -194,7 +198,7 @@ public class LocationListenerService extends Service implements Runnable,
                 stopLocationUpdates();
 
             }
-        }, 2900);
+        }, GET_LOCATION_TIME);
     }
 
     private void startLocationUpdates() {

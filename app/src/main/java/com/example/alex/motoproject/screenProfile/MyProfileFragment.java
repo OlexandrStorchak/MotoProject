@@ -286,6 +286,8 @@ public class MyProfileFragment extends Fragment {
     private void displayUserData() {
         currentUid = userProfileFirebase.getId();
         email.setText(userProfileFirebase.getEmail());
+
+
         final String ava = userProfileFirebase.getAvatar();
 
         DimensHelper.getScaledAvatar(ava, avatar.getWidth(), new DimensHelper.AvatarRefReceiver() {
@@ -346,38 +348,31 @@ public class MyProfileFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Uri filePath;
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getData() != null) {
             filePath = data.getData();
-
             try {
                 //if file not large for current device and can be load
                 getAvatarStream(2, filePath);
-
-
             } catch (IOException | OutOfMemoryError e) {
-
-
                 try {
                     //if file to large for current device
                     getAvatarStream(4, filePath);
-
                 } catch (FileNotFoundException e1) {
                     e1.printStackTrace();
                 }
-
             }
         }
     }
 
-    private void getAvatarStream(int size, Uri filePath) throws FileNotFoundException, OutOfMemoryError {
-        InputStream iStream = getApplicationContext().getContentResolver().openInputStream(filePath);
+    private void getAvatarStream(int size, Uri filePath)
+            throws FileNotFoundException, OutOfMemoryError {
+        InputStream iStream = getApplicationContext()
+                .getContentResolver().openInputStream(filePath);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = size;
-
         Bitmap bitmap = BitmapFactory.decodeStream(iStream, null, options);
-
         avatar.setImageBitmap(bitmap);
-
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 10, baos);
         byte[] dataBytes = baos.toByteArray();
@@ -390,7 +385,6 @@ public class MyProfileFragment extends Fragment {
             final ProgressDialog progressDialog = new ProgressDialog(getContext());
             progressDialog.setTitle("Завантаження");
             progressDialog.show();
-
             final StorageReference avatarRef =
                     storage.getReference().child("avatars/" + currentUid + ".jpeg");
             avatarRef.putBytes(dataBytes)

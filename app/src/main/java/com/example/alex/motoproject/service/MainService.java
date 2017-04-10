@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.util.Log;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
@@ -47,19 +48,16 @@ public class MainService extends Service {
 
     @Override
     public void onCreate() {
-        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
-        final String currentUser;
-        try {
-             currentUser= new FirebaseDatabaseHelper()
-                    .getCurrentUser().getUid();
-
-
+        mApp = (App) getApplicationContext();
         App.getCoreComponent().inject(this);
 
+        final String currentUser;
+        try {
+             currentUser= mFirebaseDatabaseHelper
+                    .getCurrentUser().getUid();
+
         final FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
-        final String currentUser = new FirebaseDatabaseHelper()
-                .getCurrentUser().getUid();
-        mApp = (App) getApplicationContext();
+
         final DatabaseReference ref = mFirebaseDatabase.getReference().child(PATH_SOS);
 
         ref.addValueEventListener(new ValueEventListener() {
