@@ -1,0 +1,73 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.alex.motoproject.screenChat.ChatFragment">
+
+    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/container_chat_swipe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/linearlayout_chat_edittextcontainer">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerview_chat"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/grey300"
+            android:scrollbars="vertical"
+            app:reverseLayout="true"
+            app:stackFromEnd="true" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:id="@+id/linearlayout_chat_edittextcontainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="@color/blueGrey50"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/button_sharelocation_chat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:background="@null"
+            android:contentDescription="@string/button_share_location_description"
+            android:src="@drawable/ic_gps_fixed_black_24dp"
+            android:tint="@color/blue900" />
+
+        <EditText
+            android:id="@+id/edittext_message_chat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="6"
+            android:ems="10"
+            android:gravity="top|start"
+            android:hint="@string/hint_chat"
+            android:inputType="textMultiLine|textCapSentences"
+            android:lines="3"
+            android:minLines="1"
+            android:scrollbars="vertical"
+            android:soundEffectsEnabled="true" />
+
+        <ImageButton
+            android:id="@+id/button_send_chat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:background="@null"
+            android:contentDescription="@string/button_send_description"
+            android:src="@android:drawable/ic_menu_send"
+            android:tint="@color/blue900" />
+
+    </LinearLayout>
+
+</RelativeLayout>

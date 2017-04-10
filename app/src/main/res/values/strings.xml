@@ -1,13 +1,116 @@
 <resources>
     <string name="app_name">MotoProject</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open">Відкрити шторку</string>
+    <string name="navigation_drawer_close">Закрити шторку</string>
 
-    <string name="action_settings">Settings</string>
     <string name="menu_navi_tittle_maps">Мапа</string>
-    <string name="menu_navi_tittle_friends">Друзі</string>
-    <string name="menu_navi_tittle_chat">Чат</string>
-    <string name="menu_navi_tittle_events">Події</string>
-    <string name="menu_navi_tittle_info">Інформація</string>
+
+    <string name="facebook_app_id">1738320186485515</string>
+
+    <string name="location_rationale">Без дозволу на використання GPS ви не зможете ділитися своїм місцезнаходженням з іншими користувачами. Дозволити використання GPS?</string>
+    <string name="gps_turned_off_alert">GPS вимкнено. Увімкнути?</string>
+    <string name="internet_turned_off_alert">Інтернет-з\'єднання вимкнено. Увімкнути?</string>
+    <string name="turn_on_mobile_internet">Увімкнути моб. Інтернет</string>
+    <string name="turn_on_wifi">Увімкнути WIFI</string>
+    <string name="to_settings">В налаштування</string>
+    <string name="how_to_change_location_setting">Ви можете змінити свій вибір у налаштуваннях. Дозволи —> Ваше місцезнаходження</string>
+    <string name="confirm_sharing_location_in_chat">Поділитися з усіма своїм теперішнім місцезнаходженням?</string>
+    <string name="chat_location_limit">Максимальна відстань, на якій ви маєте перебувати від відправника, щоб бачити його повідомлення</string>
+    <string name="chat_location_limit_title">Виберіть відстань</string>
+    <string name="location_service_notification">Місцезнаходження відстежується</string>
+    <string name="internet_is_off">Інтернет вимкнено. Ввімкнути?</string>
+    <string name="gps_is_off">GPS вимкнено. Ввімкнути?</string>
+    <string name="ok">Гаразд</string>
+    <string name="close">Закрити</string>
+
+    <string name="auth_sign_out">Вихід</string>
+    <string name="hint_e_mail">Імейл</string>
+    <string name="hint_pass">Пароль</string>
+    <string name="hint_repeat_pass">Повторіть пароль</string>
+    <string name="sign_up">Приєднатись</string>
+    <string name="google">Google аккаунт</string>
+    <string name="login">Логін</string>
+    <string name="submit">Підтвердити</string>
+    <string name="email_is_empty">Введіть імейл адресу</string>
+    <string name="enter_password">Введіть пароль</string>
+    <string name="less_6_chars">Пароль коротший за 6 символів</string>
+    <string name="avatar">Аватар</string>
+    <string name="pass_not_match">Паролі не збігаються</string>
+    <string name="who_is_online">Хто онлайн</string>
+    <string name="hint_chat">Введіть повідомлення…</string>
+
+    <string name="facebook">Facebook</string>
+
+    <string name="button_send_description">Наділати повідомлення</string>
+    <string name="button_share_location_description">Надіслати місцезнаходження</string>
+    <string name="map_cur_description">Місцезнаходження</string>
+    <string name="avatar_description">Аватар</string>
+    <string name="navigation_drawer_btn_chat">Чат</string>
+    <string name="me">Я</string>
+    <string name="add_friend">add friend</string>
+    <string name="remove_from_friends">send message</string>
+    <string name="chat_message_map">Місцезнаходження</string>
+    <string name="save_changes">Зберегти зміни</string>
+    <string name="text_show_me_on_map">Видимість : </string>
+    <string name="edit_changes">edit_changes</string>
+    <string name="your_name">Ваше ім\'я</string>
+    <string name="your_nick_name">Ваш нік-нейм</string>
+    <string name="motorcycle_model">Модель мотоцикла</string>
+    <string name="about_myself">Розкажіть про себе</string>
+    <string name="time_rate_gps">Частота оновлення GPS :</string>
+    <string name="go_ride">Поїхали</string>
+    <string name="stop_ride">Приїхали</string>
+    <string name="drawer_btn_friends">Друзі</string>
+    <string name="search_title_users">Пошук</string>
+    <string name="accept">Прийняти</string>
+    <string name="decline">Відхилити</string>
+    <string name="switch_off">Вимкнути</string>
+    <string name="to_profile">До профілю</string>
+    <string name="auth_error">Сталася неочікувана помилка. Спробуйте ще раз</string>
+
+    <string-array name="profile_spinner_set_gps_visibility">
+        <item>Всім</item>
+        <item>Друзям</item>
+        <item>SOS</item>
+        <item>Нікому</item>
+    </string-array>
+    <string name="title_pending_friends">Пропозиції</string>
+    <string name="title_friends">Друзі</string>
+    <string name="filter_title_chat">Фільтр</string>
+    <string name="km">км</string>
+    <string name="km20">20 км</string>
+    <string name="off">Вимкнено</string>
+
+    <string-array name="profile_spinner_set_gps_rate">
+        <item>Висока</item>
+        <item>Середня</item>
+        <item>Низька</item>
+    </string-array>
+    <string name="chat_location_limit_preferences">ChatLimitPref</string>
+    <string name="chat_location_no_current_user_location">Поділіться координатами, щоб фільтрація запрацювала</string>
+    <string name="stop_location_service_button_tittle">Приїхали</string>
+    <string name="start_location_service_button_title">Поїхали</string>
+    <string name="description_logo">Логотип</string>
+    <string name="description_avatar">Аватар</string>
+    <string name="description_edit">Редагувати</string>
+    <string name="description_save">Зберегти</string>
+    <string name="nobody_here">Тут нікого нема :(</string>
+
+    <string name="name">Ім\'я</string>
+    <string name="nick_name">Нікнейм</string>
+    <string name="email">Імейл</string>
+    <string name="motorcycle">Мотоцикл</string>
+    <string name="about">Про себе</string>
+
+    <string name="title_activity_login">Логін</string>
+
+    <string name="confirm_by_email">Підтвердте реєстрацію по імейлу</string>
+    <string name="notification_tittle_need_help">Потрібна допомога!</string>
+
+    <string name="sos_sent">Запит про допомогу надіслано!</string>
+    <!--<string name="dummy_button">Dummy Button</string>-->
+    <!--<string name="dummy_content">DUMMY\nCONTENT</string>-->
+
+    <!--<string name="title_activity_fullscreen">FullscreenActivity</string>-->
 </resources>
