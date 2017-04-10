@@ -82,7 +82,6 @@ public class MainService extends Service {
                                                 MAX_DISTANCE_METERS)) {
                                             showNotification();
                                         }
-
                                     }
                                 }
                             });
