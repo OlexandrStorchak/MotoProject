@@ -47,6 +47,7 @@ import com.example.alex.motoproject.service.MainService;
 import com.example.alex.motoproject.transformation.PicassoCircleTransform;
 import com.example.alex.motoproject.util.DimensHelper;
 import com.example.alex.motoproject.util.KeyboardUtil;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
@@ -434,7 +435,12 @@ public class MainActivity extends AppCompatActivity implements
             mapFragment.setSosVisibility(View.VISIBLE);
 
         } else { //Turn off
-            if (checkLocationPermission()) mapFragment.getGoogleMap().setMyLocationEnabled(false);
+            if (checkLocationPermission()) {
+                GoogleMap googleMap = mapFragment.getGoogleMap();
+                if (googleMap != null) {
+                    googleMap.setMyLocationEnabled(false);
+                }
+            }
 
             chatFragment.hideShareLocationButton();
             getApplication().stopService(
@@ -579,11 +585,6 @@ public class MainActivity extends AppCompatActivity implements
                                 .centerCrop()
                                 .transform(new PicassoCircleTransform())
                                 .into(mAvatarHeader);
-//        Glide.with(this)
-//                .load(user.getMyProfileFirebase().getAvatar())
-//                .override(mAvatarHeader.getMaxWidth() * 2, mAvatarHeader.getMaxHeight() * 2)
-//                .transform(new CropCircleTransformation(this))
-//                .into(mAvatarHeader);
                     }
 
                     @Override

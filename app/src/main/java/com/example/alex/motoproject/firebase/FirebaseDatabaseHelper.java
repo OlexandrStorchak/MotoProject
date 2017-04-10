@@ -994,11 +994,7 @@ public class FirebaseDatabaseHelper {
     }
 
     public void getCurrentUserLocation(final UsersLocationReceiver receiver) {
-        if (mCurrentUserLocation != null) {
-            receiver.onCurrentUserLocationReady(mCurrentUserLocation);
-            return;
-        }
-        mDbReference.child("location").child(getCurrentUser().getUid())
+        mDbReference.child(PATH_LOCATION).child(getCurrentUser().getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {

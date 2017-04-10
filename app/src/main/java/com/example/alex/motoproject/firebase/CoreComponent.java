@@ -8,6 +8,7 @@ import com.example.alex.motoproject.screenProfile.MyProfileFragment;
 import com.example.alex.motoproject.screenProfile.UserProfileFragment;
 import com.example.alex.motoproject.screenUsers.UsersModel;
 import com.example.alex.motoproject.service.LocationListenerService;
+import com.example.alex.motoproject.service.MainService;
 
 import javax.inject.Singleton;
 
@@ -33,4 +34,6 @@ public interface CoreComponent {
     void inject(LocationListenerService locationListenerService);
 
     void inject(AlertControl alertControl);
+
+    void inject(MainService mainService);
 }
