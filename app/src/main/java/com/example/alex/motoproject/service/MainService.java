@@ -110,7 +110,7 @@ public class MainService extends Service {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext())
-                        .setSmallIcon(R.drawable.ic_sos)
+                        .setSmallIcon(R.drawable.ic_help)
                         .setContentTitle(getString(R.string.notification_tittle_need_help))
                         .setAutoCancel(true)
                         .setShowWhen(false)

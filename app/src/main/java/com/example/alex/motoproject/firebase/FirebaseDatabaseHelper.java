@@ -298,7 +298,7 @@ public class FirebaseDatabaseHelper {
 
         //Fetch relations between this user and current user
         DatabaseReference relationRef = user
-                .child(USER_PROFILE_FRIEND_LIST).child(getCurrentUser().getUid());
+                .child(USER_PROFILE_FRIEND_LIST).child(mCurrentUserId);
 
         relationRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
