@@ -13,10 +13,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.event.CancelAlertEvent;
+import com.example.alex.motoproject.event.AlertEvent;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
-import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
-import com.example.alex.motoproject.event.ShowAlertEvent;
 import com.example.alex.motoproject.screenMap.MapFragment;
 
 import org.greenrobot.eventbus.EventBus;
@@ -31,9 +29,10 @@ public class AlertControl implements MapFragment.MapFragmentHolder {
     private static final int ALERT_PERMISSION_RATIONALE = 22;
     private static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
     private static final int ALERT_SHARE_LOCATION_CONFIRMATION = 24;
+
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
 
-    AlertDialog mAlert;
+    AlertDialog alert;
     private ArrayList<Integer> mActiveAlerts = new ArrayList<>();
     private MainActivity mainActivity;
 
@@ -54,7 +53,7 @@ public class AlertControl implements MapFragment.MapFragmentHolder {
     @Override
     public void showAlert(final int alertType) {
         if (mActiveAlerts.contains(alertType)) {
-            return; //do nothing if this mAlert has already been created
+            return; //do nothing if this alert has already been created
         }
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mainActivity);
         switch (alertType) {
@@ -121,7 +120,7 @@ public class AlertControl implements MapFragment.MapFragmentHolder {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        EventBus.getDefault().post(new ShareLocationInChatAllowedEvent());
+                                        mainActivity.chatFragment.onShareLocationInChatAllowed();
                                     }
                                 });
                 alertDialogBuilder.setNegativeButton(R.string.close,
@@ -161,8 +160,8 @@ public class AlertControl implements MapFragment.MapFragmentHolder {
         }
 
 
-        mAlert = alertDialogBuilder.create();
-        mAlert.setOnDismissListener(new DialogInterface.OnDismissListener()
+        alert = alertDialogBuilder.create();
+        alert.setOnDismissListener(new DialogInterface.OnDismissListener()
 
                                     {
                                         @Override
@@ -173,7 +172,7 @@ public class AlertControl implements MapFragment.MapFragmentHolder {
                                     }
 
         );
-        mAlert.show();
+        alert.show();
         if (!mActiveAlerts.contains(alertType))
             mActiveAlerts.add(alertType);
     }
@@ -202,11 +201,8 @@ public class AlertControl implements MapFragment.MapFragmentHolder {
 
     @Override
     public void handleLocation() {
-
-        if (checkLocationPermission()) {
-            //permission granted
+        if (checkLocationPermission()) {//permission granted
             mainActivity.startLocationListenerService();
-
         } else { //permission was not granted, show the permission prompt
             requestLocationPermission();
         }
@@ -226,23 +222,19 @@ public class AlertControl implements MapFragment.MapFragmentHolder {
     }
 
     @Subscribe
-    //the method called when received an event from EventBus asking for showing mAlert
-    public void onShouldShowAlertEvent(ShowAlertEvent event) {
-        int receivedAlertType = event.alertType;
-        if (!mActiveAlerts.contains(receivedAlertType))
-            showAlert(event.alertType);
-    }
-
-
-    @Subscribe
-    //the method called when received an event from EventBus asking for canceling mAlert
-    public void onShouldCancelEvent(CancelAlertEvent event) {
-        int receivedAlertType = event.alertType;
-        if (mActiveAlerts.contains(receivedAlertType)) {
-            if (mAlert != null) {
-                mAlert.dismiss();
-            }
+    //Fires to hide or show an alert of given type
+    public void onAlertEvent(AlertEvent event) {
+        if (event.show) {
+            if (!mActiveAlerts.contains(event.alertType)) showAlert(event.alertType);
+        } else {
+            if (alert != null && mActiveAlerts.contains(event.alertType)) alert.dismiss();
         }
+
+//        if (!event.show && !mActiveAlerts.contains(event.alertType)) {
+//            showAlert(event.alertType);
+//        } else if (alert != null) {
+//            alert.dismiss();
+//        }
     }
 
     @Subscribe

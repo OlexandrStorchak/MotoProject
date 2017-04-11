@@ -28,7 +28,6 @@ import com.example.alex.motoproject.dagger.PresenterModule;
 import com.example.alex.motoproject.dialog.ChatLocLimitDialogFragment;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
-import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
 import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
 import com.example.alex.motoproject.screenMain.MainActivity;
 import com.example.alex.motoproject.util.KeyboardUtil;
@@ -321,8 +320,8 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
     }
 
     @Subscribe
-    public void onShareLocationInChatAllowed(ShareLocationInChatAllowedEvent event) {
-        mPresenter.onShareLocationInChatAllowed(event);
+    public void onShareLocationInChatAllowed() {
+        mPresenter.onShareLocationInChatAllowed();
     }
 
     @Subscribe

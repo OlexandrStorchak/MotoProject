@@ -4,7 +4,6 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
-import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -161,7 +160,7 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
     }
 
     @Override
-    public void onShareLocationInChatAllowed(ShareLocationInChatAllowedEvent event) {
+    public void onShareLocationInChatAllowed() {
         mModel.fetchDataForLocationShare();
     }
 

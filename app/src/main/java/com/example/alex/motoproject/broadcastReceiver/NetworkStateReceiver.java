@@ -14,10 +14,9 @@ import android.support.v4.app.NotificationCompat;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
-import com.example.alex.motoproject.event.CancelAlertEvent;
+import com.example.alex.motoproject.event.AlertEvent;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.InternetStatusChangedEvent;
-import com.example.alex.motoproject.event.ShowAlertEvent;
 import com.example.alex.motoproject.screenMain.AlertControl;
 
 import org.greenrobot.eventbus.EventBus;
@@ -44,14 +43,14 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
         if (isInternetEnabled()) {
             if (isMainActivityVisible()) {
-                postCancelAlertEvent(INTERNET_NOTIFICATION_ID);
+                EventBus.getDefault().post(new AlertEvent(AlertControl.ALERT_INTERNET_OFF, false));
                 postInternetStatusChangedEvent(true);
             } else {
                 cancelNotificationIfExists(INTERNET_NOTIFICATION_ID);
             }
         } else {
             if (isMainActivityVisible()) {
-                postShowAlertEvent(INTERNET_NOTIFICATION_ID);
+                EventBus.getDefault().post(new AlertEvent(AlertControl.ALERT_INTERNET_OFF, true));
                 postInternetStatusChangedEvent(false);
             } else {
                 showNotification(INTERNET_NOTIFICATION_ID);
@@ -62,14 +61,14 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
         if (isGpsEnabled()) {
             if (isMainActivityVisible()) {
-                postCancelAlertEvent(GPS_NOTIFICATION_ID);
+                EventBus.getDefault().post(new AlertEvent(AlertControl.ALERT_GPS_OFF, false));
                 postGpsStatusChangedEvent(true);
             } else {
                 cancelNotificationIfExists(GPS_NOTIFICATION_ID);
             }
         } else {
             if (isMainActivityVisible()) {
-                postShowAlertEvent(GPS_NOTIFICATION_ID);
+                EventBus.getDefault().post(new AlertEvent(AlertControl.ALERT_GPS_OFF, true));
                 postGpsStatusChangedEvent(false);
             } else {
                 showNotification(GPS_NOTIFICATION_ID);
@@ -112,27 +111,6 @@ public class NetworkStateReceiver extends BroadcastReceiver {
     private void cancelNotificationIfExists(int notificationId) {
         if (mNotifyMgr != null) {
             mNotifyMgr.cancel(notificationId);
-        }
-    }
-
-    private void postShowAlertEvent(int notificationId) {
-        switch (notificationId) {
-            case INTERNET_NOTIFICATION_ID:
-                EventBus.getDefault().post(new ShowAlertEvent(AlertControl.ALERT_INTERNET_OFF));
-                break;
-            case GPS_NOTIFICATION_ID:
-                EventBus.getDefault().post(new ShowAlertEvent(AlertControl.ALERT_GPS_OFF));
-                break;
-        }
-    }
-
-    private void postCancelAlertEvent(int notificationId) {
-        switch (notificationId) {
-            case INTERNET_NOTIFICATION_ID:
-                EventBus.getDefault().post(new CancelAlertEvent(AlertControl.ALERT_INTERNET_OFF));
-                break;
-            case GPS_NOTIFICATION_ID:
-                EventBus.getDefault().post(new CancelAlertEvent(AlertControl.ALERT_GPS_OFF));
         }
     }
 

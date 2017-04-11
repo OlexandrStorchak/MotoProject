@@ -500,8 +500,8 @@ public class MainActivity extends AppCompatActivity implements
     protected void onDestroy() {
         super.onDestroy();
 
-        if (alertControl.mAlert != null) {
-            alertControl.mAlert.dismiss();
+        if (alertControl.alert != null) {
+            alertControl.alert.dismiss();
         }
 
         EventBus.getDefault().unregister(this);
@@ -728,13 +728,15 @@ public class MainActivity extends AppCompatActivity implements
 
     @Subscribe(sticky = true)
     public void onInternetStatusChanged(InternetStatusChangedEvent event) {
-        int visibility;
-        if (event.isInternetOn()) {
-            visibility = View.VISIBLE;
-        } else {
-            visibility = View.GONE;
-        }
-        if (mButtonStartRide != null) mButtonStartRide.setVisibility(visibility);
-        if (mGpsStatus != null) mGpsStatus.setVisibility(visibility);
+//        int visibility;
+//        if (event.isInternetOn()) {
+//            visibility = View.VISIBLE;
+//        } else {
+//            visibility = View.GONE;
+//        }
+//        if (mButtonStartRide != null) mButtonStartRide.setVisibility(visibility);
+//        if (mGpsStatus != null && mApp.isLocationListenerServiceOn()) {
+//            mGpsStatus.setVisibility(visibility);
+//        }
     }
 }

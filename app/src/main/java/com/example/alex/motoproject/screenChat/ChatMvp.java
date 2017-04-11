@@ -2,7 +2,6 @@ package com.example.alex.motoproject.screenChat;
 
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
-import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
 
 import java.util.List;
 
@@ -29,7 +28,7 @@ public interface ChatMvp {
 
         void onGpsStateChanged(GpsStatusChangedEvent event);
 
-        void onShareLocationInChatAllowed(ShareLocationInChatAllowedEvent event);
+        void onShareLocationInChatAllowed();
 
         void onClickChatDialogFragment(OnClickChatDialogFragmentEvent event);
     }

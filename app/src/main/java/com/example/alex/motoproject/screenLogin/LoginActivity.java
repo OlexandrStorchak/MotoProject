@@ -10,7 +10,6 @@ import com.example.alex.motoproject.firebase.FirebaseLoginController;
 import com.example.alex.motoproject.screenMain.MainActivity;
 import com.example.alex.motoproject.service.MainService;
 
-import static com.example.alex.motoproject.util.ArgKeys.SHOW_MAP_FRAGMENT;
 import static com.example.alex.motoproject.util.ArgKeys.SIGN_OUT;
 
 public class LoginActivity extends AppCompatActivity
@@ -52,7 +51,6 @@ public class LoginActivity extends AppCompatActivity
 
     public void login() {
         startActivity(new Intent(LoginActivity.this, MainActivity.class)
-                .putExtra(SHOW_MAP_FRAGMENT, true)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION));
