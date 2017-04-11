@@ -13,8 +13,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 
 import com.example.alex.motoproject.R;
-import com.example.alex.motoproject.event.AlertEvent;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
+import com.example.alex.motoproject.event.GpsStatusChangedEvent;
+import com.example.alex.motoproject.event.InternetStatusChangedEvent;
 import com.example.alex.motoproject.screenMap.MapFragment;
 
 import org.greenrobot.eventbus.EventBus;
@@ -24,8 +25,8 @@ import java.util.ArrayList;
 
 public class AlertControl implements MapFragment.MapFragmentHolder {
 
-    public static final int ALERT_GPS_OFF = 20;
-    public static final int ALERT_INTERNET_OFF = 21;
+    private static final int ALERT_GPS_OFF = 20;
+    private static final int ALERT_INTERNET_OFF = 21;
     private static final int ALERT_PERMISSION_RATIONALE = 22;
     private static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
     private static final int ALERT_SHARE_LOCATION_CONFIRMATION = 24;
@@ -222,24 +223,27 @@ public class AlertControl implements MapFragment.MapFragmentHolder {
     }
 
     @Subscribe
-    //Fires to hide or show an alert of given type
-    public void onAlertEvent(AlertEvent event) {
-        if (event.show) {
-            if (!mActiveAlerts.contains(event.alertType)) showAlert(event.alertType);
-        } else {
-            if (alert != null && mActiveAlerts.contains(event.alertType)) alert.dismiss();
-        }
+    public void onConfirmShareLocationInChatEvent(ConfirmShareLocationInChatEvent event) {
+        showAlert(ALERT_SHARE_LOCATION_CONFIRMATION);
+    }
 
-//        if (!event.show && !mActiveAlerts.contains(event.alertType)) {
-//            showAlert(event.alertType);
-//        } else if (alert != null) {
-//            alert.dismiss();
-//        }
+    //These two methods fire to hide or show an alert of given type
+    @Subscribe
+    public void onInternetStatusChangedEvent(InternetStatusChangedEvent event) {
+        handleConnectionChange(event.isInternetOn(), ALERT_INTERNET_OFF);
     }
 
     @Subscribe
-    public void onConfirmShareLocationInChatEvent(ConfirmShareLocationInChatEvent event) {
-        showAlert(ALERT_SHARE_LOCATION_CONFIRMATION);
+    public void onGpsStatusChangedEvent(GpsStatusChangedEvent event) {
+        handleConnectionChange(event.isGpsOn(), ALERT_GPS_OFF);
+    }
+
+    private void handleConnectionChange(boolean on, int alertType) {
+        if (on) { //dismiss alert
+            if (alert != null && mActiveAlerts.contains(alertType)) alert.dismiss();
+        } else { //show alert
+            if (!mActiveAlerts.contains(alertType)) showAlert(alertType);
+        }
     }
 }
 

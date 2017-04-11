@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.broadcastReceiver;
+package com.example.alex.motoproject.networkStateReceiver;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -14,10 +14,8 @@ import android.support.v4.app.NotificationCompat;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
-import com.example.alex.motoproject.event.AlertEvent;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.InternetStatusChangedEvent;
-import com.example.alex.motoproject.screenMain.AlertControl;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -43,14 +41,12 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
         if (isInternetEnabled()) {
             if (isMainActivityVisible()) {
-                EventBus.getDefault().post(new AlertEvent(AlertControl.ALERT_INTERNET_OFF, false));
                 postInternetStatusChangedEvent(true);
             } else {
                 cancelNotificationIfExists(INTERNET_NOTIFICATION_ID);
             }
         } else {
             if (isMainActivityVisible()) {
-                EventBus.getDefault().post(new AlertEvent(AlertControl.ALERT_INTERNET_OFF, true));
                 postInternetStatusChangedEvent(false);
             } else {
                 showNotification(INTERNET_NOTIFICATION_ID);
@@ -61,14 +57,12 @@ public class NetworkStateReceiver extends BroadcastReceiver {
 
         if (isGpsEnabled()) {
             if (isMainActivityVisible()) {
-                EventBus.getDefault().post(new AlertEvent(AlertControl.ALERT_GPS_OFF, false));
                 postGpsStatusChangedEvent(true);
             } else {
                 cancelNotificationIfExists(GPS_NOTIFICATION_ID);
             }
         } else {
             if (isMainActivityVisible()) {
-                EventBus.getDefault().post(new AlertEvent(AlertControl.ALERT_GPS_OFF, true));
                 postGpsStatusChangedEvent(false);
             } else {
                 showNotification(GPS_NOTIFICATION_ID);

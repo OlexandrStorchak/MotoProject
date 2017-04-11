@@ -7,8 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.firebase.FirebaseLoginController;
+import com.example.alex.motoproject.mainService.MainService;
 import com.example.alex.motoproject.screenMain.MainActivity;
-import com.example.alex.motoproject.service.MainService;
 
 import static com.example.alex.motoproject.util.ArgKeys.SIGN_OUT;
 

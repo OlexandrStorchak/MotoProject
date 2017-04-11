@@ -100,6 +100,7 @@ public class UserProfileFragment extends Fragment {
                     new FirebaseDatabaseHelper.UserProfileReceiver() {
                         @Override
                         public void onReady(UserProfileFirebase profile) {
+                            if (getActivity() == null) return;
                             mUserData = profile;
                             displayUserData();
                         }

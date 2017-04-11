@@ -309,6 +309,10 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
         mShareLocationButton.setVisibility(View.GONE);
     }
 
+    public void onShareLocationInChatAllowed() {
+        mPresenter.onShareLocationInChatAllowed();
+    }
+
     @Override
     public void showShareLocationButton() {
         mShareLocationButton.setVisibility(View.VISIBLE);
@@ -317,11 +321,6 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
     @Subscribe(sticky = true)
     public void onGpsStateChanged(GpsStatusChangedEvent event) {
         mPresenter.onGpsStateChanged(event);
-    }
-
-    @Subscribe
-    public void onShareLocationInChatAllowed() {
-        mPresenter.onShareLocationInChatAllowed();
     }
 
     @Subscribe

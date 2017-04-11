@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.service;
+package com.example.alex.motoproject.mainService;
 
 import android.app.PendingIntent;
 import android.app.Service;

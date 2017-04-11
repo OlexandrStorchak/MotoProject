@@ -35,14 +35,14 @@ import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UserProfileFirebase;
+import com.example.alex.motoproject.locationListenerService.LocationListenerService;
+import com.example.alex.motoproject.mainService.MainService;
 import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenLogin.LoginActivity;
 import com.example.alex.motoproject.screenMap.MapFragment;
 import com.example.alex.motoproject.screenProfile.MyProfileFragment;
 import com.example.alex.motoproject.screenProfile.UserProfileFragment;
 import com.example.alex.motoproject.screenUsers.UsersFragment;
-import com.example.alex.motoproject.service.LocationListenerService;
-import com.example.alex.motoproject.service.MainService;
 import com.example.alex.motoproject.transformation.PicassoCircleTransform;
 import com.example.alex.motoproject.util.DimensHelper;
 import com.example.alex.motoproject.util.KeyboardUtil;
@@ -249,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements
         navigationBtnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                replaceFragment(screenMapFragment);
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.main_activity_frame, mapFragment, MAP_FRAGMENT_TAG)
                         .commit();
@@ -396,8 +395,6 @@ public class MainActivity extends AppCompatActivity implements
         if (getIntent() != null) {
             handleIntent(getIntent());
         }
-
-        handleUser(mFirebaseDatabaseHelper.getCurrentUser());
     }
 
     @Override
@@ -487,6 +484,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     //Needed for Facebook handleUser
+    // TODO: 11.04.2017 delete this
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -504,11 +502,14 @@ public class MainActivity extends AppCompatActivity implements
             alertControl.alert.dismiss();
         }
 
+        mFirebaseDatabaseHelper.removeCurrentUserModelListener();
         EventBus.getDefault().unregister(this);
     }
 
     @Subscribe
     public void onShowOnlineUserProfile(ShowUserProfileEvent model) {
+        KeyboardUtil.hideKeyboard(this);
+
         UserProfileFragment fragment = new UserProfileFragment();
 
         Bundle bundle = new Bundle();
@@ -612,21 +613,20 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void handleUser(FirebaseUser user) {
-        mFirebaseDatabaseHelper.addUserToFirebase(
-                user.getUid(),
+        mFirebaseDatabaseHelper.addUserToFirebase(user.getUid(),
                 user.getEmail(),
                 user.getDisplayName(),
                 String.valueOf(user.getPhotoUrl()));
-        mFirebaseDatabaseHelper.getCurrentUserModel(
-                new FirebaseDatabaseHelper.UserProfileReceiver() {
-                    @Override
-                    public void onReady(UserProfileFirebase profile) {
-                        mName = profile.getName();
-                        mEmail = profile.getEmail();
-                        mAvatarRef = profile.getAvatar();
-                        setCurrentUserData();
-                    }
-                });
+        mFirebaseDatabaseHelper.addListenerCurrentUserModel(new FirebaseDatabaseHelper
+                .UserProfileReceiver() {
+            @Override
+            public void onReady(UserProfileFirebase profile) {
+                mName = profile.getName();
+                mEmail = profile.getEmail();
+                mAvatarRef = profile.getAvatar();
+                setCurrentUserData();
+            }
+        });
 
         SharedPreferences sharedPreferences = getApplicationContext()
                 .getSharedPreferences(PROFSET, MODE_PRIVATE);
@@ -722,6 +722,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished() {
+        handleUser(mFirebaseDatabaseHelper.getCurrentUser());
+
         mFirebaseDatabaseHelper.getFriends();
         mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
     }

@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.service;
+package com.example.alex.motoproject.locationListenerService;
 
 import android.Manifest;
 import android.app.NotificationManager;

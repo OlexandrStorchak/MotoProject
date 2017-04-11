@@ -45,10 +45,10 @@ import javax.inject.Inject;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
-import static com.example.alex.motoproject.service.LocationListenerService.GPS_RATE;
-import static com.example.alex.motoproject.service.LocationListenerService.LOCATION_REQUEST_FREQUENCY_DEFAULT;
-import static com.example.alex.motoproject.service.LocationListenerService.LOCATION_REQUEST_FREQUENCY_HIGH;
-import static com.example.alex.motoproject.service.LocationListenerService.LOCATION_REQUEST_FREQUENCY_LOW;
+import static com.example.alex.motoproject.locationListenerService.LocationListenerService.GPS_RATE;
+import static com.example.alex.motoproject.locationListenerService.LocationListenerService.LOCATION_REQUEST_FREQUENCY_DEFAULT;
+import static com.example.alex.motoproject.locationListenerService.LocationListenerService.LOCATION_REQUEST_FREQUENCY_HIGH;
+import static com.example.alex.motoproject.locationListenerService.LocationListenerService.LOCATION_REQUEST_FREQUENCY_LOW;
 import static com.example.alex.motoproject.util.ArgKeys.ABOUT_ME;
 import static com.example.alex.motoproject.util.ArgKeys.EDIT_MODE;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_NAME;
@@ -223,7 +223,7 @@ public class MyProfileFragment extends Fragment {
         });
 
         if (savedInstanceState == null) {
-            mFirebaseDatabaseHelper.getCurrentUserModel(
+            mFirebaseDatabaseHelper.getUserModel(mFirebaseDatabaseHelper.getCurrentUser().getUid(),
                     new FirebaseDatabaseHelper.UserProfileReceiver() {
                         @Override
                         public void onReady(UserProfileFirebase profile) {

@@ -88,7 +88,7 @@ public class MapFragment extends Fragment implements
     private App mApp;
     private FloatingActionButton mSosToggleButton;
     private CameraUpdate mCameraUpdate;
-    private int mMapType;
+    private int mMapType = 1;
 
     private boolean mSosButtonCoolDown;
 

@@ -72,8 +72,15 @@ public class UsersFragment extends FragmentWithRetainInstance
                 }
             };
 
+    private boolean mDestroyed;
+
     public UsersFragment() {
 
+    }
+
+    @Override
+    public boolean isDestroyed() {
+        return mDestroyed;
     }
 
     @Override
@@ -223,6 +230,8 @@ public class UsersFragment extends FragmentWithRetainInstance
 
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(mAdapter);
+
+        mDestroyed = false;
     }
 
     @Override
@@ -253,9 +262,11 @@ public class UsersFragment extends FragmentWithRetainInstance
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         mAdapter.removeAllSections();
         mPresenter = null;
+        mDestroyed = true;
+        mSearchViewQuery = null;
+        super.onDestroyView();
     }
 
     @Override

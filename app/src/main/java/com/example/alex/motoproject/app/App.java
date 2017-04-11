@@ -9,10 +9,10 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 
 import com.crashlytics.android.Crashlytics;
-import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.firebase.CoreComponent;
 import com.example.alex.motoproject.firebase.DaggerCoreComponent;
 import com.example.alex.motoproject.firebase.FirebaseUtilsModule;
+import com.example.alex.motoproject.networkStateReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.screenMain.MainActivity;
 import com.google.firebase.database.FirebaseDatabase;
 

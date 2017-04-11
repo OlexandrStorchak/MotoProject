@@ -3,11 +3,11 @@ package com.example.alex.motoproject.firebase;
 import android.location.Location;
 import android.support.annotation.NonNull;
 
+import com.example.alex.motoproject.mainService.MainServiceSosModel;
 import com.example.alex.motoproject.screenChat.ChatMessage;
 import com.example.alex.motoproject.screenChat.ChatMessageSendable;
 import com.example.alex.motoproject.screenMap.MapMarkerModel;
 import com.example.alex.motoproject.screenUsers.User;
-import com.example.alex.motoproject.service.MainServiceSosModel;
 import com.example.alex.motoproject.util.DistanceUtil;
 import com.facebook.Profile;
 import com.google.android.gms.maps.model.LatLng;
@@ -70,18 +70,19 @@ public class FirebaseDatabaseHelper {
     private static final int SHOWN_MESSAGES_MIN_COUNT_LIMIT =
             FETCHED_CHAT_MESSAGES_MIN_COUNT_LIMIT - 1;
 
-
-    private ChatUpdateReceiver mChatModel;
     private FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference mDbReference = mDatabase.getReference();
+    private DatabaseReference mOnlineUsersRef;
+
     private ChildEventListener mOnlineUsersLocationListener;
     private ChildEventListener mOnlineUsersDataListener;
     private ChildEventListener mFriendsListener;
     private ChildEventListener mChatMessagesListener;
-    private DatabaseReference mOnlineUsersRef;
 
-    private HashMap<String, LatLng> mUsersLocation = new HashMap<>();
-    private HashMap<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
+    private ValueEventListener mCurrentUserModelListener;
+
+    private Map<String, LatLng> mUsersLocation = new HashMap<>();
+    private Map<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
     private Map<String, String> mFriends = new HashMap<>();
 
     private LinkedList<ChatMessage> mOlderMessages = new LinkedList<>();
@@ -767,7 +768,6 @@ public class FirebaseDatabaseHelper {
             mCloseDistance = 0;
             receiver.onNoCurrentUserLocation();
         }
-        mChatModel = receiver;
         mChatMessagesListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -808,11 +808,11 @@ public class FirebaseDatabaseHelper {
 
                 if (message.getUid().equals(getCurrentUser().getUid())) {
                     message.setCurrentUserMsg(true);
-                    mChatModel.onNewChatMessage(message);
+                    receiver.onNewChatMessage(message);
                     return;
                 }
 
-                mChatModel.onNewChatMessage(message);
+                receiver.onNewChatMessage(message);
 
                 mDbReference.child(PATH_USERS).child(uid)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -824,7 +824,7 @@ public class FirebaseDatabaseHelper {
                                         .child(USER_PROFILE_AVATAR).getValue();
                                 message.setName(name);
                                 message.setAvatarRef(avatarRef);
-                                mChatModel.onChatMessageNewData(message);
+                                receiver.onChatMessageNewData(message);
                             }
 
                             @Override
@@ -931,7 +931,7 @@ public class FirebaseDatabaseHelper {
                                                     .child(USER_PROFILE_AVATAR).getValue();
                                             message.setName(name);
                                             message.setAvatarRef(avatarRef);
-                                            mChatModel.onChatMessageNewData(message);
+                                            receiver.onChatMessageNewData(message);
                                         }
 
                                         @Override
@@ -1014,14 +1014,14 @@ public class FirebaseDatabaseHelper {
 
     public void sendChatMessage(String message) {
         mDbReference.child(PATH_CHAT).push()
-                .setValue(new ChatMessageSendable(getCurrentUser().getUid(),
+                .setValue(new ChatMessageSendable(mCurrentUserId,
                         message,
                         ServerValue.TIMESTAMP));
     }
 
     public void sendChatMessage(LatLng latLng) {
         mDbReference.child(PATH_CHAT).push()
-                .setValue(new ChatMessageSendable(getCurrentUser().getUid(),
+                .setValue(new ChatMessageSendable(mCurrentUserId,
                         latLng,
                         ServerValue.TIMESTAMP));
     }
@@ -1030,15 +1030,14 @@ public class FirebaseDatabaseHelper {
     public void sendFriendRequest(String userId) {
         DatabaseReference ref = mDbReference.child(PATH_USERS)
                 .child(userId).child(USER_PROFILE_FRIEND_LIST);
-        ref.child(getCurrentUser().getUid()).setValue(RELATION_PENDING);
+        ref.child(mCurrentUserId).setValue(RELATION_PENDING);
     }
 
 
-    //get current user from database
-    public void getCurrentUserModel(final UserProfileReceiver receiver) {
-        //Get user profile
-        DatabaseReference ref = mDbReference.child(PATH_USERS).child(getCurrentUser().getUid());
-        ref.addValueEventListener(new ValueEventListener() {
+    //Get current user model from database
+    public void addListenerCurrentUserModel(final UserProfileReceiver receiver) {
+        DatabaseReference ref = mDbReference.child(PATH_USERS).child(mCurrentUserId);
+        mCurrentUserModelListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 receiver.onReady(dataSnapshot.getValue(UserProfileFirebase.class));
@@ -1048,8 +1047,14 @@ public class FirebaseDatabaseHelper {
             public void onCancelled(DatabaseError databaseError) {
 
             }
+        };
+        ref.addValueEventListener(mCurrentUserModelListener);
+    }
 
-        });
+    public void removeCurrentUserModelListener() {
+        if (mCurrentUserModelListener == null) return;
+        DatabaseReference ref = mDbReference.child(PATH_USERS).child(mCurrentUserId);
+        ref.removeEventListener(mCurrentUserModelListener);
     }
 
     //get user from database by userId
@@ -1061,6 +1066,9 @@ public class FirebaseDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 UserProfileFirebase userProfileFirebase =
                         dataSnapshot.getValue(UserProfileFirebase.class);
+                //In users table user id is a key, so it is impossible to get it with
+                //model. Set it manually
+                userProfileFirebase.setId(userId);
                 receiver.onReady(userProfileFirebase);
             }
 
