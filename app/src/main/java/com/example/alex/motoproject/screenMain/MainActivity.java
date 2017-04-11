@@ -30,7 +30,6 @@ import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
-import com.example.alex.motoproject.event.InternetStatusChangedEvent;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
@@ -726,19 +725,5 @@ public class MainActivity extends AppCompatActivity implements
 
         mFirebaseDatabaseHelper.getFriends();
         mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
-    }
-
-    @Subscribe(sticky = true)
-    public void onInternetStatusChanged(InternetStatusChangedEvent event) {
-//        int visibility;
-//        if (event.isInternetOn()) {
-//            visibility = View.VISIBLE;
-//        } else {
-//            visibility = View.GONE;
-//        }
-//        if (mButtonStartRide != null) mButtonStartRide.setVisibility(visibility);
-//        if (mGpsStatus != null && mApp.isLocationListenerServiceOn()) {
-//            mGpsStatus.setVisibility(visibility);
-//        }
     }
 }

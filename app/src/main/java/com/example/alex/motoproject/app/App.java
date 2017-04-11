@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.example.alex.motoproject.firebase.CoreComponent;
@@ -71,13 +72,18 @@ public class App extends Application
 
     @Override
     public void onActivityCreated(Activity activity, Bundle bundle) {
-        if (activity instanceof MainActivity) mMainActivityDestroyed = false;
+        if (activity instanceof MainActivity) {
+            mMainActivityDestroyed = false;
+            // TODO: 12.04.2017 remove these toasts
+            Toast.makeText(this, "Created", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public void onActivityStarted(Activity activity) {
         if (activity instanceof MainActivity) {
             mMainActivityVisible = true;
+            Toast.makeText(this, "Started", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -95,6 +101,7 @@ public class App extends Application
     public void onActivityStopped(Activity activity) {
         if (activity instanceof MainActivity) {
             mMainActivityVisible = false;
+            Toast.makeText(this, "Stopped", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -105,7 +112,10 @@ public class App extends Application
 
     @Override
     public void onActivityDestroyed(Activity activity) {
-        if (activity instanceof MainActivity) mMainActivityDestroyed = true;
+        if (activity instanceof MainActivity) {
+            mMainActivityDestroyed = true;
+            Toast.makeText(this, "Destroyed", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public CoreComponent buildCoreComponent() {

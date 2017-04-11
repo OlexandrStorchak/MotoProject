@@ -29,6 +29,7 @@ import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UserProfileFirebase;
 import com.example.alex.motoproject.util.DimensHelper;
 import com.example.alex.motoproject.util.KeyboardUtil;
+import com.example.alex.motoproject.util.TextUtil;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -170,13 +171,34 @@ public class MyProfileFragment extends Fragment {
         saveProfileData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String newName = nameEdit.getText().toString();
+                if (TextUtil.hasText(newName)) {
+                    userProfileFirebase.setName(newName);
+                    name.setText(newName);
+                }
+
+                String newNickName = nickNameEdit.getText().toString();
+                if (TextUtil.hasText(newNickName)) {
+                    userProfileFirebase.setNickName(newNickName);
+                    nickName.setText(newNickName);
+                }
+
+                String newMotorcycle = motorcycleEdit.getText().toString();
+                if (TextUtil.hasText(newMotorcycle)) {
+                    userProfileFirebase.setMotorcycle(newMotorcycle);
+                    motorcycle.setText(newMotorcycle);
+                }
+
+                String newAboutMe = aboutMeEdit.getText().toString();
+                if (TextUtil.hasText(newAboutMe)) {
+                    userProfileFirebase.setAboutMe(newAboutMe);
+                    aboutMe.setText(newAboutMe);
+                }
+
+
+                // TODO: 12.04.2017 do we really need to set id and email?
                 userProfileFirebase.setId(mFirebaseDatabaseHelper.getCurrentUser().getUid());
                 userProfileFirebase.setEmail(mFirebaseDatabaseHelper.getCurrentUser().getEmail());
-
-                userProfileFirebase.setMotorcycle(motorcycleEdit.getText().toString());
-                userProfileFirebase.setName(nameEdit.getText().toString());
-                userProfileFirebase.setAboutMe(aboutMeEdit.getText().toString());
-                userProfileFirebase.setNickName(nickNameEdit.getText().toString());
 
                 mFirebaseDatabaseHelper.saveMyProfile(userProfileFirebase);
 

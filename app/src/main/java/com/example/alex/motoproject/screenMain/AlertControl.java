@@ -132,7 +132,6 @@ public class AlertControl implements MapFragment.MapFragmentHolder {
                             }
                         });
                 break;
-
             case ALERT_PERMISSION_NEVER_ASK_AGAIN:
                 //show when user declines gps permission and checks never ask again
                 alertDialogBuilder.setMessage(R.string.how_to_change_location_setting)
@@ -160,18 +159,14 @@ public class AlertControl implements MapFragment.MapFragmentHolder {
                 break;
         }
 
-
         alert = alertDialogBuilder.create();
-        alert.setOnDismissListener(new DialogInterface.OnDismissListener()
-
-                                    {
+        alert.setOnDismissListener(new DialogInterface.OnDismissListener() {
                                         @Override
                                         public void onDismiss(DialogInterface dialogInterface) {
                                             if (mActiveAlerts.contains(alertType))
                                                 mActiveAlerts.remove((Integer) alertType);
                                         }
                                     }
-
         );
         alert.show();
         if (!mActiveAlerts.contains(alertType))
