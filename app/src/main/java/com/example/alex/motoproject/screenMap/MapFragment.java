@@ -88,7 +88,6 @@ public class MapFragment extends Fragment implements
     private App mApp;
     private FloatingActionButton mSosToggleButton;
     private CameraUpdate mCameraUpdate;
-    private int mMapType = 1;
 
     private boolean mSosButtonCoolDown;
 
@@ -107,7 +106,6 @@ public class MapFragment extends Fragment implements
 
         mCameraUpdate = CameraUpdateFactory.newCameraPosition(
                 (CameraPosition) savedInstanceState.getParcelable(CAMERA_POSITION));
-        mMapType = savedInstanceState.getInt(MAP_TYPE);
 
         if (savedInstanceState.getBoolean(SOS_COOL_DOWN, false)) {
             startSosCoolDown();
@@ -202,9 +200,6 @@ public class MapFragment extends Fragment implements
         }
         if (mCameraUpdate == null) {
             SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
-
-            mMapType = prefs.getInt(MAP_TYPE, 1);
-
             CameraPosition position = new CameraPosition(new LatLng(prefs.getFloat(LATITUDE, 49),
                     prefs.getFloat(LONGITUDE, 32)),
                     prefs.getFloat(ZOOM, 4),
@@ -219,7 +214,6 @@ public class MapFragment extends Fragment implements
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-        mMap.setMapType(mMapType);
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override

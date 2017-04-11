@@ -288,7 +288,6 @@ public class UsersFragment extends FragmentWithRetainInstance
         mSearchView.setIconified(iconified);
     }
 
-
     @Override
     public void setupFriendsList() {
         //Make pending friends section always show on top
