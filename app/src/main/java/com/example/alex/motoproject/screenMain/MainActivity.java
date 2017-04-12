@@ -674,8 +674,7 @@ public class MainActivity extends AppCompatActivity implements
 
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
-        mFirebaseDatabaseHelper.setUserOnline(sharedPreferences
-                .getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
+        mFirebaseDatabaseHelper.setUserOnline(STATUS_NO_GPS);
     }
 
     private void showActionBar() {
