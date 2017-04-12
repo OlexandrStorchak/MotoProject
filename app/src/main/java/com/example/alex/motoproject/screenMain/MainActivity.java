@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements
     private String mAvatarRef;
 
     private int actionbarStatus = ACTIONBAR_SHOWED;
+    private boolean mWillRecreate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -387,6 +388,7 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         if (savedInstanceState == null) {
+            mApp.registerNetworkReceiver();
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.main_activity_frame, mapFragment, MAP_FRAGMENT_TAG)
                     .commit();
@@ -501,6 +503,10 @@ public class MainActivity extends AppCompatActivity implements
             alertControl.alert.dismiss();
         }
 
+        if (!mWillRecreate) {
+            mApp.unregisterNetworkReceiver();
+        }
+
         mFirebaseDatabaseHelper.removeCurrentUserModelListener();
         EventBus.getDefault().unregister(this);
     }
@@ -555,6 +561,8 @@ public class MainActivity extends AppCompatActivity implements
         outState.putString(EMAIL, mEmail);
         outState.putString(KEY_AVATAR_REF, mAvatarRef);
         outState.putInt(ACTIONBAR_STATUS, actionbarStatus);
+
+        mWillRecreate = true;
     }
 
     private void setCurrentUserData() {

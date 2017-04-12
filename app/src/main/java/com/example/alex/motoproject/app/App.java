@@ -46,8 +46,6 @@ public class App extends Application
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         coreComponent = buildCoreComponent();
-
-        registerNetworkReceiver();
     }
 
     public void checkGpsState() {
@@ -124,10 +122,14 @@ public class App extends Application
                 .build();
     }
 
-    private void registerNetworkReceiver() {
+    public void registerNetworkReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
         registerReceiver(mNetworkStateReceiver, filter);
+    }
+
+    public void unregisterNetworkReceiver() {
+        unregisterReceiver(mNetworkStateReceiver);
     }
 }
