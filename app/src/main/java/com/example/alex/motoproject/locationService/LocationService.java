@@ -35,6 +35,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import javax.inject.Inject;
 
 import static com.example.alex.motoproject.screenProfile.MyProfileFragment.PROFSET;
+import static com.example.alex.motoproject.util.ArgKeys.MAP_PENDING_INTENT_CODE;
 import static com.example.alex.motoproject.util.ArgKeys.SHOW_MAP_FRAGMENT;
 
 
@@ -164,15 +165,14 @@ public class LocationService extends Service implements Runnable,
         //create pending intent used when tapping on the app notification
         //open up ScreenMapFragment
         Intent mapIntent = new Intent(this, MainActivity.class);
-        mapIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        mapIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         mapIntent.putExtra(SHOW_MAP_FRAGMENT, true);
         PendingIntent mapPendingIntent =
                 PendingIntent.getActivity(
                         this,
-                        0,
+                        MAP_PENDING_INTENT_CODE,
                         mapIntent,
-                        0);
+                        PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(mapPendingIntent);
 
         //Send notification

@@ -29,6 +29,7 @@ import static com.example.alex.motoproject.firebase.FirebaseConstants.LNG;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_SOS;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.RELATION_FRIEND;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.USER_ID;
+import static com.example.alex.motoproject.util.ArgKeys.CHAT_PENDING_INTENT_CODE;
 import static com.example.alex.motoproject.util.ArgKeys.SHOW_CHAT_FRAGMENT;
 
 
@@ -104,7 +105,7 @@ public class MainService extends Service {
         PendingIntent chatFragment =
                 PendingIntent.getActivity(
                         this,
-                        0,
+                        CHAT_PENDING_INTENT_CODE,
                         chatIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
 

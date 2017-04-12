@@ -17,7 +17,6 @@ public class ArgKeys {
     public static final String SOS_COOL_DOWN = "sosCoolDown";
 
     public static final String MESSAGE_TEXT = "messageText";
-    public static final String SHOW_CHAT_FRAGMENT = "showChatFragment";
 
     public static final String USER_DATA = "userData";
 
@@ -35,13 +34,16 @@ public class ArgKeys {
 
     public static final String ACTIONBAR_STATUS = "actionbarStatus";
 
-    public static final String SHOW_MAP_FRAGMENT = "showMapFragment";
-
     public static final String BUTTONS_TRANSLATION_Y = "viewTranslationY";
 
     public static final String SIGN_OUT = "signOut";
 
     public static final String SEARCH = "search";
+
+    public static final String SHOW_MAP_FRAGMENT = "showMapFragment";
+    public static final String SHOW_CHAT_FRAGMENT = "showChatFragment";
+    public static final int MAP_PENDING_INTENT_CODE = 0;
+    public static final int CHAT_PENDING_INTENT_CODE = 1;
 }
 
 
