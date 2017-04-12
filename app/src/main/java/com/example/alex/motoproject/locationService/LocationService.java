@@ -4,11 +4,14 @@ import android.Manifest;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -21,6 +24,7 @@ import android.widget.Toast;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+import com.example.alex.motoproject.networkStateReceiver.GpsStateReceiver;
 import com.example.alex.motoproject.screenMain.MainActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -46,16 +50,16 @@ public class LocationService extends Service implements Runnable,
     public static final String LOCATION_REQUEST_FREQUENCY_LOW = "low";
     public static final String GPS_RATE = "gpsRate";
     private static final String STOP_SERVICE_EXTRA = "stopService";
+
     private static final int GET_LOCATION_TIME = 2900;
     private static final int LOCATION_UPDATE_TIME_20_SEC = 20000;
     private static final int LOCATION_UPDATE_TIME_10_SEC = 10000;
     private static final int LOCATION_UPDATE_TIME_3_SEC = 3000;
-
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
-
     FirebaseAuth mFirebaseAuth;
     int mNotificationId = 3;
+    private BroadcastReceiver mGpsStateReceiver = new GpsStateReceiver();
     private Handler handler = new Handler();
     private int updateTime = 10000;
     private GoogleApiClient mGoogleApiClient;
@@ -109,7 +113,11 @@ public class LocationService extends Service implements Runnable,
 
         ((App) getApplication()).setLocationListenerServiceOn(true);
 
-        ((App) getApplication()).checkGpsState();
+//        ((App) getApplication()).checkGpsState();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
+        registerReceiver(mGpsStateReceiver, filter);
+        mGpsStateReceiver.onReceive(this, null);
 
         handler.postDelayed(this, 100);
 
@@ -122,6 +130,7 @@ public class LocationService extends Service implements Runnable,
         handler.removeCallbacks(this);
         mGoogleApiClient.disconnect();
         cleanupNotifications();
+        unregisterReceiver(mGpsStateReceiver);
         ((App) getApplication()).setLocationListenerServiceOn(false);
         super.onDestroy();
     }
@@ -182,7 +191,6 @@ public class LocationService extends Service implements Runnable,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED;
     }
-
 
     @Override
     public void run() {

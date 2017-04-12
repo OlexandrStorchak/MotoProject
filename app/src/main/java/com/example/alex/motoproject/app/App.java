@@ -4,16 +4,14 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.example.alex.motoproject.firebase.CoreComponent;
 import com.example.alex.motoproject.firebase.DaggerCoreComponent;
 import com.example.alex.motoproject.firebase.FirebaseUtilsModule;
-import com.example.alex.motoproject.networkStateReceiver.NetworkStateReceiver;
+import com.example.alex.motoproject.networkStateReceiver.InternetStateReceiver;
 import com.example.alex.motoproject.screenMain.MainActivity;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -26,9 +24,8 @@ public class App extends Application
 
     private boolean mMainActivityVisible;
     private boolean mLocationListenerServiceOn;
-    private boolean mMainActivityDestroyed;
 
-    private BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
+    private BroadcastReceiver mNetworkStateReceiver = new InternetStateReceiver();
 
     public static CoreComponent getCoreComponent() {
         return coreComponent;
@@ -48,10 +45,6 @@ public class App extends Application
         coreComponent = buildCoreComponent();
     }
 
-    public void checkGpsState() {
-        mNetworkStateReceiver.onReceive(this, null);
-    }
-
     public boolean isLocationListenerServiceOn() {
         return mLocationListenerServiceOn;
     }
@@ -64,24 +57,15 @@ public class App extends Application
         return mMainActivityVisible;
     }
 
-    public boolean isMainActivityDestroyed() {
-        return mMainActivityDestroyed;
-    }
-
     @Override
     public void onActivityCreated(Activity activity, Bundle bundle) {
-        if (activity instanceof MainActivity) {
-            mMainActivityDestroyed = false;
-            // TODO: 12.04.2017 remove these toasts
-            Toast.makeText(this, "Created", Toast.LENGTH_SHORT).show();
-        }
+
     }
 
     @Override
     public void onActivityStarted(Activity activity) {
         if (activity instanceof MainActivity) {
             mMainActivityVisible = true;
-            Toast.makeText(this, "Started", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -99,7 +83,6 @@ public class App extends Application
     public void onActivityStopped(Activity activity) {
         if (activity instanceof MainActivity) {
             mMainActivityVisible = false;
-            Toast.makeText(this, "Stopped", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -110,10 +93,7 @@ public class App extends Application
 
     @Override
     public void onActivityDestroyed(Activity activity) {
-        if (activity instanceof MainActivity) {
-            mMainActivityDestroyed = true;
-            Toast.makeText(this, "Destroyed", Toast.LENGTH_SHORT).show();
-        }
+
     }
 
     public CoreComponent buildCoreComponent() {
@@ -125,7 +105,6 @@ public class App extends Application
     public void registerNetworkReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
         registerReceiver(mNetworkStateReceiver, filter);
     }
 
