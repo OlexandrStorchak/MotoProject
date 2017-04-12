@@ -2,7 +2,6 @@ package com.example.alex.motoproject.screenChat;
 
 import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,7 +11,7 @@ import javax.inject.Inject;
 public class ChatModel implements ChatMvp.PresenterToModel,
         FirebaseDatabaseHelper.ChatUpdateReceiver {
     @Inject
-    FirebaseDatabaseHelper mFirebaseHelper;
+    FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     private ChatMvp.ModelToPresenter mPresenter;
     private LinkedList<ChatMessage> mMessages = new LinkedList<>();
 
@@ -23,12 +22,12 @@ public class ChatModel implements ChatMvp.PresenterToModel,
 
     @Override
     public void registerChatMessagesListener() {
-        mFirebaseHelper.registerChatMessagesListener(this);
+        mFirebaseDatabaseHelper.registerChatMessagesListener(this);
     }
 
     @Override
     public void unregisterChatMessagesListener() {
-        mFirebaseHelper.unregisterChatMessagesListener();
+        mFirebaseDatabaseHelper.unregisterChatMessagesListener();
     }
 
     @Override
@@ -43,13 +42,13 @@ public class ChatModel implements ChatMvp.PresenterToModel,
 
     @Override
     public void fetchOlderChatMessages() {
-        mFirebaseHelper.fetchOlderChatMessages(this);
+        mFirebaseDatabaseHelper.fetchOlderChatMessages(this);
         mMessages.size();
     }
 
     @Override
     public void sendChatMessage(String msg) {
-        mFirebaseHelper.sendChatMessage(msg);
+        mFirebaseDatabaseHelper.sendChatMessage(msg);
     }
 
     @Override
@@ -93,19 +92,8 @@ public class ChatModel implements ChatMvp.PresenterToModel,
     }
 
     @Override
-    public void fetchDataForLocationShare() {
-        mFirebaseHelper.getCurrentUserLocation(
-                new FirebaseDatabaseHelper.CurrentUserLocationReceiver() {
-            @Override
-            public void onReady(LatLng latLng) {
-                mFirebaseHelper.sendChatMessage(latLng);
-            }
-        });
-    }
-
-    @Override
     public void filterChatToDistance(int meters) {
-        mFirebaseHelper.fetchUsersLocations();
-        mFirebaseHelper.setCloseDistance(meters);
+        mFirebaseDatabaseHelper.fetchUsersLocations();
+        mFirebaseDatabaseHelper.setCloseDistance(meters);
     }
 }

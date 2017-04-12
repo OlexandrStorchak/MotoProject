@@ -49,7 +49,7 @@
             android:value="647757becea17f1ddb1aa8d150365eeb3029cd47" />
 
         <service
-            android:name=".locationListenerService.LocationListenerService"
+            android:name=".locationService.LocationService"
             android:enabled="true"
             android:exported="false" />
         <service

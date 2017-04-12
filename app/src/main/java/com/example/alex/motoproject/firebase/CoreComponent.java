@@ -1,6 +1,6 @@
 package com.example.alex.motoproject.firebase;
 
-import com.example.alex.motoproject.locationListenerService.LocationListenerService;
+import com.example.alex.motoproject.locationService.LocationService;
 import com.example.alex.motoproject.mainService.MainService;
 import com.example.alex.motoproject.screenChat.ChatModel;
 import com.example.alex.motoproject.screenMain.AlertControl;
@@ -31,7 +31,7 @@ public interface CoreComponent {
 
     void inject(MyProfileFragment myProfileFragment);
 
-    void inject(LocationListenerService locationListenerService);
+    void inject(LocationService locationService);
 
     void inject(AlertControl alertControl);
 

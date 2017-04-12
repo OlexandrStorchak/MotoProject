@@ -28,8 +28,6 @@ public interface ChatMvp {
 
         void onGpsStateChanged(GpsStatusChangedEvent event);
 
-        void onShareLocationInChatAllowed();
-
         void onClickChatDialogFragment(OnClickChatDialogFragmentEvent event);
     }
 
@@ -71,6 +69,8 @@ public interface ChatMvp {
         void setupAll();
 
         void showToast(int stringId);
+
+        boolean isLocationServiceOn();
     }
 
     interface PresenterToModel {
@@ -85,8 +85,6 @@ public interface ChatMvp {
         List<ChatMessage> getMessages();
 
         void fetchOlderChatMessages();
-
-        void fetchDataForLocationShare();
 
         void filterChatToDistance(int meters);
     }

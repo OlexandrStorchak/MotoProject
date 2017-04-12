@@ -152,15 +152,10 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
     @Override
     public void onGpsStateChanged(GpsStatusChangedEvent event) {
         if (event.isGpsOn()) {
-            getView().showShareLocationButton();
+            if (getView().isLocationServiceOn()) getView().showShareLocationButton();
         } else {
             getView().hideShareLocationButton();
         }
-    }
-
-    @Override
-    public void onShareLocationInChatAllowed() {
-        mModel.fetchDataForLocationShare();
     }
 
     @Override

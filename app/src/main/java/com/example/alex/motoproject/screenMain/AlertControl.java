@@ -16,6 +16,7 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.InternetStatusChangedEvent;
+import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.screenMap.MapFragment;
 
 import org.greenrobot.eventbus.EventBus;
@@ -23,24 +24,23 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 
-public class AlertControl implements MapFragment.MapFragmentHolder {
+import javax.inject.Inject;
 
+public class AlertControl implements MapFragment.MapFragmentHolder {
     private static final int ALERT_GPS_OFF = 20;
     private static final int ALERT_INTERNET_OFF = 21;
     private static final int ALERT_PERMISSION_RATIONALE = 22;
     private static final int ALERT_PERMISSION_NEVER_ASK_AGAIN = 23;
     private static final int ALERT_SHARE_LOCATION_CONFIRMATION = 24;
-
     private static final int PERMISSION_LOCATION_REQUEST_CODE = 10;
-
+    @Inject
+    FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     AlertDialog alert;
     private ArrayList<Integer> mActiveAlerts = new ArrayList<>();
     private MainActivity mainActivity;
 
-
     AlertControl(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
-
     }
 
     void registerEventBus() {
@@ -121,7 +121,7 @@ public class AlertControl implements MapFragment.MapFragmentHolder {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialogInterface, int i) {
-                                        mainActivity.chatFragment.onShareLocationInChatAllowed();
+                                        mFirebaseDatabaseHelper.shareLocationInChat();
                                     }
                                 });
                 alertDialogBuilder.setNegativeButton(R.string.close,

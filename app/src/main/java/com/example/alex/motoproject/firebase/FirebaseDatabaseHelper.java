@@ -1019,11 +1019,20 @@ public class FirebaseDatabaseHelper {
                         ServerValue.TIMESTAMP));
     }
 
-    public void sendChatMessage(LatLng latLng) {
+    private void sendChatMessage(LatLng latLng) {
         mDbReference.child(PATH_CHAT).push()
                 .setValue(new ChatMessageSendable(mCurrentUserId,
                         latLng,
                         ServerValue.TIMESTAMP));
+    }
+
+    public void shareLocationInChat() {
+        getCurrentUserLocation(new FirebaseDatabaseHelper.CurrentUserLocationReceiver() {
+            @Override
+            public void onReady(LatLng latLng) {
+                sendChatMessage(latLng);
+            }
+        });
     }
 
     //Send friend request

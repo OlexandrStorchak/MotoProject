@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.locationListenerService;
+package com.example.alex.motoproject.locationService;
 
 import android.Manifest;
 import android.app.NotificationManager;
@@ -37,7 +37,7 @@ import static com.example.alex.motoproject.util.ArgKeys.SHOW_MAP_FRAGMENT;
 /**
  * The Service that listens for location changes and sends them to Firebase
  */
-public class LocationListenerService extends Service implements Runnable,
+public class LocationService extends Service implements Runnable,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener {
@@ -61,7 +61,7 @@ public class LocationListenerService extends Service implements Runnable,
     private GoogleApiClient mGoogleApiClient;
     private Location myLocation = null;
 
-    public LocationListenerService() {
+    public LocationService() {
         // Required empty public constructor
     }
 
@@ -135,11 +135,10 @@ public class LocationListenerService extends Service implements Runnable,
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //stop service if that was the purpose of intent
-        if (intent.getExtras() != null &&
+        if (intent != null && intent.getExtras() != null &&
                 intent.getExtras().getBoolean(STOP_SERVICE_EXTRA)) {
             stopSelf();
         }
-
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -167,12 +166,12 @@ public class LocationListenerService extends Service implements Runnable,
                         0);
         mBuilder.setContentIntent(mapPendingIntent);
 
-        // send notification
+        //Send notification
         startForeground(mNotificationId, mBuilder.build());
     }
 
     private void cleanupNotifications() {
-        //cleanup notifications, no need of them if the app is off
+        //Cleanup notifications, no need of them if the app is off
         NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNotifyMgr.cancelAll();
@@ -202,7 +201,7 @@ public class LocationListenerService extends Service implements Runnable,
     }
 
     private void startLocationUpdates() {
-        //handle unexpected permission absence
+        //Handle unexpected permission absence
         if (mGoogleApiClient.isConnected()) {
             if (checkLocationPermission()) {
                 LocationServices.FusedLocationApi.requestLocationUpdates(
@@ -239,7 +238,6 @@ public class LocationListenerService extends Service implements Runnable,
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
         if (checkLocationPermission()) {
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(
                     mGoogleApiClient);
@@ -252,11 +250,11 @@ public class LocationListenerService extends Service implements Runnable,
 
     @Override
     public void onConnectionSuspended(int i) {
-        Toast.makeText(this, "Connection suspended", Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Toast.makeText(this, "Connection failed", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.connection_failed, Toast.LENGTH_SHORT).show();
     }
 }

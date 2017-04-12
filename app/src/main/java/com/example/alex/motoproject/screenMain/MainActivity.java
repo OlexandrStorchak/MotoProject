@@ -34,7 +34,7 @@ import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UserProfileFirebase;
-import com.example.alex.motoproject.locationListenerService.LocationListenerService;
+import com.example.alex.motoproject.locationService.LocationService;
 import com.example.alex.motoproject.mainService.MainService;
 import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenLogin.LoginActivity;
@@ -262,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 mDrawerLayout.closeDrawers();
-                stopService(new Intent(MainActivity.this, LocationListenerService.class));
+                stopService(new Intent(MainActivity.this, LocationService.class));
                 mFirebaseDatabaseHelper.setUserOnline(null); //delete user from online users table
                 startActivity(new Intent(MainActivity.this, LoginActivity.class)
                         .putExtra(SIGN_OUT, true)
@@ -436,7 +436,7 @@ public class MainActivity extends AppCompatActivity implements
 
             chatFragment.hideShareLocationButton();
             getApplication().stopService(
-                    new Intent(getApplicationContext(), LocationListenerService.class));
+                    new Intent(getApplicationContext(), LocationService.class));
             mGpsStatus.setVisibility(View.GONE);
             mapFragment.setSosVisibility(View.GONE);
 
@@ -449,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void startLocationListenerService() {
-        mApp.startService(new Intent(this, LocationListenerService.class));
+        startService(new Intent(this, LocationService.class));
     }
 
     @Override

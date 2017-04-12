@@ -23,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.dagger.DaggerPresenterComponent;
 import com.example.alex.motoproject.dagger.PresenterModule;
 import com.example.alex.motoproject.dialog.ChatLocLimitDialogFragment;
@@ -113,7 +114,6 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.container_chat_swipe);
 
         disableSendButton();
-        hideShareLocationButton();
 
         EventBus.getDefault().register(this);
 
@@ -140,6 +140,11 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
     @Override
     public void showToast(int stringId) {
         Toast.makeText(getContext(), getContext().getString(stringId), Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public boolean isLocationServiceOn() {
+        return ((App) getContext().getApplicationContext()).isLocationListenerServiceOn();
     }
 
     private void setupSwipeRefreshLayout() {
@@ -307,10 +312,6 @@ public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.
             return; //fragment might not be created and not have a layout inflated
         }
         mShareLocationButton.setVisibility(View.GONE);
-    }
-
-    public void onShareLocationInChatAllowed() {
-        mPresenter.onShareLocationInChatAllowed();
     }
 
     @Override
