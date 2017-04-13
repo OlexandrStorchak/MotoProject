@@ -135,14 +135,14 @@ public class MainActivity extends AppCompatActivity implements
     private int actionbarStatus = ACTIONBAR_SHOWED;
     private boolean mWillRecreate;
 
-    private String mUserStatus;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         App.getCoreComponent().inject(this);
         App.getCoreComponent().inject(alertControl);
+
+        mApp = (App) getApplicationContext();
 
         if (mFirebaseDatabaseHelper.getCurrentUser() == null) {
             startActivity(new Intent(MainActivity.this, LoginActivity.class)
@@ -154,10 +154,6 @@ public class MainActivity extends AppCompatActivity implements
         } else {
             startService(new Intent(this, MainService.class));
         }
-
-        mApp = (App) getApplicationContext();
-
-//        MainActivityPresenter presenterImp = MainActivityPresenter.getInstance(this);
 
         mapFragment = (MapFragment)
                 getSupportFragmentManager().findFragmentByTag(MAP_FRAGMENT_TAG);
@@ -507,7 +503,7 @@ public class MainActivity extends AppCompatActivity implements
             alertControl.alert.dismiss();
         }
 
-        if (!mWillRecreate) {
+        if (!mWillRecreate && !isFinishing()) {
             mApp.unregisterNetworkReceiver();
         }
 
