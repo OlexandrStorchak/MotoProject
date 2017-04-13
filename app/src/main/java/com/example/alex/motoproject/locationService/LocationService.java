@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
+import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.networkStateReceiver.GpsStateReceiver;
 import com.example.alex.motoproject.screenMain.MainActivity;
@@ -31,6 +32,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
@@ -56,15 +60,18 @@ public class LocationService extends Service implements Runnable,
     private static final int LOCATION_UPDATE_TIME_20_SEC = 20000;
     private static final int LOCATION_UPDATE_TIME_10_SEC = 10000;
     private static final int LOCATION_UPDATE_TIME_3_SEC = 3000;
+
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
+
     FirebaseAuth mFirebaseAuth;
     int mNotificationId = 3;
     private BroadcastReceiver mGpsStateReceiver = new GpsStateReceiver();
     private Handler handler = new Handler();
     private int updateTime = 10000;
     private GoogleApiClient mGoogleApiClient;
-    private Location myLocation = null;
+
+    private String mUserStatus;
 
     public LocationService() {
         // Required empty public constructor
@@ -109,18 +116,19 @@ public class LocationService extends Service implements Runnable,
                 break;
         }
 
-        mFirebaseDatabaseHelper.setUserOnline(preferences.getString(
-                mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
+        mUserStatus = preferences.getString(
+                mFirebaseDatabaseHelper.getCurrentUser().getUid(), null);
 
         ((App) getApplication()).setLocationListenerServiceOn(true);
 
-//        ((App) getApplication()).checkGpsState();
         IntentFilter filter = new IntentFilter();
         filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
         registerReceiver(mGpsStateReceiver, filter);
         mGpsStateReceiver.onReceive(this, null);
 
         handler.postDelayed(this, 100);
+
+        EventBus.getDefault().register(this);
 
         super.onCreate();
     }
@@ -133,6 +141,9 @@ public class LocationService extends Service implements Runnable,
         cleanupNotifications();
         unregisterReceiver(mGpsStateReceiver);
         ((App) getApplication()).setLocationListenerServiceOn(false);
+
+        EventBus.getDefault().unregister(this);
+
         super.onDestroy();
     }
 
@@ -153,6 +164,10 @@ public class LocationService extends Service implements Runnable,
         return super.onStartCommand(intent, flags, startId);
     }
 
+    @Subscribe(sticky = true)
+    public void onGpsStatusChangedEvent(GpsStatusChangedEvent event) {
+        if (event.isGpsOn()) mFirebaseDatabaseHelper.setUserOnline(mUserStatus);
+    }
 
     private void showNotification() {
         NotificationCompat.Builder mBuilder =
@@ -196,9 +211,6 @@ public class LocationService extends Service implements Runnable,
     public void run() {
         handler.postDelayed(this, updateTime);
         startLocationUpdates();
-        if (myLocation != null) {
-            mFirebaseDatabaseHelper.updateUserLocation(myLocation);
-        }
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -241,6 +253,7 @@ public class LocationService extends Service implements Runnable,
 
     @Override
     public void onLocationChanged(Location location) {
+        mFirebaseDatabaseHelper.updateUserLocation(location);
         mFirebaseDatabaseHelper.updateUserLocation(location);
     }
 

@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
+import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
@@ -134,11 +135,11 @@ public class MainActivity extends AppCompatActivity implements
     private int actionbarStatus = ACTIONBAR_SHOWED;
     private boolean mWillRecreate;
 
+    private String mUserStatus;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        EventBus.getDefault().register(this);
 
         App.getCoreComponent().inject(this);
         App.getCoreComponent().inject(alertControl);
@@ -378,12 +379,14 @@ public class MainActivity extends AppCompatActivity implements
         });
         mFirebaseDatabaseHelper.registerAuthLoadingListener(this);
 
+        EventBus.getDefault().register(this);
+
         if (mApp.isLocationListenerServiceOn()) {
-            mGpsStatus.setVisibility(View.VISIBLE);
+//            mGpsStatus.setVisibility(View.VISIBLE);
             mButtonStartRide.setText(R.string.stop_location_service_button_tittle);
 
         } else if (checkLocationPermission()) {
-            mGpsStatus.setVisibility(View.GONE);
+//            mGpsStatus.setVisibility(View.GONE);
             mButtonStartRide.setText(R.string.start_location_service_button_title);
         }
 
@@ -422,12 +425,13 @@ public class MainActivity extends AppCompatActivity implements
     private void startOrStopRideService() {
         if (!mApp.isLocationListenerServiceOn()) { //Turn on
             alertControl.handleLocation();
-            mGpsStatus.setVisibility(View.VISIBLE);
+
+//            mGpsStatus.setVisibility(View.VISIBLE);
+            mapFragment.setSosVisibility(View.VISIBLE);
+
             mButtonStartRide.setText(R.string.stop_location_service_button_tittle);
             mButtonStartRide.setTextColor(ContextCompat.getColor(this, R.color.red800));
             mButtonStartRide.setBackground(ContextCompat.getDrawable(this, R.drawable.button_stop));
-            mapFragment.setSosVisibility(View.VISIBLE);
-
         } else { //Turn off
             if (checkLocationPermission()) {
                 GoogleMap googleMap = mapFragment.getGoogleMap();
@@ -525,6 +529,15 @@ public class MainActivity extends AppCompatActivity implements
                 .replace(R.id.main_activity_frame, fragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    @Subscribe(sticky = true)
+    public void onGpsStatusChangedEvent(GpsStatusChangedEvent event) {
+        if (event.isGpsOn()) {
+            mGpsStatus.setVisibility(View.VISIBLE);
+        } else {
+            mGpsStatus.setVisibility(View.GONE);
+        }
     }
 
     @Override
