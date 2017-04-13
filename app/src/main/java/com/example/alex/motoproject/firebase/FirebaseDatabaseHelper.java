@@ -604,8 +604,7 @@ public class FirebaseDatabaseHelper {
     }
 
     public void registerOnlineUsersListener(final UsersUpdateReceiver receiver) {
-        // Read from the mDatabase
-        DatabaseReference myRef = mDbReference.child(USER_PROFILE_FRIEND_LIST);
+        DatabaseReference myRef = mDbReference.child(PATH_ONLINE_USERS);
         mOnlineUsersDataListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
