@@ -72,21 +72,31 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     @Override
     public void onUsersAdded(List<User> users) {
         for (User user : users) {
-            if (!isUserValid(user)) {
-                continue;
-            }
+            if (!isUserValid(user)) continue;
+
             List<User> list = mUsers.get(user.getRelation());
-            if (list != null) {
-                list.add(user);
-            } else {
+            if (list == null) {
                 List<User> newList = new ArrayList<>();
                 newList.add(user);
                 mUsers.put(user.getRelation(), newList);
                 mPresenter.onAddNewSection(user.getRelation());
+                mPresenter.onUserAdded(user);
+            } else if (!list.contains(user)) {
+//                for (int i = 0; i < list.size(); i++) {
+//                    User user1 = list.get(i);
+//                    if (user1.getUid().equals(user.getUid())) {
+//                        if (user1.getName().equals(user.getName())) continue;
+//                        mPresenter.onUserRemoved(user1);
+//                        mPresenter.onUserAdded(user);
+//                    }
+//                }
+
+                list.add(user);
+                mPresenter.onUserAdded(user);
             }
-            mPresenter.onUserAdded(user);
         }
     }
+
 
     @Override
     public void onNoUsers() {
@@ -112,19 +122,31 @@ public class UsersModel implements UsersMvp.PresenterToModel,
 
     @Override
     public void onUserAdded(User user) {
-        if (!isUserValid(user)) {
-            return;
-        }
+        if (!isUserValid(user)) return;
+
         List<User> list = mUsers.get(user.getRelation());
-        if (list != null) {
-            list.add(user);
-        } else {
+        if (list == null) {
             List<User> newList = new ArrayList<>();
             newList.add(user);
             mUsers.put(user.getRelation(), newList);
             mPresenter.onAddNewSection(user.getRelation());
+            mPresenter.onUserAdded(user);
+        } else if (!list.contains(user)) {
+            for (int i = 0; i < list.size(); i++) {
+                User user1 = list.get(i);
+                if (user1.getUid().equals(user.getUid())) {
+                    if (user1.getName().equals(user.getName()) ||
+                            user1.getAvatar().equals(user.getAvatar())) {
+                        continue;
+                    }
+                    mPresenter.onUserRemoved(user1);
+                    mPresenter.onUserAdded(user);
+                    return;
+                }
+            }
+            list.add(user);
+            mPresenter.onUserAdded(user);
         }
-        mPresenter.onUserAdded(user);
     }
 
     private boolean isUserValid(User user) {

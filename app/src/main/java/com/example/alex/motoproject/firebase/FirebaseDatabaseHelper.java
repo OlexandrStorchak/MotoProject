@@ -549,9 +549,9 @@ public class FirebaseDatabaseHelper {
         final String uid = dataSnapshot.getKey();
         final String relation = (String) dataSnapshot.getValue();
 
-        if (receiver.hasUser(uid, relation)) {
-            return;
-        }
+//        if (receiver.hasUser(uid, relation)) {
+//            return;
+//        }
 
         final String userStatus = null;
         DatabaseReference ref = mDbReference.child(PATH_USERS).child(uid);
@@ -696,13 +696,12 @@ public class FirebaseDatabaseHelper {
 
     private void onOnlineUserAdded(DataSnapshot dataSnapshot,
                                    final UsersUpdateReceiver receiver) {
-        if (dataSnapshot.getKey().equals(getCurrentUser().getUid())) return;
-
         final String uid = dataSnapshot.getKey();
         final String userStatus = (String) dataSnapshot.getValue();
-        final String relation = FirebaseConstants.RELATION_UNKNOWN;
 
-        if (receiver.hasUser(uid, relation)) return;
+        if (uid.equals(mCurrentUserId)) return;
+
+//        if (receiver.hasUser(uid, relation)) return;
 
         DatabaseReference ref = mDbReference.child(PATH_USERS).child(uid);
         ValueEventListener userDataListener = new ValueEventListener() {
@@ -710,7 +709,7 @@ public class FirebaseDatabaseHelper {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String name = (String) dataSnapshot.child(USER_PROFILE_NAME).getValue();
                 String avatar = (String) dataSnapshot.child(USER_PROFILE_AVATAR).getValue();
-                User user = new User(uid, name, avatar, userStatus, relation);
+                User user = new User(uid, name, avatar, userStatus, FirebaseConstants.RELATION_UNKNOWN);
                 receiver.onUserAdded(user);
             }
 
