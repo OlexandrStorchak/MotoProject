@@ -90,7 +90,10 @@ public class UsersFragment extends FragmentWithRetainInstance
         mSearchViewQuery = savedInstanceState.getString(SEARCH);
 
         mPresenter = (UsersMvp.ViewToPresenter) getRetainData();
-        if (mPresenter != null) mPresenter.onViewAttached(UsersFragment.this);
+        if (mPresenter == null) {
+            injectThis();
+        }
+        mPresenter.onViewAttached(UsersFragment.this);
     }
 
     @Override
@@ -198,14 +201,18 @@ public class UsersFragment extends FragmentWithRetainInstance
         setHasOptionsMenu(true);
 
         if (savedInstanceState == null) {
-            DaggerPresenterComponent.builder()
-                    .presenterModule(new PresenterModule(this))
-                    .build()
-                    .inject(this);
+            injectThis();
         }
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_users_online, container, false);
+    }
+
+    private void injectThis() {
+        DaggerPresenterComponent.builder()
+                .presenterModule(new PresenterModule(this))
+                .build()
+                .inject(this);
     }
 
     @Override

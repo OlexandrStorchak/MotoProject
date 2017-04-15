@@ -135,17 +135,19 @@ public class UsersModel implements UsersMvp.PresenterToModel,
             for (int i = 0; i < list.size(); i++) {
                 User user1 = list.get(i);
                 if (user1.getUid().equals(user.getUid())) {
-                    if (user1.getName().equals(user.getName()) ||
+                    if (user1.getName().equals(user.getName()) &&
                             user1.getAvatar().equals(user.getAvatar())) {
                         continue;
                     }
+                    // TODO: 15.04.2017 mb this line breaks sthn                     list.remove(user1);
+                    // TODO: 15.04.2017 list.add(removedUserIndex, newUser); try this!
                     mPresenter.onUserRemoved(user1);
                     mPresenter.onUserAdded(user);
                     return;
                 }
             }
-            list.add(user);
-            mPresenter.onUserAdded(user);
+//            list.add(user);
+//            mPresenter.onUserAdded(user);
         }
     }
 
