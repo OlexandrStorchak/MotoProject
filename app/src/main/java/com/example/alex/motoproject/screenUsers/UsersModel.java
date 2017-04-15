@@ -88,7 +88,6 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         }
     }
 
-
     @Override
     public void onNoUsers() {
         mPresenter.onNoUsers();
@@ -122,7 +121,7 @@ public class UsersModel implements UsersMvp.PresenterToModel,
             mUsers.put(user.getRelation(), newList);
             mPresenter.onAddNewSection(user.getRelation());
             mPresenter.onUserAdded(user);
-        } else if (!list.contains(user)) {
+        } else { // TODO: 16.04.2017 this is always true   } else if (!list.contains(user)) {
             for (int i = 0; i < list.size(); i++) {
                 User iteratedUser = list.get(i);
                 if (iteratedUser.getUid().equals(user.getUid())) {
@@ -135,7 +134,6 @@ public class UsersModel implements UsersMvp.PresenterToModel,
                     }
                 }
             }
-            mPresenter.onUserAdded(user);
         }
     }
 
