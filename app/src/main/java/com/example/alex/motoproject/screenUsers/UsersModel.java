@@ -115,25 +115,32 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         if (!isUserValid(user)) return;
 
         List<User> list = mUsers.get(user.getRelation());
-        if (list == null) {
+        if (list == null) { //the first user in a section, create the section and add him to it
             List<User> newList = new ArrayList<>();
             newList.add(user);
             mUsers.put(user.getRelation(), newList);
             mPresenter.onAddNewSection(user.getRelation());
             mPresenter.onUserAdded(user);
-        } else { // TODO: 16.04.2017 this is always true   } else if (!list.contains(user)) {
+        } else { //search for a user with the same id
             for (int i = 0; i < list.size(); i++) {
                 User iteratedUser = list.get(i);
-                if (iteratedUser.getUid().equals(user.getUid())) {
+                if (iteratedUser.getUid().equals(user.getUid())) { //found the user with the same id
                     if (!iteratedUser.getName().equals(user.getName()) ||
-                            !iteratedUser.getAvatar().equals(user.getAvatar())) {
+                            !iteratedUser.getAvatar().equals(user.getAvatar()) ||
+                            !iteratedUser.getStatus().equals(user.getStatus())) {
+                        //Update the user in the list, if he has new data that can be showed
+                        //These are values that are used to show the user in the RecyclerView
                         list.set(i, user);
                         mPresenter.onUserRemoved(iteratedUser);
                         mPresenter.onUserAdded(user);
                         return;
+                    } else { //no differences, skip
+                        return;
                     }
                 }
             }
+            list.add(user);
+            mPresenter.onUserAdded(user); //No user with such id, add him to the list
         }
     }
 
