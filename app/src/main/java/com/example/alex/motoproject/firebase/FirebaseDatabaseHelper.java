@@ -83,6 +83,7 @@ public class FirebaseDatabaseHelper {
 
     private Map<String, LatLng> mUsersLocation = new HashMap<>();
     private Map<DatabaseReference, ValueEventListener> mLocationListeners = new HashMap<>();
+    private Map<DatabaseReference, ValueEventListener> mFriendStatusListeners = new HashMap<>();
     private Map<String, String> mFriends = new HashMap<>();
 
     private LinkedList<ChatMessage> mOlderMessages = new LinkedList<>();
@@ -474,20 +475,32 @@ public class FirebaseDatabaseHelper {
                 for (DataSnapshot entry : dataSnapshot.getChildren()) {
                     final String uid = entry.getKey();
                     final String relation = (String) entry.getValue();
-                    final String userStatus = null;
                     DatabaseReference ref = mDbReference.child(PATH_USERS).child(uid);
                     ref.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            String name = (String) dataSnapshot.child(USER_PROFILE_NAME).getValue();
-                            String avatar = (String) dataSnapshot.child(USER_PROFILE_AVATAR).getValue();
-                            User user = new User(uid, name, avatar, userStatus, relation);
-                            friends.add(user);
-                            mFriends.put(uid, relation);
-                            mReceivedUsersCount++;
-                            if (mReceivedUsersCount == childrenCount) {
-                                receiver.onUsersAdded(friends);
-                            }
+                            final String name = (String) dataSnapshot.child(USER_PROFILE_NAME).getValue();
+                            final String avatar = (String) dataSnapshot.child(USER_PROFILE_AVATAR).getValue();
+
+                            DatabaseReference ref = mDbReference.child(PATH_ONLINE_USERS).child(uid);
+                            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    String userStatus = (String) dataSnapshot.getValue();
+                                    User user = new User(uid, name, avatar, userStatus, relation);
+                                    friends.add(user);
+                                    mFriends.put(uid, relation);
+                                    mReceivedUsersCount++;
+                                    if (mReceivedUsersCount == childrenCount) {
+                                        receiver.onUsersAdded(friends);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
                         }
 
                         @Override
@@ -517,7 +530,7 @@ public class FirebaseDatabaseHelper {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                onFriendChanged(dataSnapshot, receiver);
+//                onFriendChanged(dataSnapshot, receiver);
             }
 
             @Override
@@ -543,48 +556,39 @@ public class FirebaseDatabaseHelper {
         DatabaseReference ref = mDbReference.child(PATH_USERS)
                 .child(getCurrentUser().getUid()).child(USER_PROFILE_FRIEND_LIST);
         ref.removeEventListener(mFriendsListener);
+
+        mFriendStatusListeners.clear();
     }
 
     private void onFriendAdded(DataSnapshot dataSnapshot, final UsersUpdateReceiver receiver) {
         final String uid = dataSnapshot.getKey();
         final String relation = (String) dataSnapshot.getValue();
 
-//        if (receiver.hasUser(uid, relation)) {
-//            return;
-//        }
-
-        final String userStatus = null;
         DatabaseReference ref = mDbReference.child(PATH_USERS).child(uid);
         ValueEventListener userDataListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String name = (String) dataSnapshot.child(USER_PROFILE_NAME).getValue();
-                String avatar = (String) dataSnapshot.child(USER_PROFILE_AVATAR).getValue();
-                User user = new User(uid, name, avatar, userStatus, relation);
-                receiver.onUserAdded(user);
+                final String name = (String) dataSnapshot.child(USER_PROFILE_NAME).getValue();
+                final String avatar = (String) dataSnapshot.child(USER_PROFILE_AVATAR).getValue();
                 mFriends.put(uid, relation);
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                DatabaseReference ref = mDbReference.child(PATH_ONLINE_USERS).child(uid);
+                ValueEventListener listener = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String userStatus = (String) dataSnapshot.getValue();
+                        if (userStatus == null) userStatus = STATUS_NO_GPS; //put default value
+                        User user = new User(uid, name, avatar, userStatus, relation);
+                        receiver.onUserAdded(user);
+                    }
 
-            }
-        };
-        ref.addListenerForSingleValueEvent(userDataListener);
-    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-    private void onFriendChanged(DataSnapshot dataSnapshot, final UsersUpdateReceiver receiver) {
-        final String uid = dataSnapshot.getKey();
-        final String relation = (String) dataSnapshot.getValue();
-        final String userStatus = null;
-        DatabaseReference ref = mDbReference.child(PATH_USERS).child(uid);
-        ValueEventListener userDataListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String name = (String) dataSnapshot.child(USER_PROFILE_NAME).getValue();
-                String avatar = (String) dataSnapshot.child(USER_PROFILE_AVATAR).getValue();
-                User user = new User(uid, name, avatar, userStatus, relation);
-                receiver.onUserChanged(user);
+                    }
+                };
+                ref.addValueEventListener(listener);
+                mFriendStatusListeners.put(ref, listener);
             }
 
             @Override
@@ -599,8 +603,11 @@ public class FirebaseDatabaseHelper {
                                  final UsersUpdateReceiver receiver) {
         String uid = dataSnapshot.getKey();
         String relation = (String) dataSnapshot.getValue();
+
         receiver.onUserDeleted(new User(uid, relation));
         mFriends.remove(uid);
+        DatabaseReference ref = mDbReference.child(PATH_ONLINE_USERS).child(uid);
+        mFriendStatusListeners.remove(ref);
     }
 
     public void registerOnlineUsersListener(final UsersUpdateReceiver receiver) {
@@ -1162,8 +1169,6 @@ public class FirebaseDatabaseHelper {
         void onUsersAdded(List<User> users);
 
         void onNoUsers();
-
-        boolean hasUser(String uid, String relation);
     }
 
     public interface ChatUpdateReceiver {

@@ -93,22 +93,22 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         mPresenter.onNoUsers();
     }
 
-    @Override
-    public boolean hasUser(String uidToCheck, String relation) {
-        List<User> list = mUsers.get(relation);
-
-        if (list == null) {
-            return false;
-        }
-
-        for (User user : list) {
-            if (user.getUid().equals(uidToCheck)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+//    @Override
+//    public boolean hasUser(String uidToCheck, String relation) {
+//        List<User> list = mUsers.get(relation);
+//
+//        if (list == null) {
+//            return false;
+//        }
+//
+//        for (User user : list) {
+//            if (user.getUid().equals(uidToCheck)) {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
 
     @Override
     public void onUserAdded(User user) {
@@ -139,8 +139,9 @@ public class UsersModel implements UsersMvp.PresenterToModel,
                     }
                 }
             }
+            //No user with such id, add him to the list
             list.add(user);
-            mPresenter.onUserAdded(user); //No user with such id, add him to the list
+            mPresenter.onUserAdded(user);
         }
     }
 
