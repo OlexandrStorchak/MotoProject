@@ -99,6 +99,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
     @Override
     public void onUserAdded(User user) {
+        if (getView().isDestroyed()) return;
         getView().addUser(user);
         onUserListUpdate();
     }
@@ -120,6 +121,7 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
 
     @Override
     public void onAddNewSection(String relation) {
+        if (getView().isDestroyed()) return;
         getView().addNewSection(relation);
     }
 }

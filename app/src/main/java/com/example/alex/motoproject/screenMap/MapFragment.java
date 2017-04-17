@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +23,7 @@ import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.dialog.MapUserDetailsDialogFragment;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
 import com.example.alex.motoproject.screenMain.MainActivity;
 import com.example.alex.motoproject.transformation.PicassoCircleTransform;
 import com.example.alex.motoproject.util.ArgKeys;
@@ -67,7 +67,7 @@ import static com.example.alex.motoproject.util.ArgKeys.ZOOM;
  * The fragment that contains a map from Google Play Services.
  */
 
-public class MapFragment extends Fragment implements
+public class MapFragment extends FragmentWithRetainInstance implements
         OnMapReadyCallback, FirebaseDatabaseHelper.MapMarkersUpdateReceiver {
 
     private static final int MARKER_DIMENS_DP = 90;
@@ -88,12 +88,17 @@ public class MapFragment extends Fragment implements
     private App mApp;
     private FloatingActionButton mSosToggleButton;
     private CameraUpdate mCameraUpdate;
-    private int mMapType;
 
     private boolean mSosButtonCoolDown;
+    private String mUidToMove; //the map will be moved to a user with this id
 
     public MapFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public String getDataTag() {
+        return MapFragment.class.getName();
     }
 
     public GoogleMap getGoogleMap() {
@@ -107,7 +112,6 @@ public class MapFragment extends Fragment implements
 
         mCameraUpdate = CameraUpdateFactory.newCameraPosition(
                 (CameraPosition) savedInstanceState.getParcelable(CAMERA_POSITION));
-        mMapType = savedInstanceState.getInt(MAP_TYPE);
 
         if (savedInstanceState.getBoolean(SOS_COOL_DOWN, false)) {
             startSosCoolDown();
@@ -202,9 +206,6 @@ public class MapFragment extends Fragment implements
         }
         if (mCameraUpdate == null) {
             SharedPreferences prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
-
-            mMapType = prefs.getInt(MAP_TYPE, 1);
-
             CameraPosition position = new CameraPosition(new LatLng(prefs.getFloat(LATITUDE, 49),
                     prefs.getFloat(LONGITUDE, 32)),
                     prefs.getFloat(ZOOM, 4),
@@ -219,7 +220,6 @@ public class MapFragment extends Fragment implements
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-        mMap.setMapType(mMapType);
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -294,7 +294,7 @@ public class MapFragment extends Fragment implements
     }
 
     @Override
-    public void onMarkerChange(MapMarkerModel model) {
+    public void onMarkerChange(final MapMarkerModel model) {
         //The marker is already on the map, just need to change its coordinates
         if (mMarkerHashMap.containsKey(model.uid)) {
             Marker marker = mMarkerHashMap.get(model.uid);
@@ -319,8 +319,11 @@ public class MapFragment extends Fragment implements
                 MARKER_DIMENS_PX, new DimensHelper.AvatarRefReceiver() {
                     @Override
                     public void onRefReady(String ref) {
-                        if (marker.getTag() == null) return;
                         fetchAndSetMarkerIcon(ref, marker);
+
+                        if (mUidToMove != null && mUidToMove.equals(model.uid)) {
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(model.latLng, 15));
+                        }
                     }
 
                     @Override
@@ -371,10 +374,7 @@ public class MapFragment extends Fragment implements
 
     //changes CameraUpdate so the map will be showing a chosen user location after gets ready
     public void setPosition(@NonNull String uid) {
-        if (mMarkerHashMap.containsKey(uid)) {
-            LatLng position = mMarkerHashMap.get(uid).getPosition();
-            mCameraUpdate = CameraUpdateFactory.newLatLngZoom(position, 15);
-        }
+        mUidToMove = uid;
     }
 
     public void setPosition(@NonNull LatLng latLng) {

@@ -4,15 +4,14 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 
 import com.crashlytics.android.Crashlytics;
-import com.example.alex.motoproject.broadcastReceiver.NetworkStateReceiver;
 import com.example.alex.motoproject.firebase.CoreComponent;
 import com.example.alex.motoproject.firebase.DaggerCoreComponent;
 import com.example.alex.motoproject.firebase.FirebaseUtilsModule;
+import com.example.alex.motoproject.networkStateReceiver.InternetStateReceiver;
 import com.example.alex.motoproject.screenMain.MainActivity;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -26,7 +25,7 @@ public class App extends Application
     private boolean mMainActivityVisible;
     private boolean mLocationListenerServiceOn;
 
-    private BroadcastReceiver mNetworkStateReceiver = new NetworkStateReceiver();
+    private BroadcastReceiver mNetworkStateReceiver = new InternetStateReceiver();
 
     public static CoreComponent getCoreComponent() {
         return coreComponent;
@@ -44,15 +43,6 @@ public class App extends Application
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         coreComponent = buildCoreComponent();
-
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
-        registerReceiver(mNetworkStateReceiver, filter);
-    }
-
-    public void checkGpsState() {
-        mNetworkStateReceiver.onReceive(this, null);
     }
 
     public boolean isLocationListenerServiceOn() {
@@ -110,5 +100,15 @@ public class App extends Application
         return DaggerCoreComponent.builder()
                 .firebaseUtilsModule(new FirebaseUtilsModule())
                 .build();
+    }
+
+    public void registerNetworkReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(mNetworkStateReceiver, filter);
+    }
+
+    public void unregisterNetworkReceiver() {
+        unregisterReceiver(mNetworkStateReceiver);
     }
 }

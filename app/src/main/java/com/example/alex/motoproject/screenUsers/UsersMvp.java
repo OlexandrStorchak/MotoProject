@@ -52,6 +52,8 @@ public interface UsersMvp {
         void setSearchViewIconified(boolean iconified);
 
         int getListType();
+
+        boolean isDestroyed();
     }
 
     interface PresenterToModel {

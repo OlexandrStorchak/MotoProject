@@ -4,7 +4,7 @@ import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
-import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
+import com.example.alex.motoproject.util.TextUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -33,7 +33,7 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
 
     @Override
     public void onEditTextChanged(CharSequence charSequence) {
-        if (charSequence.length() > 0 && !charSequence.toString().matches("\\s+")) {
+        if (TextUtil.hasText(charSequence.toString())) {
             getView().enableSendButton();
         } else {
             getView().disableSendButton();
@@ -42,9 +42,7 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
 
     @Override
     public void onClickSendButton(String msg) {
-        msg = msg.trim().replaceAll(" +", " ");
-        msg = msg.replaceAll("\\n+", "\n");
-        mModel.sendChatMessage(msg);
+        mModel.sendChatMessage(TextUtil.trim(msg));
         getView().scrollToPosition(mModel.getMessagesSize());
         getView().cleanupEditText();
     }
@@ -154,15 +152,10 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
     @Override
     public void onGpsStateChanged(GpsStatusChangedEvent event) {
         if (event.isGpsOn()) {
-            getView().showShareLocationButton();
+            if (getView().isLocationServiceOn()) getView().showShareLocationButton();
         } else {
             getView().hideShareLocationButton();
         }
-    }
-
-    @Override
-    public void onShareLocationInChatAllowed(ShareLocationInChatAllowedEvent event) {
-        mModel.fetchDataForLocationShare();
     }
 
     @Override

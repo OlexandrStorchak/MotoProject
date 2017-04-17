@@ -2,7 +2,6 @@ package com.example.alex.motoproject.screenChat;
 
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
-import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
 
 import java.util.List;
 
@@ -28,8 +27,6 @@ public interface ChatMvp {
         void onViewAttached(PresenterToView presenterToView);
 
         void onGpsStateChanged(GpsStatusChangedEvent event);
-
-        void onShareLocationInChatAllowed(ShareLocationInChatAllowedEvent event);
 
         void onClickChatDialogFragment(OnClickChatDialogFragmentEvent event);
     }
@@ -72,6 +69,8 @@ public interface ChatMvp {
         void setupAll();
 
         void showToast(int stringId);
+
+        boolean isLocationServiceOn();
     }
 
     interface PresenterToModel {
@@ -86,8 +85,6 @@ public interface ChatMvp {
         List<ChatMessage> getMessages();
 
         void fetchOlderChatMessages();
-
-        void fetchDataForLocationShare();
 
         void filterChatToDistance(int meters);
     }

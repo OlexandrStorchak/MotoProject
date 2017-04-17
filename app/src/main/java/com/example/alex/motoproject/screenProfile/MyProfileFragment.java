@@ -25,20 +25,17 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
-import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UserProfileFirebase;
 import com.example.alex.motoproject.util.DimensHelper;
 import com.example.alex.motoproject.util.KeyboardUtil;
+import com.example.alex.motoproject.util.TextUtil;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -49,10 +46,10 @@ import javax.inject.Inject;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
-import static com.example.alex.motoproject.service.LocationListenerService.GPS_RATE;
-import static com.example.alex.motoproject.service.LocationListenerService.LOCATION_REQUEST_FREQUENCY_DEFAULT;
-import static com.example.alex.motoproject.service.LocationListenerService.LOCATION_REQUEST_FREQUENCY_HIGH;
-import static com.example.alex.motoproject.service.LocationListenerService.LOCATION_REQUEST_FREQUENCY_LOW;
+import static com.example.alex.motoproject.locationService.LocationService.GPS_RATE;
+import static com.example.alex.motoproject.locationService.LocationService.LOCATION_REQUEST_FREQUENCY_DEFAULT;
+import static com.example.alex.motoproject.locationService.LocationService.LOCATION_REQUEST_FREQUENCY_HIGH;
+import static com.example.alex.motoproject.locationService.LocationService.LOCATION_REQUEST_FREQUENCY_LOW;
 import static com.example.alex.motoproject.util.ArgKeys.ABOUT_ME;
 import static com.example.alex.motoproject.util.ArgKeys.EDIT_MODE;
 import static com.example.alex.motoproject.util.ArgKeys.KEY_NAME;
@@ -72,20 +69,24 @@ public class MyProfileFragment extends Fragment {
 
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
+
     private TextView email;
     private TextView name;
     private TextView nickName;
     private TextView motorcycle;
     private TextView aboutMe;
+
     private EditText nameEdit;
     private EditText nickNameEdit;
     private EditText motorcycleEdit;
     private EditText aboutMeEdit;
+
     private ImageView avatar;
     private Spinner mapRate;
     private ImageView saveProfileData;
     private ImageView editProfileData;
     private LinearLayout gpsRatePanel;
+
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private UserProfileFirebase userProfileFirebase;
     private String currentUid;
@@ -96,12 +97,6 @@ public class MyProfileFragment extends Fragment {
 
     public MyProfileFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -158,9 +153,6 @@ public class MyProfileFragment extends Fragment {
         nickName = (TextView) view.findViewById(R.id.profile_nick_name);
         aboutMe = (TextView) view.findViewById(R.id.profile_about_user);
 
-        if (savedInstanceState == null) {
-            mFirebaseDatabaseHelper.getCurrentUserModel();
-        }
         nameEdit = (EditText) view.findViewById(R.id.profile_name_edit);
         nickNameEdit = (EditText) view.findViewById(R.id.profile_nick_name_edit);
         motorcycleEdit = (EditText) view.findViewById(R.id.profile_motorcycle_edit);
@@ -179,13 +171,34 @@ public class MyProfileFragment extends Fragment {
         saveProfileData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String newName = nameEdit.getText().toString();
+                if (TextUtil.hasText(newName)) {
+                    userProfileFirebase.setName(newName);
+                    name.setText(newName);
+                }
+
+                String newNickName = nickNameEdit.getText().toString();
+                if (TextUtil.hasText(newNickName)) {
+                    userProfileFirebase.setNickName(newNickName);
+                    nickName.setText(newNickName);
+                }
+
+                String newMotorcycle = motorcycleEdit.getText().toString();
+                if (TextUtil.hasText(newMotorcycle)) {
+                    userProfileFirebase.setMotorcycle(newMotorcycle);
+                    motorcycle.setText(newMotorcycle);
+                }
+
+                String newAboutMe = aboutMeEdit.getText().toString();
+                if (TextUtil.hasText(newAboutMe)) {
+                    userProfileFirebase.setAboutMe(newAboutMe);
+                    aboutMe.setText(newAboutMe);
+                }
+
+
+                // TODO: 12.04.2017 do we really need to set id and email?
                 userProfileFirebase.setId(mFirebaseDatabaseHelper.getCurrentUser().getUid());
                 userProfileFirebase.setEmail(mFirebaseDatabaseHelper.getCurrentUser().getEmail());
-
-                userProfileFirebase.setMotorcycle(motorcycleEdit.getText().toString());
-                userProfileFirebase.setName(nameEdit.getText().toString());
-                userProfileFirebase.setAboutMe(aboutMeEdit.getText().toString());
-                userProfileFirebase.setNickName(nickNameEdit.getText().toString());
 
                 mFirebaseDatabaseHelper.saveMyProfile(userProfileFirebase);
 
@@ -230,6 +243,18 @@ public class MyProfileFragment extends Fragment {
 
             }
         });
+
+        if (savedInstanceState == null) {
+            mFirebaseDatabaseHelper.getUserModel(mFirebaseDatabaseHelper.getCurrentUser().getUid(),
+                    new FirebaseDatabaseHelper.UserProfileReceiver() {
+                        @Override
+                        public void onReady(UserProfileFirebase profile) {
+                            setEditMode(false);
+                            userProfileFirebase = profile;
+                            displayUserData();
+                        }
+                    });
+        }
     }
 
     @Override
@@ -276,17 +301,9 @@ public class MyProfileFragment extends Fragment {
         aboutMeEdit.setText(aboutMe.getText());
     }
 
-    @Subscribe
-    public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
-        setEditMode(false);
-        userProfileFirebase = user.getUserProfileFirebase();
-        displayUserData();
-    }
-
     private void displayUserData() {
         currentUid = userProfileFirebase.getId();
         email.setText(userProfileFirebase.getEmail());
-
 
         final String ava = userProfileFirebase.getAvatar();
 
@@ -327,12 +344,6 @@ public class MyProfileFragment extends Fragment {
                 mapRate.setSelection(0);
                 break;
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
     //method to show file chooser
@@ -383,7 +394,7 @@ public class MyProfileFragment extends Fragment {
     private void uploadFile(byte[] dataBytes) {
         if (dataBytes != null) {
             final ProgressDialog progressDialog = new ProgressDialog(getContext());
-            progressDialog.setTitle("Завантаження");
+            progressDialog.setTitle(getString(R.string.downloading));
             progressDialog.show();
             final StorageReference avatarRef =
                     storage.getReference().child("avatars/" + currentUid + ".jpeg");
@@ -395,8 +406,8 @@ public class MyProfileFragment extends Fragment {
                             progressDialog.dismiss();
                             mFirebaseDatabaseHelper.
                                     setCurrentUserAvatar(taskSnapshot.getDownloadUrl().toString());
-                            // mFirebaseDatabaseHelper.getCurrentUserModel();
-                            Toast.makeText(getApplicationContext(), "Завантажено ",
+                            Toast.makeText(getApplicationContext(),
+                                    getString(R.string.downloaded),
                                     Toast.LENGTH_LONG).show();
                         }
                     })
@@ -405,10 +416,9 @@ public class MyProfileFragment extends Fragment {
                         public void onFailure(@NonNull Exception e) {
                             //if the upload is not successful
                             progressDialog.dismiss();
-                            Toast.makeText(getApplicationContext(), "Завантаження перервалось",
+                            Toast.makeText(getApplicationContext(),
+                                    getString(R.string.download_interrupted),
                                     Toast.LENGTH_LONG).show();
-
-
                         }
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -417,7 +427,8 @@ public class MyProfileFragment extends Fragment {
                             double progress = (100.0 * taskSnapshot.getBytesTransferred())
                                     / taskSnapshot.getTotalByteCount();
 
-                            progressDialog.setMessage("Завантажено : " + ((int) progress) + " %");
+                            progressDialog.setMessage(getString(R.string.downloaded)
+                                    + ": " + ((int) progress) + " %");
                         }
                     });
         }

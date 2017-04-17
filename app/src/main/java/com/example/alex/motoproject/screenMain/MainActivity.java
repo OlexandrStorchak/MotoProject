@@ -20,7 +20,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -31,19 +30,19 @@ import android.widget.TextView;
 
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
-import com.example.alex.motoproject.event.CurrentUserProfileReadyEvent;
-import com.example.alex.motoproject.event.InternetStatusChangedEvent;
+import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
+import com.example.alex.motoproject.firebase.UserProfileFirebase;
+import com.example.alex.motoproject.locationService.LocationService;
+import com.example.alex.motoproject.mainService.MainService;
 import com.example.alex.motoproject.screenChat.ChatFragment;
 import com.example.alex.motoproject.screenLogin.LoginActivity;
 import com.example.alex.motoproject.screenMap.MapFragment;
 import com.example.alex.motoproject.screenProfile.MyProfileFragment;
 import com.example.alex.motoproject.screenProfile.UserProfileFragment;
 import com.example.alex.motoproject.screenUsers.UsersFragment;
-import com.example.alex.motoproject.service.LocationListenerService;
-import com.example.alex.motoproject.service.MainService;
 import com.example.alex.motoproject.transformation.PicassoCircleTransform;
 import com.example.alex.motoproject.util.DimensHelper;
 import com.example.alex.motoproject.util.KeyboardUtil;
@@ -88,8 +87,6 @@ public class MainActivity extends AppCompatActivity implements
     private static final String ONLINE_USERS_FRAGMENT_TAG = "onlineUsersFragment";
     private static final String FRIENDS_FRAGMENT_TAG = "friendsFragment";
     private static final String CHAT_FRAGMENT = "chatFragment";
-
-    private static final String TAG = "MainActivity";
 
     @Inject
     FirebaseDatabaseHelper mFirebaseDatabaseHelper;
@@ -136,15 +133,16 @@ public class MainActivity extends AppCompatActivity implements
     private String mAvatarRef;
 
     private int actionbarStatus = ACTIONBAR_SHOWED;
+    private boolean mWillRecreate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        EventBus.getDefault().register(this);
-
         App.getCoreComponent().inject(this);
         App.getCoreComponent().inject(alertControl);
+
+        mApp = (App) getApplicationContext();
 
         if (mFirebaseDatabaseHelper.getCurrentUser() == null) {
             startActivity(new Intent(MainActivity.this, LoginActivity.class)
@@ -156,10 +154,6 @@ public class MainActivity extends AppCompatActivity implements
         } else {
             startService(new Intent(this, MainService.class));
         }
-
-        mApp = (App) getApplicationContext();
-
-//        MainActivityPresenter presenterImp = MainActivityPresenter.getInstance(this);
 
         mapFragment = (MapFragment)
                 getSupportFragmentManager().findFragmentByTag(MAP_FRAGMENT_TAG);
@@ -252,7 +246,6 @@ public class MainActivity extends AppCompatActivity implements
         navigationBtnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                replaceFragment(screenMapFragment);
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.main_activity_frame, mapFragment, MAP_FRAGMENT_TAG)
                         .commit();
@@ -267,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 mDrawerLayout.closeDrawers();
-                stopService(new Intent(MainActivity.this, LocationListenerService.class));
+                stopService(new Intent(MainActivity.this, LocationService.class));
                 mFirebaseDatabaseHelper.setUserOnline(null); //delete user from online users table
                 startActivity(new Intent(MainActivity.this, LoginActivity.class)
                         .putExtra(SIGN_OUT, true)
@@ -299,7 +292,6 @@ public class MainActivity extends AppCompatActivity implements
         navigationBtnFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                replaceFragment(friendsFragment, USER_LIST_TYPE_FRIENDS);
                 if (friendsFragment.getArguments() == null) {
                     Bundle bundle = new Bundle();
                     bundle.putInt(KEY_LIST_TYPE, USER_LIST_TYPE_FRIENDS);
@@ -383,16 +375,19 @@ public class MainActivity extends AppCompatActivity implements
         });
         mFirebaseDatabaseHelper.registerAuthLoadingListener(this);
 
+        EventBus.getDefault().register(this);
+
         if (mApp.isLocationListenerServiceOn()) {
-            mGpsStatus.setVisibility(View.VISIBLE);
+//            mGpsStatus.setVisibility(View.VISIBLE);
             mButtonStartRide.setText(R.string.stop_location_service_button_tittle);
 
         } else if (checkLocationPermission()) {
-            mGpsStatus.setVisibility(View.GONE);
+//            mGpsStatus.setVisibility(View.GONE);
             mButtonStartRide.setText(R.string.start_location_service_button_title);
         }
 
         if (savedInstanceState == null) {
+            mApp.registerNetworkReceiver();
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.main_activity_frame, mapFragment, MAP_FRAGMENT_TAG)
                     .commit();
@@ -400,8 +395,6 @@ public class MainActivity extends AppCompatActivity implements
         if (getIntent() != null) {
             handleIntent(getIntent());
         }
-
-        handleUser(mFirebaseDatabaseHelper.getCurrentUser());
     }
 
     @Override
@@ -428,12 +421,13 @@ public class MainActivity extends AppCompatActivity implements
     private void startOrStopRideService() {
         if (!mApp.isLocationListenerServiceOn()) { //Turn on
             alertControl.handleLocation();
-            mGpsStatus.setVisibility(View.VISIBLE);
+
+//            mGpsStatus.setVisibility(View.VISIBLE);
+            mapFragment.setSosVisibility(View.VISIBLE);
+
             mButtonStartRide.setText(R.string.stop_location_service_button_tittle);
             mButtonStartRide.setTextColor(ContextCompat.getColor(this, R.color.red800));
             mButtonStartRide.setBackground(ContextCompat.getDrawable(this, R.drawable.button_stop));
-            mapFragment.setSosVisibility(View.VISIBLE);
-
         } else { //Turn off
             if (checkLocationPermission()) {
                 GoogleMap googleMap = mapFragment.getGoogleMap();
@@ -444,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements
 
             chatFragment.hideShareLocationButton();
             getApplication().stopService(
-                    new Intent(getApplicationContext(), LocationListenerService.class));
+                    new Intent(getApplicationContext(), LocationService.class));
             mGpsStatus.setVisibility(View.GONE);
             mapFragment.setSosVisibility(View.GONE);
 
@@ -457,7 +451,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void startLocationListenerService() {
-        mApp.startService(new Intent(this, LocationListenerService.class));
+        startService(new Intent(this, LocationService.class));
     }
 
     @Override
@@ -491,6 +485,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     //Needed for Facebook handleUser
+    // TODO: 11.04.2017 delete this
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -504,22 +499,41 @@ public class MainActivity extends AppCompatActivity implements
     protected void onDestroy() {
         super.onDestroy();
 
-        if (alertControl.mAlert != null) {
-            alertControl.mAlert.dismiss();
+        if (alertControl.alert != null) {
+            alertControl.alert.dismiss();
         }
 
-        EventBus.getDefault().unregister(this);
+        if (!mWillRecreate && !isFinishing()) {
+            mApp.unregisterNetworkReceiver();
+        }
 
-        Log.d(TAG, "onDestroy: ");
+        mFirebaseDatabaseHelper.removeCurrentUserModelListener();
+        EventBus.getDefault().unregister(this);
     }
 
     @Subscribe
     public void onShowOnlineUserProfile(ShowUserProfileEvent model) {
+        KeyboardUtil.hideKeyboard(this);
+
+        UserProfileFragment fragment = new UserProfileFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putString(KEY_UID, model.getUserId());
+        fragment.setArguments(bundle);
+
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.main_activity_frame, new UserProfileFragment())
+                .replace(R.id.main_activity_frame, fragment)
                 .addToBackStack(null)
                 .commit();
-        mFirebaseDatabaseHelper.getUserModel(model.getUserId());
+    }
+
+    @Subscribe(sticky = true)
+    public void onGpsStatusChangedEvent(GpsStatusChangedEvent event) {
+        if (event.isGpsOn()) {
+            mGpsStatus.setVisibility(View.VISIBLE);
+        } else {
+            mGpsStatus.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -547,10 +561,6 @@ public class MainActivity extends AppCompatActivity implements
             return;
         }
         setCurrentUserData();
-
-//        if (savedInstanceState.getBoolean(RIDE_SERVICE_ON)) {
-//            mGpsStatus.setVisibility(View.VISIBLE);
-//        }
     }
 
     @Override
@@ -559,17 +569,9 @@ public class MainActivity extends AppCompatActivity implements
         outState.putString(KEY_NAME, mName);
         outState.putString(EMAIL, mEmail);
         outState.putString(KEY_AVATAR_REF, mAvatarRef);
-//        outState.putBoolean(RIDE_SERVICE_ON, rideServiceOn);
         outState.putInt(ACTIONBAR_STATUS, actionbarStatus);
-    }
 
-    @Subscribe
-    public void onCurrentUserModelReadyEvent(CurrentUserProfileReadyEvent user) {
-        mName = user.getUserProfileFirebase().getName();
-        mEmail = user.getUserProfileFirebase().getEmail();
-        mAvatarRef = user.getUserProfileFirebase().getAvatar();
-        Log.i("logi", "onCurrentUserModelReadyEvent: "+mAvatarRef);
-        setCurrentUserData();
+        mWillRecreate = true;
     }
 
     private void setCurrentUserData() {
@@ -627,14 +629,20 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     public void handleUser(FirebaseUser user) {
-
-
-        mFirebaseDatabaseHelper.addUserToFirebase(
-                user.getUid(),
+        mFirebaseDatabaseHelper.addUserToFirebase(user.getUid(),
                 user.getEmail(),
                 user.getDisplayName(),
                 String.valueOf(user.getPhotoUrl()));
-        mFirebaseDatabaseHelper.getCurrentUserModel();
+        mFirebaseDatabaseHelper.addListenerCurrentUserModel(new FirebaseDatabaseHelper
+                .UserProfileReceiver() {
+            @Override
+            public void onReady(UserProfileFirebase profile) {
+                mName = profile.getName();
+                mEmail = profile.getEmail();
+                mAvatarRef = profile.getAvatar();
+                setCurrentUserData();
+            }
+        });
 
         SharedPreferences sharedPreferences = getApplicationContext()
                 .getSharedPreferences(PROFSET, MODE_PRIVATE);
@@ -675,8 +683,7 @@ public class MainActivity extends AppCompatActivity implements
 
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
-        mFirebaseDatabaseHelper.setUserOnline(sharedPreferences
-                .getString(mFirebaseDatabaseHelper.getCurrentUser().getUid(), null));
+        mFirebaseDatabaseHelper.setUserOnline(STATUS_NO_GPS);
     }
 
     private void showActionBar() {
@@ -730,19 +737,9 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLoadFinished() {
+        handleUser(mFirebaseDatabaseHelper.getCurrentUser());
+
         mFirebaseDatabaseHelper.getFriends();
         mFirebaseDatabaseHelper.setUserOfflineOnDisconnect();
-    }
-
-    @Subscribe(sticky = true)
-    public void onInternetStatusChanged(InternetStatusChangedEvent event) {
-        int visibility;
-        if (event.isInternetOn()) {
-            visibility = View.VISIBLE;
-        } else {
-            visibility = View.GONE;
-        }
-        if (mButtonStartRide != null) mButtonStartRide.setVisibility(visibility);
-        if (mMapVisibility != null) mMapVisibility.setVisibility(visibility);
     }
 }

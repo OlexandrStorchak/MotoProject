@@ -18,19 +18,16 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.app.App;
-import com.example.alex.motoproject.event.OnlineUserProfileReadyEvent;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
 import com.example.alex.motoproject.firebase.UserProfileFirebase;
 import com.example.alex.motoproject.util.DimensHelper;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
 import static com.example.alex.motoproject.firebase.FirebaseConstants.RELATION_FRIEND;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.RELATION_PENDING;
 import static com.example.alex.motoproject.util.ArgKeys.BUTTONS_TRANSLATION_Y;
+import static com.example.alex.motoproject.util.ArgKeys.KEY_UID;
 import static com.example.alex.motoproject.util.ArgKeys.USER_DATA;
 
 public class UserProfileFragment extends Fragment {
@@ -59,7 +56,6 @@ public class UserProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         App.getCoreComponent().inject(this);
-        EventBus.getDefault().register(this);
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_user_profile, container, false);
@@ -98,6 +94,19 @@ public class UserProfileFragment extends Fragment {
 
         final Space optionalSpace = (Space) view.findViewById(R.id.space_optional);
 
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mFirebaseDatabaseHelper.getUserModel(arguments.getString(KEY_UID),
+                    new FirebaseDatabaseHelper.UserProfileReceiver() {
+                        @Override
+                        public void onReady(UserProfileFirebase profile) {
+                            if (getActivity() == null) return;
+                            mUserData = profile;
+                            displayUserData();
+                        }
+                    });
+        }
+
         final NestedScrollView scrollView =
                 (NestedScrollView) view.findViewById(R.id.profile_user_scroll_view);
         scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
@@ -112,31 +121,25 @@ public class UserProfileFragment extends Fragment {
             }
         });
 
-        scrollView.getViewTreeObserver()
-                .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        scrollView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver
+                .OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                        if (!scrollView.canScrollVertically(1) && !scrollView.canScrollVertically(-1)) {
-                            //Add empty space to the end of ScrollView for buttons, so users
-                            //are able to scroll down and see the full text in a profile
-                            optionalSpace.setVisibility(View.VISIBLE);
-                        }
-                    }
-                });
+                if (!scrollView.canScrollVertically(1) && !scrollView.canScrollVertically(-1)) {
+                    //Add empty space to the end of ScrollView for buttons, so users
+                    //are able to scroll down and see the full text in a profile
+                    optionalSpace.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     @Override
     public void onStop() {
         super.onStop();
         getActivity().setTitle(getContext().getString(R.string.app_name));
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
     private void displayUserData() {
@@ -200,11 +203,5 @@ public class UserProfileFragment extends Fragment {
                 mFirebaseDatabaseHelper.setUserRelation(mUserData.getId(), null);
             }
         });
-    }
-
-    @Subscribe
-    public void onOnlineUserProfileReady(OnlineUserProfileReadyEvent event) {
-        mUserData = event.getUserProfileFirebase();
-        displayUserData();
     }
 }

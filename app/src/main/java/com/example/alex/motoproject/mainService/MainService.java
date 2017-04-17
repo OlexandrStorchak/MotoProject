@@ -1,4 +1,4 @@
-package com.example.alex.motoproject.service;
+package com.example.alex.motoproject.mainService;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -29,6 +29,7 @@ import static com.example.alex.motoproject.firebase.FirebaseConstants.LNG;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.PATH_SOS;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.RELATION_FRIEND;
 import static com.example.alex.motoproject.firebase.FirebaseConstants.USER_ID;
+import static com.example.alex.motoproject.util.ArgKeys.CHAT_PENDING_INTENT_CODE;
 import static com.example.alex.motoproject.util.ArgKeys.SHOW_CHAT_FRAGMENT;
 
 
@@ -53,21 +54,21 @@ public class MainService extends Service {
 
         final String currentUser;
         try {
-             currentUser= mFirebaseDatabaseHelper
+            currentUser = mFirebaseDatabaseHelper
                     .getCurrentUser().getUid();
 
-        final FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+            final FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
 
-        final DatabaseReference ref = mFirebaseDatabase.getReference().child(PATH_SOS);
+            final DatabaseReference ref = mFirebaseDatabase.getReference().child(PATH_SOS);
 
             ref.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(final DataSnapshot dataSnapshot) {
                     ref.setValue(null);
                     mFirebaseDatabaseHelper.getCurrentUserLocation(
-                            new FirebaseDatabaseHelper.UsersLocationReceiver() {
+                            new FirebaseDatabaseHelper.CurrentUserLocationReceiver() {
                                 @Override
-                                public void onCurrentUserLocationReady(LatLng myCoords) {
+                                public void onReady(LatLng myCoords) {
                                     for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                                         String id = (String) postSnapshot.child(USER_ID).getValue();
                                         if ((id.equals(currentUser))) return;
@@ -104,13 +105,13 @@ public class MainService extends Service {
         PendingIntent chatFragment =
                 PendingIntent.getActivity(
                         this,
-                        0,
+                        CHAT_PENDING_INTENT_CODE,
                         chatIntent,
                         PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext())
-                        .setSmallIcon(R.drawable.ic_help)
+                        .setSmallIcon(R.drawable.ic_sos)
                         .setContentTitle(getString(R.string.notification_tittle_need_help))
                         .setAutoCancel(true)
                         .setShowWhen(false)

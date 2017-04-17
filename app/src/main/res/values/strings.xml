@@ -75,6 +75,7 @@
         <item>SOS</item>
         <item>Нікому</item>
     </string-array>
+
     <string name="title_pending_friends">Пропозиції</string>
     <string name="title_friends">Друзі</string>
     <string name="filter_title_chat">Фільтр</string>
@@ -87,6 +88,7 @@
         <item>Середня</item>
         <item>Низька</item>
     </string-array>
+
     <string name="chat_location_limit_preferences">ChatLimitPref</string>
     <string name="chat_location_no_current_user_location">Поділіться координатами, щоб фільтрація запрацювала</string>
     <string name="stop_location_service_button_tittle">Приїхали</string>
@@ -109,8 +111,11 @@
     <string name="notification_tittle_need_help">Потрібна допомога!</string>
 
     <string name="sos_sent">Запит про допомогу надіслано!</string>
-    <!--<string name="dummy_button">Dummy Button</string>-->
-    <!--<string name="dummy_content">DUMMY\nCONTENT</string>-->
 
-    <!--<string name="title_activity_fullscreen">FullscreenActivity</string>-->
+    <string name="downloading">Завантаження</string>
+    <string name="download_interrupted">Завантаження перервано</string>
+    <string name="downloaded">Завантажено</string>
+
+    <string name="connection_failed">Не вдалося під\'єднатися</string>
+
 </resources>
