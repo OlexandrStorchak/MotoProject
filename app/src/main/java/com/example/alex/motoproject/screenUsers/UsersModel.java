@@ -72,19 +72,19 @@ public class UsersModel implements UsersMvp.PresenterToModel,
     @Override
     public void onUsersAdded(List<User> users) {
         for (User user : users) {
-            if (!isUserValid(user)) {
-                continue;
-            }
+            if (!isUserValid(user)) continue;
+
             List<User> list = mUsers.get(user.getRelation());
-            if (list != null) {
-                list.add(user);
-            } else {
+            if (list == null) {
                 List<User> newList = new ArrayList<>();
                 newList.add(user);
                 mUsers.put(user.getRelation(), newList);
                 mPresenter.onAddNewSection(user.getRelation());
+                mPresenter.onUserAdded(user);
+            } else if (!list.contains(user)) {
+                list.add(user);
+                mPresenter.onUserAdded(user);
             }
-            mPresenter.onUserAdded(user);
         }
     }
 
@@ -93,38 +93,56 @@ public class UsersModel implements UsersMvp.PresenterToModel,
         mPresenter.onNoUsers();
     }
 
-    @Override
-    public boolean hasUser(String uidToCheck, String relation) {
-        List<User> list = mUsers.get(relation);
-
-        if (list == null) {
-            return false;
-        }
-
-        for (User user : list) {
-            if (user.getUid().equals(uidToCheck)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+//    @Override
+//    public boolean hasUser(String uidToCheck, String relation) {
+//        List<User> list = mUsers.get(relation);
+//
+//        if (list == null) {
+//            return false;
+//        }
+//
+//        for (User user : list) {
+//            if (user.getUid().equals(uidToCheck)) {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
 
     @Override
     public void onUserAdded(User user) {
-        if (!isUserValid(user)) {
-            return;
-        }
+        if (!isUserValid(user)) return;
+
         List<User> list = mUsers.get(user.getRelation());
-        if (list != null) {
-            list.add(user);
-        } else {
+        if (list == null) { //the first user in a section, create the section and add him to it
             List<User> newList = new ArrayList<>();
             newList.add(user);
             mUsers.put(user.getRelation(), newList);
             mPresenter.onAddNewSection(user.getRelation());
+            mPresenter.onUserAdded(user);
+        } else { //search for a user with the same id
+            for (int i = 0; i < list.size(); i++) {
+                User iteratedUser = list.get(i);
+                if (iteratedUser.getUid().equals(user.getUid())) { //found the user with the same id
+                    if (!iteratedUser.getName().equals(user.getName()) ||
+                            !iteratedUser.getAvatar().equals(user.getAvatar()) ||
+                            !iteratedUser.getStatus().equals(user.getStatus())) {
+                        //Update the user in the list, if he has new data that can be showed
+                        //These are values that are used to show the user in the RecyclerView
+                        list.set(i, user);
+                        mPresenter.onUserRemoved(iteratedUser);
+                        mPresenter.onUserAdded(user);
+                        return;
+                    } else { //no differences, skip
+                        return;
+                    }
+                }
+            }
+            //No user with such id, add him to the list
+            list.add(user);
+            mPresenter.onUserAdded(user);
         }
-        mPresenter.onUserAdded(user);
     }
 
     private boolean isUserValid(User user) {
