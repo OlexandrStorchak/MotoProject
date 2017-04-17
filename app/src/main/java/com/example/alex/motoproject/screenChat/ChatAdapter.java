@@ -21,16 +21,9 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<ChatMessage> mMessages;
     private Context mContext;
 
-    //    private static final int STATIC_MAP_WIDTH = 500;
-//    private static final int STATIC_MAP_HEIGHT = 310;
-    private int mStaticMapWidth;
-    private int mStaticMapHeight;
 
-
-    ChatAdapter(List<ChatMessage> messages, int maxImageWidth, int maxImageHeight) {
+    ChatAdapter(List<ChatMessage> messages) {
         mMessages = messages;
-        mStaticMapWidth = maxImageWidth;
-        mStaticMapHeight = maxImageHeight;
     }
 
     @Override
@@ -94,6 +87,11 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         BaseChatItemHolder baseHolder = (BaseChatItemHolder) holder;
         baseHolder.setUserAvatarViewOnClickListener(uid);
+
+//        if (name == null) {
+//            return;
+//        }
+
         baseHolder.setName(name);
         baseHolder.setAvatar(avatarRef, mContext);
         baseHolder.setSendTime(sendTime);
@@ -105,12 +103,11 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 break;
             case TYPE_MAP:
                 ChatMapHolder mapHolder = (ChatMapHolder) holder;
-                mapHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location,
-                        mStaticMapWidth, mStaticMapHeight), mContext);
-                mapHolder.setStaticMapOnClickListener(location);
+                mapHolder.setStaticMap(mContext, location);
                 break;
         }
     }
+
 
     private void bindMessageOwn(RecyclerView.ViewHolder holder, int position) {
         ChatMessage message = mMessages.get(position);
@@ -128,9 +125,7 @@ class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 break;
             case TYPE_MAP_OWN:
                 ChatMapHolder mapHolder = (ChatMapHolder) holder;
-                mapHolder.setStaticMap(StaticMapHelper.createStaticMapLink(location,
-                        mStaticMapWidth, mStaticMapHeight), mContext);
-                mapHolder.setStaticMapOnClickListener(location);
+                mapHolder.setStaticMap(mContext, location);
                 break;
         }
     }

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.alex.motoproject.screenMap.ScreenMapFragment">
+    tools:context="com.example.alex.motoproject.screenMap.MapFragment">
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/map"
@@ -17,10 +17,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:background="@mipmap/ic_sos"
+        android:background="@drawable/ic_help"
         android:visibility="gone"
         app:fabSize="normal"
         app:layout_anchorGravity="bottom|right|end" />
-
 
 </android.support.design.widget.CoordinatorLayout>

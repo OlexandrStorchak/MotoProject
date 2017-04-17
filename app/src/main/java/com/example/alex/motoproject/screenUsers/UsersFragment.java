@@ -3,14 +3,13 @@ package com.example.alex.motoproject.screenUsers;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,13 +21,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.example.alex.motoproject.DaggerPresenterComponent;
-import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.dagger.DaggerPresenterComponent;
+import com.example.alex.motoproject.dagger.PresenterModule;
 import com.example.alex.motoproject.event.OpenMapEvent;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
-import com.example.alex.motoproject.firebase.Constants;
-import com.example.alex.motoproject.util.CropCircleTransformation;
+import com.example.alex.motoproject.firebase.FirebaseConstants;
+import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
+import com.example.alex.motoproject.transformation.GlideCircleTransform;
+import com.example.alex.motoproject.util.DimensHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -42,9 +43,10 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.Section;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
-import static com.facebook.login.widget.ProfilePictureView.TAG;
+import static com.example.alex.motoproject.util.ArgKeys.SEARCH;
 
-public class UsersFragment extends Fragment implements UsersMvp.PresenterToView {
+public class UsersFragment extends FragmentWithRetainInstance
+        implements UsersMvp.PresenterToView {
     private static final String LIST_TYPE_KEY = "listType";
     public SectionedRecyclerViewAdapter mAdapter = new SectionedRecyclerViewAdapter() {
         @Override
@@ -54,48 +56,67 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     };
     @Inject
     UsersMvp.ViewToPresenter mPresenter;
+
+    private RecyclerView mRecyclerView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SearchView mSearchView;
-    private RecyclerView mRecyclerView;
+
+    private String mSearchViewQuery;
+
+    private View mEmptyView;
+    private RecyclerView.AdapterDataObserver mDataObserver =
+            new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onChanged() { //Show custom View if no children in RecyclerView
+                    mPresenter.onItemCountChanged(mAdapter.getItemCount());
+                }
+            };
+
+    private boolean mDestroyed;
 
     public UsersFragment() {
 
     }
 
-    //    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        outState.putParcelable(RECYCLER_VIEW_SCROLL,
-//                layoutManager.onSaveInstanceState());
-//    }
+    @Override
+    public boolean isDestroyed() {
+        return mDestroyed;
+    }
 
-//    @Override
-//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-//        super.onViewStateRestored(savedInstanceState);
-//        if (savedInstanceState == null) {
-//            return;
-//        }
-//        layoutManager.onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_VIEW_SCROLL));
-//    }
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState == null) return;
+        mSearchViewQuery = savedInstanceState.getString(SEARCH);
 
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        LinearLayoutManager manager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
-//        outState.putInt(RECYCLER_VIEW_SCROLL, manager.findFirstVisibleItemPosition());
-//    }
-//
-//    @Override
-//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-//        super.onViewStateRestored(savedInstanceState);
-//        if (savedInstanceState == null) {
-//            return;
-//        }
-//        LinearLayoutManager manager = (LinearLayoutManager) mRecyclerView.getLayoutManager();
-//        manager.scrollToPosition(savedInstanceState.getInt(RECYCLER_VIEW_SCROLL));
-//        // TODO: 27.03.2017 split methods for loading and setting the listener to users and do not
-//        // TODO: 27.03.2017 load users twice after onViewStateRestored so it was be possible to scroll
-//    }
+        mPresenter = (UsersMvp.ViewToPresenter) getRetainData();
+        if (mPresenter == null) {
+            injectThis();
+        }
+        mPresenter.onViewAttached(UsersFragment.this);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        setRetainData(mPresenter);
+        if (mSearchView != null) outState.putString(SEARCH, mSearchView.getQuery().toString());
+    }
+
+    @Override
+    public String getDataTag() {
+        return String.valueOf(getListType());
+    }
+
+    public void showEmptyView() {
+        mRecyclerView.setVisibility(View.GONE);
+        mEmptyView.setVisibility(View.VISIBLE);
+    }
+
+    public void hideEmptyView() {
+        mRecyclerView.setVisibility(View.VISIBLE);
+        mEmptyView.setVisibility(View.GONE);
+    }
 
     private void setupSwipeRefreshLayout() {
         mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
@@ -112,6 +133,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void onStop() {
+        mAdapter.unregisterAdapterDataObserver(mDataObserver);
         mPresenter.onStop();
         super.onStop();
     }
@@ -139,6 +161,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void onStart() {
+        mAdapter.registerAdapterDataObserver(mDataObserver);
         mPresenter.onStart();
         super.onStart();
     }
@@ -150,6 +173,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         final MenuItem searchItem = menu.findItem(R.id.search_users);
         mSearchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        mSearchView.setInputType(InputType.TYPE_CLASS_TEXT);
 
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -163,19 +187,32 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                 return false;
             }
         });
+        if (mSearchViewQuery != null && !mSearchViewQuery.equals("")) {
+            mSearchView.setQuery(mSearchViewQuery, true);
+            mSearchView.setIconified(false);
+        } else {
+            MenuItemCompat.collapseActionView(searchItem);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
+
+        if (savedInstanceState == null) {
+            injectThis();
+        }
+
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_users_online, container, false);
+    }
+
+    private void injectThis() {
         DaggerPresenterComponent.builder()
                 .presenterModule(new PresenterModule(this))
                 .build()
                 .inject(this);
-
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_users_online, container, false);
     }
 
     @Override
@@ -189,6 +226,7 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
             mAdapter.setHasStableIds(true);
         }
 
+        mEmptyView = view.findViewById(R.id.view_empty);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.navigation_friends_list_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext()) {
             @Override
@@ -199,6 +237,8 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(mAdapter);
+
+        mDestroyed = false;
     }
 
     @Override
@@ -229,9 +269,11 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         mAdapter.removeAllSections();
         mPresenter = null;
+        mDestroyed = true;
+        mSearchViewQuery = null;
+        super.onDestroyView();
     }
 
     @Override
@@ -249,29 +291,22 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
     @Override
     public void setSearchViewIconified(boolean iconified) {
+        mSearchView.setQuery("", false);
         mSearchView.setIconified(iconified);
     }
-
 
     @Override
     public void setupFriendsList() {
         //Make pending friends section always show on top
         String title = getContext().getString(R.string.title_pending_friends);
         PendingFriendSection pfs = new PendingFriendSection(title);
-        mAdapter.addSection(Constants.RELATION_PENDING, pfs);
+        mAdapter.addSection(FirebaseConstants.RELATION_PENDING, pfs);
     }
 
     @Override
     public void addUser(User user) {
         UsersSection section = (UsersSection) mAdapter.getSection(user.getRelation());
-        if (hasUserRequiredData(user)) {
-            section.addUser(user);
-        }
-    }
-
-    private boolean hasUserRequiredData(User user) {
-        return user != null && user.getName() != null
-                && user.getUid() != null && user.getAvatar() != null;
+        section.addUser(user);
     }
 
     @Override
@@ -290,16 +325,15 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
     public void addNewSection(String relation) {
         String title;
         switch (relation) {
-            case Constants.RELATION_PENDING:
+            case FirebaseConstants.RELATION_PENDING:
                 //Pending friends section was added earlier to appear on top
                 break;
-            case Constants.RELATION_FRIEND:
+            case FirebaseConstants.RELATION_FRIEND:
                 title = getContext().getString(R.string.title_friends);
                 mAdapter.addSection(relation, new UsersSection(title));
                 break;
             default:
-                Section section = new UsersSection(null);
-                mAdapter.addSection(relation, section);
+                mAdapter.addSection(relation, new UsersSection(null));
                 break;
         }
     }
@@ -371,8 +405,6 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         private void addUser(User user) {
             mUsers.add(user);
-            Log.d(TAG, "addUser: " + user.getName() + " " + user.getUid());
-            mPresenter.onUserListUpdate();
         }
 
         private void addUsers(List<User> users) {
@@ -431,27 +463,31 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
 
         @Override
         public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
-            UserViewHolder userViewHolder = (UserViewHolder) holder;
-            User user = mUsers.get(position);
+            final UserViewHolder userViewHolder = (UserViewHolder) holder;
+            final User user = mUsers.get(position);
 
             userViewHolder.name.setText(user.getName());
 
-            Glide.with(userViewHolder.avatar.getContext())
-                    .load(user.getAvatar())
-//                    .dontAnimate()
-                    .override(userViewHolder.avatar.getMaxWidth(),
-                            userViewHolder.avatar.getMaxHeight())
-                    .transform(new CropCircleTransformation(getContext()))
-                    .into(userViewHolder.avatar);
+            DimensHelper.getScaledAvatar(user.getAvatar(),
+                    userViewHolder.avatar.getWidth(), new DimensHelper.AvatarRefReceiver() {
+                        @Override
+                        public void onRefReady(String ref) {
+                            Glide.with(userViewHolder.avatar.getContext())
+                                    .load(ref)
+                                    .override(userViewHolder.avatar.getMaxWidth(),
+                                            userViewHolder.avatar.getMaxHeight())
+                                    .transform(new GlideCircleTransform(getContext()))
+                                    .into(userViewHolder.avatar);
 
-//            Picasso.with(userViewHolder.avatar.getContext())
-//                    .load(user.getAvatar())
-//                    .resize(userViewHolder.avatar.getMaxWidth(),
-//                            userViewHolder.avatar.getMaxHeight())
-//                    .centerCrop()
-//                    .transform(new CircleTransform())
-//                    .into(userViewHolder.avatar);
-            if (user.getStatus() != null && user.getStatus().equals(Constants.STATUS_PUBLIC)) {
+                        }
+
+                        @Override
+                        public void onError() {
+
+                        }
+                    });
+
+            if (user.getStatus() != null && user.getStatus().equals(FirebaseConstants.STATUS_PUBLIC)) {
                 userViewHolder.mapCur.setVisibility(View.VISIBLE);
             } else {
                 userViewHolder.mapCur.setVisibility(View.GONE);
@@ -468,9 +504,9 @@ public class UsersFragment extends Fragment implements UsersMvp.PresenterToView 
                 super(view);
                 rootView = view;
 
-                avatar = (ImageView) view.findViewById(R.id.friends_list_ava);
-                name = (TextView) view.findViewById(R.id.userName);
-                mapCur = (ImageView) view.findViewById(R.id.friends_list_map_icon);
+                avatar = (ImageView) view.findViewById(R.id.users_avatar);
+                name = (TextView) view.findViewById(R.id.users_name);
+                mapCur = (ImageView) view.findViewById(R.id.users_map_button);
 
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override

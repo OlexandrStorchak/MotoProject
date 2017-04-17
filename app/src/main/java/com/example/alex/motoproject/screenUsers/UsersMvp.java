@@ -18,6 +18,10 @@ public interface UsersMvp {
         void onUserFriendshipDeclined(String uid);
 
         void onUserListUpdate();
+
+        void onViewAttached(UsersMvp.PresenterToView presenterToView);
+
+        void onItemCountChanged(int itemCount);
     }
 
     interface PresenterToView {
@@ -30,6 +34,10 @@ public interface UsersMvp {
         void changeUser(User user);
 
         void removeUser(User user);
+
+        void showEmptyView();
+
+        void hideEmptyView();
 
         void clearUsers();
 
@@ -44,6 +52,8 @@ public interface UsersMvp {
         void setSearchViewIconified(boolean iconified);
 
         int getListType();
+
+        boolean isDestroyed();
     }
 
     interface PresenterToModel {
@@ -55,13 +65,13 @@ public interface UsersMvp {
 
         void unregisterFriendsListener();
 
-        void clearUsers();
-
         void setRelationToUser(String uid, String relation);
 
         void setUserRelation(String uid, String relation);
 
         Map<String, List<User>> filterUsers(String query);
+
+        boolean isUserListEmpty();
     }
 
     interface ModelToPresenter {
@@ -72,5 +82,7 @@ public interface UsersMvp {
         void onUserChanged(User user);
 
         void onUserRemoved(User user);
+
+        void onNoUsers();
     }
 }

@@ -10,16 +10,18 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
+import com.example.alex.motoproject.transformation.GlideCircleTransform;
 import com.example.alex.motoproject.util.ArgKeys;
-import com.example.alex.motoproject.util.CircleTransform;
-import com.squareup.picasso.Picasso;
+import com.example.alex.motoproject.util.DimensHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
 public class MapUserDetailsDialogFragment extends DialogFragment {
 
+    private ImageView mAvatarView;
     private String mUid;
 
     @NonNull
@@ -27,13 +29,29 @@ public class MapUserDetailsDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View view = View.inflate(getContext(), R.layout.fragment_details_user_map, null);
         TextView nameView = (TextView) view.findViewById(R.id.name);
-        ImageView avatarView = (ImageView) view.findViewById(R.id.avatar);
+        mAvatarView = (ImageView) view.findViewById(R.id.avatar);
 
         Bundle args = getArguments();
 
+        DimensHelper.getScaledAvatar(args.getString(ArgKeys.KEY_AVATAR_REF),
+                mAvatarView.getMaxWidth(), new DimensHelper.AvatarRefReceiver() {
+                    @Override
+                    public void onRefReady(String ref) {
+                        Glide.with(getContext()).load(ref)
+                                .override(mAvatarView.getMaxWidth(), mAvatarView.getMaxHeight())
+                                .centerCrop()
+                                .transform(new GlideCircleTransform(getContext()))
+                                .into(mAvatarView);
+                    }
+
+                    @Override
+                    public void onError() {
+
+                    }
+                });
+
         mUid = args.getString(ArgKeys.KEY_UID);
         String name = args.getString(ArgKeys.KEY_NAME);
-        String avatarRef = args.getString(ArgKeys.KEY_AVATAR_REF);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -46,11 +64,6 @@ public class MapUserDetailsDialogFragment extends DialogFragment {
         });
 
         nameView.setText(name);
-        Picasso.with(getContext()).load(avatarRef)
-                .resize(avatarView.getMaxWidth(), avatarView.getMaxHeight())
-                .centerCrop()
-                .transform(new CircleTransform())
-                .into(avatarView);
 
         return builder.create();
     }

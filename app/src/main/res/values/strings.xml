@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">MotoProject</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open">Відкрити шторку</string>
+    <string name="navigation_drawer_close">Закрити шторку</string>
 
     <string name="menu_navi_tittle_maps">Мапа</string>
 
@@ -36,13 +36,12 @@
     <string name="enter_password">Введіть пароль</string>
     <string name="less_6_chars">Пароль коротший за 6 символів</string>
     <string name="avatar">Аватар</string>
-    <string name="pass_not_match">mPassword mismatch</string>
+    <string name="pass_not_match">Паролі не збігаються</string>
     <string name="who_is_online">Хто онлайн</string>
     <string name="hint_chat">Введіть повідомлення…</string>
 
     <string name="facebook">Facebook</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="button_send_description">Наділати повідомлення</string>
     <string name="button_share_location_description">Надіслати місцезнаходження</string>
     <string name="map_cur_description">Місцезнаходження</string>
@@ -68,6 +67,7 @@
     <string name="decline">Відхилити</string>
     <string name="switch_off">Вимкнути</string>
     <string name="to_profile">До профілю</string>
+    <string name="auth_error">Сталася неочікувана помилка. Спробуйте ще раз</string>
 
     <string-array name="profile_spinner_set_gps_visibility">
         <item>Всім</item>
@@ -75,11 +75,11 @@
         <item>SOS</item>
         <item>Нікому</item>
     </string-array>
+
     <string name="title_pending_friends">Пропозиції</string>
     <string name="title_friends">Друзі</string>
     <string name="filter_title_chat">Фільтр</string>
     <string name="km">км</string>
-    <string name="km10">10 кілометрів</string>
     <string name="km20">20 км</string>
     <string name="off">Вимкнено</string>
 
@@ -88,9 +88,34 @@
         <item>Середня</item>
         <item>Низька</item>
     </string-array>
+
     <string name="chat_location_limit_preferences">ChatLimitPref</string>
-    <integer name="chat_location_limit_default">0</integer>
     <string name="chat_location_no_current_user_location">Поділіться координатами, щоб фільтрація запрацювала</string>
     <string name="stop_location_service_button_tittle">Приїхали</string>
     <string name="start_location_service_button_title">Поїхали</string>
+    <string name="description_logo">Логотип</string>
+    <string name="description_avatar">Аватар</string>
+    <string name="description_edit">Редагувати</string>
+    <string name="description_save">Зберегти</string>
+    <string name="nobody_here">Тут нікого нема :(</string>
+
+    <string name="name">Ім\'я</string>
+    <string name="nick_name">Нікнейм</string>
+    <string name="email">Імейл</string>
+    <string name="motorcycle">Мотоцикл</string>
+    <string name="about">Про себе</string>
+
+    <string name="title_activity_login">Логін</string>
+
+    <string name="confirm_by_email">Підтвердте реєстрацію по імейлу</string>
+    <string name="notification_tittle_need_help">Потрібна допомога!</string>
+
+    <string name="sos_sent">Запит про допомогу надіслано!</string>
+
+    <string name="downloading">Завантаження</string>
+    <string name="download_interrupted">Завантаження перервано</string>
+    <string name="downloaded">Завантажено</string>
+
+    <string name="connection_failed">Не вдалося під\'єднатися</string>
+
 </resources>

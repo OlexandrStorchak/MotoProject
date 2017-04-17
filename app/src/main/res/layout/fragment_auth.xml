@@ -1,105 +1,95 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey500a2"
     android:gravity="bottom"
     android:orientation="vertical"
-    tools:context="com.example.alex.motoproject.screenLogin.ScreenLoginFragment">
+    tools:context="com.example.alex.motoproject.screenLogin.LoginFragment">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="top"
-        android:layout_weight="0.7">
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="70dp"
+        android:layout_marginStart="70dp"
+        android:gravity="center"
+        android:orientation="vertical">
 
         <ImageView
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:layout_gravity="center"
-            android:background="@drawable/engine_icon3" />
+            android:background="@drawable/app_logo"
+            android:contentDescription="@string/description_logo" />
 
-    </FrameLayout>
 
+        <ProgressBar
+            android:id="@+id/auth_progress_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="100dp"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:visibility="gone" />
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <LinearLayout
+        <EditText
+            android:id="@+id/auth_email"
+            style="@style/MyColors"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:hint="@string/hint_e_mail"
+            android:inputType="textEmailAddress"
+            android:visibility="gone" />
 
-            <ProgressBar
-                android:id="@+id/auth_progress_bar"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="100dp"
-                android:layout_height="0dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:visibility="gone" />
+        <EditText
+            android:id="@+id/auth_pass"
+            style="@style/MyColors"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:hint="@string/hint_pass"
+            android:inputType="textPassword"
+            android:visibility="gone" />
 
-            <EditText
-                android:id="@+id/auth_email"
-                style="@style/MyColors"
-                android:layout_width="200dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
-                android:hint="@string/hint_e_mail"
-                android:inputType="textEmailAddress"
-                android:visibility="gone" />
+        <Button
+            android:id="@+id/auth_btn_ok"
+            style="@style/MyButtonCustom"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:text="@string/login" />
 
-            <EditText
-                android:id="@+id/auth_pass"
-                style="@style/MyColors"
-                android:layout_width="200dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
-                android:hint="@string/hint_pass"
-                android:inputType="textPassword"
-                android:visibility="gone" />
+        <Button
+            android:id="@+id/auth_btn_sign_in"
+            style="@style/MyButtonCustom"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:text="@string/sign_up" />
 
-            <Button
-                android:id="@+id/auth_btn_ok"
-                style="@style/MyButtonCustom"
-                android:layout_width="200dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
-                android:text="@string/login" />
+        <Button
+            android:id="@+id/auth_btn_google_sign_in"
+            style="@style/MyButtonCustom"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:text="@string/google" />
 
-            <Button
-                android:id="@+id/auth_btn_sign_in"
-                style="@style/MyButtonCustom"
-                android:layout_width="200dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
-                android:text="@string/sign_up" />
+        <Button
+            android:id="@+id/auth_btn_facebook_sign_in"
+            style="@style/MyButtonCustom"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/facebook" />
+    </LinearLayout>
+</ScrollView>
 
-            <Button
-                android:id="@+id/auth_btn_google_sign_in"
-                style="@style/MyButtonCustom"
-                android:layout_width="200dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
-                android:text="@string/google" />
-
-            <Button
-                android:id="@+id/auth_btn_facebook_sign_in"
-                style="@style/MyButtonCustom"
-                android:layout_width="200dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:text="@string/facebook" />
-        </LinearLayout>
-    </ScrollView>
-</LinearLayout>

@@ -2,6 +2,7 @@ package com.example.alex.motoproject.screenChat;
 
 import android.content.Context;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
@@ -22,31 +23,43 @@ class ChatMapHolder extends BaseChatItemHolder {
         super(itemView);
         mStaticMap = (ImageView) itemView.findViewById(R.id.chat_message_map);
         mProgressBar = (ProgressBar) itemView.findViewById(R.id.chat_message_progressbar);
-    }
-//
-//    public void setName(String name) {
-//        super.setName(name);
-//    }
-//
-//    void setSendTime(String dateTime) {
-//        super.setSendTime(dateTime);
-//    }
 
-    void setStaticMap(String mapLink, Context ctx) {
-        Picasso.with(ctx).load(mapLink).into(mStaticMap, new Callback() {
-            @Override
-            public void onSuccess() {
-                mProgressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onError() {
-                mProgressBar.setVisibility(View.GONE);
-            }
-        });
+        mStaticMap.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.INVISIBLE);
     }
 
-    void setStaticMapOnClickListener(final LatLng latLng) {
+    void setStaticMap(final Context context, final LatLng location) {
+        mStaticMap.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        mStaticMap.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                        mProgressBar.getLayoutParams().height = mStaticMap.getWidth() / 2;
+
+                        mStaticMap.setVisibility(View.VISIBLE);
+                        mProgressBar.setVisibility(View.VISIBLE);
+
+                        Picasso.with(context)
+                                .load(StaticMapHelper.createStaticMapLink(
+                                        location, mStaticMap.getWidth(), mStaticMap.getWidth() / 2))
+                                .into(mStaticMap, new Callback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        mProgressBar.setVisibility(View.GONE);
+                                        setStaticMapOnClickListener(location);
+                                    }
+
+                                    @Override
+                                    public void onError() {
+                                        mProgressBar.setVisibility(View.GONE);
+                                    }
+                                });
+                    }
+                });
+    }
+
+    private void setStaticMapOnClickListener(final LatLng latLng) {
         mStaticMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

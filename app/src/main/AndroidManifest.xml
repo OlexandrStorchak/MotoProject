@@ -7,17 +7,17 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:name=".App"
+        android:name=".app.App"
         android:allowBackup="true"
-        android:icon="@drawable/engine_icon4"
+        android:icon="@mipmap/app_icon"
         android:label="@string/app_name"
         android:persistent="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".mainActivity.MainActivity"
+            android:name=".screenMain.MainActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".mainActivity.MainActivity"
+            android:parentActivityName=".screenMain.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -26,33 +26,34 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".screenLogin.LoginActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_login"
+            android:theme="@style/FullscreenTheme" />
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB0f8qAQ8OBaEF1Gg9Q_M4Lf2ZUA9xK7ko" />
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="647757becea17f1ddb1aa8d150365eeb3029cd47" />
-
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="647757becea17f1ddb1aa8d150365eeb3029cd47" />
 
         <service
-            android:name=".service.LocationListenerService"
+            android:name=".locationService.LocationService"
             android:enabled="true"
             android:exported="false" />
-
         <service
-            android:name=".service.MainService"
+            android:name=".mainService.MainService"
             android:enabled="true"
             android:exported="false" />
 

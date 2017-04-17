@@ -1,6 +1,6 @@
 package com.example.alex.motoproject.screenUsers;
 
-import com.example.alex.motoproject.firebase.Constants;
+import com.example.alex.motoproject.firebase.FirebaseConstants;
 
 import java.lang.ref.WeakReference;
 
@@ -50,7 +50,6 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
                 break;
         }
         getView().notifyDataSetChanged();
-        mModel.clearUsers();
     }
 
     @Override
@@ -61,16 +60,16 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     @Override
     public void onRefreshSwipeLayout() {
         onStop();
+        getView().setSearchViewIconified(true);
         getView().clearUsers();
         getView().disableRefreshingSwipeLayout();
-        getView().setSearchViewIconified(true);
         onStart();
     }
 
     @Override
     public void onUserFriendshipAccepted(String uid) {
-        mModel.setRelationToUser(uid, Constants.RELATION_FRIEND);
-        mModel.setUserRelation(uid, Constants.RELATION_FRIEND);
+        mModel.setRelationToUser(uid, FirebaseConstants.RELATION_FRIEND);
+        mModel.setUserRelation(uid, FirebaseConstants.RELATION_FRIEND);
     }
 
     @Override
@@ -84,8 +83,25 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     }
 
     @Override
+    public void onViewAttached(UsersMvp.PresenterToView view) {
+        mView = new WeakReference<>(view);
+    }
+
+    @Override
+    public void onItemCountChanged(int recyclerViewItems) {
+        if (recyclerViewItems > 0 && !mModel.isUserListEmpty()) {
+            getView().hideEmptyView();
+        } else {
+            getView().showEmptyView();
+        }
+
+    }
+
+    @Override
     public void onUserAdded(User user) {
+        if (getView().isDestroyed()) return;
         getView().addUser(user);
+        onUserListUpdate();
     }
 
     @Override
@@ -99,7 +115,13 @@ public class UsersPresenter implements UsersMvp.ViewToPresenter, UsersMvp.ModelT
     }
 
     @Override
+    public void onNoUsers() {
+        getView().showEmptyView();
+    }
+
+    @Override
     public void onAddNewSection(String relation) {
+        if (getView().isDestroyed()) return;
         getView().addNewSection(relation);
     }
 }

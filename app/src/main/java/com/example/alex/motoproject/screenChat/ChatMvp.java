@@ -1,6 +1,7 @@
 package com.example.alex.motoproject.screenChat;
 
-import android.view.View;
+import com.example.alex.motoproject.event.GpsStatusChangedEvent;
+import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ public interface ChatMvp {
 
         void onClickShareLocationButton();
 
-        void onTouchRecyclerView(View view);
+        void onTouchRecyclerView();
 
         void onRefreshSwipeLayout();
 
@@ -22,6 +23,12 @@ public interface ChatMvp {
         void onViewCreated();
 
         void onDestroyView();
+
+        void onViewAttached(PresenterToView presenterToView);
+
+        void onGpsStateChanged(GpsStatusChangedEvent event);
+
+        void onClickChatDialogFragment(OnClickChatDialogFragmentEvent event);
     }
 
     interface PresenterToView {
@@ -33,7 +40,7 @@ public interface ChatMvp {
 
         void cleanupEditText();
 
-        void hideKeyboard(View view);
+        void hideKeyboard();
 
         void updateMessage(int position);
 
@@ -47,9 +54,9 @@ public interface ChatMvp {
 
         void enableSwipeLayout(boolean enable);
 
-        void disableShareLocationButton();
+        void hideShareLocationButton();
 
-        void enableShareLocationButton();
+        void showShareLocationButton();
 
         int getLastCompletelyVisibleItemPosition();
 
@@ -62,6 +69,8 @@ public interface ChatMvp {
         void setupAll();
 
         void showToast(int stringId);
+
+        boolean isLocationServiceOn();
     }
 
     interface PresenterToModel {
@@ -76,8 +85,6 @@ public interface ChatMvp {
         List<ChatMessage> getMessages();
 
         void fetchOlderChatMessages();
-
-        void fetchDataForLocationShare();
 
         void filterChatToDistance(int meters);
     }

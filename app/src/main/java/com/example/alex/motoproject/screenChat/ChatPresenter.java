@@ -1,15 +1,12 @@
 package com.example.alex.motoproject.screenChat;
 
-import android.view.View;
-
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.ConfirmShareLocationInChatEvent;
 import com.example.alex.motoproject.event.GpsStatusChangedEvent;
 import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
-import com.example.alex.motoproject.event.ShareLocationInChatAllowedEvent;
+import com.example.alex.motoproject.util.TextUtil;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.lang.ref.WeakReference;
 
@@ -36,7 +33,7 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
 
     @Override
     public void onEditTextChanged(CharSequence charSequence) {
-        if (charSequence.length() > 0 && !charSequence.toString().matches("\\s+")) {
+        if (TextUtil.hasText(charSequence.toString())) {
             getView().enableSendButton();
         } else {
             getView().disableSendButton();
@@ -45,9 +42,7 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
 
     @Override
     public void onClickSendButton(String msg) {
-        msg = msg.trim().replaceAll(" +", " ");
-        msg = msg.replaceAll("\\n+", "\n");
-        mModel.sendChatMessage(msg);
+        mModel.sendChatMessage(TextUtil.trim(msg));
         getView().scrollToPosition(mModel.getMessagesSize());
         getView().cleanupEditText();
     }
@@ -58,8 +53,8 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
     }
 
     @Override
-    public void onTouchRecyclerView(View view) {
-        getView().hideKeyboard(view);
+    public void onTouchRecyclerView() {
+        getView().hideKeyboard();
     }
 
     private void registerChatMessagesListener() {
@@ -100,6 +95,11 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
     @Override
     public void onDestroyView() {
         unregisterChatMessagesListener();
+    }
+
+    @Override
+    public void onViewAttached(ChatMvp.PresenterToView presenterToView) {
+        mView = new WeakReference<>(presenterToView);
     }
 
     private void setChatFiltering(int limit) {
@@ -149,22 +149,17 @@ public class ChatPresenter implements ChatMvp.ViewToPresenter, ChatMvp.ModelToPr
         getView().showToast(R.string.chat_location_no_current_user_location);
     }
 
-    @Subscribe(sticky = true)
+    @Override
     public void onGpsStateChanged(GpsStatusChangedEvent event) {
         if (event.isGpsOn()) {
-            getView().enableShareLocationButton();
+            if (getView().isLocationServiceOn()) getView().showShareLocationButton();
         } else {
-            getView().disableShareLocationButton();
+            getView().hideShareLocationButton();
         }
     }
 
-    @Subscribe
-    public void onShareLocationInChatAllowed(ShareLocationInChatAllowedEvent event) {
-        mModel.fetchDataForLocationShare();
-    }
-
-    @Subscribe
-    public void OnClickChatDialogFragment(OnClickChatDialogFragmentEvent event) {
+    @Override
+    public void onClickChatDialogFragment(OnClickChatDialogFragmentEvent event) {
         setChatFiltering(event.getDistanceLimit());
         resetChat();
     }

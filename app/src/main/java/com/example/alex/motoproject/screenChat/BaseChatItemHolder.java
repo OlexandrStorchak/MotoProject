@@ -6,10 +6,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.alex.motoproject.R;
 import com.example.alex.motoproject.event.ShowUserProfileEvent;
-import com.example.alex.motoproject.util.CircleTransform;
-import com.squareup.picasso.Picasso;
+import com.example.alex.motoproject.transformation.GlideCircleTransform;
+import com.example.alex.motoproject.util.DimensHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -34,9 +35,24 @@ class BaseChatItemHolder extends RecyclerView.ViewHolder {
         mSendTime.setText(dateTime);
     }
 
-    void setAvatar(String avatarRef, Context ctx) {
-        Picasso.with(ctx).load(avatarRef).fit().centerCrop()
-                .transform(new CircleTransform()).into(mUserAvatarView);
+    void setAvatar(final String avatarRef, final Context ctx) {
+        if (avatarRef == null) return;
+
+        Glide.with(ctx).load(avatarRef)
+                .transform(new GlideCircleTransform(ctx)).into(mUserAvatarView);
+        DimensHelper.getScaledAvatar(avatarRef,
+                mUserAvatarView.getWidth(), new DimensHelper.AvatarRefReceiver() {
+                    @Override
+                    public void onRefReady(String ref) {
+                        Glide.with(ctx).load(ref)
+                                .transform(new GlideCircleTransform(ctx)).into(mUserAvatarView);
+                    }
+
+                    @Override
+                    public void onError() {
+
+                    }
+                });
     }
 
     void setUserAvatarViewOnClickListener(final String uid) {

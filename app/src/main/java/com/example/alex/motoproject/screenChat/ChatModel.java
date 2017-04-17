@@ -1,8 +1,7 @@
 package com.example.alex.motoproject.screenChat;
 
-import com.example.alex.motoproject.App;
+import com.example.alex.motoproject.app.App;
 import com.example.alex.motoproject.firebase.FirebaseDatabaseHelper;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -10,10 +9,9 @@ import java.util.List;
 import javax.inject.Inject;
 
 public class ChatModel implements ChatMvp.PresenterToModel,
-        FirebaseDatabaseHelper.ChatUpdateReceiver,
-        FirebaseDatabaseHelper.UsersLocationReceiver {
+        FirebaseDatabaseHelper.ChatUpdateReceiver {
     @Inject
-    FirebaseDatabaseHelper mFirebaseHelper;
+    FirebaseDatabaseHelper mFirebaseDatabaseHelper;
     private ChatMvp.ModelToPresenter mPresenter;
     private LinkedList<ChatMessage> mMessages = new LinkedList<>();
 
@@ -24,12 +22,12 @@ public class ChatModel implements ChatMvp.PresenterToModel,
 
     @Override
     public void registerChatMessagesListener() {
-        mFirebaseHelper.registerChatMessagesListener(this);
+        mFirebaseDatabaseHelper.registerChatMessagesListener(this);
     }
 
     @Override
     public void unregisterChatMessagesListener() {
-        mFirebaseHelper.unregisterChatMessagesListener();
+        mFirebaseDatabaseHelper.unregisterChatMessagesListener();
     }
 
     @Override
@@ -44,13 +42,13 @@ public class ChatModel implements ChatMvp.PresenterToModel,
 
     @Override
     public void fetchOlderChatMessages() {
-        mFirebaseHelper.fetchOlderChatMessages(this);
+        mFirebaseDatabaseHelper.fetchOlderChatMessages(this);
         mMessages.size();
     }
 
     @Override
     public void sendChatMessage(String msg) {
-        mFirebaseHelper.sendChatMessage(msg);
+        mFirebaseDatabaseHelper.sendChatMessage(msg);
     }
 
     @Override
@@ -84,18 +82,18 @@ public class ChatModel implements ChatMvp.PresenterToModel,
     }
 
     @Override
-    public void fetchDataForLocationShare() {
-        mFirebaseHelper.getCurrentUserLocation(this);
+    public boolean hasThisMessage(String messageId) {
+        for (ChatMessage message : mMessages) {
+            if (message.getMessageId().equals(messageId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public void filterChatToDistance(int meters) {
-        mFirebaseHelper.fetchUsersLocations();
-        mFirebaseHelper.setCloseDistance(meters);
-    }
-
-    @Override
-    public void onCurrentUserLocationReady(LatLng latLng) {
-        mFirebaseHelper.sendChatMessage(latLng);
+        mFirebaseDatabaseHelper.fetchUsersLocations();
+        mFirebaseDatabaseHelper.setCloseDistance(meters);
     }
 }

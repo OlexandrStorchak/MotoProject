@@ -4,7 +4,6 @@ package com.example.alex.motoproject.screenChat;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,19 +18,23 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.example.alex.motoproject.DaggerPresenterComponent;
-import com.example.alex.motoproject.PresenterModule;
 import com.example.alex.motoproject.R;
+import com.example.alex.motoproject.app.App;
+import com.example.alex.motoproject.dagger.DaggerPresenterComponent;
+import com.example.alex.motoproject.dagger.PresenterModule;
 import com.example.alex.motoproject.dialog.ChatLocLimitDialogFragment;
-import com.example.alex.motoproject.mainActivity.MainActivity;
-import com.example.alex.motoproject.util.DimensHelper;
+import com.example.alex.motoproject.event.GpsStatusChangedEvent;
+import com.example.alex.motoproject.event.OnClickChatDialogFragmentEvent;
+import com.example.alex.motoproject.retainFragment.FragmentWithRetainInstance;
+import com.example.alex.motoproject.screenMain.MainActivity;
+import com.example.alex.motoproject.util.KeyboardUtil;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
@@ -39,10 +42,12 @@ import javax.inject.Inject;
 
 import static com.example.alex.motoproject.util.ArgKeys.MESSAGE_TEXT;
 
-public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
+public class ChatFragment extends FragmentWithRetainInstance implements ChatMvp.PresenterToView {
     private static final int MESSAGE_MAX_CHARS = 200;
+
     @Inject
     ChatMvp.ViewToPresenter mPresenter;
+
     private RecyclerView mRecyclerView;
     private EditText mEditText;
     private ImageButton mSendButton;
@@ -56,37 +61,30 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     @Override
+    public String getDataTag() {
+        return ChatPresenter.class.getName();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        DaggerPresenterComponent.builder()
-                .presenterModule(new PresenterModule(this))
-                .build()
-                .inject(this);
+        if (savedInstanceState == null) {
+            DaggerPresenterComponent.builder()
+                    .presenterModule(new PresenterModule(this))
+                    .build()
+                    .inject(this);
+        }
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_chat, container, false);
     }
 
     @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState == null) {
-            return;
-        }
-        mEditText.setText(savedInstanceState.getString(MESSAGE_TEXT));
-//        mRecyclerView.getLayoutManager()
-//                .onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_VIEW_SCROLL));
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        setRetainData(mPresenter);
         outState.putString(MESSAGE_TEXT, mEditText.getText().toString());
-//        outState.putParcelable(RECYCLER_VIEW_SCROLL,
-//                mRecyclerView.getLayoutManager().onSaveInstanceState());
-        // TODO: 27.03.2017 call to Linear Layout Manager (!) does not help,
     }
-
 
     @Override
     public void onStart() {
@@ -101,7 +99,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     @Override
     public void onDestroyView() {
         mPresenter.onDestroyView();
-        EventBus.getDefault().unregister(mPresenter);
+        EventBus.getDefault().unregister(this);
         mPresenter = null;
         super.onDestroyView();
     }
@@ -116,11 +114,16 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.container_chat_swipe);
 
         disableSendButton();
-        disableShareLocationButton();
 
-        EventBus.getDefault().register(mPresenter);
+        EventBus.getDefault().register(this);
 
         setHasOptionsMenu(true);
+
+        if (savedInstanceState != null) {
+            mPresenter = (ChatMvp.ViewToPresenter) getRetainData();
+            mPresenter.onViewAttached(ChatFragment.this);
+            mEditText.setText(savedInstanceState.getString(MESSAGE_TEXT));
+        }
 
         mPresenter.onViewCreated();
     }
@@ -139,6 +142,11 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         Toast.makeText(getContext(), getContext().getString(stringId), Toast.LENGTH_LONG).show();
     }
 
+    @Override
+    public boolean isLocationServiceOn() {
+        return ((App) getContext().getApplicationContext()).isLocationListenerServiceOn();
+    }
+
     private void setupSwipeRefreshLayout() {
         mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
@@ -152,7 +160,6 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     private void setupLocationSharing() {
-//        disableShareLocationButton();
         mShareLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -190,7 +197,6 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     @Override
     public void scrollToPosition(int position) {
         mRecyclerView.smoothScrollToPosition(position);
-
     }
 
     @Override
@@ -222,17 +228,15 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
         mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                mPresenter.onTouchRecyclerView(view);
+                mPresenter.onTouchRecyclerView();
                 return false;
             }
         });
     }
 
     @Override
-    public void hideKeyboard(View view) {
-        InputMethodManager imm = (InputMethodManager)
-                getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    public void hideKeyboard() {
+        KeyboardUtil.hideKeyboard(getActivity());
     }
 
     @Override
@@ -248,10 +252,8 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
 
     @Override
     public void showLocLimitDialog() {
-//        ((MainActivity) getActivity()).replaceFragment(new ChatLocLimitDialogFragment());
         ((MainActivity) getActivity()).showDialogFragment(new ChatLocLimitDialogFragment(),
                 ChatLocLimitDialogFragment.class.getSimpleName());
-//         ChatLocLimitDialogFragment dialogFragment = new ChatLocLimitDialogFragment();
     }
 
     @Override
@@ -277,9 +279,7 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
 
     @Override
     public void setAdapter(List<ChatMessage> messages) {
-        int maxImageWidth = DimensHelper.getScreenWidth(getContext());
-        int maxImageHeight = (int) Math.round(maxImageWidth * 0.6);
-        mAdapter = new ChatAdapter(messages, maxImageWidth, maxImageHeight);
+        mAdapter = new ChatAdapter(messages);
     }
 
     @Override
@@ -307,19 +307,25 @@ public class ChatFragment extends Fragment implements ChatMvp.PresenterToView {
     }
 
     @Override
-    public void disableShareLocationButton() {
+    public void hideShareLocationButton() {
         if (mShareLocationButton == null) {
             return; //fragment might not be created and not have a layout inflated
         }
-        mShareLocationButton.setEnabled(false);
-        mShareLocationButton.setColorFilter(ResourcesCompat
-                .getColor(getResources(), R.color.grey500, null));
+        mShareLocationButton.setVisibility(View.GONE);
     }
 
     @Override
-    public void enableShareLocationButton() {
-        mShareLocationButton.setEnabled(true);
-        mShareLocationButton.setColorFilter(ResourcesCompat
-                .getColor(getResources(), R.color.blue900, null));
+    public void showShareLocationButton() {
+        mShareLocationButton.setVisibility(View.VISIBLE);
+    }
+
+    @Subscribe(sticky = true)
+    public void onGpsStateChanged(GpsStatusChangedEvent event) {
+        mPresenter.onGpsStateChanged(event);
+    }
+
+    @Subscribe
+    public void OnClickChatDialogFragment(OnClickChatDialogFragmentEvent event) {
+        mPresenter.onClickChatDialogFragment(event);
     }
 }
